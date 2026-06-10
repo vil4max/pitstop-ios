@@ -3,16 +3,17 @@ import SwiftData
 
 enum NotificationRefresh {
     private static let defaultsMigrationKey = "notificationPreferencesDefaultsApplied"
+    @MainActor private static var odometerRescheduleTask: Task<Void, Never>?
 
     @MainActor
     static func apply(
         context: ModelContext,
-        visits: [ServiceVisitEntity],
         scheduler: NotificationScheduling = NotificationScheduler()
     ) async {
         let settings = ensureSettings(in: context)
         let vehicle = (try? context.fetch(FetchDescriptor<VehicleConfig>()))?.first
         let insurance = (try? context.fetch(FetchDescriptor<InsurancePolicyEntity>()))?.first
+        let visits = (try? context.fetch(FetchDescriptor<ServiceVisitEntity>())) ?? []
         guard let vehicle else { return }
         applyDefaultNotificationPreferencesIfNeeded(settings: settings, context: context)
         await NotificationBadge.clear()
@@ -25,6 +26,24 @@ enum NotificationRefresh {
             insurance: insurance,
             lastOilOdometer: lastOil
         )
+    }
+
+    @MainActor
+    static func updateOdometer(vehicle: VehicleConfig, to odometerKm: Int, context: ModelContext) {
+        vehicle.odometerKm = odometerKm
+        vehicle.odometerUpdatedAt = Date()
+        try? context.save()
+        rescheduleAfterOdometerChange(context: context)
+    }
+
+    @MainActor
+    static func rescheduleAfterOdometerChange(context: ModelContext) {
+        odometerRescheduleTask?.cancel()
+        odometerRescheduleTask = Task {
+            try? await Task.sleep(for: .milliseconds(350))
+            guard !Task.isCancelled else { return }
+            await apply(context: context)
+        }
     }
 
     @MainActor

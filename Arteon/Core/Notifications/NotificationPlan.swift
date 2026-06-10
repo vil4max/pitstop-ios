@@ -27,56 +27,119 @@ struct PlannedNotification: Identifiable, Sendable, Equatable {
     let relatedOdometerKm: Int?
 }
 
-enum NotificationScheduleSection: Int, CaseIterable, Sendable {
+enum NotificationReminderTopic: String, CaseIterable, Sendable, Identifiable {
     case odometer
-    case service
+    case oilChange
+    case maintenancePlan
+    case seasonalTires
     case insurance
+
+    var id: String { rawValue }
+
+    var categories: Set<NotificationCategory> {
+        switch self {
+        case .odometer:
+            [.monthlyOdometer]
+        case .oilChange:
+            [.oilDue, .oilWindowEnd, .oilPlan30, .oilPlan7, .oilPlan1]
+        case .maintenancePlan:
+            [.plan20000, .plan22000]
+        case .seasonalTires:
+            [.seasonalSpring, .seasonalAutumn]
+        case .insurance:
+            [.insurance30, .insurance7, .insurance1]
+        }
+    }
 
     var titleKey: String {
         switch self {
-        case .odometer: "notifications.schedule.section.odometer"
-        case .service: "notifications.schedule.section.service"
-        case .insurance: "notifications.schedule.section.insurance"
+        case .odometer: "notifications.topic.odometer"
+        case .oilChange: "notifications.topic.oil"
+        case .maintenancePlan: "notifications.topic.maintenance"
+        case .seasonalTires: "notifications.topic.seasonal"
+        case .insurance: "notifications.topic.insurance"
         }
     }
 
-    var categories: [NotificationCategory] {
+    var symbol: String {
         switch self {
-        case .odometer: [.monthlyOdometer]
-        case .service: [
-            .oilDue,
-            .oilWindowEnd,
-            .plan20000,
-            .plan22000,
-            .oilPlan30,
-            .oilPlan7,
-            .oilPlan1,
-            .seasonalSpring,
-            .seasonalAutumn,
-        ]
-        case .insurance: [.insurance30, .insurance7, .insurance1]
+        case .odometer: "gauge.with.dots.needle.67percent"
+        case .oilChange: "drop.fill"
+        case .maintenancePlan: "wrench.and.screwdriver.fill"
+        case .seasonalTires: "snowflake"
+        case .insurance: "shield.checkered"
         }
     }
 
-    func items(in planned: [PlannedNotification]) -> [PlannedNotification] {
-        let allowed = Set(categories)
-        return planned
-            .filter { allowed.contains($0.category) }
-            .sorted { $0.fireDate < $1.fireDate }
+    var sortOrder: Int {
+        switch self {
+        case .odometer: 0
+        case .oilChange: 1
+        case .maintenancePlan: 2
+        case .seasonalTires: 3
+        case .insurance: 4
+        }
+    }
+
+    func aboutText(from items: [PlannedNotification]) -> String {
+        switch self {
+        case .odometer:
+            return LocalizedFormat.string("notifications.topic.odometer.about")
+        case .oilChange:
+            let windowStart = items.first(where: { $0.category == .oilDue })?.relatedOdometerKm
+            let windowEnd = items.first(where: { $0.category == .oilWindowEnd })?.relatedOdometerKm
+            if let windowStart, let windowEnd {
+                return LocalizedFormat.string("notifications.topic.oil.aboutWindow", windowStart, windowEnd)
+            }
+            if let windowStart {
+                return LocalizedFormat.string("notifications.schedule.detail.oilKmTarget", windowStart)
+            }
+            return LocalizedFormat.string("notifications.schedule.detail.oil")
+        case .maintenancePlan:
+            let kms = Array(Set(items.compactMap(\.relatedOdometerKm))).sorted()
+            guard let first = kms.first else {
+                return LocalizedFormat.string("notifications.topic.maintenance.about")
+            }
+            if kms.count == 1 {
+                return LocalizedFormat.string("notifications.topic.maintenance.aboutSingleKm", first)
+            }
+            return LocalizedFormat.string("notifications.topic.maintenance.aboutKm", first, kms[1])
+        case .seasonalTires:
+            return LocalizedFormat.string("notifications.topic.seasonal.about")
+        case .insurance:
+            if let date = items.compactMap(\.relatedDate).first {
+                return LocalizedFormat.string("notifications.schedule.detail.insuranceExpiry", LocalizedFormat.date(date))
+            }
+            return LocalizedFormat.string("insurance.title")
+        }
+    }
+}
+
+struct NotificationReminderGroup: Identifiable, Sendable {
+    let topic: NotificationReminderTopic
+    let items: [PlannedNotification]
+
+    var id: String { topic.id }
+
+    var repeatsAnnuallyOrMonthly: Bool {
+        items.contains(where: \.repeats)
+    }
+}
+
+enum NotificationReminderGrouper {
+    static func groups(from planned: [PlannedNotification]) -> [NotificationReminderGroup] {
+        NotificationReminderTopic.allCases.compactMap { topic in
+            let items = planned
+                .filter { topic.categories.contains($0.category) }
+                .sorted { $0.fireDate < $1.fireDate }
+            guard !items.isEmpty else { return nil }
+            return NotificationReminderGroup(topic: topic, items: items)
+        }
+        .sorted { $0.topic.sortOrder < $1.topic.sortOrder }
     }
 }
 
 extension NotificationCategory {
-    var scheduleSection: NotificationScheduleSection {
-        switch self {
-        case .monthlyOdometer: .odometer
-        case .oilDue, .oilWindowEnd, .plan20000, .plan22000, .oilPlan30, .oilPlan7, .oilPlan1, .seasonalSpring,
-             .seasonalAutumn:
-            .service
-        case .insurance30, .insurance7, .insurance1: .insurance
-        }
-    }
-
     func scheduleTitle(relatedOdometerKm: Int? = nil) -> String {
         switch self {
         case .monthlyOdometer:
@@ -192,6 +255,88 @@ extension NotificationCategory {
         case .oilPlan7: 7
         case .oilPlan1: 1
         default: 0
+        }
+    }
+
+    var navigationDestination: AppDestination {
+        switch self {
+        case .monthlyOdometer:
+            return .reminderTopic(.odometer)
+        case .oilDue, .oilWindowEnd, .oilPlan30, .oilPlan7, .oilPlan1:
+            return .reminderTopic(.oilChange)
+        case .plan20000, .plan22000:
+            return .reminderTopic(.maintenancePlan)
+        case .seasonalSpring, .seasonalAutumn:
+            return .reminderTopic(.seasonalTires)
+        case .insurance30, .insurance7, .insurance1:
+            return .reminderTopic(.insurance)
+        }
+    }
+
+    func pushTitle(relatedOdometerKm: Int? = nil) -> String {
+        switch self {
+        case .monthlyOdometer:
+            return LocalizedFormat.string("notification.push.odometer.title")
+        case .oilDue, .oilWindowEnd, .oilPlan30, .oilPlan7, .oilPlan1:
+            return LocalizedFormat.string("notification.push.oil.title")
+        case .plan20000, .plan22000:
+            guard let relatedOdometerKm else {
+                return LocalizedFormat.string("notification.push.service.title")
+            }
+            return LocalizedFormat.string("notification.push.service.titleKm", relatedOdometerKm)
+        case .seasonalSpring, .seasonalAutumn:
+            return LocalizedFormat.string("notification.push.seasonal.title")
+        case .insurance30, .insurance7, .insurance1:
+            return LocalizedFormat.string("notification.push.insurance.title")
+        }
+    }
+
+    func pushBody(fireDate: Date, relatedDate: Date?, relatedOdometerKm: Int?) -> String {
+        let days = MaintenanceEngine.daysUntil(fireDate)
+        switch self {
+        case .monthlyOdometer:
+            return LocalizedFormat.string("notification.push.odometer.body", max(days, 0))
+        case .oilDue:
+            return LocalizedFormat.string("notification.push.oil.body.due")
+        case .oilWindowEnd:
+            return LocalizedFormat.string("notification.push.oil.body.windowEnd")
+        case .oilPlan30, .oilPlan7, .oilPlan1:
+            return LocalizedFormat.string("notification.push.oil.body.plan", oilPlanDaysBefore)
+        case .plan20000, .plan22000:
+            guard let relatedOdometerKm else {
+                return LocalizedFormat.string("notification.push.service.body")
+            }
+            return LocalizedFormat.string("notification.push.service.bodyKm", relatedOdometerKm)
+        case .seasonalSpring:
+            return LocalizedFormat.string("notification.push.seasonal.body.summer", max(days, 0))
+        case .seasonalAutumn:
+            return LocalizedFormat.string("notification.push.seasonal.body.winter", max(days, 0))
+        case .insurance30, .insurance7, .insurance1:
+            return LocalizedFormat.string("notification.push.insurance.body", insuranceDaysBefore)
+        }
+    }
+
+    func scheduleMomentLabel(relatedOdometerKm: Int? = nil) -> String {
+        switch self {
+        case .monthlyOdometer:
+            return LocalizedFormat.string("notifications.topic.moment.monthly")
+        case .oilDue:
+            return LocalizedFormat.string("notifications.topic.moment.oilDue")
+        case .oilWindowEnd:
+            return LocalizedFormat.string("notifications.topic.moment.oilWindowEnd")
+        case .plan20000, .plan22000:
+            guard let relatedOdometerKm else {
+                return LocalizedFormat.string("notifications.topic.moment.maintenance")
+            }
+            return LocalizedFormat.string("notifications.topic.moment.maintenanceKm", relatedOdometerKm)
+        case .oilPlan30, .oilPlan7, .oilPlan1:
+            return LocalizedFormat.string("notifications.topic.moment.beforeEstimate", oilPlanDaysBefore)
+        case .seasonalSpring:
+            return LocalizedFormat.string("notifications.topic.moment.seasonalSpring")
+        case .seasonalAutumn:
+            return LocalizedFormat.string("notifications.topic.moment.seasonalAutumn")
+        case .insurance30, .insurance7, .insurance1:
+            return LocalizedFormat.string("notifications.topic.moment.beforeExpiry", insuranceDaysBefore)
         }
     }
 }

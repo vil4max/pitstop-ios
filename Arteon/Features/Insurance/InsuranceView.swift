@@ -24,7 +24,6 @@ struct InsuranceView: View {
                         ))
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        MonospacedUAH(value: policy.premiumUah)
                     }
                 }
                 VWCard {
@@ -70,7 +69,6 @@ struct InsuranceView: View {
 struct InsuranceEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    @Query private var visits: [ServiceVisitEntity]
     @Bindable var policy: InsurancePolicyEntity
     @State private var validFrom: Date
     @State private var validUntil: Date
@@ -98,7 +96,7 @@ struct InsuranceEditSheet: View {
                         policy.validFrom = validFrom
                         policy.validUntil = validUntil
                         try? modelContext.save()
-                        Task { await NotificationRefresh.apply(context: modelContext, visits: visits) }
+                        Task { await NotificationRefresh.apply(context: modelContext) }
                         TapFeedback.success()
                         dismiss()
                     }

@@ -14,12 +14,11 @@ final class MaintenancePlanDecodingTests: XCTestCase {
         XCTAssertEqual(plan.calculation.regularService.nextWindowToKm, 18_000)
     }
 
-    func test_dealerStatement_totalMatchesVisitsSum() throws {
+    func test_dealerStatement_hasThreeArteonVisits() throws {
         let url = Bundle.main.url(forResource: "maintenance-plan", withExtension: "json")!
         let plan = try JSONDecoder().decode(MaintenancePlanDocument.self, from: Data(contentsOf: url))
-        let sum = plan.dealerStatement.arteonVisits.map(\.totalUah).reduce(0, +)
-        XCTAssertEqual(plan.dealerStatement.arteonVisitsTotalUah, sum)
-        XCTAssertEqual(sum, 55_650)
+        XCTAssertEqual(plan.dealerStatement.arteonVisits.count, 3)
+        XCTAssertFalse(plan.dealerStatement.otherPayments.isEmpty)
     }
 }
 
@@ -30,40 +29,6 @@ final class UpgradesDecodingTests: XCTestCase {
         XCTAssertEqual(doc.schemaVersion, 2)
         XCTAssertEqual(doc.items.filter { $0.status == .done }.count, 4)
         XCTAssertEqual(doc.items.filter { $0.status == .planned }.count, 3)
-    }
-
-    func test_decodeUpgrades_totalPlannedUsdIs5500() throws {
-        let url = Bundle.main.url(forResource: "upgrades", withExtension: "json")!
-        let doc = try JSONDecoder().decode(UpgradesDocument.self, from: Data(contentsOf: url))
-        let snapshots = doc.items.map {
-            UpgradeItemSnapshot(
-                id: $0.id,
-                title: $0.title,
-                costUah: $0.costUah,
-                currencyCode: $0.currencyCode ?? "UAH",
-                status: $0.status,
-                completedDate: $0.completedDate.flatMap(SeedDateParser.date(from:)),
-                priority: $0.priority
-            )
-        }
-        XCTAssertEqual(UpgradeTotals.totalPlannedUsd(items: snapshots), 5_500)
-    }
-
-    func test_decodeUpgrades_totalSpentIs83000() throws {
-        let url = Bundle.main.url(forResource: "upgrades", withExtension: "json")!
-        let doc = try JSONDecoder().decode(UpgradesDocument.self, from: Data(contentsOf: url))
-        let snapshots = doc.items.map {
-            UpgradeItemSnapshot(
-                id: $0.id,
-                title: $0.title,
-                costUah: $0.costUah,
-                currencyCode: $0.currencyCode ?? "UAH",
-                status: $0.status,
-                completedDate: $0.completedDate.flatMap(SeedDateParser.date(from:)),
-                priority: $0.priority
-            )
-        }
-        XCTAssertEqual(UpgradeTotals.totalSpentUah(items: snapshots), 83_000)
     }
 }
 

@@ -15,6 +15,7 @@
 		36C69B864028191B1406BC39 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42348FF26E9475B55C5F8BCE /* AppConfiguration.swift */; };
 		37691135F082B1C9D7CDBBD8 /* MyCarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99356E069AD6D5BE1730CA0F /* MyCarView.swift */; };
 		3F7B03529C8497A35176B723 /* NotificationPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D170CF707859B5038B94910 /* NotificationPlan.swift */; };
+		BF60718293A4B5C6D7E8FA1 /* NotificationPermissionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF718293A4B5C6D7E8FA0B2 /* NotificationPermissionStatus.swift */; };
 		4341C53B2CBF4556778E24CF /* upgrades.json in Resources */ = {isa = PBXBuildFile; fileRef = 7ED52AB828ABA7DB657FC534 /* upgrades.json */; };
 		501AE9AD2FD9F7DF00A09D0D /* arteon.png in Resources */ = {isa = PBXBuildFile; fileRef = 501AE9AC2FD9F7DF00A09D0D /* arteon.png */; };
 		51B1D34115233BC17915F5C4 /* MaintenanceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B0D34A2185DAD2FD0A19ED /* MaintenanceEngine.swift */; };
@@ -25,6 +26,9 @@
 		5E1D9073D2919312586FC63C /* InsuranceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA87DA556CA6FC43707CD92 /* InsuranceView.swift */; };
 		64112FC8D90ADEE508674A5E /* ArteonApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6957C89040E33EFBBA019D4 /* ArteonApp.swift */; };
 		6AF9DB48F1988BC88663D95E /* UpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9AB58860CAFA333BD2A4808 /* UpgradeView.swift */; };
+		7A1B2C3D4E5F60718293A4C /* AppNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2C3D4E5F60718293A4B5D /* AppNavigation.swift */; };
+		8C3D4E5F60718293A4B5C6E /* NotificationAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4E5F60718293A4B5C6D7F /* NotificationAppDelegate.swift */; };
+		9E5F60718293A4B5C6D7E8A /* ReminderDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF60718293A4B5C6D7E8F9B /* ReminderDetailView.swift */; };
 		76DF9C78336CF4D2F6FDC716 /* DealerStatementReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411EC3FC9C17A30013649312 /* DealerStatementReader.swift */; };
 		809CBB98401C8C64D1A2C428 /* ServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FFCD15C3888784A9B70488 /* ServiceView.swift */; };
 		944392F7C7B302325D35D87C /* ServiceVisitCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E097E916FF8E974029ACED /* ServiceVisitCompletion.swift */; };
@@ -66,6 +70,7 @@
 		6A28FFFD07AB1F25BA2EF3D1 /* UpgradeTotals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeTotals.swift; sourceTree = "<group>"; };
 		6F948100A44EB2EF196F44CB /* ThemeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeController.swift; sourceTree = "<group>"; };
 		7D170CF707859B5038B94910 /* NotificationPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPlan.swift; sourceTree = "<group>"; };
+		CF718293A4B5C6D7E8FA0B2 /* NotificationPermissionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionStatus.swift; sourceTree = "<group>"; };
 		7ED52AB828ABA7DB657FC534 /* upgrades.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = upgrades.json; sourceTree = "<group>"; };
 		8910C02340ADB9FCABC67E8E /* DecodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodingTests.swift; sourceTree = "<group>"; };
 		8BCD5BC4CDFDF0918087C782 /* Arteon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Arteon.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -74,6 +79,9 @@
 		99356E069AD6D5BE1730CA0F /* MyCarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCarView.swift; sourceTree = "<group>"; };
 		9DD0F5F6E908ECBF4EBA4C66 /* SeedDTOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedDTOs.swift; sourceTree = "<group>"; };
 		A9AB58860CAFA333BD2A4808 /* UpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeView.swift; sourceTree = "<group>"; };
+		8B2C3D4E5F60718293A4B5D /* AppNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNavigation.swift; sourceTree = "<group>"; };
+		9D4E5F60718293A4B5C6D7F /* NotificationAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationAppDelegate.swift; sourceTree = "<group>"; };
+		AF60718293A4B5C6D7E8F9B /* ReminderDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderDetailView.swift; sourceTree = "<group>"; };
 		AA03CE865F8B98A32048EE5F /* EngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineTests.swift; sourceTree = "<group>"; };
 		AD99EC0A55599B2E94AB09B0 /* maintenance-plan.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "maintenance-plan.json"; sourceTree = "<group>"; };
 		B1C2D3E4F5061728394A5B6C /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -133,6 +141,7 @@
 				90E64AB17D3ECF7DC3585082 /* NotificationScheduler.swift */,
 				133F1317F6387621794AE04B /* NotificationRefresh.swift */,
 				7D170CF707859B5038B94910 /* NotificationPlan.swift */,
+				CF718293A4B5C6D7E8FA0B2 /* NotificationPermissionStatus.swift */,
 			);
 			path = Notifications;
 			sourceTree = "<group>";
@@ -250,11 +259,20 @@
 			path = MyCar;
 			sourceTree = "<group>";
 		};
+		C25213E52D115217D491AC8B /* Status */ = {
+			isa = PBXGroup;
+			children = (
+				AF60718293A4B5C6D7E8F9B /* ReminderDetailView.swift */,
+			);
+			path = Status;
+			sourceTree = "<group>";
+		};
 		C3B5A3562B42F86A1D3CBD94 /* Features */ = {
 			isa = PBXGroup;
 			children = (
 				C4299F6F29B637DE0D79738F /* Insurance */,
 				C15213E52D115217D491AC8A /* MyCar */,
+				C25213E52D115217D491AC8B /* Status */,
 				4F3CBFACAEA7C146B6DF9330 /* Service */,
 				5C89E047DF8EBB86FABF6AD6 /* Settings */,
 				863790656AE1DB52B36BF122 /* Upgrade */,
@@ -308,8 +326,10 @@
 			isa = PBXGroup;
 			children = (
 				42348FF26E9475B55C5F8BCE /* AppConfiguration.swift */,
+				8B2C3D4E5F60718293A4B5D /* AppNavigation.swift */,
 				3E4BEF9D6AAE6CBFC6638B34 /* AppTab.swift */,
 				D6957C89040E33EFBBA019D4 /* ArteonApp.swift */,
+				9D4E5F60718293A4B5C6D7F /* NotificationAppDelegate.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -424,8 +444,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				36C69B864028191B1406BC39 /* AppConfiguration.swift in Sources */,
+				7A1B2C3D4E5F60718293A4C /* AppNavigation.swift in Sources */,
 				B3F6ED3703E9C7669ECECEF5 /* AppTab.swift in Sources */,
 				64112FC8D90ADEE508674A5E /* ArteonApp.swift in Sources */,
+				8C3D4E5F60718293A4B5C6E /* NotificationAppDelegate.swift in Sources */,
 				51B1D34115233BC17915F5C4 /* MaintenanceEngine.swift in Sources */,
 				944392F7C7B302325D35D87C /* ServiceVisitCompletion.swift in Sources */,
 				D61CC88C4EFF4239318058EF /* UpgradeTotals.swift in Sources */,
@@ -434,6 +456,7 @@
 				2DA72114F8D214E345948797 /* NotificationScheduler.swift in Sources */,
 				5D665128AFF959DF87C6A561 /* NotificationRefresh.swift in Sources */,
 				3F7B03529C8497A35176B723 /* NotificationPlan.swift in Sources */,
+				BF60718293A4B5C6D7E8FA1 /* NotificationPermissionStatus.swift in Sources */,
 				E3EA7A22055BEB659EED35F4 /* AppModels.swift in Sources */,
 				76DF9C78336CF4D2F6FDC716 /* DealerStatementReader.swift in Sources */,
 				C66382B69FE8E1588F39077D /* PlanSeedImporter.swift in Sources */,
@@ -441,6 +464,7 @@
 				0D28A2FFA0E005395FE87ED0 /* Components.swift in Sources */,
 				5E1D9073D2919312586FC63C /* InsuranceView.swift in Sources */,
 				37691135F082B1C9D7CDBBD8 /* MyCarView.swift in Sources */,
+				9E5F60718293A4B5C6D7E8A /* ReminderDetailView.swift in Sources */,
 				809CBB98401C8C64D1A2C428 /* ServiceView.swift in Sources */,
 				98946140DC61C20B9BFF5A41 /* SettingsView.swift in Sources */,
 				0B7203470EE56BBBEB54E475 /* NotificationScheduleView.swift in Sources */,
@@ -533,7 +557,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDevelopmentRegion = ru;
 				INFOPLIST_KEY_CFBundleDisplayName = "My Arteon";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Choose a photo of your Arteon.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -608,7 +631,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDevelopmentRegion = ru;
 				INFOPLIST_KEY_CFBundleDisplayName = "My Arteon";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Choose a photo of your Arteon.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;

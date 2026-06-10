@@ -3,6 +3,9 @@ import SwiftUI
 
 @main
 struct ArteonApp: App {
+    @UIApplicationDelegateAdaptor(NotificationAppDelegate.self) private var notificationDelegate
+    @State private var navigation = AppNavigationState()
+
     private let container: ModelContainer?
     private let bootstrapError: String?
 
@@ -24,12 +27,21 @@ struct ArteonApp: App {
         WindowGroup {
             if let container {
                 RootView()
+                    .environment(navigation)
                     .modelContainer(container)
+                    .onReceive(NotificationCenter.default.publisher(for: .arteonOpenDestination)) { notification in
+                        guard let destination = notification.object as? AppDestination else { return }
+                        navigation.open(destination)
+                    }
             } else {
                 BootstrapErrorView(message: bootstrapError ?? "unknown")
             }
         }
     }
+}
+
+extension Notification.Name {
+    static let arteonOpenDestination = Notification.Name("arteon.openDestination")
 }
 
 struct BootstrapErrorView: View {
@@ -65,9 +77,9 @@ private struct OptionalLocaleModifier: ViewModifier {
 struct RootView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppNavigationState.self) private var navigation
     @Query private var settingsList: [AppSettingsEntity]
-    @Query private var visits: [ServiceVisitEntity]
-    @State private var selectedTab: AppTab = .myCar
+    @Query private var insurancePolicies: [InsurancePolicyEntity]
     private let themeController = ThemeController()
 
     private var tabBarTint: Color {
@@ -75,7 +87,7 @@ struct RootView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: Bindable(navigation).selectedTab) {
             MyCarView()
                 .tabItem { Label(AppTab.myCar.title, systemImage: AppTab.myCar.symbol) }
                 .tag(AppTab.myCar)
@@ -90,14 +102,25 @@ struct RootView: View {
                 .tag(AppTab.settings)
         }
         .tint(tabBarTint)
-        .onChange(of: selectedTab) { oldTab, newTab in
+        .onChange(of: navigation.selectedTab) { oldTab, newTab in
             guard oldTab != newTab else { return }
             TapFeedback.selection()
         }
         .preferredColorScheme(themeController.preferredScheme(for: settingsList.first?.theme ?? .system))
         .modifier(OptionalLocaleModifier())
+        .sheet(item: Bindable(navigation).presentedDetail) { destination in
+            ReminderDetailView(destination: destination)
+                .environment(navigation)
+        }
+        .sheet(isPresented: Bindable(navigation).showInsurancePolicy) {
+            if let insurance = insurancePolicies.first {
+                NavigationStack {
+                    InsuranceView(policy: insurance)
+                }
+            }
+        }
         .task {
-            await NotificationRefresh.apply(context: modelContext, visits: visits)
+            await NotificationRefresh.apply(context: modelContext)
         }
     }
 }

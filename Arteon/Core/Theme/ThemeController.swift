@@ -52,25 +52,13 @@ extension View {
     func themedSwitchTint(colorScheme: ColorScheme, theme: ThemeController = ThemeController()) -> some View {
         tint(theme.switchTint(for: colorScheme))
     }
-}
 
-struct CurrencyFormat {
-    static func uah(_ value: Int) -> String {
-        formatted(value, suffix: "₴")
-    }
-
-    static func usd(_ value: Int) -> String {
-        formatted(value, prefix: "$")
-    }
-
-    private static func formatted(_ value: Int, prefix: String = "", suffix: String = "") -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = " "
-        let number = formatter.string(from: NSNumber(value: value)) ?? "\(value)"
-        if !prefix.isEmpty {
-            return "\(prefix)\(number)"
-        }
-        return "\(number) \(suffix)"
+    func tabRootScreen(
+        title: LocalizedStringKey,
+        colorScheme: ColorScheme,
+        theme: ThemeController = ThemeController()
+    ) -> some View {
+        background(theme.screenBackground(for: colorScheme))
+            .navigationTitle(title)
     }
 }
