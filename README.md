@@ -60,7 +60,7 @@ Data is simple (scalars + relationships), but SwiftData gives:
 | Tab | Purpose |
 |-----|---------|
 | **My car** | Photo, vehicle info, odometer, pills, Atlant total, insurance link |
-| **Service** | Oil summary, **visit carousel**, task lists, complete visit (with confirmation) |
+| **Service** | Oil summary, **visit carousel**, task lists, slide to complete / reopen last visit |
 | **Upgrade** | Done **83 000 ₴** · planned **$5 500** |
 | **Settings** | Theme, **notification schedule**, iCloud note, disclaimer |
 

@@ -206,19 +206,7 @@ struct MyCarView: View {
     }
 
     private var visitSnapshots: [VisitSnapshot] {
-        visits.map {
-            VisitSnapshot(
-                id: $0.seedId,
-                kind: $0.kind,
-                sortOrder: $0.sortOrder,
-                targetOdometerKm: $0.targetOdometerKm,
-                includesOilChange: $0.includesOilChange,
-                isCompleted: $0.isCompleted,
-                completedOdometer: $0.completedOdometer,
-                windowFromKm: $0.windowFromKm,
-                windowToKm: $0.windowToKm
-            )
-        }
+        visits.map(VisitSnapshot.init(from:))
     }
 
     private func loadPhoto(from item: PhotosPickerItem?) async {

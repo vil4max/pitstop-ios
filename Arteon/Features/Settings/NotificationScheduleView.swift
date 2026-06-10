@@ -77,19 +77,7 @@ struct NotificationScheduleView: View {
 
     private func reloadSchedule() async {
         guard let settings = settingsList.first, let vehicle = vehicles.first else { return }
-        let lastOil = MaintenanceEngine.lastOilChangeOdometer(visits: visits.map {
-            VisitSnapshot(
-                id: $0.seedId,
-                kind: $0.kind,
-                sortOrder: $0.sortOrder,
-                targetOdometerKm: $0.targetOdometerKm,
-                includesOilChange: $0.includesOilChange,
-                isCompleted: $0.isCompleted,
-                completedOdometer: $0.completedOdometer,
-                windowFromKm: $0.windowFromKm,
-                windowToKm: $0.windowToKm
-            )
-        })
+        let lastOil = MaintenanceEngine.lastOilChangeOdometer(visits: visits.map(VisitSnapshot.init(from:)))
         let snapshot = scheduler.pendingPlan(
             settings: settings,
             vehicle: vehicle,
@@ -107,19 +95,7 @@ struct NotificationScheduleView: View {
             return
         }
         guard let vehicle = vehicles.first else { return }
-        let lastOil = MaintenanceEngine.lastOilChangeOdometer(visits: visits.map {
-            VisitSnapshot(
-                id: $0.seedId,
-                kind: $0.kind,
-                sortOrder: $0.sortOrder,
-                targetOdometerKm: $0.targetOdometerKm,
-                includesOilChange: $0.includesOilChange,
-                isCompleted: $0.isCompleted,
-                completedOdometer: $0.completedOdometer,
-                windowFromKm: $0.windowFromKm,
-                windowToKm: $0.windowToKm
-            )
-        })
+        let lastOil = MaintenanceEngine.lastOilChangeOdometer(visits: visits.map(VisitSnapshot.init(from:)))
         try? await scheduler.scheduleAll(
             settings: settings,
             vehicle: vehicle,
