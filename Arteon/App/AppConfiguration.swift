@@ -1,5 +1,6 @@
 import Foundation
 
 enum AppConfiguration {
-    static let forcedLocale = Locale(identifier: "ru")
+    /// Override system language for debugging. `nil` follows the device locale.
+    static let forcedLocale: Locale? = nil
 }

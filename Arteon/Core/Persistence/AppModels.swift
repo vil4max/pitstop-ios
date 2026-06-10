@@ -285,3 +285,30 @@ enum SeedDateParser {
         dayFormatter.date(from: string)
     }
 }
+
+extension VisitSnapshot {
+    init(from visit: ServiceVisitEntity) {
+        self.init(
+            id: visit.seedId,
+            kind: visit.kind,
+            sortOrder: visit.sortOrder,
+            targetOdometerKm: visit.targetOdometerKm,
+            includesOilChange: visit.includesOilChange,
+            isCompleted: visit.isCompleted,
+            completedOdometer: visit.completedOdometer,
+            windowFromKm: visit.windowFromKm,
+            windowToKm: visit.windowToKm
+        )
+    }
+}
+
+extension TaskSnapshot {
+    init(from task: ServiceTaskEntity) {
+        self.init(
+            isMandatory: task.isMandatory,
+            isApplicable: task.isApplicable,
+            isEnabled: task.isEnabled,
+            isDone: task.isDone
+        )
+    }
+}

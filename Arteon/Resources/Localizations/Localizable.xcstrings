@@ -1816,7 +1816,6 @@
       }
     },
     "service.reopenVisit" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1839,30 +1838,28 @@
       }
     },
     "service.reopenVisit.confirm.message" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Completion date and odometer will be cleared. Task checkmarks stay as they are."
+            "value" : "Completion date, odometer, and task checkmarks will be cleared."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Дата и пробег завершения будут сброшены. Отметки задач сохранятся."
+            "value" : "Дата, пробег и отметки задач будут сброшены."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Дату та пробіг завершення буде скинуто. Позначки задач залишаться."
+            "value" : "Дату, пробіг і позначки задач буде скинуто."
           }
         }
       }
     },
     "service.reopenVisit.confirm.title" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

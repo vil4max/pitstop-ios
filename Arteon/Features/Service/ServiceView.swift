@@ -7,6 +7,7 @@ struct ServiceView: View {
     @Query(sort: \ServiceVisitEntity.sortOrder) private var visits: [ServiceVisitEntity]
     @Query private var vehicles: [VehicleConfig]
     @State private var selectedVisitIndex = 0
+    @State private var reopenVisitSeedId: String?
     private let themeController = ThemeController()
 
     private var vehicle: VehicleConfig? { vehicles.first }
@@ -30,6 +31,23 @@ struct ServiceView: View {
             .navigationTitle("tab.service")
             .navigationBarTitleDisplayMode(.large)
             .onAppear(perform: scrollToNearest)
+            .alert("service.reopenVisit.confirm.title", isPresented: Binding(
+                get: { reopenVisitSeedId != nil },
+                set: { if !$0 { reopenVisitSeedId = nil } }
+            )) {
+                Button("service.reopenVisit", role: .destructive) {
+                    if let seedId = reopenVisitSeedId,
+                       let visit = visits.first(where: { $0.seedId == seedId }) {
+                        reopenVisit(visit)
+                    }
+                    reopenVisitSeedId = nil
+                }
+                Button("common.cancel", role: .cancel) {
+                    reopenVisitSeedId = nil
+                }
+            } message: {
+                Text("service.reopenVisit.confirm.message")
+            }
         }
     }
 
@@ -114,11 +132,24 @@ struct ServiceView: View {
             .padding(.top, 4)
             .id(visit.seedId)
         } else if visit.isCompleted {
-            Label("service.visitStatus.completed", systemImage: "checkmark.circle.fill")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Color.green)
-                .frame(maxWidth: .infinity)
+            if canReopenVisit(visit) {
+                Button {
+                    reopenVisitSeedId = visit.seedId
+                } label: {
+                    Label("service.reopenVisit", systemImage: "arrow.uturn.backward.circle")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.hapticPlain)
+                .foregroundStyle(colorScheme == .dark ? Color.white : ThemeColors.brand)
                 .padding(.top, 8)
+            } else {
+                Label("service.visitStatus.completed", systemImage: "checkmark.circle.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.green)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 8)
+            }
         }
     }
 
@@ -153,26 +184,26 @@ struct ServiceView: View {
         return visit.seedId == nextVisitSeedId
     }
 
-    private func canCompleteVisitNow(_ visit: ServiceVisitEntity) -> Bool {
-        guard let vehicle else { return false }
-        return MaintenanceEngine.canCompleteVisitAtOdometer(
-            visit: visitSnapshot(for: visit),
-            odometer: vehicle.odometerKm
-        )
+    private var lastCompletedVisitSeedId: String? {
+        visits
+            .filter(\.isCompleted)
+            .max(by: { $0.sortOrder < $1.sortOrder })?
+            .seedId
     }
 
-    private func visitSnapshot(for visit: ServiceVisitEntity) -> VisitSnapshot {
-        VisitSnapshot(
-            id: visit.seedId,
-            kind: visit.kind,
-            sortOrder: visit.sortOrder,
-            targetOdometerKm: visit.targetOdometerKm,
-            includesOilChange: visit.includesOilChange,
-            isCompleted: visit.isCompleted,
-            completedOdometer: visit.completedOdometer,
-            windowFromKm: visit.windowFromKm,
-            windowToKm: visit.windowToKm
-        )
+    private func canReopenVisit(_ visit: ServiceVisitEntity) -> Bool {
+        visit.isCompleted && visit.seedId == lastCompletedVisitSeedId
+    }
+
+    private func canCompleteVisitNow(_ visit: ServiceVisitEntity) -> Bool {
+        guard let vehicle else { return false }
+        let snapshot = VisitSnapshot(from: visit)
+        return MaintenanceEngine.canCompleteVisitAtOdometer(visit: snapshot, odometer: vehicle.odometerKm)
+            && MaintenanceEngine.canCompleteVisit(tasks: taskSnapshots(for: visit))
+    }
+
+    private func taskSnapshots(for visit: ServiceVisitEntity) -> [TaskSnapshot] {
+        visit.tasks.map(TaskSnapshot.init(from:))
     }
 
     @ViewBuilder
@@ -275,6 +306,13 @@ struct ServiceView: View {
         Task { await NotificationRefresh.apply(context: modelContext, visits: visits) }
     }
 
+    private func reopenVisit(_ visit: ServiceVisitEntity) {
+        ServiceVisitCompletion.reopenVisit(visit)
+        try? modelContext.save()
+        Task { await NotificationRefresh.apply(context: modelContext, visits: visits) }
+        scrollToNearest()
+    }
+
     private func scrollToNearest() {
         guard let vehicle, let nearest = MaintenanceEngine.nearestVisit(visits: visitSnapshots, odometer: vehicle.odometerKm),
               let index = visits.firstIndex(where: { $0.seedId == nearest.id }) else { return }
@@ -282,19 +320,7 @@ struct ServiceView: View {
     }
 
     private var visitSnapshots: [VisitSnapshot] {
-        visits.map {
-            VisitSnapshot(
-                id: $0.seedId,
-                kind: $0.kind,
-                sortOrder: $0.sortOrder,
-                targetOdometerKm: $0.targetOdometerKm,
-                includesOilChange: $0.includesOilChange,
-                isCompleted: $0.isCompleted,
-                completedOdometer: $0.completedOdometer,
-                windowFromKm: $0.windowFromKm,
-                windowToKm: $0.windowToKm
-            )
-        }
+        visits.map(VisitSnapshot.init(from:))
     }
 }
 

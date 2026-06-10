@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Query private var visits: [ServiceVisitEntity]
     @State private var notificationDenied = false
     private let themeController = ThemeController()
+    private let scheduler = NotificationScheduler()
 
     var body: some View {
         NavigationStack {
@@ -76,8 +77,27 @@ struct SettingsView: View {
             set: { newValue in
                 settings[keyPath: keyPath] = newValue
                 try? modelContext.save()
-                Task { await NotificationRefresh.apply(context: modelContext, visits: visits) }
+                Task { await applyNotificationToggleChange(enabled: newValue, settings: settings, keyPath: keyPath) }
             }
         )
+    }
+
+    private func applyNotificationToggleChange(
+        enabled: Bool,
+        settings: AppSettingsEntity,
+        keyPath: ReferenceWritableKeyPath<AppSettingsEntity, Bool>
+    ) async {
+        if enabled {
+            let granted = (try? await scheduler.requestAuthorization()) ?? false
+            if !granted {
+                await MainActor.run {
+                    settings[keyPath: keyPath] = false
+                    try? modelContext.save()
+                    notificationDenied = true
+                }
+                return
+            }
+        }
+        await NotificationRefresh.apply(context: modelContext, visits: visits)
     }
 }

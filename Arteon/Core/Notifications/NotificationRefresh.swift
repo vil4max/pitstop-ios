@@ -55,19 +55,3 @@ enum NotificationRefresh {
         UserDefaults.standard.set(true, forKey: defaultsMigrationKey)
     }
 }
-
-private extension VisitSnapshot {
-    init(from visit: ServiceVisitEntity) {
-        self.init(
-            id: visit.seedId,
-            kind: visit.kind,
-            sortOrder: visit.sortOrder,
-            targetOdometerKm: visit.targetOdometerKm,
-            includesOilChange: visit.includesOilChange,
-            isCompleted: visit.isCompleted,
-            completedOdometer: visit.completedOdometer,
-            windowFromKm: visit.windowFromKm,
-            windowToKm: visit.windowToKm
-        )
-    }
-}

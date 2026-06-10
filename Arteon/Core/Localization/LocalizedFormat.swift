@@ -1,7 +1,7 @@
 import Foundation
 
 enum LocalizedFormat {
-    static var locale: Locale { AppConfiguration.forcedLocale }
+    static var locale: Locale { AppConfiguration.forcedLocale ?? .current }
 
     static func string(_ key: String.LocalizationValue) -> String {
         String(localized: LocalizedStringResource(key, locale: locale))

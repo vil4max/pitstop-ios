@@ -48,6 +48,17 @@ struct BootstrapErrorView: View {
                 .multilineTextAlignment(.center)
         }
         .padding()
+        .modifier(OptionalLocaleModifier())
+    }
+}
+
+private struct OptionalLocaleModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if let locale = AppConfiguration.forcedLocale {
+            content.environment(\.locale, locale)
+        } else {
+            content
+        }
     }
 }
 
@@ -84,7 +95,7 @@ struct RootView: View {
             TapFeedback.selection()
         }
         .preferredColorScheme(themeController.preferredScheme(for: settingsList.first?.theme ?? .system))
-        .environment(\.locale, AppConfiguration.forcedLocale)
+        .modifier(OptionalLocaleModifier())
         .task {
             await NotificationRefresh.apply(context: modelContext, visits: visits)
         }
