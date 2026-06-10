@@ -4,6 +4,7 @@ import SwiftUI
 struct ServiceView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppNavigationState.self) private var navigation
     @Query(sort: \ServiceVisitEntity.sortOrder) private var visits: [ServiceVisitEntity]
     @Query private var vehicles: [VehicleConfig]
     @State private var selectedVisitIndex = 0
@@ -12,25 +13,41 @@ struct ServiceView: View {
 
     private var vehicle: VehicleConfig? { vehicles.first }
 
+    private var selectedVisit: ServiceVisitEntity? {
+        guard visits.indices.contains(selectedVisitIndex) else { return nil }
+        return visits[selectedVisitIndex]
+    }
+
     var body: some View {
         NavigationStack {
-            Group {
-                if visits.isEmpty {
-                    ScrollView {
-                        serviceSummaryContent(for: nil)
-                            .padding(.horizontal)
-                            .padding(.bottom, 40)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    if let vehicle, let lastOil = MaintenanceEngine.lastOilChangeOdometer(visits: visitSnapshots) {
+                        oilSummary(vehicle: vehicle, lastOil: lastOil)
                     }
-                } else {
-                    visitPager
-                        .frame(maxHeight: .infinity)
+                    if !visits.isEmpty {
+                        Text("service.visitsSection")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(.leading, 4)
+                        visitNavigator
+                        if let selectedVisit {
+                            visitPageContent(for: selectedVisit)
+                                .id(selectedVisit.seedId)
+                                .animation(.easeInOut(duration: 0.2), value: selectedVisitIndex)
+                        }
+                    }
                 }
+                .padding()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(themeController.screenBackground(for: colorScheme))
-            .navigationTitle("tab.service")
-            .navigationBarTitleDisplayMode(.large)
-            .onAppear(perform: scrollToNearest)
+            .tabRootScreen(title: "tab.service", colorScheme: colorScheme, theme: themeController)
+            .onAppear {
+                scrollToNearest()
+                focusPendingVisitIfNeeded()
+            }
+            .onChange(of: navigation.serviceVisitSeedId) { _, _ in
+                focusPendingVisitIfNeeded()
+            }
             .alert("service.reopenVisit.confirm.title", isPresented: Binding(
                 get: { reopenVisitSeedId != nil },
                 set: { if !$0 { reopenVisitSeedId = nil } }
@@ -51,40 +68,63 @@ struct ServiceView: View {
         }
     }
 
-    private var visitPager: some View {
-        TabView(selection: $selectedVisitIndex) {
-            ForEach(Array(visits.enumerated()), id: \.element.seedId) { index, visit in
-                ScrollView {
-                    serviceSummaryContent(for: visit)
-                        .padding(.horizontal)
-                        .padding(.top, 8)
-                        .padding(.bottom, 40)
-                }
-                .tag(index)
+    private var visitNavigator: some View {
+        HStack(spacing: 12) {
+            visitStepButton(systemName: "chevron.left", enabled: selectedVisitIndex > 0) {
+                selectedVisitIndex -= 1
+            }
+            Spacer(minLength: 0)
+            Text(LocalizedFormat.string(
+                "service.visitPager.progress",
+                selectedVisitIndex + 1,
+                visits.count
+            ))
+            .font(.subheadline.weight(.semibold))
+            .monospacedDigit()
+            .foregroundStyle(.secondary)
+            Spacer(minLength: 0)
+            visitStepButton(systemName: "chevron.right", enabled: selectedVisitIndex < visits.count - 1) {
+                selectedVisitIndex += 1
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .always))
-        .indexViewStyle(.page(backgroundDisplayMode: .interactive))
-        .onChange(of: selectedVisitIndex) { oldIndex, newIndex in
-            guard oldIndex != newIndex else { return }
+        .padding(.horizontal, 4)
+    }
+
+    private func visitStepButton(
+        systemName: String,
+        enabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
             TapFeedback.selection()
+            action()
+        } label: {
+            Image(systemName: systemName)
+                .font(.body.weight(.semibold))
+                .frame(width: 44, height: 44)
+                .foregroundStyle(navigatorButtonColor(enabled: enabled))
+                .background(navigatorButtonBackground(enabled: enabled))
+                .clipShape(Circle())
         }
+        .buttonStyle(.hapticPlain)
+        .disabled(!enabled)
+    }
+
+    private func navigatorButtonColor(enabled: Bool) -> Color {
+        guard enabled else { return .secondary.opacity(0.35) }
+        return colorScheme == .dark ? .white : ThemeColors.brand
+    }
+
+    private func navigatorButtonBackground(enabled: Bool) -> Color {
+        guard enabled else { return Color.primary.opacity(0.04) }
+        return colorScheme == .dark ? ThemeColors.brand.opacity(0.35) : ThemeColors.brand.opacity(0.12)
     }
 
     @ViewBuilder
-    private func serviceSummaryContent(for visit: ServiceVisitEntity?) -> some View {
+    private func visitPageContent(for visit: ServiceVisitEntity) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            if let vehicle, let lastOil = MaintenanceEngine.lastOilChangeOdometer(visits: visitSnapshots) {
-                oilSummary(vehicle: vehicle, lastOil: lastOil)
-            }
-            if let visit {
-                Text("service.visitsSection")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, 4)
-                visitHeaderPage(visit)
-                visitDetailsBlock(visit)
-            }
+            visitHeaderPage(visit)
+            visitDetailsBlock(visit)
         }
     }
 
@@ -110,14 +150,14 @@ struct ServiceView: View {
     }
 
     private func visitDetailsBlock(_ visit: ServiceVisitEntity) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             let required = visit.tasks.filter { $0.isMandatory && $0.isApplicable }
             let optional = visit.tasks.filter { !$0.isMandatory && $0.isApplicable && $0.isEnabled }
             if !required.isEmpty {
-                taskListCard(title: "service.required", tasks: required, emphasized: true, visit: visit)
+                taskSection(title: "service.required", tasks: required, emphasized: true, visit: visit)
             }
             if !optional.isEmpty {
-                taskListCard(title: "service.optional", tasks: optional, emphasized: false, visit: visit)
+                taskSection(title: "service.optional", tasks: optional, emphasized: false, visit: visit)
             }
             visitActionFooter(visit)
         }
@@ -185,10 +225,7 @@ struct ServiceView: View {
     }
 
     private var lastCompletedVisitSeedId: String? {
-        visits
-            .filter(\.isCompleted)
-            .max(by: { $0.sortOrder < $1.sortOrder })?
-            .seedId
+        MaintenanceEngine.lastCompletedVisit(visits: visitSnapshots)?.id
     }
 
     private func canReopenVisit(_ visit: ServiceVisitEntity) -> Bool {
@@ -199,11 +236,6 @@ struct ServiceView: View {
         guard let vehicle else { return false }
         let snapshot = VisitSnapshot(from: visit)
         return MaintenanceEngine.canCompleteVisitAtOdometer(visit: snapshot, odometer: vehicle.odometerKm)
-            && MaintenanceEngine.canCompleteVisit(tasks: taskSnapshots(for: visit))
-    }
-
-    private func taskSnapshots(for visit: ServiceVisitEntity) -> [TaskSnapshot] {
-        visit.tasks.map(TaskSnapshot.init(from:))
     }
 
     @ViewBuilder
@@ -219,80 +251,58 @@ struct ServiceView: View {
         }
     }
 
+    @ViewBuilder
     private func completedVisitMeta(_ visit: ServiceVisitEntity) -> some View {
-        HStack(spacing: 12) {
-            if let dealer = visit.dealer {
-                Text(dealer)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-            if let cost = visit.costUah {
-                Spacer(minLength: 0)
-                MonospacedUAH(value: cost)
-            }
+        if let dealer = visit.dealer {
+            Text(dealer)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 
-    private func taskListCard(
+    private func taskSection(
         title: LocalizedStringKey,
         tasks: [ServiceTaskEntity],
         emphasized: Bool,
         visit: ServiceVisitEntity
     ) -> some View {
-        VWCard {
-            VStack(alignment: .leading, spacing: 0) {
-                Text(title)
-                    .font(.subheadline.weight(.semibold))
-                    .padding(.bottom, 8)
-                ForEach(Array(tasks.sorted(by: { $0.sortOrder < $1.sortOrder }).enumerated()), id: \.element.seedId) { index, task in
-                    taskRow(task, emphasized: emphasized, visit: visit)
-                    if index < tasks.count - 1 {
-                        Divider()
-                            .padding(.vertical, 6)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.leading, 4)
+            VWCard {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(Array(tasks.sorted(by: { $0.sortOrder < $1.sortOrder }).enumerated()), id: \.element.seedId) { index, task in
+                        taskRow(task, emphasized: emphasized, visit: visit)
+                        if index < tasks.count - 1 {
+                            Divider()
+                                .padding(.vertical, 6)
+                        }
                     }
                 }
             }
         }
     }
 
-    private func isTaskCompleted(_ task: ServiceTaskEntity, visit: ServiceVisitEntity) -> Bool {
-        visit.isCompleted && task.isApplicable
-    }
-
-    @ViewBuilder
     private func taskRow(_ task: ServiceTaskEntity, emphasized: Bool, visit: ServiceVisitEntity) -> some View {
-        let completed = isTaskCompleted(task, visit: visit)
-        if visit.isCompleted || completed {
-            Text(task.title)
-                .font(emphasized ? .body.weight(.semibold) : .body)
-                .foregroundStyle(Color.secondary)
-                .multilineTextAlignment(.leading)
-                .strikethrough(completed, pattern: .solid, color: .secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 10)
-                .opacity(completed ? 0.85 : 1)
-        } else {
-            ThemedToggle(isOn: Binding(
-                get: { task.isDone },
-                set: { newValue in
-                    task.isDone = newValue
-                    if newValue {
-                        task.doneAt = Date()
-                        task.doneOdometer = vehicle?.odometerKm
-                    } else {
-                        task.doneAt = nil
-                        task.doneOdometer = nil
-                    }
-                    try? modelContext.save()
-                }
-            )) {
+        let completed = visit.isCompleted && task.isApplicable
+        return Group {
+            if let key = task.localizedTitleKey {
+                Text(LocalizedStringKey(key))
+            } else {
                 Text(task.title)
-                    .font(emphasized ? .body.weight(.semibold) : .body)
-                    .multilineTextAlignment(.leading)
             }
-            .padding(.vertical, 6)
         }
+            .font(emphasized ? .body.weight(.semibold) : .body)
+            .foregroundStyle(completed ? Color.secondary : Color.primary)
+            .multilineTextAlignment(.leading)
+            .strikethrough(completed, pattern: .solid, color: .secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 10)
+            .opacity(completed ? 0.85 : 1)
     }
 
     private func completeNextVisit(_ visit: ServiceVisitEntity) {
@@ -303,13 +313,13 @@ struct ServiceView: View {
             completedOdometer: vehicle.odometerKm
         )
         try? modelContext.save()
-        Task { await NotificationRefresh.apply(context: modelContext, visits: visits) }
+        Task { await NotificationRefresh.apply(context: modelContext) }
     }
 
     private func reopenVisit(_ visit: ServiceVisitEntity) {
         ServiceVisitCompletion.reopenVisit(visit)
         try? modelContext.save()
-        Task { await NotificationRefresh.apply(context: modelContext, visits: visits) }
+        Task { await NotificationRefresh.apply(context: modelContext) }
         scrollToNearest()
     }
 
@@ -319,59 +329,87 @@ struct ServiceView: View {
         selectedVisitIndex = index
     }
 
+    private func focusPendingVisitIfNeeded() {
+        guard let seedId = navigation.serviceVisitSeedId,
+              let index = visits.firstIndex(where: { $0.seedId == seedId }) else { return }
+        selectedVisitIndex = index
+        navigation.serviceVisitSeedId = nil
+    }
+
     private var visitSnapshots: [VisitSnapshot] {
         visits.map(VisitSnapshot.init(from:))
     }
 }
 
 struct AtlantHistorySheet: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.dismiss) private var dismiss
+    private let themeController = ThemeController()
+
     var body: some View {
         NavigationStack {
-            List {
+            ScrollView {
                 if let statement = try? DealerStatementReader.dealerStatement() {
-                    Section {
-                        ForEach(statement.arteonVisits) { visit in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(visit.serviceDate)
-                                    Text("\(visit.completedOdometerKm) km")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                Spacer()
-                                MonospacedUAH(value: visit.totalUah)
-                            }
-                        }
-                    } header: {
-                        HStack {
-                            Text("atlant.total")
-                            Spacer()
-                            MonospacedUAH(value: statement.arteonVisitsTotalUah)
-                        }
-                    }
-                    if !statement.otherPayments.isEmpty {
-                        Section {
-                            ForEach(statement.otherPayments) { payment in
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text(payment.title)
-                                        Text(payment.date)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(statement.dealer)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(.leading, 4)
+                        VWCard {
+                            VStack(spacing: 0) {
+                                ForEach(Array(statement.arteonVisits.enumerated()), id: \.element.id) { index, visit in
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(formattedServiceDate(visit.serviceDate))
+                                        Text(mileageLabel(for: visit))
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                     }
-                                    Spacer()
-                                    MonospacedUAH(value: payment.amountUah)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.vertical, 10)
+                                    if index < statement.arteonVisits.count - 1 {
+                                        Divider()
+                                            .overlay(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08))
+                                    }
                                 }
                             }
-                        } header: {
-                            Text("atlant.otherPayments")
                         }
+                    }
+                    .padding()
+                }
+            }
+            .background(themeController.screenBackground(for: colorScheme))
+            .navigationTitle("atlant.history")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("common.close") {
+                        TapFeedback.light()
+                        dismiss()
                     }
                 }
             }
-            .navigationTitle("atlant.history")
         }
     }
+
+    private func formattedServiceDate(_ isoDate: String) -> String {
+        guard let date = Self.isoDateFormatter.date(from: isoDate) else { return isoDate }
+        return LocalizedFormat.date(date)
+    }
+
+    private func mileageLabel(for visit: DealerVisitDTO) -> String {
+        if visit.odometerIsEstimate == true {
+            return LocalizedFormat.string("atlant.history.odometerApprox", visit.completedOdometerKm)
+        }
+        return LocalizedFormat.string("service.visitTargetKm", visit.completedOdometerKm)
+    }
+
+    private static let isoDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
 }
 
 extension ServiceVisitEntity: Identifiable {

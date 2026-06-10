@@ -3,7 +3,7 @@
   "items": [
     {
       "id": "upg-done-tint",
-      "title": "Тонировка лобового и передней полусферы",
+      "title": "Тонировка",
       "costUah": 11000,
       "status": "done",
       "completedDate": "2024-07-01",
@@ -11,7 +11,7 @@
     },
     {
       "id": "upg-done-mats",
-      "title": "Коврики в салон (передние)",
+      "title": "Коврики в салон",
       "costUah": 7000,
       "status": "done",
       "completedDate": "2026-05-01",
@@ -27,7 +27,7 @@
     },
     {
       "id": "upg-done-winter-tires",
-      "title": "Зимняя резина (комплект)",
+      "title": "Зимняя резина",
       "costUah": 40000,
       "status": "done",
       "completedDate": "2024-10-01",

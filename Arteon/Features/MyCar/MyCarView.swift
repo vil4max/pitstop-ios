@@ -1,4 +1,3 @@
-import PhotosUI
 import SwiftData
 import SwiftUI
 
@@ -8,8 +7,7 @@ struct MyCarView: View {
     @Query private var vehicles: [VehicleConfig]
     @Query private var visits: [ServiceVisitEntity]
     @Query private var insurancePolicies: [InsurancePolicyEntity]
-    @State private var photoItem: PhotosPickerItem?
-    @State private var showInsuranceDetail = false
+    @Environment(AppNavigationState.self) private var navigation
     private let themeController = ThemeController()
     private let heroImageMaxHeight: CGFloat = 180
 
@@ -31,10 +29,11 @@ struct MyCarView: View {
                             OdometerDisplay(value: Binding(
                                 get: { vehicle.odometerKm },
                                 set: { newValue in
-                                    vehicle.odometerKm = newValue
-                                    vehicle.odometerUpdatedAt = Date()
-                                    try? modelContext.save()
-                                    Task { await NotificationRefresh.apply(context: modelContext, visits: visits) }
+                                    NotificationRefresh.updateOdometer(
+                                        vehicle: vehicle,
+                                        to: newValue,
+                                        context: modelContext
+                                    )
                                 }
                             ), updatedAt: vehicle.odometerUpdatedAt)
                         }
@@ -43,35 +42,14 @@ struct MyCarView: View {
                 }
                 .padding()
             }
-            .background(themeController.screenBackground(for: colorScheme))
-            .navigationTitle("tab.myCar")
-            .sheet(isPresented: $showInsuranceDetail) {
-                if let insurance {
-                    NavigationStack {
-                        InsuranceView(policy: insurance)
-                    }
-                }
-            }
-            .onChange(of: photoItem) { _, item in
-                if item != nil {
-                    TapFeedback.light()
-                }
-                Task { await loadPhoto(from: item) }
-            }
+            .tabRootScreen(title: "tab.myCar", colorScheme: colorScheme, theme: themeController)
         }
     }
 
-    @ViewBuilder
     private var heroImage: some View {
-        if let data = vehicle?.photoData, let uiImage = UIImage(data: data) {
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFit()
-        } else {
-            Image("DefaultCarHero")
-                .resizable()
-                .scaledToFit()
-        }
+        Image("DefaultCarHero")
+            .resizable()
+            .scaledToFit()
     }
 
     private var vehicleHeader: some View {
@@ -83,12 +61,6 @@ struct MyCarView: View {
                     vehicleIdentity(vehicle)
                 }
             }
-            PhotosPicker(selection: $photoItem, matching: .images) {
-                Text("myCar.changePhoto")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.hapticPlain)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -112,7 +84,7 @@ struct MyCarView: View {
                     insuranceStatusWidget(policy: insurance)
                 }
                 serviceStatusWidget(vehicle: vehicle)
-                    .gridCellColumns(insurance == nil ? 1 : 2)
+                serviceEstimateWidget(vehicle: vehicle)
             }
         }
     }
@@ -127,15 +99,17 @@ struct MyCarView: View {
             let window = MaintenanceEngine.nextOilWindow(lastOilOdometer: lastOilOdometer)
             return LocalizedFormat.string("service.oilWindow", window.minKm, window.maxKm)
         }
-        return CarStatusWidgetCard(
-            symbol: "drop.fill",
-            title: "myCar.status.oil.title",
-            value: dueSoon
-                ? LocalizedFormat.string("myCar.status.oil.dueSoon")
-                : LocalizedFormat.string("myCar.status.oil.kmSince", kmSince),
-            footnote: windowFootnote,
-            attention: dueSoon
-        )
+        return widgetButton(.oil) {
+            CarStatusWidgetCard(
+                symbol: "drop.fill",
+                title: "myCar.status.oil.title",
+                value: dueSoon
+                    ? LocalizedFormat.string("myCar.status.oil.dueSoon")
+                    : LocalizedFormat.string("myCar.status.oil.kmSince", kmSince),
+                footnote: windowFootnote,
+                attention: dueSoon
+            )
+        }
     }
 
     private func insuranceStatusWidget(policy: InsurancePolicyEntity) -> some View {
@@ -148,9 +122,7 @@ struct MyCarView: View {
             "insurance.validUntil",
             LocalizedFormat.monthYear(policy.validUntil)
         )
-        return Button {
-            showInsuranceDetail = true
-        } label: {
+        return widgetButton(.insurance) {
             CarStatusWidgetCard(
                 symbol: "shield.checkered",
                 title: "insurance.title",
@@ -159,48 +131,117 @@ struct MyCarView: View {
                 attention: expiringSoon
             )
         }
-        .buttonStyle(.hapticPlain)
     }
 
     private func serviceStatusWidget(vehicle: VehicleConfig) -> some View {
         guard let nearest = MaintenanceEngine.nearestVisit(visits: visitSnapshots, odometer: vehicle.odometerKm) else {
-            return CarStatusWidgetCard(
-                symbol: "wrench.and.screwdriver.fill",
-                title: "myCar.status.service.title",
-                value: LocalizedFormat.string("myCar.status.service.none"),
-                footnote: nil
-            )
+            return widgetButton(.service) {
+                CarStatusWidgetCard(
+                    symbol: "wrench.and.screwdriver.fill",
+                    title: "myCar.status.service.title",
+                    value: LocalizedFormat.string("myCar.status.service.none"),
+                    footnote: nil
+                )
+            }
         }
         let kmToGo = nearest.windowFromKm.map { max($0 - vehicle.odometerKm, 0) }
             ?? MaintenanceEngine.kmRemaining(visit: nearest, odometer: vehicle.odometerKm)
         let visitTitle = visits.first(where: { $0.seedId == nearest.id })?.title
             ?? LocalizedFormat.string("service.visitTargetKm", nearest.targetOdometerKm)
-        return CarStatusWidgetCard(
-            symbol: "wrench.and.screwdriver.fill",
-            title: "myCar.status.service.title",
-            value: LocalizedFormat.string("myCar.status.service.remaining", kmToGo),
-            footnote: visitTitle
-        )
+        return widgetButton(.service) {
+            CarStatusWidgetCard(
+                symbol: "wrench.and.screwdriver.fill",
+                title: "myCar.status.service.title",
+                value: LocalizedFormat.string("myCar.status.service.remaining", kmToGo),
+                footnote: visitTitle
+            )
+        }
+    }
+
+    private func serviceEstimateWidget(vehicle: VehicleConfig) -> some View {
+        guard let nearest = MaintenanceEngine.nearestVisit(visits: visitSnapshots, odometer: vehicle.odometerKm) else {
+            return widgetButton(.serviceEstimate) {
+                CarStatusWidgetCard(
+                    symbol: "calendar",
+                    title: "myCar.status.serviceEstimate.title",
+                    value: LocalizedFormat.string("myCar.status.service.none"),
+                    footnote: nil
+                )
+            }
+        }
+        let visitTitle = visits.first(where: { $0.seedId == nearest.id })?.title
+            ?? LocalizedFormat.string("service.visitTargetKm", nearest.targetOdometerKm)
+        let dueNow = MaintenanceEngine.canCompleteVisitAtOdometer(visit: nearest, odometer: vehicle.odometerKm)
+            || MaintenanceEngine.isInServiceWindow(visit: nearest, odometer: vehicle.odometerKm)
+        if dueNow {
+            return widgetButton(.serviceEstimate) {
+                CarStatusWidgetCard(
+                    symbol: "calendar.badge.clock",
+                    title: "myCar.status.serviceEstimate.title",
+                    value: LocalizedFormat.string("myCar.status.serviceEstimate.due"),
+                    footnote: visitTitle,
+                    attention: true
+                )
+            }
+        }
+        let targetKm = nearest.windowFromKm ?? nearest.targetOdometerKm
+        guard let estimated = MaintenanceEngine.estimatedDate(
+            targetOdometerKm: targetKm,
+            currentOdometerKm: vehicle.odometerKm,
+            averageMonthlyKm: vehicle.averageMonthlyMileageKm
+        ) else {
+            return widgetButton(.serviceEstimate) {
+                CarStatusWidgetCard(
+                    symbol: "calendar",
+                    title: "myCar.status.serviceEstimate.title",
+                    value: LocalizedFormat.string("myCar.status.service.none"),
+                    footnote: visitTitle
+                )
+            }
+        }
+        return widgetButton(.serviceEstimate) {
+            CarStatusWidgetCard(
+                symbol: "calendar",
+                title: "myCar.status.serviceEstimate.title",
+                value: LocalizedFormat.string(
+                    "myCar.status.serviceEstimate.approx",
+                    LocalizedFormat.monthYear(estimated)
+                ),
+                footnote: visitTitle,
+                attention: MaintenanceEngine.serviceEstimateSoon(estimatedDate: estimated)
+            )
+        }
+    }
+
+    private func widgetButton<Content: View>(
+        _ kind: CarStatusWidgetKind,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        Button {
+            TapFeedback.light()
+            navigation.open(.carWidget(kind))
+        } label: {
+            content()
+        }
+        .buttonStyle(.hapticPlain)
     }
 
     private func vehicleIdentity(_ vehicle: VehicleConfig) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(verbatim: "\(vehicle.make) \(vehicle.model) \(vehicle.modelYear) · \(vehicle.engineLabel)")
                 .font(.title3.weight(.semibold))
-            Text(LocalizedFormat.string(
-                "vehicle.inServiceSince",
-                LocalizedFormat.date(vehicle.purchaseDate)
-            ))
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
             Button {
                 Clipboard.copy(vehicle.vin)
             } label: {
-                Text("VIN \(vehicle.vin)")
-                    .font(.caption.monospaced())
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 8) {
+                    Text("VIN \(vehicle.vin)")
+                        .font(.subheadline.monospaced())
+                    Image(systemName: "doc.on.doc")
+                        .font(.subheadline)
+                }
+                .foregroundStyle(.secondary)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.hapticPlain)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -209,11 +250,4 @@ struct MyCarView: View {
         visits.map(VisitSnapshot.init(from:))
     }
 
-    private func loadPhoto(from item: PhotosPickerItem?) async {
-        guard let item, let data = try? await item.loadTransferable(type: Data.self) else { return }
-        await MainActor.run {
-            vehicle?.photoData = data
-            try? modelContext.save()
-        }
-    }
 }

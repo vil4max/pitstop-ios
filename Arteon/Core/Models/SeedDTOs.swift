@@ -105,6 +105,7 @@ struct DealerVisitDTO: Codable, Sendable, Identifiable {
     let visitId: String
     let serviceDate: String
     let completedOdometerKm: Int
+    let odometerIsEstimate: Bool?
     let includesOilChange: Bool
     let costProfile: String
     let totalUah: Int

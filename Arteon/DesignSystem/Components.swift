@@ -50,7 +50,11 @@ enum CompletionFeedback {
 struct VWCard<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
     private let theme = ThemeController()
-    @ViewBuilder var content: () -> Content
+    private let content: () -> Content
+
+    init(@ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+    }
 
     var body: some View {
         content()
@@ -224,24 +228,6 @@ struct SlideToCompleteControl: View {
         CompletionFeedback.playSuccess()
         successTrigger.toggle()
         onComplete()
-    }
-}
-
-struct MonospacedUAH: View {
-    let value: Int
-
-    var body: some View {
-        Text(CurrencyFormat.uah(value))
-            .font(.body.monospacedDigit())
-    }
-}
-
-struct MonospacedUSD: View {
-    let value: Int
-
-    var body: some View {
-        Text(CurrencyFormat.usd(value))
-            .font(.body.monospacedDigit())
     }
 }
 

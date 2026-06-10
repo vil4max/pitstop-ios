@@ -31,6 +31,10 @@ enum MaintenanceEngine {
         kmSinceLastOil >= threshold
     }
 
+    static func lastCompletedVisit(visits: [VisitSnapshot]) -> VisitSnapshot? {
+        visits.filter(\.isCompleted).max(by: { $0.sortOrder < $1.sortOrder })
+    }
+
     static func nearestVisit(visits: [VisitSnapshot], odometer: Int) -> VisitSnapshot? {
         let pending = visits.filter { !$0.isCompleted }
         let upcoming = pending
@@ -115,6 +119,11 @@ enum MaintenanceEngine {
 
     static func insuranceExpiringSoon(validUntil: Date, thresholdDays: Int = 30, from reference: Date = Date()) -> Bool {
         let days = daysUntil(validUntil, from: reference)
+        return days >= 0 && days <= thresholdDays
+    }
+
+    static func serviceEstimateSoon(estimatedDate: Date, thresholdDays: Int = 30, from reference: Date = Date()) -> Bool {
+        let days = daysUntil(estimatedDate, from: reference)
         return days >= 0 && days <= thresholdDays
     }
 }

@@ -302,6 +302,37 @@ extension VisitSnapshot {
     }
 }
 
+extension ServiceTaskEntity {
+    var localizedTitleKey: String? {
+        guard !isUserAdded, let slug = Self.catalogSlugBySeedTitle[title] else { return nil }
+        return "service.task.\(slug)"
+    }
+
+    private static let catalogSlugBySeedTitle: [String: String] = [
+        "Замена Масла в Двигателе": "engineOil",
+        "Масляный фильтр": "oilFilter",
+        "Уплотнительное кольцо": "drainPlugSeal",
+        "Воздушный Фильтр": "airFilter",
+        "Салонный фильтр": "cabinFilter",
+        "Топливная присадка G17": "fuelAdditiveG17",
+        "Свечи зажигания 4 шт": "sparkPlugs4",
+        "Замена Масла в DSG": "dsgOil",
+        "Замена тормозной жидкости": "brakeFluid",
+        "Замена масла в переднем и заднем редукторе": "axleOil",
+        "Промывка Радиаторов": "radiatorFlush",
+        "Замена Антифриза": "coolant",
+        "Замена ремня ГРМ": "timingBelt",
+        "Замена Поликлинового ремня": "serpentineBelt",
+        "Смазка Дверей": "doorLubrication",
+        "Фильтра": "filters",
+        "Чистка дренажных отверстий": "drainHoleCleaning",
+        "Антибактериальная чистка кондиционера": "acDisinfection",
+        "Халдекс": "haldex",
+        "Мойка форсунок": "injectorCleaning",
+        "Эндоскопия клапанов": "valveEndoscopy",
+    ]
+}
+
 extension TaskSnapshot {
     init(from task: ServiceTaskEntity) {
         self.init(
