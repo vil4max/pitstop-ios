@@ -2,7 +2,7 @@
 
 iOS **17+**, **SwiftUI**, **SwiftData**. Local storage only, no backend.
 
-Developer pet project: sandbox for **AI-assisted iOS development** (Cursor). The codebase is a single-vehicle maintenance tracker with JSON seed data — not a product, not on the App Store.
+Single-vehicle maintenance tracker with JSON seed data. Demo app — not on the App Store.
 
 **Scope:** one hardcoded vehicle profile; service visits, insurance dates, upgrades, local notifications.
 
