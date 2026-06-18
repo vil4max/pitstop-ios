@@ -51,6 +51,7 @@ struct UpgradeView: View {
                             .font(.body.weight(.semibold))
                     }
                     .buttonStyle(.hapticPlain)
+                    .foregroundStyle(themeController.actionTint(for: colorScheme))
                 }
             }
             .padding(.leading, 4)

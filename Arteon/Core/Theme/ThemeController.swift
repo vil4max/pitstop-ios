@@ -26,12 +26,16 @@ struct ThemeController {
         scheme == .dark ? ThemeColors.cardDark : ThemeColors.cardLight
     }
 
+    func actionTint(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? .white : ThemeColors.brand
+    }
+
     func controlTint(for scheme: ColorScheme) -> Color {
-        ThemeColors.brand
+        actionTint(for: scheme)
     }
 
     func switchTint(for scheme: ColorScheme) -> Color {
-        scheme == .dark ? .white : ThemeColors.brand
+        actionTint(for: scheme)
     }
 }
 
@@ -46,11 +50,15 @@ extension View {
     }
 
     func themedControlTint(colorScheme: ColorScheme, theme: ThemeController = ThemeController()) -> some View {
-        tint(theme.controlTint(for: colorScheme))
+        tint(theme.actionTint(for: colorScheme))
     }
 
     func themedSwitchTint(colorScheme: ColorScheme, theme: ThemeController = ThemeController()) -> some View {
-        tint(theme.switchTint(for: colorScheme))
+        tint(theme.actionTint(for: colorScheme))
+    }
+
+    func themedActionTint(colorScheme: ColorScheme, theme: ThemeController = ThemeController()) -> some View {
+        tint(theme.actionTint(for: colorScheme))
     }
 
     func tabRootScreen(

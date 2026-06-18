@@ -36,6 +36,7 @@ struct InsuranceView: View {
                                 .font(.caption)
                         }
                         .buttonStyle(.hapticPlain)
+                        .foregroundStyle(themeController.actionTint(for: colorScheme))
                     }
                 }
             }
@@ -59,7 +60,7 @@ struct InsuranceView: View {
                 .fontWeight(.semibold)
             }
         }
-        .tint(ThemeColors.brand)
+        .themedActionTint(colorScheme: colorScheme, theme: themeController)
         .sheet(isPresented: $showEdit) {
             InsuranceEditSheet(policy: policy)
         }
@@ -67,12 +68,14 @@ struct InsuranceView: View {
 }
 
 struct InsuranceEditSheet: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Bindable var policy: InsurancePolicyEntity
     @State private var validFrom: Date
     @State private var validUntil: Date
     @State private var policyNumber: String
+    private let themeController = ThemeController()
 
     init(policy: InsurancePolicyEntity) {
         self.policy = policy
@@ -89,6 +92,7 @@ struct InsuranceEditSheet: View {
                 DatePicker("insurance.validUntilLabel", selection: $validUntil, displayedComponents: .date)
             }
             .navigationTitle("insurance.edit")
+            .themedActionTint(colorScheme: colorScheme, theme: themeController)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("common.save") {

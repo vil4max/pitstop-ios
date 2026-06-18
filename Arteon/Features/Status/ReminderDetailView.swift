@@ -39,7 +39,7 @@ struct ReminderDetailView: View {
                         }
                         .buttonStyle(.hapticPlain)
                         .font(.body.weight(.semibold))
-                        .foregroundStyle(colorScheme == .dark ? .white : ThemeColors.brand)
+                        .foregroundStyle(themeController.actionTint(for: colorScheme))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                     }
@@ -57,6 +57,7 @@ struct ReminderDetailView: View {
                     }
                 }
             }
+            .themedActionTint(colorScheme: colorScheme, theme: themeController)
         }
     }
 
@@ -79,7 +80,7 @@ struct ReminderDetailView: View {
                         .font(.headline)
                 } icon: {
                     Image(systemName: symbolName)
-                        .foregroundStyle(colorScheme == .dark ? .white : ThemeColors.brand)
+                        .foregroundStyle(themeController.actionTint(for: colorScheme))
                 }
                 Text(statusValue)
                     .font(.title3.weight(.semibold))

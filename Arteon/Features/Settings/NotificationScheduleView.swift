@@ -126,7 +126,7 @@ struct NotificationScheduleView: View {
                         Task { try? await scheduler.scheduleTestStack() }
                     }
                     .font(.body.weight(.semibold))
-                    .foregroundStyle(colorScheme == .dark ? .white : ThemeColors.brand)
+                    .foregroundStyle(themeController.actionTint(for: colorScheme))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -153,9 +153,10 @@ struct NotificationScheduleView: View {
 private struct NotificationTopicCard: View {
     let group: NotificationReminderGroup
     let colorScheme: ColorScheme
+    private let themeController = ThemeController()
 
     private var iconColor: Color {
-        colorScheme == .dark ? .white : ThemeColors.brand
+        themeController.actionTint(for: colorScheme)
     }
 
     var body: some View {
