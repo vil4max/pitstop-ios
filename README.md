@@ -1,48 +1,7 @@
 # pitstop-ios
 
-iOS **17+**, **SwiftUI**, **SwiftData**. Local storage only, no backend.
-
-Single-vehicle maintenance tracker with JSON seed data. Demo app — not on the App Store.
-
-**Scope:** one hardcoded vehicle profile; service visits, insurance dates, upgrades, local notifications.
-
----
+Single-vehicle maintenance tracker: service visits, insurance dates, upgrades, and local reminders — all on-device, no backend. Portfolio demo, not on the App Store.
 
 ## Stack
 
-| | |
-|---|---|
-| UI | SwiftUI |
-| Persistence | SwiftData (local) |
-| Notifications | `UserNotifications` |
-| Tests | Swift Testing + XCTest (`ArteonTests`) |
-| Locales | en, uk, ru |
-
----
-
-## Modules
-
-| Tab | Function |
-|-----|----------|
-| My Car | Odometer, status widgets |
-| Service | Visit schedule, task lists, completion flow |
-| Upgrade | Item list, dealer visit log |
-| Settings | Theme, notification schedule |
-
----
-
-## Build
-
-Xcode **16+**, scheme **Arteon**, bundle `dev.vilchevskyi.arteon`.
-
-```bash
-git clone https://github.com/vil4max/pitstop-ios.git
-cd pitstop-ios
-open Arteon.xcodeproj
-```
-
----
-
-## License
-
-MIT
+iOS 17+ · Xcode 16+ · SwiftUI · SwiftData · UserNotifications · Swift Testing + XCTest · en / uk / ru
