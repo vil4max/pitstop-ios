@@ -73,7 +73,7 @@ final class AppNavigationState {
         case .reminderTopic(.odometer):
             selectedTab = .myCar
         case .reminderTopic(.insurance), .carWidget(.insurance):
-            presentedDetail = destination
+            openInsurancePolicy()
         case .reminderTopic, .carWidget:
             presentedDetail = destination
         }
