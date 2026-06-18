@@ -98,9 +98,10 @@ struct PrimaryButton: View {
     @Environment(\.colorScheme) private var colorScheme
     let title: LocalizedStringKey
     let action: () -> Void
+    private let theme = ThemeController()
 
     private var fillColor: Color {
-        colorScheme == .dark ? .white : ThemeColors.brand
+        theme.actionTint(for: colorScheme)
     }
 
     private var labelColor: Color {
@@ -126,6 +127,7 @@ struct SlideToCompleteControl: View {
     @Environment(\.colorScheme) private var colorScheme
     let canComplete: () -> Bool
     let onComplete: () -> Void
+    private let theme = ThemeController()
 
     @State private var dragOffset: CGFloat = 0
     @State private var didFinish = false
@@ -142,7 +144,7 @@ struct SlideToCompleteControl: View {
     }
 
     private var trackFill: Color {
-        colorScheme == .dark ? .white : ThemeColors.brand
+        theme.actionTint(for: colorScheme)
     }
 
     private var thumbFill: Color {
@@ -154,7 +156,7 @@ struct SlideToCompleteControl: View {
     }
 
     private var thumbIconColor: Color {
-        colorScheme == .dark ? .white : ThemeColors.brand
+        theme.actionTint(for: colorScheme)
     }
 
     var body: some View {
@@ -238,12 +240,13 @@ struct CarStatusWidgetCard: View {
     let value: String
     let footnote: String?
     var attention: Bool = false
+    private let theme = ThemeController()
 
     private var iconColor: Color {
         if attention {
             return Color.orange
         }
-        return colorScheme == .dark ? .white : ThemeColors.brand
+        return theme.actionTint(for: colorScheme)
     }
 
     private var tileBackground: Color {
@@ -281,6 +284,7 @@ struct OdometerDisplay: View {
     @Environment(\.colorScheme) private var colorScheme
     @Binding var value: Int
     let updatedAt: Date
+    private let theme = ThemeController()
 
     private var digits: [Character] {
         let text = String(format: "%07d", max(value, 0))
@@ -288,7 +292,7 @@ struct OdometerDisplay: View {
     }
 
     private var stepButtonForeground: Color {
-        colorScheme == .dark ? .white : ThemeColors.brand
+        theme.actionTint(for: colorScheme)
     }
 
     private var stepButtonBackground: Color {

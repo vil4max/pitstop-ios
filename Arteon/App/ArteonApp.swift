@@ -83,7 +83,7 @@ struct RootView: View {
     private let themeController = ThemeController()
 
     private var tabBarTint: Color {
-        colorScheme == .dark ? .white : ThemeColors.brand
+        themeController.actionTint(for: colorScheme)
     }
 
     var body: some View {

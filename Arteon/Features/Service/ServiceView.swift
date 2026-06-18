@@ -112,7 +112,7 @@ struct ServiceView: View {
 
     private func navigatorButtonColor(enabled: Bool) -> Color {
         guard enabled else { return .secondary.opacity(0.35) }
-        return colorScheme == .dark ? .white : ThemeColors.brand
+        return themeController.actionTint(for: colorScheme)
     }
 
     private func navigatorButtonBackground(enabled: Bool) -> Color {
@@ -181,7 +181,7 @@ struct ServiceView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.hapticPlain)
-                .foregroundStyle(colorScheme == .dark ? Color.white : ThemeColors.brand)
+                .foregroundStyle(themeController.actionTint(for: colorScheme))
                 .padding(.top, 8)
             } else {
                 Label("service.visitStatus.completed", systemImage: "checkmark.circle.fill")
@@ -243,7 +243,7 @@ struct ServiceView: View {
         if isNextVisit(visit) {
             Label("service.visitStatus.next", systemImage: "arrow.right.circle.fill")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(colorScheme == .dark ? Color.white : ThemeColors.brand)
+                .foregroundStyle(themeController.actionTint(for: colorScheme))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .background(colorScheme == .dark ? ThemeColors.brand : ThemeColors.brand.opacity(0.12))
@@ -388,6 +388,7 @@ struct AtlantHistorySheet: View {
                     }
                 }
             }
+            .themedActionTint(colorScheme: colorScheme, theme: themeController)
         }
     }
 
