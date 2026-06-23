@@ -1,6 +1,8 @@
 # pitstop-ios
 
-Single-vehicle maintenance tracker: service visits, insurance dates, upgrades, and local reminders — all on-device, no backend. Portfolio demo, not on the App Store.
+On-device vehicle maintenance lab: service schedule, reminders, and an AI assistant powered by Apple Foundation Models. Learning project and portfolio piece — not a commercial product.
+
+Today the app ships with one seeded vehicle (VW Arteon). A future version could support multiple cars by adding a vehicle manually or by decoding a VIN to pre-fill make, model, and year.
 
 ## Screenshots
 
@@ -14,4 +16,4 @@ Launch → My car → Service (default tab order).
 
 ## Stack
 
-iOS 17+ · Xcode 16+ · SwiftUI · SwiftData · UserNotifications · Swift Testing + XCTest · en / uk / ru
+iOS 26+ · Xcode 26+ · SwiftUI · SwiftData · Foundation Models · UserNotifications · Swift Testing + XCTest · en / uk / ru · MVVM
