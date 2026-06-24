@@ -1,6 +1,6 @@
 # pitstop-ios
 
-On-device vehicle maintenance lab: service schedule, reminders, and an AI assistant powered by Apple Foundation Models. Learning project and portfolio piece — not a commercial product.
+Personal car diary: odometer, service visits, reminders, and insurance for your vehicle. Frozen side project — maintenance logging only, not an AI or portfolio flagship.
 
 Today the app ships with one seeded vehicle (VW Arteon). A future version could support multiple cars by adding a vehicle manually or by decoding a VIN to pre-fill make, model, and year.
 
