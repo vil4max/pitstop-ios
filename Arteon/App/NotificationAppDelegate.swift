@@ -7,11 +7,14 @@ final class NotificationAppDelegate: NSObject, UIApplicationDelegate, UNUserNoti
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
+        Task { @MainActor in
+            await NotificationBadge.clear()
+        }
         return true
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        Task {
+        Task { @MainActor in
             await NotificationBadge.clear()
         }
     }
@@ -29,6 +32,7 @@ final class NotificationAppDelegate: NSObject, UIApplicationDelegate, UNUserNoti
     ) async {
         let userInfo = response.notification.request.content.userInfo
         guard let destination = NotificationPayload.destination(from: userInfo) else { return }
+        await NotificationBadge.clear()
         await MainActor.run {
             NotificationCenter.default.post(name: .arteonOpenDestination, object: destination)
         }

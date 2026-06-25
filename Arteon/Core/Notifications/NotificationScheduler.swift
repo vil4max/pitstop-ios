@@ -2,8 +2,11 @@ import Foundation
 @preconcurrency import UserNotifications
 
 enum NotificationBadge {
+    @MainActor
     static func clear() async {
-        try? await UNUserNotificationCenter.current().setBadgeCount(0)
+        let center = UNUserNotificationCenter.current()
+        center.removeAllDeliveredNotifications()
+        try? await center.setBadgeCount(0)
     }
 }
 
