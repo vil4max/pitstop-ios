@@ -2036,46 +2036,24 @@
         }
       }
     },
-    "notifications.schedule.permissions.badge" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Badges"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Бейдж"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Бейдж"
-          }
-        }
-      }
-    },
     "notifications.schedule.permissions.hint" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enable all three in iOS Settings → Arteon → Notifications."
+            "value" : "Enable both in iOS Settings → Arteon → Notifications."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Включите все три в Настройки iOS → Arteon → Уведомления."
+            "value" : "Включите оба в Настройки iOS → Arteon → Уведомления."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Увімкніть усі три в Налаштування iOS → Arteon → Сповіщення."
+            "value" : "Увімкніть обидва в Налаштування iOS → Arteon → Сповіщення."
           }
         }
       }
@@ -2255,94 +2233,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ТО і сервіс"
-          }
-        }
-      }
-    },
-    "notifications.schedule.test.about" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "13 test alerts over 13 days (10:00) — every notification type in the app."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "13 тестовых уведомлений за 13 дней (10:00) — все типы напоминаний в приложении."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "13 тестових сповіщень за 13 днів (10:00) — усі типи нагадувань у застосунку."
-          }
-        }
-      }
-    },
-    "notifications.schedule.test.action" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schedule test stack"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запланировать тестовые"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Запланувати тестові"
-          }
-        }
-      }
-    },
-    "notifications.schedule.test.legend" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Day 1: mileage · 2–3: oil · 4–6: oil plan · 7–8: service plan · 9–10: tires · 11–13: insurance"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "День 1: пробег · 2–3: масло · 4–6: план масла · 7–8: план ТО · 9–10: шины · 11–13: страховка"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "День 1: пробіг · 2–3: масло · 4–6: план масла · 7–8: план ТО · 9–10: шини · 11–13: страховка"
-          }
-        }
-      }
-    },
-    "notifications.schedule.test.title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Test notifications"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тестовые уведомления"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тестові сповіщення"
           }
         }
       }

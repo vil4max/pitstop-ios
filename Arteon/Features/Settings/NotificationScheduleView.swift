@@ -49,9 +49,6 @@ struct NotificationScheduleView: View {
                         }
                         .buttonStyle(.hapticPlain)
                     }
-                    if AppConfiguration.installTestNotificationStack {
-                        testStackSection
-                    }
                 }
             }
             .padding()
@@ -82,10 +79,6 @@ struct NotificationScheduleView: View {
                         "notifications.schedule.permissions.sound",
                         enabled: status.soundEnabled
                     )
-                    permissionRow(
-                        "notifications.schedule.permissions.badge",
-                        enabled: status.badgeEnabled
-                    )
                     if !status.isFullyEnabled {
                         Text("notifications.schedule.permissions.hint")
                             .font(.caption)
@@ -104,32 +97,6 @@ struct NotificationScheduleView: View {
             Text(enabled ? "notifications.schedule.permissions.on" : "notifications.schedule.permissions.off")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(enabled ? Color.green : Color.orange)
-        }
-    }
-
-    private var testStackSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("notifications.schedule.test.title")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 4)
-            VWCard {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("notifications.schedule.test.about")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Text("notifications.schedule.test.legend")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Button("notifications.schedule.test.action") {
-                        TapFeedback.light()
-                        Task { try? await scheduler.scheduleTestStack() }
-                    }
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(themeController.actionTint(for: colorScheme))
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
         }
     }
 

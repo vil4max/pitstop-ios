@@ -14,7 +14,7 @@ final class NotificationAppDelegate: NSObject, UIApplicationDelegate, UNUserNoti
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
-        [.banner, .list, .sound, .badge]
+        [.banner, .list, .sound]
     }
 
     func userNotificationCenter(
