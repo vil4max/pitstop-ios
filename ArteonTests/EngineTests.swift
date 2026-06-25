@@ -537,13 +537,6 @@ struct ServiceVisitCompletionTests {
 
 @Suite("NotificationPlanBuilder")
 struct NotificationPlanBuilderTests {
-    @Test func testNotificationStack_coversAllCategories() {
-        let categories = Set(TestNotificationStack.items.map(\.category))
-        #expect(categories.count == NotificationCategory.allCases.count)
-        #expect(TestNotificationStack.items.count == 13)
-        #expect(Set(TestNotificationStack.items.map(\.dayOffset)).count == 13)
-    }
-
     @Test func groupedTopics_groupsOilAndSeasonalSeparately() {
         let calendar = Calendar(identifier: .gregorian)
         let reference = DateComponents(calendar: calendar, year: 2026, month: 6, day: 6, hour: 12).date!
@@ -1009,29 +1002,5 @@ struct NotificationPayloadTests {
         let destination = AppDestination.serviceVisit(seedId: "visit-24000")
         let restored = NotificationPayload.destination(from: NotificationPayload.userInfo(for: destination))
         #expect(restored == destination)
-    }
-}
-
-@Suite("TestNotificationStack")
-struct TestNotificationStackTests {
-    @Test func fireDate_usesTenAm() {
-        let calendar = Calendar(identifier: .gregorian)
-        let date = TestNotificationStack.fireDate(dayOffset: 3, calendar: calendar)
-        let components = calendar.dateComponents([.hour, .minute], from: date)
-        #expect(components.hour == 10)
-        #expect(components.minute == 0)
-    }
-
-    @Test func items_haveUniqueIdsAndOffsets() {
-        let ids = TestNotificationStack.items.map(\.id)
-        let offsets = TestNotificationStack.items.map(\.dayOffset)
-        #expect(Set(ids).count == ids.count)
-        #expect(Set(offsets).count == offsets.count)
-    }
-
-    @Test func items_destinationMatchesCategoryNavigation() {
-        for item in TestNotificationStack.items {
-            #expect(item.destination == item.category.navigationDestination)
-        }
     }
 }

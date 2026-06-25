@@ -1,12 +1,6 @@
 import Foundation
 @preconcurrency import UserNotifications
 
-enum NotificationBadge {
-    static func clear() async {
-        try? await UNUserNotificationCenter.current().setBadgeCount(0)
-    }
-}
-
 protocol NotificationScheduling: Sendable {
     func requestAuthorization() async throws -> Bool
     func scheduleAll(
@@ -15,7 +9,6 @@ protocol NotificationScheduling: Sendable {
         insurance: InsurancePolicyEntity?,
         lastOilOdometer: Int?
     ) async throws
-    func scheduleTestStack() async throws
     func pendingPlan(
         settings: AppSettingsEntity,
         vehicle: VehicleConfig,
@@ -25,7 +18,7 @@ protocol NotificationScheduling: Sendable {
 }
 
 final class NotificationScheduler: NotificationScheduling {
-    static let authorizationOptions: UNAuthorizationOptions = [.alert, .sound, .badge]
+    static let authorizationOptions: UNAuthorizationOptions = [.alert, .sound]
 
     func requestAuthorization() async throws -> Bool {
         try await UNUserNotificationCenter.current().requestAuthorization(options: Self.authorizationOptions)
@@ -77,32 +70,6 @@ final class NotificationScheduler: NotificationScheduling {
                 to: center
             )
         }
-        if AppConfiguration.installTestNotificationStack {
-            try await scheduleTestStack()
-        }
-    }
-
-    func scheduleTestStack() async throws {
-        let center = UNUserNotificationCenter.current()
-        for item in TestNotificationStack.items {
-            let fireDate = TestNotificationStack.fireDate(dayOffset: item.dayOffset)
-            let content = UNMutableNotificationContent()
-            content.title = item.category.pushTitle(relatedOdometerKm: item.relatedOdometerKm)
-            content.body = item.category.pushBody(
-                fireDate: fireDate,
-                relatedDate: item.relatedDate,
-                relatedOdometerKm: item.relatedOdometerKm
-            )
-            applyDeliveryOptions(to: content)
-            content.userInfo = NotificationPayload.userInfo(for: item.destination)
-            let components = Calendar.current.dateComponents(
-                [.year, .month, .day, .hour, .minute],
-                from: fireDate
-            )
-            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-            let request = UNNotificationRequest(identifier: item.id, content: content, trigger: trigger)
-            try await center.add(request)
-        }
     }
 
     private func add(
@@ -143,7 +110,6 @@ final class NotificationScheduler: NotificationScheduling {
 
     private func applyDeliveryOptions(to content: UNMutableNotificationContent) {
         content.sound = .default
-        content.badge = 1
     }
 
     private func trigger(for item: PlannedNotification) -> UNNotificationTrigger {

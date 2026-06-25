@@ -16,7 +16,6 @@ enum NotificationRefresh {
         let visits = (try? context.fetch(FetchDescriptor<ServiceVisitEntity>())) ?? []
         guard let vehicle else { return }
         applyDefaultNotificationPreferencesIfNeeded(settings: settings, context: context)
-        await NotificationBadge.clear()
         let granted = (try? await scheduler.requestAuthorization()) ?? false
         guard granted else { return }
         let lastOil = MaintenanceEngine.lastOilChangeOdometer(visits: visits.map(VisitSnapshot.init(from:)))
