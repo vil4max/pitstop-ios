@@ -10,6 +10,12 @@ final class NotificationAppDelegate: NSObject, UIApplicationDelegate, UNUserNoti
         return true
     }
 
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        Task {
+            await NotificationBadge.clear()
+        }
+    }
+
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification

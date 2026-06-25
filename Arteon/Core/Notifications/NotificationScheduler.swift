@@ -1,6 +1,12 @@
 import Foundation
 @preconcurrency import UserNotifications
 
+enum NotificationBadge {
+    static func clear() async {
+        try? await UNUserNotificationCenter.current().setBadgeCount(0)
+    }
+}
+
 protocol NotificationScheduling: Sendable {
     func requestAuthorization() async throws -> Bool
     func scheduleAll(
