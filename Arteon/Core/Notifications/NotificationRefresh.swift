@@ -25,6 +25,7 @@ enum NotificationRefresh {
             insurance: insurance,
             lastOilOdometer: lastOil
         )
+        await NotificationBadge.clear()
     }
 
     @MainActor
