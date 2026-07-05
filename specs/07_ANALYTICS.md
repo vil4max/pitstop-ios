@@ -1,28 +1,43 @@
 # Product Analytics
 
+**Status:** `P0` event taxonomy\
+**Owns:** event semantics, bounded properties, funnels derived from product questions\
+**Does not own:** analytics provider selection
+
+Provider source of truth: `21_ANALYTICS_SERVICE_DECISION.md`
+
+Product question source of truth: `29_ANALYTICS_QUESTIONS.md`
+
+AI-assisted analytics workflow source of truth: `30_AI_PRODUCT_ANALYTICS.md`
+
 ## Decision
 
-Use Firebase Analytics for the research beta.
+PostHog is the **beta analytics candidate**, pending `ANL-001` vertical-slice
+validation.
 
-Use Firebase Crashlytics for stability diagnostics.
+Use Firebase Crashlytics for stability diagnostics in beta.
 
-Firebase is telemetry infrastructure only. SwiftData/iCloud remain the
-product data direction.
+Firebase Analytics is an **evaluated alternative**, not the current primary
+product analytics provider. See `21_ANALYTICS_SERVICE_DECISION.md`.
 
-Do not add Firestore merely because Firebase is present.
+SwiftData/iCloud remain the product data direction.
+
+Do not add Firestore merely because Firebase crash tooling is present.
+
+## Core rule
+
+> Analytics starts with an explicit product question. Events exist to
+> answer a product question, satisfy a release/diagnostic requirement,
+> or support an approved investigation.
+
+Do not preserve an event only because it may be useful later.
 
 ## Analytics objective
 
-Answer product research questions, not collect everything.
+Answer registered product research questions, not collect everything.
 
-Primary questions:
-
-1.  Do users complete lightweight vehicle setup?
-2.  Do they create real Notes/History facts?
-3.  Do context views provide recall value?
-4.  Does Tell PitStop reduce input friction?
-5.  Do users trust/understand maintenance status?
-6.  Does the planner's suggested service scope match real decisions?
+Primary questions are defined in `29_ANALYTICS_QUESTIONS.md` as `AQ-*`
+entries.
 
 ## Privacy contract
 
@@ -31,6 +46,9 @@ VIN; - license plate; - exact service document text; - photo; - dealer
 invoice content; - exact odometer value; - free-text error description.
 
 Use enums, booleans, counts and buckets.
+
+AI-assisted analytics inherits the same denylist. See
+`14_TELEMETRY_CONTRACT.md` and `30_AI_PRODUCT_ANALYTICS.md`.
 
 ## Event naming
 
@@ -74,6 +92,25 @@ Use:
 note_created
 context=car_wash
 ```
+
+## P0 event ownership
+
+| Event | Product question / requirement | Status |
+| --- | --- | --- |
+| `onboarding_completed` | `AQ-002` lightweight vehicle setup | `P0` |
+| `note_created` | `AQ-001`, `AQ-003` | `P0` |
+| `note_context_opened` | `AQ-001` contextual recall value | `P0` |
+| `note_archived` | `AQ-001` funnel support | `P0` |
+| `input_interpretation_completed` | `AQ-004` Tell PitStop friction | `P0` |
+| `draft_saved` | `AQ-004` | `P0` |
+| `draft_cancelled` | `AQ-004` | `P0` |
+| `odometer_updated` | `AQ-002`; release diagnostic for vehicle facts | `P0` |
+| `maintenance_status_viewed` | `AQ-005` maintenance status trust | `P0` |
+| `service_scope_viewed` | `AQ-006` planner alignment | `P0` |
+| `service_plan_edited` | `AQ-006` | `P0` |
+| `history_event_created` | `AQ-003` real Notes/History facts | `P0` |
+
+Thresholds and decision rules live in `29_ANALYTICS_QUESTIONS.md`.
 
 ## P0 event taxonomy
 
@@ -197,7 +234,9 @@ combinations can become identifying.
 
 ## Funnels
 
-### Activation
+Funnels must map to an `AQ-*` question or an approved investigation.
+
+### Activation — `AQ-002`, `AQ-003`
 
 ``` text
 app first open
@@ -206,7 +245,7 @@ app first open
 → first note/history/odometer fact
 ```
 
-### Natural input
+### Natural input — `AQ-004`
 
 ``` text
 input started
@@ -215,7 +254,7 @@ input started
 → draft saved
 ```
 
-### Context memory
+### Context memory — `AQ-001`
 
 ``` text
 note created with context
@@ -223,7 +262,7 @@ note created with context
 → note archived/shared
 ```
 
-### Service planning
+### Service planning — `AQ-006`
 
 ``` text
 scope viewed
@@ -232,31 +271,30 @@ scope viewed
 → planned vs performed comparison
 ```
 
-## Initial success thresholds
+## Research thresholds
 
-Natural input: - supported intent draft rate ≥ 90% on controlled
-evaluation; - beta save rate ≥ 70%; - cancel rate investigated if
-\>20%; - edited drafts are not automatically considered failure;
-field-level edit analysis is a later local research tool.
+All thresholds are provisional research thresholds, not KPI benchmarks.
 
-Context views: - at least 3/5 testers reopen a context with existing
-notes.
+Authoritative definitions: `29_ANALYTICS_QUESTIONS.md`.
 
-Planner: - due items removed from plan must be reviewed qualitatively; -
-if \>30% of due-nearby suggestions are removed, grouping rules require
-review.
+Do not duplicate threshold values here.
 
 ## Analytics validation
 
-Before every TestFlight release: - enable Analytics DebugView on a
-development device; - execute the telemetry smoke checklist; - verify
-parameter names; - verify no private raw text; - verify event
-cardinality remains bounded.
+Before every TestFlight release: - run the provider smoke checklist for
+the selected analytics adapter (`ANL-001` output applies); - execute the
+telemetry smoke checklist; - verify parameter names; - verify no private
+raw text; - verify event cardinality remains bounded.
 
 ## Free-tier boundary
 
-The beta should remain on no-cost telemetry products. Analytics and
-Crashlytics are selected specifically because the current Firebase
-documentation lists Analytics as no-charge and Crashlytics as no-cost.
-If a later feature requires paid Firebase/Google Cloud infrastructure,
-that is a separate ADR and budget decision.
+The beta should remain on no-cost or beta-tier telemetry products where
+possible.
+
+Analytics provider cost and adoption are decided in
+`21_ANALYTICS_SERVICE_DECISION.md`.
+
+Crashlytics remains a separate crash-diagnostics decision.
+
+If a later feature requires paid infrastructure, that is a separate ADR
+and budget decision.

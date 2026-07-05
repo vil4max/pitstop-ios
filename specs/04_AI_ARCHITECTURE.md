@@ -1,5 +1,34 @@
 # AI Architecture
 
+## Shared trust-boundary principle
+
+> AI interprets truth. AI does not own truth.
+
+Product runtime:
+
+``` text
+MaintenanceDomain
+→ deterministic truth
+→ AI may explain or compose a typed draft
+```
+
+Product-development analytics:
+
+``` text
+Analytics engine
+→ deterministic evidence
+→ AI may interpret and propose hypotheses
+```
+
+These are separate systems. Do not merge maintenance AI runtime with
+AI Product Analyst workflow.
+
+AI-assisted product analytics workflow:
+`30_AI_PRODUCT_ANALYTICS.md`
+
+MCP and PostHog MCP are development-tool integrations, not iOS runtime
+architecture.
+
 ## Role of the local model
 
 Foundation Models is an interface layer between human language and the

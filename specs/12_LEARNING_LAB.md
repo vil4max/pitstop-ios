@@ -87,6 +87,29 @@ correlation.
 Lab output: - one documented end-to-end trace for `Tell PitStop`; - one
 documented end-to-end trace for maintenance snapshot rebuild.
 
+## AI-assisted analytics laboratory metrics
+
+When running `AIA-001` or manual AI-assisted analytics reviews, track
+these **manual process-learning metrics** in the development diary:
+
+``` text
+review_duration_minutes
+useful_new_hypothesis = yes | no
+missing_evidence_found = yes | no
+unsupported_claim_count
+human_decision_changed = yes | no
+investigation_created = yes | no
+```
+
+These are not product analytics events.
+
+Do not send them to PostHog.
+
+They evaluate whether AI-assisted analytics is useful to Max as a
+product engineer.
+
+Workflow source of truth: `30_AI_PRODUCT_ANALYTICS.md`
+
 ## App Intents curriculum
 
 Do not start from Siri UI.

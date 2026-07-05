@@ -207,6 +207,25 @@ notes
 
 Do not optimize for impressions alone.
 
+## AI-assisted analytics review metrics
+
+When documenting an `AIA-001` or manual AI-assisted analytics review in
+the private diary, record:
+
+``` text
+review_duration_minutes
+useful_new_hypothesis = yes | no
+missing_evidence_found = yes | no
+unsupported_claim_count
+human_decision_changed = yes | no
+investigation_created = yes | no
+```
+
+These are development-process learning metrics, not product analytics
+events. Do not send them to PostHog.
+
+See `30_AI_PRODUCT_ANALYTICS.md` and `12_LEARNING_LAB.md`.
+
 ## Derived metrics
 
 Calculate locally:

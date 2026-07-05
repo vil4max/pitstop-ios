@@ -81,7 +81,13 @@ privacy interpolation; - no arbitrary metadata dictionary.
 
 ## Implementation
 
-A minimal `PitStopLogging` local SPM target may contain:
+Start with the smallest local logging implementation at a real consumer
+boundary.
+
+A dedicated SPM package is optional. Extract one only when reuse or
+module dependency boundaries justify it.
+
+When kept local, the implementation may contain:
 
 ``` text
 LogEvent protocol/internal encoding contract

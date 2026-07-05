@@ -22,6 +22,7 @@ This folder is the consolidated source of truth for PitStop.
 
 -   `04_AI_ARCHITECTURE.md`
 -   `12_LEARNING_LAB.md`
+-   `30_AI_PRODUCT_ANALYTICS.md`
 
 ## Engineering, tests, observability and quality
 
@@ -37,6 +38,8 @@ This folder is the consolidated source of truth for PitStop.
 -   `07_ANALYTICS.md`
 -   `15_RELEASE_AND_BETA.md`
 -   `21_ANALYTICS_SERVICE_DECISION.md`
+-   `29_ANALYTICS_QUESTIONS.md`
+-   `30_AI_PRODUCT_ANALYTICS.md`
 
 ## Planning and execution
 
@@ -68,7 +71,10 @@ This folder is the consolidated source of truth for PitStop.
     must be audited and preserved before Notes refactoring.
 -   Architecture: feature modules + pure domain + infrastructure
     adapters + MVVM + Coordinator + initializer DI.
--   Analytics candidate: PostHog, pending vertical-slice validation.
+-   Analytics candidate: PostHog, pending `ANL-001` vertical-slice validation.
+-   Product analytics questions: `29_ANALYTICS_QUESTIONS.md`.
+-   AI-assisted analytics workflow: `30_AI_PRODUCT_ANALYTICS.md` (`AIA-001`
+    staged after real beta evidence).
 -   Logging: DEBUG-only typed facade over OSLog.Logger; no custom
     logging framework.
 -   Project management: GitHub Issues + GitHub Projects + Pull Requests.
@@ -110,4 +116,19 @@ This folder is the consolidated source of truth for PitStop.
 -   `25_MODULAR_ARCHITECTURE.md`
 -   `26_DESIGN_SYSTEM.md`
 -   `27_APP_ICON_STRATEGY.md`
+-   `29_ANALYTICS_QUESTIONS.md`
+-   `30_AI_PRODUCT_ANALYTICS.md`
 -   `README.md`
+
+## Decision ownership map
+
+| Topic | Authoritative document |
+| --- | --- |
+| Analytics provider | `21_ANALYTICS_SERVICE_DECISION.md` |
+| Product questions (`AQ-*`) | `29_ANALYTICS_QUESTIONS.md` |
+| Event taxonomy and P0 ownership | `07_ANALYTICS.md` |
+| Telemetry privacy and channels | `14_TELEMETRY_CONTRACT.md` |
+| AI-assisted analytics workflow | `30_AI_PRODUCT_ANALYTICS.md` |
+| AI runtime (Foundation Models) | `04_AI_ARCHITECTURE.md` |
+| Logging | `22_LOGGING_DECISION.md` |
+| Crash diagnostics | separate beta decision (Crashlytics) |

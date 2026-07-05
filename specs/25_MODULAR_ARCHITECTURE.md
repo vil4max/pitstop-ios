@@ -72,16 +72,54 @@ Packages/
     SettingsFeature/
 
     DesignSystem/
-    AnalyticsCore/
-    PostHogAnalytics/
-    PitStopLogging/
-
     Persistence/
     FoundationModelsAdapter/
 ```
 
-This is a target direction. Do not split all packages in one migration
-PR.
+This is a **target direction**, not an implementation backlog.
+
+## Package creation rule
+
+> Package creation is demand-driven.
+
+> No package without a real consumer boundary.
+
+> A target architecture diagram is not an implementation backlog.
+
+Extract a dedicated SPM package only when reuse or module dependency
+boundaries justify it. A second package consumer is extraction pressure,
+not an absolute mechanical requirement.
+
+Do not create packages merely because they appear in a target diagram.
+
+Possible future extractions when justified (not backlog items):
+
+``` text
+Analytics provider-neutral boundary + PostHog adapter
+shared DEBUG logging facade
+```
+
+For `ANL-001`, the preferred first implementation hypothesis is the
+smallest local boundary justified by the current repository —
+conceptually similar to:
+
+``` text
+PitStopApp
+└── Infrastructure
+    └── Analytics
+        ├── Analytics.swift
+        ├── AnalyticsEvent.swift
+        └── PostHogAnalytics.swift
+```
+
+This example is conceptual, not a mandatory folder structure or package
+split. The implementation agent must inspect the repository before
+selecting exact files or folders.
+
+A dedicated Analytics + provider adapter package split is justified only
+when a real module or package consumer requires it.
+
+Do not split all packages in one migration PR.
 
 ## What belongs in app target
 
@@ -306,7 +344,32 @@ Extract pure `MaintenanceDomain`.
 
 ### Step 2
 
-Add `AnalyticsCore`/PostHog adapter vertical slice.
+Validate analytics boundary for `ANL-001`.
+
+Implement the smallest local boundary justified by the current
+repository. See the `ANL-001` first-implementation hypothesis in the
+package structure section above.
+
+`ANL-001` validates:
+
+``` text
+analytics boundary
+PostHog iOS integration
+typed event mapping
+privacy/configuration assumptions
+```
+
+It does **not** mandate creating separate Analytics and provider adapter
+SPM packages. Package extraction is a separate consequence justified by
+the actual dependency graph.
+
+Decision after spike:
+
+``` text
+ADOPT
+ADOPT WITH BOUNDARY
+FALL BACK
+```
 
 ### Step 3
 
@@ -322,12 +385,53 @@ Review friction before extracting more features.
 
 Do not perform a big-bang modularization.
 
+## PitStop iOS runtime vs AI Product Analyst workflow
+
+``` text
+PitStop iOS runtime
+≠
+AI Product Analyst development workflow
+```
+
+The iOS app architecture must not include:
+
+-   MCP client;
+-   AnalyticsAgent SPM package;
+-   AIProductManager module;
+-   runtime analytics agent loop;
+-   autonomous product mutation from analytics.
+
+PostHog MCP, if investigated later, belongs in the development
+environment:
+
+``` text
+Cursor / AI engineering environment
+→ analytics access
+→ read evidence
+→ draft investigation
+```
+
+Status: `INVESTIGATE` — see `30_AI_PRODUCT_ANALYTICS.md`
+
+Product analytics evidence flow in development:
+
+``` text
+Product Question Registry (29_ANALYTICS_QUESTIONS.md)
+→ typed events (07_ANALYTICS.md)
+→ PostHog evidence layer (21_ANALYTICS_SERVICE_DECISION.md)
+→ deterministic query
+→ structured evidence
+→ AI Product Analyst (manual / tool-assisted)
+→ human decision
+```
+
 ## Architecture success criteria
 
 -   maintenance domain tests run without iOS UI/SwiftData/analytics;
 -   feature ViewModels depend on narrow protocols;
 -   app target is composition;
--   PostHog import exists only in adapter;
+-   concrete analytics provider SDK import exists only in adapter
+    boundary;
 -   SwiftData entities do not leak into feature ViewState;
 -   one feature can be tested with fake dependencies;
 -   package graph has no cycles;
