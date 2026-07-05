@@ -78,8 +78,8 @@ History + cycle resets for confirmed work only
     tasks, Definition of Done.
 -   `06_OBSERVABILITY.md` --- professional logging, signposts, crash
     diagnostics and privacy.
--   `07_ANALYTICS.md` --- Firebase Analytics event taxonomy and research
-    metrics.
+-   `07_ANALYTICS.md` --- typed product analytics event taxonomy and P0
+    event ownership (provider-agnostic).
 -   `08_ROADMAP.md` --- phased atomic development plan with acceptance
     gates.
 -   `09_INVESTIGATIONS.md` --- explicit unknowns and decision criteria.
@@ -152,6 +152,10 @@ justifies a naming sprint.
     matrix, strengths and weaknesses.
 -   `21_ANALYTICS_SERVICE_DECISION.md` --- analytics comparison and
     PostHog beta candidate decision.
+-   `29_ANALYTICS_QUESTIONS.md` --- `AQ-*` product questions,
+    provisional research thresholds, and decision rules.
+-   `30_AI_PRODUCT_ANALYTICS.md` --- AI-assisted analytics workflow,
+    trust boundary, `AIA-001`, and staged adoption.
 -   `22_LOGGING_DECISION.md` --- DEBUG-only typed OSLog strategy; no
     custom logging framework.
 -   `23_ENGINEERING_QUALITY_AND_CI.md` --- Instruments gates, quality

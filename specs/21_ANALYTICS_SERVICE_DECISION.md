@@ -174,6 +174,9 @@ PostHogAnalyticsClient
     ↓ PostHog SDK
 ```
 
+`PostHogAnalyticsClient` is an example concrete adapter type name, not a
+mandatory module name.
+
 No event name string exists in feature code.
 
 ## Module rule
@@ -181,18 +184,21 @@ No event name string exists in feature code.
 Each feature owns: - analytics protocol; - typed feature event; -
 semantic parameters.
 
-`AnalyticsCore` owns: - provider-neutral encoded event; -
-AnalyticsClient; - NoOp client; - Recording client for tests; -
+`Analytics` (provider-neutral boundary) owns: - provider-neutral encoded
+event; - `AnalyticsClient`; - NoOp client; - Recording client for tests;
 composition/multiplexing only if a second real provider appears.
 
-`PostHogAnalytics` owns: - PostHog import; - SDK initialization; - event
+The PostHog adapter owns: - PostHog import; - SDK initialization; - event
 encoding/send boundary.
+
+Start with the smallest local implementation. Extract dedicated packages
+only when dependency boundaries require them.
 
 Do not create `AppAnalytics: NotesAnalytics, MaintenanceAnalytics, ...`.
 
 ## Analytics acceptance criteria
 
--   PostHog SDK appears in one adapter module only.
+-   concrete analytics provider SDK appears in one adapter boundary only;
 -   Domain modules do not import analytics SDKs.
 -   Feature event APIs contain no arbitrary strings/dictionaries.
 -   Autocapture and replay are off.
@@ -200,6 +206,9 @@ Do not create `AppAnalytics: NotesAnalytics, MaintenanceAnalytics, ...`.
 -   Debug/test builds can use RecordingAnalytics.
 -   One beta funnel is reproducible from events.
 -   Provider can be replaced without changing feature behavior.
+
+Failure: feature code imports or calls a concrete analytics provider
+directly.
 
 ## Re-evaluation triggers
 
@@ -212,6 +221,13 @@ second analytics provider is genuinely required.
 ## P0 spike
 
 `ANL-001 — PostHog vertical slice`
+
+Purpose: validate analytics boundary, PostHog iOS integration, typed
+event mapping, and privacy/configuration assumptions.
+
+This does **not** mandate creating separate Analytics and PostHog adapter
+SPM packages. Start with the smallest local boundary justified by the
+current repository.
 
 Implement only:
 

@@ -165,8 +165,7 @@ Forbidden pattern examples:
 
 ``` text
 print(
-Analytics SDK import outside adapter
-PostHog SDK import outside adapter
+analytics provider SDK import outside adapter boundary
 raw analytics string call
 TODO without issue reference — optional policy
 ```

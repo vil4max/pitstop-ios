@@ -25,7 +25,8 @@ composition; - history recording.
 
 ### Analytics
 
--   DebugView smoke test passes;
+-   provider smoke checklist passes for selected analytics adapter
+    (`ANL-001` outcome applies);
 -   event names/parameters match contract;
 -   no raw private content observed.
 

@@ -42,13 +42,22 @@ Acceptance: - snapshot/planner future pipeline has a logging contract; -
 correlation IDs available for multi-stage input flow; - no raw
 note/transcript fields.
 
-### OBS-003 Integrate Firebase Analytics
+### OBS-003 Integrate product analytics adapter
 
-Acceptance: - Analytics SDK configured; - debug event visible in
-DebugView; - analytics wrapper/protocol exists; - domain code does not
-import Firebase; - analytics can be replaced by a no-op in tests.
+**Status:** `P0` — provider candidate PostHog pending `ANL-001`
 
-Failure: - views call Firebase Analytics directly.
+Acceptance: - complete `ANL-001` (analytics boundary, PostHog iOS
+integration, typed event mapping, privacy/configuration validation); -
+analytics SDK configured in adapter boundary only; - debug/smoke event
+visible in provider tooling; - analytics wrapper/protocol exists; -
+domain code does not import provider SDK; - analytics can be replaced by
+a no-op in tests.
+
+Failure: - feature code imports or calls a concrete analytics provider
+directly.
+
+Firebase Analytics is an evaluated alternative, not the current primary
+provider. See `21_ANALYTICS_SERVICE_DECISION.md`.
 
 ### OBS-004 Integrate Crashlytics
 
@@ -362,3 +371,28 @@ migration/adaptation decision.
 
 No existing seeded case may be removed as "demo data" without an
 explicit decision.
+
+## Parallel track --- Product analytics and AI-assisted review
+
+This track must not delay contextual Notes / core-loop validation.
+
+``` text
+DOC-001 normalization
+→ NOTE-AUDIT-001 / core product vertical slice
+→ ANL-001 analytics provider spike
+→ typed P0 events
+→ AQ-001 deterministic evidence query
+→ real beta evidence
+→ AIA-001 manual AI-assisted review
+→ PostHog AI / MCP investigation
+```
+
+Status notes:
+
+-   `ANL-001` — `P0` provider spike; validates integration and
+    boundaries, not package topology
+-   `AIA-001` — staged after real beta evidence; not immediately executable
+-   PostHog AI / MCP — `INVESTIGATE`; not P0 app infrastructure
+
+Source documents: `21_ANALYTICS_SERVICE_DECISION.md`,
+`29_ANALYTICS_QUESTIONS.md`, `30_AI_PRODUCT_ANALYTICS.md`.
