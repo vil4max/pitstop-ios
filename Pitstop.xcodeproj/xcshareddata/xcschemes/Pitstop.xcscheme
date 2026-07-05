@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C13732C8E715C9BEE4FA51C9"
-               BuildableName = "Arteon.app"
-               BlueprintName = "Arteon"
-               ReferencedContainer = "container:Arteon.xcodeproj">
+               BuildableName = "Pitstop.app"
+               BlueprintName = "Pitstop"
+               ReferencedContainer = "container:Pitstop.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "64BCB755386F844C96A2A5B0"
-               BuildableName = "ArteonTests.xctest"
-               BlueprintName = "ArteonTests"
-               ReferencedContainer = "container:Arteon.xcodeproj">
+               BuildableName = "PitstopTests.xctest"
+               BlueprintName = "PitstopTests"
+               ReferencedContainer = "container:Pitstop.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C13732C8E715C9BEE4FA51C9"
-            BuildableName = "Arteon.app"
-            BlueprintName = "Arteon"
-            ReferencedContainer = "container:Arteon.xcodeproj">
+            BuildableName = "Pitstop.app"
+            BlueprintName = "Pitstop"
+            ReferencedContainer = "container:Pitstop.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>

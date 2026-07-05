@@ -7,12 +7,13 @@ struct MyCarView: View {
     @Query private var vehicles: [VehicleConfig]
     @Query private var visits: [ServiceVisitEntity]
     @Query private var insurancePolicies: [InsurancePolicyEntity]
+    @Environment(ActiveVehicleStore.self) private var activeVehicleStore
     @Environment(AppNavigationState.self) private var navigation
     private let themeController = ThemeController()
     private let heroImageMaxHeight: CGFloat = 180
 
     private var vehicle: VehicleConfig? {
-        vehicles.first
+        activeVehicleStore.activeVehicle(from: vehicles)
     }
 
     private var insurance: InsurancePolicyEntity? {
@@ -25,7 +26,7 @@ struct MyCarView: View {
                 VStack(spacing: 12) {
                     vehicleHeader
                     if let vehicle {
-                        VWCard {
+                        AppCard {
                             OdometerDisplay(value: Binding(
                                 get: { vehicle.odometerKm },
                                 set: { newValue in
@@ -47,7 +48,7 @@ struct MyCarView: View {
     }
 
     private var heroImage: some View {
-        Image("DefaultCarHero")
+        Image("DefaultVehicleHero")
             .resizable()
             .scaledToFit()
     }

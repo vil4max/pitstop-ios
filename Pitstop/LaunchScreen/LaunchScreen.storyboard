@@ -15,17 +15,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arteon.png" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchArteonImageView">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pitstop-launch.png" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchLogoImageView">
                                 <rect key="frame" x="0.0" y="-86" width="393" height="1024"/>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="LaunchSafeArea"/>
                         <color key="backgroundColor" red="0.019607843137254902" green="0.10196078431372549" blue="0.25098039215686274" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="LaunchArteonImageView" secondAttribute="trailing" id="8Hv-FE-Oke"/>
-                            <constraint firstItem="LaunchArteonImageView" firstAttribute="centerX" secondItem="LaunchRootView" secondAttribute="centerX" id="LaunchArteonCenterX"/>
-                            <constraint firstItem="LaunchArteonImageView" firstAttribute="centerY" secondItem="LaunchRootView" secondAttribute="centerY" id="LaunchArteonCenterY"/>
-                            <constraint firstItem="LaunchArteonImageView" firstAttribute="leading" secondItem="LaunchRootView" secondAttribute="leading" id="V2p-jg-h1v"/>
+                            <constraint firstAttribute="trailing" secondItem="LaunchLogoImageView" secondAttribute="trailing" id="8Hv-FE-Oke"/>
+                            <constraint firstItem="LaunchLogoImageView" firstAttribute="centerX" secondItem="LaunchRootView" secondAttribute="centerX" id="LaunchArteonCenterX"/>
+                            <constraint firstItem="LaunchLogoImageView" firstAttribute="centerY" secondItem="LaunchRootView" secondAttribute="centerY" id="LaunchArteonCenterY"/>
+                            <constraint firstItem="LaunchLogoImageView" firstAttribute="leading" secondItem="LaunchRootView" secondAttribute="leading" id="V2p-jg-h1v"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -35,6 +35,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="arteon.png" width="1024" height="1024"/>
+        <image name="pitstop-launch.png" width="1024" height="1024"/>
     </resources>
 </document>

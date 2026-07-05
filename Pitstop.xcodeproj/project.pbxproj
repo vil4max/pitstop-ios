@@ -14,17 +14,18 @@
 		3017C90819C165063903D809 /* insurance.json in Resources */ = {isa = PBXBuildFile; fileRef = F05229D99B57A9991E65A4ED /* insurance.json */; };
 		36C69B864028191B1406BC39 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42348FF26E9475B55C5F8BCE /* AppConfiguration.swift */; };
 		37691135F082B1C9D7CDBBD8 /* MyCarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99356E069AD6D5BE1730CA0F /* MyCarView.swift */; };
+		A1B2C3D4E5F6012345678AB /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6789012345679AB /* OnboardingView.swift */; };
 		3F7B03529C8497A35176B723 /* NotificationPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D170CF707859B5038B94910 /* NotificationPlan.swift */; };
 		BF60718293A4B5C6D7E8FA1 /* NotificationPermissionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF718293A4B5C6D7E8FA0B2 /* NotificationPermissionStatus.swift */; };
 		4341C53B2CBF4556778E24CF /* upgrades.json in Resources */ = {isa = PBXBuildFile; fileRef = 7ED52AB828ABA7DB657FC534 /* upgrades.json */; };
-		501AE9AD2FD9F7DF00A09D0D /* arteon.png in Resources */ = {isa = PBXBuildFile; fileRef = 501AE9AC2FD9F7DF00A09D0D /* arteon.png */; };
+		501AE9AD2FD9F7DF00A09D0D /* pitstop-launch.png in Resources */ = {isa = PBXBuildFile; fileRef = 501AE9AC2FD9F7DF00A09D0D /* pitstop-launch.png */; };
 		51B1D34115233BC17915F5C4 /* MaintenanceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B0D34A2185DAD2FD0A19ED /* MaintenanceEngine.swift */; };
 		55BD80FB5B9556594CD569A2 /* maintenance-plan.json in Resources */ = {isa = PBXBuildFile; fileRef = AD99EC0A55599B2E94AB09B0 /* maintenance-plan.json */; };
 		5A94C5AEAC81E02AB96257B1 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 158D51C94E5C8CC0FB7AF94A /* InfoPlist.xcstrings */; };
 		5D1119858F85F3D63DA1D941 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 5F569162F8424F64D7CE553A /* Localizable.xcstrings */; };
 		5D665128AFF959DF87C6A561 /* NotificationRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 133F1317F6387621794AE04B /* NotificationRefresh.swift */; };
 		5E1D9073D2919312586FC63C /* InsuranceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA87DA556CA6FC43707CD92 /* InsuranceView.swift */; };
-		64112FC8D90ADEE508674A5E /* ArteonApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6957C89040E33EFBBA019D4 /* ArteonApp.swift */; };
+		64112FC8D90ADEE508674A5E /* PitstopApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6957C89040E33EFBBA019D4 /* PitstopApp.swift */; };
 		6AF9DB48F1988BC88663D95E /* UpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9AB58860CAFA333BD2A4808 /* UpgradeView.swift */; };
 		7A1B2C3D4E5F60718293A4C /* AppNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2C3D4E5F60718293A4B5D /* AppNavigation.swift */; };
 		8C3D4E5F60718293A4B5C6E /* NotificationAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4E5F60718293A4B5C6D7F /* NotificationAppDelegate.swift */; };
@@ -51,7 +52,7 @@
 			containerPortal = 98F54143AB4E86B28C3AFEE0 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = C13732C8E715C9BEE4FA51C9;
-			remoteInfo = Arteon;
+			remoteInfo = Pitstop;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -65,7 +66,7 @@
 		411EC3FC9C17A30013649312 /* DealerStatementReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DealerStatementReader.swift; sourceTree = "<group>"; };
 		41257D0DEFDED52EF3EAAC95 /* NotificationScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduleView.swift; sourceTree = "<group>"; };
 		42348FF26E9475B55C5F8BCE /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
-		501AE9AC2FD9F7DF00A09D0D /* arteon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arteon.png; sourceTree = "<group>"; };
+		501AE9AC2FD9F7DF00A09D0D /* pitstop-launch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pitstop-launch.png; sourceTree = "<group>"; };
 		5F569162F8424F64D7CE553A /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		6A28FFFD07AB1F25BA2EF3D1 /* UpgradeTotals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeTotals.swift; sourceTree = "<group>"; };
 		6F948100A44EB2EF196F44CB /* ThemeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeController.swift; sourceTree = "<group>"; };
@@ -73,10 +74,11 @@
 		CF718293A4B5C6D7E8FA0B2 /* NotificationPermissionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionStatus.swift; sourceTree = "<group>"; };
 		7ED52AB828ABA7DB657FC534 /* upgrades.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = upgrades.json; sourceTree = "<group>"; };
 		8910C02340ADB9FCABC67E8E /* DecodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodingTests.swift; sourceTree = "<group>"; };
-		8BCD5BC4CDFDF0918087C782 /* Arteon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Arteon.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BCD5BC4CDFDF0918087C782 /* Pitstop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pitstop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D7E4F22D1D5330BD31E1C43 /* AppModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModels.swift; sourceTree = "<group>"; };
 		90E64AB17D3ECF7DC3585082 /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
 		99356E069AD6D5BE1730CA0F /* MyCarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCarView.swift; sourceTree = "<group>"; };
+		B2C3D4E5F6789012345679AB /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		9DD0F5F6E908ECBF4EBA4C66 /* SeedDTOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedDTOs.swift; sourceTree = "<group>"; };
 		A9AB58860CAFA333BD2A4808 /* UpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeView.swift; sourceTree = "<group>"; };
 		8B2C3D4E5F60718293A4B5D /* AppNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNavigation.swift; sourceTree = "<group>"; };
@@ -90,10 +92,10 @@
 		C7B0D34A2185DAD2FD0A19ED /* MaintenanceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaintenanceEngine.swift; sourceTree = "<group>"; };
 		CF82C7911B339A8A3720C8DA /* LocalizedFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedFormat.swift; sourceTree = "<group>"; };
 		D5FFCD15C3888784A9B70488 /* ServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceView.swift; sourceTree = "<group>"; };
-		D6957C89040E33EFBBA019D4 /* ArteonApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArteonApp.swift; sourceTree = "<group>"; };
+		D6957C89040E33EFBBA019D4 /* PitstopApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PitstopApp.swift; sourceTree = "<group>"; };
 		E6A9660DB7EA9E59699CC239 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F05229D99B57A9991E65A4ED /* insurance.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = insurance.json; sourceTree = "<group>"; };
-		F219C0274590DA45E4BEF1EA /* ArteonTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArteonTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F219C0274590DA45E4BEF1EA /* PitstopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PitstopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,8 +161,8 @@
 		328EC33DF3954DC9B83FA285 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8BCD5BC4CDFDF0918087C782 /* Arteon.app */,
-				F219C0274590DA45E4BEF1EA /* ArteonTests.xctest */,
+				8BCD5BC4CDFDF0918087C782 /* Pitstop.app */,
+				F219C0274590DA45E4BEF1EA /* PitstopTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -220,7 +222,7 @@
 			path = Localizations;
 			sourceTree = "<group>";
 		};
-		9D0CF64DFCBF3E3B860CCBC9 /* Arteon */ = {
+		9D0CF64DFCBF3E3B860CCBC9 /* Pitstop */ = {
 			isa = PBXGroup;
 			children = (
 				F0754C196E42C458852FFB45 /* App */,
@@ -231,16 +233,16 @@
 				C5D6E7F8091A2B3C4D5E6F7A /* LaunchScreen */,
 				BC2299B6FA8364ECBFDCD364 /* Assets.xcassets */,
 			);
-			path = Arteon;
+			path = Pitstop;
 			sourceTree = "<group>";
 		};
-		9FC9B8A1A18589D52DA5373D /* ArteonTests */ = {
+		9FC9B8A1A18589D52DA5373D /* PitstopTests */ = {
 			isa = PBXGroup;
 			children = (
 				8910C02340ADB9FCABC67E8E /* DecodingTests.swift */,
 				AA03CE865F8B98A32048EE5F /* EngineTests.swift */,
 			);
-			path = ArteonTests;
+			path = PitstopTests;
 			sourceTree = "<group>";
 		};
 		A57C3B4A7DA553498B501FCF /* DesignSystem */ = {
@@ -272,12 +274,21 @@
 			children = (
 				C4299F6F29B637DE0D79738F /* Insurance */,
 				C15213E52D115217D491AC8A /* MyCar */,
+				C4D5E6F708192A3B4C5D6E7 /* Onboarding */,
 				C25213E52D115217D491AC8B /* Status */,
 				4F3CBFACAEA7C146B6DF9330 /* Service */,
 				5C89E047DF8EBB86FABF6AD6 /* Settings */,
 				863790656AE1DB52B36BF122 /* Upgrade */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		C4D5E6F708192A3B4C5D6E7 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				B2C3D4E5F6789012345679AB /* OnboardingView.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		C4299F6F29B637DE0D79738F /* Insurance */ = {
@@ -291,7 +302,7 @@
 		C5D6E7F8091A2B3C4D5E6F7A /* LaunchScreen */ = {
 			isa = PBXGroup;
 			children = (
-				501AE9AC2FD9F7DF00A09D0D /* arteon.png */,
+				501AE9AC2FD9F7DF00A09D0D /* pitstop-launch.png */,
 				B1C2D3E4F5061728394A5B6C /* LaunchScreen.storyboard */,
 			);
 			path = LaunchScreen;
@@ -316,8 +327,8 @@
 		E50290A24C49A459B43487C5 = {
 			isa = PBXGroup;
 			children = (
-				9D0CF64DFCBF3E3B860CCBC9 /* Arteon */,
-				9FC9B8A1A18589D52DA5373D /* ArteonTests */,
+				9D0CF64DFCBF3E3B860CCBC9 /* Pitstop */,
+				9FC9B8A1A18589D52DA5373D /* PitstopTests */,
 				328EC33DF3954DC9B83FA285 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -328,7 +339,7 @@
 				42348FF26E9475B55C5F8BCE /* AppConfiguration.swift */,
 				8B2C3D4E5F60718293A4B5D /* AppNavigation.swift */,
 				3E4BEF9D6AAE6CBFC6638B34 /* AppTab.swift */,
-				D6957C89040E33EFBBA019D4 /* ArteonApp.swift */,
+				D6957C89040E33EFBBA019D4 /* PitstopApp.swift */,
 				9D4E5F60718293A4B5C6D7F /* NotificationAppDelegate.swift */,
 			);
 			path = App;
@@ -337,9 +348,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		64BCB755386F844C96A2A5B0 /* ArteonTests */ = {
+		64BCB755386F844C96A2A5B0 /* PitstopTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B23F8737B6FBE4BF544A89CD /* Build configuration list for PBXNativeTarget "ArteonTests" */;
+			buildConfigurationList = B23F8737B6FBE4BF544A89CD /* Build configuration list for PBXNativeTarget "PitstopTests" */;
 			buildPhases = (
 				6E431EB0650617AA1756B320 /* Sources */,
 				1ABF84E55BD30AC2CEF8FC42 /* Frameworks */,
@@ -349,14 +360,14 @@
 			dependencies = (
 				C58B1D22E6B06406536A4294 /* PBXTargetDependency */,
 			);
-			name = ArteonTests;
-			productName = ArteonTests;
-			productReference = F219C0274590DA45E4BEF1EA /* ArteonTests.xctest */;
+			name = PitstopTests;
+			productName = PitstopTests;
+			productReference = F219C0274590DA45E4BEF1EA /* PitstopTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		C13732C8E715C9BEE4FA51C9 /* Arteon */ = {
+		C13732C8E715C9BEE4FA51C9 /* Pitstop */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 98BDC3664A4661BBADC68234 /* Build configuration list for PBXNativeTarget "Arteon" */;
+			buildConfigurationList = 98BDC3664A4661BBADC68234 /* Build configuration list for PBXNativeTarget "Pitstop" */;
 			buildPhases = (
 				971ED9D05B25DB6C4D7680D4 /* Sources */,
 				78AE8C6BEB2A40A6D824CCEE /* Frameworks */,
@@ -366,9 +377,9 @@
 			);
 			dependencies = (
 			);
-			name = Arteon;
-			productName = Arteon;
-			productReference = 8BCD5BC4CDFDF0918087C782 /* Arteon.app */;
+			name = Pitstop;
+			productName = Pitstop;
+			productReference = 8BCD5BC4CDFDF0918087C782 /* Pitstop.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -390,7 +401,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 975598BD38FD2DF491B0A4D7 /* Build configuration list for PBXProject "Arteon" */;
+			buildConfigurationList = 975598BD38FD2DF491B0A4D7 /* Build configuration list for PBXProject "Pitstop" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = ru;
 			hasScannedForEncodings = 0;
@@ -405,8 +416,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C13732C8E715C9BEE4FA51C9 /* Arteon */,
-				64BCB755386F844C96A2A5B0 /* ArteonTests */,
+				C13732C8E715C9BEE4FA51C9 /* Pitstop */,
+				64BCB755386F844C96A2A5B0 /* PitstopTests */,
 			);
 		};
 /* End PBXProject section */
@@ -421,7 +432,7 @@
 				3017C90819C165063903D809 /* insurance.json in Resources */,
 				55BD80FB5B9556594CD569A2 /* maintenance-plan.json in Resources */,
 				4341C53B2CBF4556778E24CF /* upgrades.json in Resources */,
-				501AE9AD2FD9F7DF00A09D0D /* arteon.png in Resources */,
+				501AE9AD2FD9F7DF00A09D0D /* pitstop-launch.png in Resources */,
 				5A94C5AEAC81E02AB96257B1 /* InfoPlist.xcstrings in Resources */,
 				5D1119858F85F3D63DA1D941 /* Localizable.xcstrings in Resources */,
 			);
@@ -446,7 +457,7 @@
 				36C69B864028191B1406BC39 /* AppConfiguration.swift in Sources */,
 				7A1B2C3D4E5F60718293A4C /* AppNavigation.swift in Sources */,
 				B3F6ED3703E9C7669ECECEF5 /* AppTab.swift in Sources */,
-				64112FC8D90ADEE508674A5E /* ArteonApp.swift in Sources */,
+				64112FC8D90ADEE508674A5E /* PitstopApp.swift in Sources */,
 				8C3D4E5F60718293A4B5C6E /* NotificationAppDelegate.swift in Sources */,
 				51B1D34115233BC17915F5C4 /* MaintenanceEngine.swift in Sources */,
 				944392F7C7B302325D35D87C /* ServiceVisitCompletion.swift in Sources */,
@@ -464,6 +475,7 @@
 				0D28A2FFA0E005395FE87ED0 /* Components.swift in Sources */,
 				5E1D9073D2919312586FC63C /* InsuranceView.swift in Sources */,
 				37691135F082B1C9D7CDBBD8 /* MyCarView.swift in Sources */,
+				A1B2C3D4E5F6012345678AB /* OnboardingView.swift in Sources */,
 				9E5F60718293A4B5C6D7E8A /* ReminderDetailView.swift in Sources */,
 				809CBB98401C8C64D1A2C428 /* ServiceView.swift in Sources */,
 				98946140DC61C20B9BFF5A41 /* SettingsView.swift in Sources */,
@@ -477,7 +489,7 @@
 /* Begin PBXTargetDependency section */
 		C58B1D22E6B06406536A4294 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C13732C8E715C9BEE4FA51C9 /* Arteon */;
+			target = C13732C8E715C9BEE4FA51C9 /* Pitstop */;
 			targetProxy = E9CA66683FF22D7B8CC65928 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -537,10 +549,10 @@
 				DEVELOPMENT_TEAM = BTHRDS7254;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.vilchevskyi.arteon.tests;
-				PRODUCT_NAME = ArteonTests;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.vil4max.pitstop.tests;
+				PRODUCT_NAME = PitstopTests;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Arteon.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Arteon";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pitstop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pitstop";
 			};
 			name = Release;
 		};
@@ -556,15 +568,15 @@
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDevelopmentRegion = ru;
-				INFOPLIST_KEY_CFBundleDisplayName = "My Arteon";
+				INFOPLIST_KEY_CFBundleDisplayName = Pitstop;
 				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.vilchevskyi.arteon;
-				PRODUCT_NAME = Arteon;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.vil4max.pitstop;
+				PRODUCT_NAME = Pitstop;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -630,15 +642,15 @@
 				DEVELOPMENT_TEAM = BTHRDS7254;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDevelopmentRegion = ru;
-				INFOPLIST_KEY_CFBundleDisplayName = "My Arteon";
+				INFOPLIST_KEY_CFBundleDisplayName = Pitstop;
 				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.vilchevskyi.arteon;
-				PRODUCT_NAME = Arteon;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.vil4max.pitstop;
+				PRODUCT_NAME = Pitstop;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -653,17 +665,17 @@
 				DEVELOPMENT_TEAM = BTHRDS7254;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.vilchevskyi.arteon.tests;
-				PRODUCT_NAME = ArteonTests;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.vil4max.pitstop.tests;
+				PRODUCT_NAME = PitstopTests;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Arteon.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Arteon";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pitstop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pitstop";
 			};
 			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		975598BD38FD2DF491B0A4D7 /* Build configuration list for PBXProject "Arteon" */ = {
+		975598BD38FD2DF491B0A4D7 /* Build configuration list for PBXProject "Pitstop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				93AB73439E71C42620B6E53F /* Debug */,
@@ -672,7 +684,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		98BDC3664A4661BBADC68234 /* Build configuration list for PBXNativeTarget "Arteon" */ = {
+		98BDC3664A4661BBADC68234 /* Build configuration list for PBXNativeTarget "Pitstop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8F31C7E3D1F5B2FB8581DAD4 /* Debug */,
@@ -681,7 +693,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B23F8737B6FBE4BF544A89CD /* Build configuration list for PBXNativeTarget "ArteonTests" */ = {
+		B23F8737B6FBE4BF544A89CD /* Build configuration list for PBXNativeTarget "PitstopTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BF30BEDC035ADBCE93DB71EE /* Debug */,

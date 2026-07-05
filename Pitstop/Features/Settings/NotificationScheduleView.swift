@@ -69,7 +69,7 @@ struct NotificationScheduleView: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 4)
-            VWCard {
+            AppCard {
                 VStack(alignment: .leading, spacing: 8) {
                     permissionRow(
                         "notifications.schedule.permissions.alert",
@@ -127,7 +127,7 @@ private struct NotificationTopicCard: View {
     }
 
     var body: some View {
-        VWCard {
+        AppCard {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top, spacing: 12) {
                     Image(systemName: group.topic.symbol)

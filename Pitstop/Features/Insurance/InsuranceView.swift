@@ -12,7 +12,7 @@ struct InsuranceView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                VWCard {
+                AppCard {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(policy.insurer)
                             .font(.headline)
@@ -26,7 +26,7 @@ struct InsuranceView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                VWCard {
+                AppCard {
                     MTSBUQRCodeView(urlString: policy.verificationUrl)
                     if let url = URL(string: policy.verificationUrl) {
                         Button {

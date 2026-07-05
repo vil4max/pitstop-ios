@@ -34,7 +34,7 @@ final class NotificationAppDelegate: NSObject, UIApplicationDelegate, UNUserNoti
         guard let destination = NotificationPayload.destination(from: userInfo) else { return }
         await NotificationBadge.clear()
         await MainActor.run {
-            NotificationCenter.default.post(name: .arteonOpenDestination, object: destination)
+            NotificationCenter.default.post(name: .pitstopOpenDestination, object: destination)
         }
     }
 }

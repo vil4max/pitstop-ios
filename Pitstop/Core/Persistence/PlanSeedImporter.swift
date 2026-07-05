@@ -2,14 +2,26 @@ import Foundation
 import SwiftData
 
 enum PlanSeedImporter {
+    static func prepareAppStorage(into context: ModelContext) throws {
+        try ensureSettings(into: context)
+    }
+
+    static func importDemoSeed(into context: ModelContext) throws {
+        let existing = try context.fetch(FetchDescriptor<VehicleConfig>())
+        guard existing.isEmpty else { return }
+        let plan = try BundleJSONLoader.load(MaintenancePlanDocument.self, resource: "maintenance-plan")
+        let upgrades = try BundleJSONLoader.load(UpgradesDocument.self, resource: "upgrades")
+        let insurance = try BundleJSONLoader.load(InsuranceDocument.self, resource: "insurance")
+        try ensureSettings(into: context)
+        try performInitialImport(plan: plan, upgrades: upgrades, insurance: insurance, into: context)
+    }
+
     static func importIfNeeded(into context: ModelContext) throws {
         let plan = try BundleJSONLoader.load(MaintenancePlanDocument.self, resource: "maintenance-plan")
         let vehicles = try context.fetch(FetchDescriptor<VehicleConfig>())
 
-        if vehicles.isEmpty {
-            let upgrades = try BundleJSONLoader.load(UpgradesDocument.self, resource: "upgrades")
-            let insurance = try BundleJSONLoader.load(InsuranceDocument.self, resource: "insurance")
-            try performInitialImport(plan: plan, upgrades: upgrades, insurance: insurance, into: context)
+        guard !vehicles.isEmpty else {
+            try ensureSettings(into: context)
             return
         }
 
@@ -17,6 +29,19 @@ enum PlanSeedImporter {
         if let vehicle = vehicles.first {
             try syncPlanTemplate(plan: plan, vehicle: vehicle, into: context)
         }
+    }
+
+    private static func ensureSettings(into context: ModelContext) throws {
+        let settings = try context.fetch(FetchDescriptor<AppSettingsEntity>())
+        guard settings.isEmpty else { return }
+        context.insert(
+            AppSettingsEntity(
+                serviceRemindersEnabled: true,
+                insuranceRemindersEnabled: true,
+                monthlyOdometerReminderEnabled: true
+            )
+        )
+        try context.save()
     }
 
     private static func performInitialImport(
@@ -71,14 +96,6 @@ enum PlanSeedImporter {
                 premiumUah: insurance.premiumUah,
                 plate: insurance.plate,
                 verificationUrl: insurance.verificationUrl
-            )
-        )
-
-        context.insert(
-            AppSettingsEntity(
-                serviceRemindersEnabled: true,
-                insuranceRemindersEnabled: true,
-                monthlyOdometerReminderEnabled: true
             )
         )
         try context.save()

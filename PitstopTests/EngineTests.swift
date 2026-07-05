@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 import Testing
-@testable import Arteon
+@testable import Pitstop
 
 @Suite("MaintenanceEngine")
 struct MaintenanceEngineTests {
@@ -484,7 +484,7 @@ struct ServiceVisitCompletionTests {
     @Test func markTaskUndone_onCompletedVisit_reopensVisit() throws {
         let container = try AppModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
-        try PlanSeedImporter.importIfNeeded(into: context)
+        try PlanSeedImporter.importDemoSeed(into: context)
         let visit = try context.fetch(FetchDescriptor<ServiceVisitEntity>()).first { $0.isCompleted }!
         let task = visit.tasks.first { $0.isDone }!
         ServiceVisitCompletion.markTaskUndone(task, visit: visit)
@@ -496,7 +496,7 @@ struct ServiceVisitCompletionTests {
     @Test func completeVisit_marksMandatoryApplicableTasksDone() throws {
         let container = try AppModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
-        try PlanSeedImporter.importIfNeeded(into: context)
+        try PlanSeedImporter.importDemoSeed(into: context)
         let visit = try context.fetch(FetchDescriptor<ServiceVisitEntity>()).first { $0.seedId == "visit-17000" }!
         let completedAt = Date(timeIntervalSince1970: 1_750_000_000)
         ServiceVisitCompletion.completeVisit(visit, completedAt: completedAt, completedOdometer: 17_000)
@@ -511,7 +511,7 @@ struct ServiceVisitCompletionTests {
     @Test func reopenVisit_clearsCompletionAndTaskFlags() throws {
         let container = try AppModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
-        try PlanSeedImporter.importIfNeeded(into: context)
+        try PlanSeedImporter.importDemoSeed(into: context)
         let visit = try context.fetch(FetchDescriptor<ServiceVisitEntity>()).first { $0.seedId == "visit-11000" }!
         #expect(visit.isCompleted)
         ServiceVisitCompletion.reopenVisit(visit)
@@ -524,7 +524,7 @@ struct ServiceVisitCompletionTests {
     @Test func markTaskDone_setsDoneFlags() throws {
         let container = try AppModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
-        try PlanSeedImporter.importIfNeeded(into: context)
+        try PlanSeedImporter.importDemoSeed(into: context)
         let visit = try context.fetch(FetchDescriptor<ServiceVisitEntity>()).first { $0.seedId == "visit-17000" }!
         let task = visit.tasks.first { !$0.isDone && $0.isApplicable }!
         ServiceVisitCompletion.markTaskDone(task, visit: visit, odometerKm: 16_500)
@@ -871,7 +871,7 @@ struct PlanSeedImporterTests {
     @Test func importIfNeeded_isIdempotent() throws {
         let container = try AppModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
-        try PlanSeedImporter.importIfNeeded(into: context)
+        try PlanSeedImporter.importDemoSeed(into: context)
         try PlanSeedImporter.importIfNeeded(into: context)
         let vehicles = try context.fetch(FetchDescriptor<VehicleConfig>())
         #expect(vehicles.count == 1)
@@ -885,7 +885,7 @@ struct PlanSeedImporterTests {
     @Test func syncSeedCompletionState_repairsStaleIncompleteVisits() throws {
         let container = try AppModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
-        try PlanSeedImporter.importIfNeeded(into: context)
+        try PlanSeedImporter.importDemoSeed(into: context)
 
         let visit = try context.fetch(FetchDescriptor<ServiceVisitEntity>()).first { $0.seedId == "visit-11000" }!
         visit.isCompleted = false
@@ -908,7 +908,7 @@ struct PlanSeedImporterTests {
     @Test func syncSeedCompletionState_revertsPrematureVisitCompletion() throws {
         let container = try AppModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
-        try PlanSeedImporter.importIfNeeded(into: context)
+        try PlanSeedImporter.importDemoSeed(into: context)
 
         let visit = try context.fetch(FetchDescriptor<ServiceVisitEntity>()).first { $0.seedId == "visit-17000" }!
         ServiceVisitCompletion.completeVisit(visit, completedAt: Date(), completedOdometer: 13_600)
@@ -924,7 +924,7 @@ struct PlanSeedImporterTests {
     @Test func odometerUpdate_persistsAfterSave() throws {
         let container = try AppModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
-        try PlanSeedImporter.importIfNeeded(into: context)
+        try PlanSeedImporter.importDemoSeed(into: context)
 
         let vehicle = try context.fetch(FetchDescriptor<VehicleConfig>()).first!
         #expect(vehicle.odometerKm == 13_600)
@@ -947,7 +947,7 @@ struct PlanSeedImporterTests {
     @Test func seedTasks_mapToLocalizedKeys() throws {
         let container = try AppModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
-        try PlanSeedImporter.importIfNeeded(into: context)
+        try PlanSeedImporter.importDemoSeed(into: context)
         let tasks = try context.fetch(FetchDescriptor<ServiceTaskEntity>())
         #expect(!tasks.isEmpty)
         for task in tasks where !task.isUserAdded {
