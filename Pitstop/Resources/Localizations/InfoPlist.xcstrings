@@ -7,19 +7,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "My Arteon"
+            "value" : "Pitstop"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Мой Артеон"
+            "value" : "Pitstop"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Мій Артеон"
+            "value" : "Pitstop"
           }
         }
       }
@@ -31,7 +31,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Arteon"
+            "value" : "Pitstop"
           }
         }
       }

@@ -47,7 +47,7 @@ enum CompletionFeedback {
     }
 }
 
-struct VWCard<Content: View>: View {
+struct AppCard<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
     private let theme = ThemeController()
     private let content: () -> Content

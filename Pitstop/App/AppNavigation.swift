@@ -26,7 +26,7 @@ enum AppDestination: Hashable, Identifiable, Sendable {
 }
 
 enum NotificationPayload {
-    static let destinationKey = "arteon.destination"
+    static let destinationKey = "pitstop.destination"
 
     static func userInfo(for destination: AppDestination) -> [String: String] {
         switch destination {

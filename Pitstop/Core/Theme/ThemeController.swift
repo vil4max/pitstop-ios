@@ -1,9 +1,9 @@
 import SwiftUI
 
 enum ThemeColors {
-    static let brand = Color("VWBrand")
+    static let brand = Color("Brand")
     static let darkBackground = Color("DarkBackground")
-    static let cardDark = Color("VWBrand").opacity(0.85)
+    static let cardDark = Color("Brand").opacity(0.85)
     static let cardLight = Color(.secondarySystemGroupedBackground)
 }
 

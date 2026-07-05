@@ -1,23 +1,23 @@
 import XCTest
-@testable import Arteon
+@testable import Pitstop
 
 final class MaintenancePlanDecodingTests: XCTestCase {
-    func test_decodeMaintenancePlan_schema4_has15Visits() throws {
+    func test_decodeMaintenancePlan_schema5_has15Visits() throws {
         let url = Bundle.main.url(forResource: "maintenance-plan", withExtension: "json")
         XCTAssertNotNil(url)
         let data = try Data(contentsOf: url!)
         let plan = try JSONDecoder().decode(MaintenancePlanDocument.self, from: data)
-        XCTAssertEqual(plan.schemaVersion, 4)
+        XCTAssertEqual(plan.schemaVersion, 5)
         XCTAssertEqual(plan.visits.count, 15)
         XCTAssertEqual(plan.vehicle.odometerKm, 13_600)
         XCTAssertEqual(plan.calculation.regularService.nextWindowFromKm, 16_000)
         XCTAssertEqual(plan.calculation.regularService.nextWindowToKm, 18_000)
     }
 
-    func test_dealerStatement_hasThreeArteonVisits() throws {
+    func test_dealerStatement_hasThreeVehicleVisits() throws {
         let url = Bundle.main.url(forResource: "maintenance-plan", withExtension: "json")!
         let plan = try JSONDecoder().decode(MaintenancePlanDocument.self, from: Data(contentsOf: url))
-        XCTAssertEqual(plan.dealerStatement.arteonVisits.count, 3)
+        XCTAssertEqual(plan.dealerStatement.vehicleVisits.count, 3)
         XCTAssertFalse(plan.dealerStatement.otherPayments.isEmpty)
     }
 }

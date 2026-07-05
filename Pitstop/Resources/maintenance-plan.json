@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "vehicle": {
     "vin": "WVWZZZ3H5PE020759",
     "make": "Volkswagen",
@@ -47,8 +47,8 @@
     "dealer": "AVTODIM ATLANT",
     "source": "Monobank search «atl»",
     "purchaseDate": "2024-05-22",
-    "arteonVisitsTotalUah": 55650,
-    "arteonVisits": [
+    "vehicleVisitsTotalUah": 55650,
+    "vehicleVisits": [
       {
         "visitId": "visit-3000",
         "serviceDate": "2024-11-14",
@@ -127,17 +127,17 @@
         "amountUah": 15473,
         "card": "white",
         "payee": "AVTODIM ATLANT",
-        "reason": "beforeArteonPurchase"
+        "reason": "beforeVehiclePurchase"
       },
       {
         "date": "2024-04-13",
         "amountUah": 10983,
         "card": "platinum",
         "payee": "AVTODIM ATLANT",
-        "reason": "beforeArteonPurchase"
+        "reason": "beforeVehiclePurchase"
       }
     ],
-    "excludedNote": "Before Arteon purchase (22 May 2024) — previous car or prepurchase, not in app history."
+    "excludedNote": "Before vehicle purchase (22 May 2024) — previous car or prepurchase, not in app history."
   },
   "visits": [
     {

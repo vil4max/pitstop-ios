@@ -55,7 +55,7 @@ struct UpgradeView: View {
                 }
             }
             .padding(.leading, 4)
-            VWCard {
+            AppCard {
                 VStack(spacing: 0) {
                     let items = combinedItems
                     ForEach(Array(items.enumerated()), id: \.element.id) { index, item in

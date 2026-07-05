@@ -159,7 +159,6 @@
       }
     },
     "common.ok" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1091,7 +1090,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Update your odometer reading in My Arteon."
+            "value" : "Update your odometer reading on My Car."
           }
         },
         "ru" : {
@@ -2041,19 +2040,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enable both in iOS Settings → Arteon → Notifications."
+            "value" : "Enable both in iOS Settings → Pitstop → Notifications."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Включите оба в Настройки iOS → Arteon → Уведомления."
+            "value" : "Включите оба в Настройки iOS → Pitstop → Уведомления."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Увімкніть обидва в Налаштування iOS → Arteon → Сповіщення."
+            "value" : "Увімкніть обидва в Налаштування iOS → Pitstop → Сповіщення."
           }
         }
       }
@@ -2768,6 +2767,110 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оновлено %@"
+          }
+        }
+      }
+    },
+    "onboarding.addCar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add your car"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить автомобиль"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Додати автомобіль"
+          }
+        }
+      }
+    },
+    "onboarding.field.make" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make"
+          }
+        }
+      }
+    },
+    "onboarding.field.model" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model"
+          }
+        }
+      }
+    },
+    "onboarding.field.odometer %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odometer: %lld km"
+          }
+        }
+      }
+    },
+    "onboarding.field.year %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Year: %lld"
+          }
+        }
+      }
+    },
+    "onboarding.loadDemo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load demo data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузить демо-данные"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завантажити демо-дані"
+          }
+        }
+      }
+    },
+    "onboarding.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load demo data or add your car to get started."
+          }
+        }
+      }
+    },
+    "onboarding.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Pitstop"
           }
         }
       }

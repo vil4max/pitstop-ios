@@ -90,13 +90,13 @@ struct RegularServiceDTO: Codable, Sendable {
 
 struct DealerStatementDTO: Codable, Sendable {
     let dealer: String
-    let arteonVisitsTotalUah: Int
-    let arteonVisits: [DealerVisitDTO]
+    let vehicleVisitsTotalUah: Int
+    let vehicleVisits: [DealerVisitDTO]
     let otherPayments: [OtherPaymentDTO]
     let otherPaymentsTotalUah: Int
 
     var totalSpentUah: Int {
-        arteonVisitsTotalUah + otherPaymentsTotalUah
+        vehicleVisitsTotalUah + otherPaymentsTotalUah
     }
 }
 

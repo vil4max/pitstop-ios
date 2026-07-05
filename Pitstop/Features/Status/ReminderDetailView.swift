@@ -73,7 +73,7 @@ struct ReminderDetailView: View {
     }
 
     private var headerCard: some View {
-        VWCard {
+        AppCard {
             VStack(alignment: .leading, spacing: 8) {
                 Label {
                     Text(statusTitle)
@@ -95,7 +95,7 @@ struct ReminderDetailView: View {
     }
 
     private var explanationCard: some View {
-        VWCard {
+        AppCard {
             Text(explanationKey)
                 .font(.body)
                 .foregroundStyle(.primary)

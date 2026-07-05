@@ -7,11 +7,12 @@ struct ServiceView: View {
     @Environment(AppNavigationState.self) private var navigation
     @Query(sort: \ServiceVisitEntity.sortOrder) private var visits: [ServiceVisitEntity]
     @Query private var vehicles: [VehicleConfig]
+    @Environment(ActiveVehicleStore.self) private var activeVehicleStore
     @State private var selectedVisitIndex = 0
     @State private var reopenVisitSeedId: String?
     private let themeController = ThemeController()
 
-    private var vehicle: VehicleConfig? { vehicles.first }
+    private var vehicle: VehicleConfig? { activeVehicleStore.activeVehicle(from: vehicles) }
 
     private var selectedVisit: ServiceVisitEntity? {
         guard visits.indices.contains(selectedVisitIndex) else { return nil }
@@ -195,7 +196,7 @@ struct ServiceView: View {
 
     private func oilSummary(vehicle: VehicleConfig, lastOil: Int) -> some View {
         let kmSince = MaintenanceEngine.kmSinceLastOil(odometer: vehicle.odometerKm, lastOilOdometer: lastOil)
-        return VWCard {
+        return AppCard {
             VStack(alignment: .leading, spacing: 4) {
                 Text("nextOil.title")
                     .font(.headline)
@@ -273,7 +274,7 @@ struct ServiceView: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .padding(.leading, 4)
-            VWCard {
+            AppCard {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(Array(tasks.sorted(by: { $0.sortOrder < $1.sortOrder }).enumerated()), id: \.element.seedId) { index, task in
                         taskRow(task, emphasized: emphasized, visit: visit)
@@ -355,9 +356,9 @@ struct AtlantHistorySheet: View {
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                             .padding(.leading, 4)
-                        VWCard {
+                        AppCard {
                             VStack(spacing: 0) {
-                                ForEach(Array(statement.arteonVisits.enumerated()), id: \.element.id) { index, visit in
+                                ForEach(Array(statement.vehicleVisits.enumerated()), id: \.element.id) { index, visit in
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(formattedServiceDate(visit.serviceDate))
                                         Text(mileageLabel(for: visit))
@@ -366,7 +367,7 @@ struct AtlantHistorySheet: View {
                                     }
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(.vertical, 10)
-                                    if index < statement.arteonVisits.count - 1 {
+                                    if index < statement.vehicleVisits.count - 1 {
                                         Divider()
                                             .overlay(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08))
                                     }

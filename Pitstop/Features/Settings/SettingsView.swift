@@ -70,7 +70,7 @@ struct SettingsView: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .padding(.leading, 4)
-            VWCard {
+            AppCard {
                 content()
             }
         }

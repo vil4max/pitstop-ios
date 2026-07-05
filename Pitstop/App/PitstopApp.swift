@@ -2,9 +2,10 @@ import SwiftData
 import SwiftUI
 
 @main
-struct ArteonApp: App {
+struct PitstopApp: App {
     @UIApplicationDelegateAdaptor(NotificationAppDelegate.self) private var notificationDelegate
     @State private var navigation = AppNavigationState()
+    @State private var activeVehicleStore = ActiveVehicleStore()
 
     private let container: ModelContainer?
     private let bootstrapError: String?
@@ -15,7 +16,7 @@ struct ArteonApp: App {
         do {
             loadedContainer = try AppModelContainerFactory.make()
             let context = ModelContext(loadedContainer!)
-            try PlanSeedImporter.importIfNeeded(into: context)
+            try PlanSeedImporter.prepareAppStorage(into: context)
         } catch {
             errorMessage = String(describing: error)
         }
@@ -28,8 +29,9 @@ struct ArteonApp: App {
             if let container {
                 RootView()
                     .environment(navigation)
+                    .environment(activeVehicleStore)
                     .modelContainer(container)
-                    .onReceive(NotificationCenter.default.publisher(for: .arteonOpenDestination)) { notification in
+                    .onReceive(NotificationCenter.default.publisher(for: .pitstopOpenDestination)) { notification in
                         guard let destination = notification.object as? AppDestination else { return }
                         navigation.open(destination)
                     }
@@ -41,7 +43,7 @@ struct ArteonApp: App {
 }
 
 extension Notification.Name {
-    static let arteonOpenDestination = Notification.Name("arteon.openDestination")
+    static let pitstopOpenDestination = Notification.Name("pitstop.openDestination")
 }
 
 struct BootstrapErrorView: View {
@@ -80,6 +82,7 @@ struct RootView: View {
     @Environment(AppNavigationState.self) private var navigation
     @Query private var settingsList: [AppSettingsEntity]
     @Query private var insurancePolicies: [InsurancePolicyEntity]
+    @Query private var vehicles: [VehicleConfig]
     private let themeController = ThemeController()
 
     private var tabBarTint: Color {
@@ -87,6 +90,21 @@ struct RootView: View {
     }
 
     var body: some View {
+        Group {
+            if vehicles.isEmpty {
+                OnboardingView()
+            } else {
+                mainTabs
+            }
+        }
+        .task(id: vehicles.isEmpty) {
+            guard !vehicles.isEmpty else { return }
+            try? PlanSeedImporter.importIfNeeded(into: modelContext)
+            await NotificationRefresh.apply(context: modelContext)
+        }
+    }
+
+    private var mainTabs: some View {
         TabView(selection: Bindable(navigation).selectedTab) {
             MyCarView()
                 .tabItem { Label(AppTab.myCar.title, systemImage: AppTab.myCar.symbol) }
@@ -118,9 +136,6 @@ struct RootView: View {
                     InsuranceView(policy: insurance)
                 }
             }
-        }
-        .task {
-            await NotificationRefresh.apply(context: modelContext)
         }
     }
 }

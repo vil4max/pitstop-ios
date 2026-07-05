@@ -10,8 +10,8 @@ import openpyxl
 
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_XLSX = Path.home() / "Downloads" / "VW ТО-2.xlsx"
-OUT_PLAN = REPO / "Arteon" / "Resources" / "maintenance-plan.json"
-OUT_UPGRADES = REPO / "Arteon" / "Resources" / "upgrades.json"
+OUT_PLAN = REPO / "Pitstop" / "Resources" / "maintenance-plan.json"
+OUT_UPGRADES = REPO / "Pitstop" / "Resources" / "upgrades.json"
 
 PURCHASE_DATE = "2024-05-22"
 CURRENT_ODOMETER = 13600
@@ -103,14 +103,14 @@ DEALER_PAYMENTS_EXCLUDED = [
         "amountUah": 15473,
         "card": "white",
         "payee": DEALER_NAME,
-        "reason": "beforeArteonPurchase",
+        "reason": "beforeVehiclePurchase",
     },
     {
         "date": "2024-04-13",
         "amountUah": 10983,
         "card": "platinum",
         "payee": DEALER_NAME,
-        "reason": "beforeArteonPurchase",
+        "reason": "beforeVehiclePurchase",
     },
 ]
 
@@ -392,11 +392,11 @@ def build_interval_visit(
 
 
 def build_dealer_statement() -> dict:
-    arteon_visits = []
+    vehicle_visits = []
     total_uah = 0
     for entry in COMPLETED_REGULAR:
         total_uah += entry["costUah"]
-        arteon_visits.append(
+        vehicle_visits.append(
             {
                 "visitId": f"visit-{entry['sortOrder']}",
                 "serviceDate": entry["completedAt"],
@@ -413,8 +413,8 @@ def build_dealer_statement() -> dict:
         "dealer": DEALER_NAME,
         "source": "Monobank search «atl»",
         "purchaseDate": PURCHASE_DATE,
-        "arteonVisitsTotalUah": total_uah,
-        "arteonVisits": arteon_visits,
+        "vehicleVisitsTotalUah": total_uah,
+        "vehicleVisits": vehicle_visits,
         "otherPayments": DEALER_OTHER_PAYMENTS,
         "otherPaymentsTotalUah": sum(item["amountUah"] for item in DEALER_OTHER_PAYMENTS),
         "excludedPayments": DEALER_PAYMENTS_EXCLUDED,
