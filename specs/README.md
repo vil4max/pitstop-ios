@@ -142,6 +142,8 @@ WIP limit: **1** active implementation issue (solo).
 
 Legacy tab-bar spike: branch `legacy/spike`. Greenfield implementation: `main`.
 
+**GitHub Project:** create manually after `gh auth refresh -s project,read:project` → `gh project create --owner vil4max --title "Pitstop Greenfield"`. Columns: Backlog → Ready → In progress (max 1) → In review → Done. Labels: `domain`, `ui`, `capture`, `investigation`, `ci`, `p0`, `p1`, `blocked`.
+
 ## Current explicit decisions
 
 - Smart driver's journal / contextual car memory is the primary mental model.
