@@ -42,7 +42,7 @@ event → completion → cycle reset.
 ### UI tests
 
 Only critical flows: - one-glance status accessibility; - car-wash notes
-one-action path; - Tell PitStop draft save; - partial service
+one-action path; - Remember draft save; - partial service
 confirmation.
 
 Do not UI-test every SwiftUI layout.

@@ -32,7 +32,7 @@ composition; - history recording.
 
 ### Logging
 
--   Tell PitStop pipeline diagnosable by stage/reason;
+-   Remember pipeline diagnosable by stage/reason;
 -   maintenance snapshot pipeline diagnosable;
 -   no production `print` in new domain paths.
 

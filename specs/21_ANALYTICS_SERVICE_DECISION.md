@@ -232,7 +232,7 @@ current repository.
 Implement only:
 
 ``` text
-onboarding_completed
+car_context_first_enriched
 note_created
 note_context_opened
 ```

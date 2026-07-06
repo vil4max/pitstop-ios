@@ -1,52 +1,92 @@
 # PitStop Engineering & Product Documentation
 
-**Status:** working source of truth\
-**Project mode:** product development + engineering laboratory +
-learning system\
-**Primary platform:** iOS\
-**Current product boundary:** one vehicle per user in research beta\
-**Core product statement:** **A smart memory for your car.**
+**Status:** authoritative working source of truth  
+**Primary platform:** iOS  
+**Current product boundary:** one car context per user for the first product slice  
+**Core product statement:** **PitStop is a smart driver's journal and contextual memory for a car.**
 
-## Purpose
-
-This documentation is the authoritative working plan for PitStop. It
-separates product hypotheses, domain decisions, implementation tasks,
-experiments, telemetry, and learning notes.
-
-PitStop is intentionally developed in three modes at once:
-
-1.  **Product** --- solve a real recurring problem for a car owner.
-2.  **Laboratory** --- test Foundation Models, SwiftData, App Intents,
-    WidgetKit, CloudKit and modern Apple APIs on a real domain.
-3.  **Textbook** --- record why a technology was selected, how it works,
-    what failed, and what was learned.
-
-These modes must not be mixed in production behavior. Experimental
-technology is allowed behind an explicit boundary or feature flag.
-Product correctness remains deterministic.
+> PitStop remembers the car with the driver.
 
 ## Product model
 
-``` text
-STATUS                 NOTES                  HISTORY
-What matters now       What I don't want      What happened
-                       to forget
+PitStop starts from the driver, not from a complete vehicle profile.
 
-                    TELL PITSTOP
-                 text / voice / document
+```text
+CAR BOARD
+    ↓
+ROAD + NOTES + SERVICE + HISTORY
+    ↑
+REMEMBER
+    ↑
+Pit / Siri / Widget / Shortcuts / direct UI
 ```
 
 Core lifecycle:
 
-``` text
-THINK → NOTE
+```text
+THINK → REMEMBER → MEMORY PROPOSAL → SAFE DOMAIN MUTATION
 DO    → HISTORY
-FACTS + POLICIES → STATUS
+FACTS + POLICIES → MAINTENANCE STATE → ROAD
 ```
 
-Maintenance lifecycle:
+The application must remain useful without AI and without Pit. Pit is a persistent helper for capture, clarification, and progressive discovery. Pit is not navigation and is not the product itself.
 
-``` text
+## First-launch rule
+
+Do not block value with authentication, a vehicle form, or a classical onboarding funnel.
+
+Open into a usable Car Board with a provisional car context:
+
+```text
+name: My New Car
+mileage: 0
+vehicle details: unknown
+```
+
+Unknown data must degrade gracefully. Learn vehicle context progressively and ask only questions that unlock measurable value.
+
+## Root information architecture
+
+The leading root IA is **Car Board**, not a classical tab bar.
+
+Primary product surfaces:
+- Car Board
+- Road
+- Notes
+- Service
+- History
+- Car profile/data
+- Settings
+
+Settings and Pit live in a persistent bottom utility layer. Settings is one tap away. Pit is always available on primary and detail screens.
+
+## Core capability: Remember
+
+`Remember` is the product capability and preferred product verb.
+
+All capture sources feed one semantic pipeline:
+
+```text
+voice / text / shortcut / widget / Siri / Pit
+                ↓
+          CaptureInput
+                ↓
+       Semantic Interpreter
+                ↓
+         Memory Proposal
+                ↓
+        Confirmation Policy
+                ↓
+          Domain Mutation
+```
+
+The source does not determine the domain operation.
+
+## Maintenance boundary
+
+Maintenance remains a deterministic domain and an important PitStop capability. It is not the entire product mental model.
+
+```text
 Vehicle facts
     ↓
 Maintenance knowledge
@@ -55,121 +95,71 @@ Effective per-operation policies
     ↓
 Independent maintenance cycles
     ↓
-Service Planner
+Maintenance state / plans
     ↓
-Service Plan
+Road milestones + Service surface
     ↓
-Actual Service Visit
+Confirmed completion
     ↓
 History + cycle resets for confirmed work only
 ```
 
+## Engineering rule
+
+> AI interprets input and proposes typed meaning. Deterministic domain code owns truth and mutation.
+
+Experimental technology belongs behind explicit boundaries. Product correctness must not depend on model availability.
+
 ## Documentation map
 
--   `01_PRODUCT_CHARTER.md` --- product scope, principles,
-    success/failure criteria.
--   `02_DOMAIN_MODEL.md` --- domain language and source-of-truth
-    boundaries.
--   `03_MAINTENANCE_ENGINE.md` --- anchors, procedures, service
-    composition and rule engine.
--   `04_AI_ARCHITECTURE.md` --- Foundation Models boundaries, drafts,
-    evaluations and fallback.
--   `05_ENGINEERING_STANDARD.md` --- TDD, test-first workflow, atomic
-    tasks, Definition of Done.
--   `06_OBSERVABILITY.md` --- professional logging, signposts, crash
-    diagnostics and privacy.
--   `07_ANALYTICS.md` --- typed product analytics event taxonomy and P0
-    event ownership (provider-agnostic).
--   `08_ROADMAP.md` --- phased atomic development plan with acceptance
-    gates.
--   `09_INVESTIGATIONS.md` --- explicit unknowns and decision criteria.
--   `10_ADR_001_MAINTENANCE_ANCHORS.md` --- architecture decision
-    record.
--   `11_CURRENT_DOMAIN_AUDIT.md` --- audit of the current public
-    repository model.
--   `12_LEARNING_LAB.md` --- learning protocol for new Apple/AI
-    technology.
--   `13_TEST_STRATEGY.md` --- test pyramid, fixtures, golden cases and
-    AI evaluations.
--   `14_TELEMETRY_CONTRACT.md` --- logging/analytics naming and data
-    policy.
--   `15_RELEASE_AND_BETA.md` --- TestFlight research beta and release
-    gates.
--   `16_TASK_TEMPLATE.md` --- mandatory template for implementation
-    tasks.
+Start with:
+1. `01_PRODUCT_CHARTER.md`
+2. `17_PRODUCT_DESIGN.md`
+3. `31_CAR_BOARD_SCREEN_CONTRACT.md`
+4. `32_ROAD_DOMAIN_AND_UI_CONTRACT.md`
+5. `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
+6. `34_CAPTURE_PIPELINE_SPEC.md`
+7. `08_ROADMAP.md`
 
-## Authority rules
+See `00_DOCUMENTATION_INDEX.md` for the complete map.
 
-When documents conflict:
+## Spec lifecycle
 
-1.  Accepted ADR.
-2.  Product Charter.
-3.  Domain Model.
-4.  Engineering Standard.
-5.  Roadmap.
-6.  Investigation notes.
-7.  Historical brainstorm documents.
+Two classes of documents:
 
-A brainstorm is not an implementation specification.
+**Permanent contracts** — product and engineering behaviour (`01`, `02`, `03`, `17`, `31`–`36`, `34`, `05`–`06`, `13`–`14`, `21`–`23`, `25`–`26`). Keep `**Status:**` at the top. Never delete when a task ships.
 
-## Immediate instruction
+**Executable backlog** — tracked in [`38_WORK_PLAN.md`](38_WORK_PLAN.md). When work starts:
 
-Do not perform a broad SwiftData rewrite.
+1. Create one GitHub issue (template: `16_TASK_TEMPLATE.md`).
+2. Set work-plan row to `tracked` with issue number.
+3. Remove duplicated acceptance text from `08_ROADMAP.md`.
+4. On completion: `done`; delete empty roadmap rows.
 
-The next engineering sequence is:
+Status values: `contract` | `ready` → `tracked` → `done` | `deferred` | `cancelled`.
 
-``` text
-current domain audit verification
-→ ADR acceptance
-→ pure Swift maintenance rule spike
-→ tests
-→ adapters from current data
-→ MaintenanceSnapshot
-→ one-glance status
-```
+WIP limit: **1** active implementation issue (solo).
 
-No implementation task is considered complete without acceptance
-criteria, tests, logging review, analytics review where relevant, and
-documentation update.
+Legacy tab-bar spike: branch `legacy/spike`. Greenfield implementation: `main`.
 
-## Product identity and public development
+## Current explicit decisions
 
-Additional source documents:
-
--   `17_PRODUCT_DESIGN.md` --- friendly visual direction, semantic color
-    strategy and design validation.
--   `18_NAMING_EXPLORATION.md` --- PitStop name evaluation and rename
-    gate.
--   `19_DEVELOPMENT_DIARY_AND_LINKEDIN.md` --- engineering diary, weekly
-    LinkedIn workflow and metrics.
-
-The current working name remains **PitStop** until beta evidence
-justifies a naming sprint.
-
-## Product engineering operating system
-
--   `20_COMPETITIVE_RESEARCH.md` --- competitor/OSS landscape, feature
-    matrix, strengths and weaknesses.
--   `21_ANALYTICS_SERVICE_DECISION.md` --- analytics comparison and
-    PostHog beta candidate decision.
--   `29_ANALYTICS_QUESTIONS.md` --- `AQ-*` product questions,
-    provisional research thresholds, and decision rules.
--   `30_AI_PRODUCT_ANALYTICS.md` --- AI-assisted analytics workflow,
-    trust boundary, `AIA-001`, and staged adoption.
--   `22_LOGGING_DECISION.md` --- DEBUG-only typed OSLog strategy; no
-    custom logging framework.
--   `23_ENGINEERING_QUALITY_AND_CI.md` --- Instruments gates, quality
-    ledger, hooks and GitHub Actions.
--   `24_PROJECT_MANAGEMENT_AND_GITFLOW.md` --- GitHub Projects, issues,
-    atomic PRs and trunk-based GitHub Flow.
--   `25_MODULAR_ARCHITECTURE.md` --- feature modules, domain boundaries,
-    MVVM + Coordinator and DI rules.
--   `26_DESIGN_SYSTEM.md` --- minimal semantic DesignSystem module.
--   `27_APP_ICON_STRATEGY.md` --- immediate PitStop icon and later
-    alternate icon policy.
-
-Current analytics candidate: **PostHog**, behind typed feature analytics
-protocols, pending a vertical-slice spike.
-
-Current logging decision: **OSLog.Logger with a tiny DEBUG-only typed
-facade**. Do not build a logging framework.
+- Smart driver's journal / contextual car memory is the primary mental model.
+- User-first, not vehicle-first.
+- One provisional car context exists immediately.
+- No mandatory authentication before value.
+- No mandatory voice.
+- No mandatory vehicle questionnaire.
+- Progressive discovery replaces a binary onboarding-completed model.
+- Car Board is the leading root IA.
+- No classical tab bar in the leading hypothesis.
+- Tiles are summary + entrance.
+- V1 tile order and sizes are product-defined.
+- Drag and drop is deferred to V2.
+- Road is a primary product visualisation.
+- Pit is a restrained persistent helper.
+- Pit Eyes / Behind the UI is the working visual hypothesis.
+- Remember is the core capture capability.
+- One Capture Pipeline serves all capture sources.
+- Native Apple interaction patterns are the default.
+- Existing seeded/hard-coded records must be audited before domain migration.

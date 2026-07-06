@@ -2,126 +2,209 @@
 
 ## Product statement
 
-> PitStop is a smart memory for your car.
+> PitStop is a smart driver's journal and contextual memory for a car.
 
-PitStop remembers: - what currently needs attention; - what the owner
-does not want to forget; - what happened to the vehicle.
+> PitStop remembers the car with the driver.
 
-The user should not manage a maintenance database.
+The product starts from the driver's concerns, habits, notes, and real maintenance behaviour. Exact vehicle intelligence may be added progressively.
+
+PitStop is not an AI mechanic, diagnostic scanner, dealership portal, or maintenance database UI.
+
+## Primary mental model
+
+**Contextual car memory.**
+
+Supporting mental models:
+- driver's journal;
+- lightweight service book;
+- maintenance organiser;
+- car history.
+
+Maintenance is a domain inside the product. It is not the whole product identity.
 
 ## Primary jobs to be done
 
-### One-glance status
+### Remember something with minimal friction
 
-> When I look at PitStop, I want to understand in one glance whether
-> maintenance needs my attention.
+> When I remember something about my car, I want to save it immediately without deciding which database form it belongs to.
 
-Success: - the answer is understandable in under two seconds; - the app
-does not claim vehicle health or diagnostics; - the most important
-maintenance state is deterministic.
+Success:
+- capture is reachable quickly;
+- voice is optional, not mandatory;
+- short choices replace typing where practical;
+- raw meaning is preserved;
+- structured meaning is proposed safely;
+- user can inspect and correct stored data.
 
-Failure: - user must inspect a list to understand urgency; - red is used
-for ordinary reminders; - AI invents a severity.
+Failure:
+- capture begins with a form-type picker;
+- the user must type ordinary structured facts;
+- AI writes directly to persistence;
+- ambiguous meaning is silently guessed.
+
+### Understand the car context at a glance
+
+> When I open PitStop, I want to see my car, what matters next, and the memory surfaces I actually use.
+
+Success:
+- Car Board is useful with sparse data;
+- the car remains visually primary;
+- Road exposes meaningful future milestones;
+- tiles provide information before tap;
+- Notes, Service, and History are obvious entrances.
+
+Failure:
+- Home is a menu of empty icon tiles;
+- the first screen is dominated by setup;
+- unknown vehicle data creates broken UI;
+- the user must learn a custom navigation system.
 
 ### Contextual memory
 
-> When I arrive at a car wash or service center, I want to immediately
-> see everything I wanted to remember there.
+> When I arrive at a relevant place or situation, I want to find what I wanted to remember about the car.
 
-Success: - active notes for a canonical context are reachable in one
-obvious action; - notes preserve original user wording; - context
-metadata can be rebuilt.
+Success:
+- notes preserve original wording;
+- context can be inferred or attached without mandatory tag management;
+- interpretation failure never loses the raw memory.
 
-Failure: - user must manually maintain tags; - AI rewriting replaces raw
-text; - an interpretation failure loses a note.
+Failure:
+- user manually maintains a taxonomy;
+- AI rewriting replaces source meaning;
+- captured information disappears into an unclear feature.
 
-### Frictionless capture
+### Maintenance orientation
 
-> When I remember something about the car, I want to tell PitStop
-> naturally instead of selecting a form type.
+> When maintenance matters, I want a calm, understandable view of what is approaching and what happened before.
 
-Success: - text input produces a structured draft; - user confirms
-meaningful mutations; - unsupported input can safely remain a raw note.
+Success:
+- deterministic maintenance state;
+- no false vehicle-health claims;
+- independent operation cycles;
+- user intervals may override defaults;
+- meaningful maintenance events can become Road milestones.
 
-Failure: - LLM writes directly to SwiftData; - model availability blocks
-core use; - ambiguous facts are silently guessed.
+Failure:
+- red is used for ordinary reminders;
+- AI invents urgency;
+- manufacturer defaults are presented without provenance;
+- all maintenance is collapsed into one scalar health score.
 
-### Maintenance planning
+## First-launch contract
 
-> When several required maintenance operations converge, I want PitStop
-> to compose one practical service plan.
+Opening PitStop implies a likely car context but does not require a completed vehicle profile.
 
-Success: - each maintenance operation retains an independent
-lifecycle; - nearby due operations are grouped into one practical
-visit; - required procedure components, due work, nearby due work,
-optional consumables and service notes are distinguished; - only
-confirmed performed operations reset cycles.
+The app opens directly into a usable Car Board with a provisional context:
 
-Failure: - completing a visit marks every planned task done; - optional
-cabin filter replacement becomes a mandatory due item without a rule; -
-skipping DSG silently moves its anchor.
+```text
+My New Car
+0 km
+vehicle details unknown
+```
 
-## Product boundaries
+This is a provisional product context, not a factual claim that the user bought a new vehicle.
 
-PitStop is not: - an OBD diagnostic product; - a vehicle-health
-oracle; - a general expense tracker; - a service-center CRM; - an AI
-chat product; - a multi-car fleet manager in the current beta.
+The app must not require:
+- authentication;
+- VIN;
+- make/model;
+- engine;
+- fuel type;
+- gearbox;
+- a multi-step onboarding flow.
+
+Progressive discovery asks one short question at a time only when the answer unlocks near-term value.
+
+There is no required binary `onboarding_completed` product state.
+
+## Progressive discovery
+
+Preferred interactions:
+- Yes / No;
+- 2–4 answer slots;
+- `Other`;
+- `I don't know`;
+- optional voice/text when the user explicitly wants to tell more.
+
+The system may use locale or App Store region to order likely choices. It must never silently infer vehicle truth from region.
+
+Every discovery question must have:
+- value unlocked;
+- domain concept affected;
+- behaviour changed;
+- deferral path.
+
+Do not classify the user as `geek` or `beginner`. Infer desired detail depth from behaviour.
+
+## Pit boundary
+
+Pit is a persistent helper for:
+1. capture;
+2. clarification;
+3. progressive discovery.
+
+Pit is not:
+- root navigation;
+- a chat tab;
+- the only input method;
+- a generic AI assistant;
+- an AI mechanic by default;
+- a source of unsolicited technical claims.
+
+The application remains fully usable without Pit.
 
 ## Product principles
 
-1.  The app remembers; the user should not manage a database.
-2.  Raw user facts are source of truth. AI metadata is derived.
-3.  Swift decides maintenance truth and severity.
-4.  AI interprets natural input and selects relevance; it does not
-    calculate service truth.
-5.  Natural input first, structured confirmation second.
-6.  Never claim vehicle health without diagnostic evidence.
-7.  One glance answers whether maintenance needs attention.
-8.  A note must be easier to create than a reminder form.
-9.  Context helps recall notes where they are useful.
-10. History records car life; expenses are attributes of events.
-11. Manufacturer guidance, vehicle-reported data and user policy are
-    separate sources.
-12. Maintenance policy is configurable per maintenance operation.
-13. Service visits do not own maintenance schedules.
-14. Independent maintenance cycles may be composed into one practical
-    service plan.
-15. A required procedure component is not the same as an optional
-    recommendation.
-16. A planned operation is not a completed operation.
-17. CarPlay and motion are signals, not odometer truth.
-18. A wrong vehicle image is worse than a deliberate neutral
-    placeholder.
-19. Every AI feature needs a safe non-AI path.
-20. One-car beta is a research boundary, not permanent architecture.
-21. If PitStop cannot confidently match an official schedule, it says so
-    rather than guessing.
-22. Product telemetry must not collect raw notes, voice transcripts, VIN
-    or service-document text by default.
+1. User-first, not vehicle-first.
+2. Value before profile completion.
+3. Remember first; classify second.
+4. Raw user meaning is never discarded.
+5. AI proposes; deterministic domain code decides.
+6. One question at a time.
+7. Unknown is a valid state.
+8. Sparse UI must still look intentional.
+9. Native Apple patterns are the default.
+10. Pit may look alive without permission; Pit may interrupt only for measurable value.
+11. The user can always inspect and correct stored data.
+12. Do not build future intelligence before the product core is validated.
 
-## North-star research question
+## Explicit non-goals for the first product slice
 
-After 30 days of real use:
+- vehicle diagnostics;
+- health score;
+- predictive failure detection;
+- full fleet management;
+- mandatory cloud account;
+- generic chatbot;
+- complete manufacturer database;
+- VIN-first setup;
+- custom dashboard builder;
+- user-resizable tiles;
+- CarPlay before investigation;
+- AI-generated maintenance truth.
 
-> Did PitStop prevent the owner from forgetting something or reduce the
-> effort of planning/recording vehicle maintenance?
+## Product-core success criteria
 
-If five beta users do not experience this value, adding more AI is not
-success.
+- first value without authentication;
+- Car Board immediately renders a coherent car context;
+- Notes, Service, and History are understandable without tutorial prose;
+- Road communicates at least one meaningful next horizon when data exists;
+- Settings is one tap away;
+- Pit is one tap away;
+- a thought can be captured with minimal friction;
+- captured data has an understandable destination;
+- stored data can be inspected and corrected;
+- the app remains useful when AI is unavailable.
 
-## Beta success criteria
+## Product-core failure criteria
 
-Product beta is successful if: - at least 4/5 testers complete vehicle
-setup; - at least 3/5 create three or more real notes or history
-events; - at least 3/5 return to a context view or maintenance status
-without being prompted by the developer; - natural input draft save rate
-is at least 70% for supported intents; - edit-before-save rate is
-measured and explainable; - no known data-loss bug remains open; - no
-maintenance cycle resets from unconfirmed work; - users can explain the
-home status without developer instruction.
-
-Product beta is unsuccessful or requires redesign if: - most usage is
-developer-driven; - users treat PitStop as a static checklist only; -
-context views are not used; - natural input requires repeated
-corrections; - maintenance status cannot be trusted; - the product
-requires a long onboarding before first value.
+- setup blocks Home;
+- a vehicle form is mandatory;
+- authentication is required before value;
+- Pit is required for navigation;
+- Car Board becomes empty navigation tiles;
+- ordinary capture requires typing;
+- users cannot understand where captured information went;
+- Road is decorative rather than informative;
+- Pit interrupts without visible value;
+- manufacturer data becomes a prerequisite for usefulness.

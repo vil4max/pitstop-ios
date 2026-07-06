@@ -1,266 +1,224 @@
 # Product Design Direction
 
-**Status:** Product design baseline\
-**Decision:** move away from Volkswagen-brand visual language as the
-primary PitStop identity.
+**Status:** authoritative product design direction
 
 ## Design objective
 
-PitStop should feel like a calm, friendly personal car companion.
-
-It should not feel like: - a Volkswagen application; - a dealership
-portal; - a diagnostic scanner; - a dark automotive dashboard; - a
-warning system; - a motorsport product.
+PitStop should feel like a calm, modern journal for a car the driver cares about.
 
 Target qualities:
 
-``` text
+```text
 calm
-friendly
 clear
-light
 personal
 modern
+light
 slightly playful
+tactile
 trustworthy
 ```
 
-## Visual principle
+It must not feel like:
+- a dealership portal;
+- a diagnostic scanner;
+- a fleet dashboard;
+- a warning system;
+- a motorsport product;
+- a children's game;
+- an AI chat wrapper.
 
-> Neutral surfaces. One calm accent. Semantic maintenance colors only
-> where state matters.
+## Root visual concept
 
-The current heavy Volkswagen blue/dark direction should be treated as an
-experiment, not the product identity.
+> Home is the car. Everything else is a view into its memory.
 
-## P0 palette direction
+The leading root IA is **Car Board**.
 
-Recommended starting direction:
+The car is visually primary. Supporting information is composed from product-defined summary tiles.
 
-``` text
-Surface / canvas
-warm or cool near-white / system background
+Tiles are **summary + entrance**, not navigation buttons.
 
-Secondary surface
-soft neutral gray
+Primary Car Board content:
+- Car Hero;
+- Road;
+- Notes summary;
+- Service summary;
+- History summary;
+- later, Expenses or other validated summaries.
 
-Primary accent
-soft clear blue
+## Layout direction
 
-Text
-system semantic label colors
+Initial target: portrait iPhone.
 
-Success
-system green / tuned semantic token
+Two tile primitives only:
 
-Approaching
-warm amber
-
-Due
-soft orange
-
-Danger
-red — reserved for real destructive/error/danger states
+```text
+.full
+.half
 ```
 
-Do not use red for normal maintenance due state.
+V1:
+- product-defined order;
+- product-defined sizes;
+- no resizing;
+- no drag and drop.
 
-Do not use a saturated brand blue as a large full-screen background.
+V2 candidate:
+- long press;
+- haptic lift;
+- drag;
+- deterministic grid reflow;
+- persisted order.
 
-## Candidate visual character
+Do not build a generic dashboard framework.
 
-Working direction:
+## Persistent bottom utility layer
 
-``` text
-Cloud Blue + Soft Gray + Warm Amber
+Current spatial direction:
+
+```text
+[ Settings ]                         [ Pit Eyes ]
 ```
 
-This is a character description, not a fixed hex palette.
+This is not a tab bar.
 
-Example token roles:
+The interaction reference is the spatial treatment of separate circular utility actions beside/around a lower content area, similar to the left/right separate controls in the provided messenger reference. This is a positional and mechanical reference only; do not visually copy another application.
 
-``` swift
-surfacePrimary
-surfaceSecondary
-surfaceElevated
+Settings:
+- one tap away;
+- bottom-leading;
+- visually clear;
+- never hidden in overflow or only top-trailing.
 
-contentPrimary
-contentSecondary
-contentTertiary
+Pit:
+- always available on primary/detail screens;
+- bottom-trailing;
+- custom;
+- visually distinct;
+- not a floating `+`;
+- not AI sparkle;
+- not a tab.
 
-accentPrimary
+## Pit visual hypothesis
 
-statusUpToDate
-statusApproaching
-statusDue
-statusDanger
+**Pit Eyes / Behind the UI.**
 
-separator
-```
+The eyes are the character. Pit does not require a body.
 
-The implementation should use semantic design tokens rather than
-`Color.blue`, Volkswagen hex values, or direct RGB literals throughout
-views.
+Avoid:
+- cartoon mechanic;
+- robot;
+- animated tool;
+- mouth/hands;
+- oversized cute mascot eyes;
+- Pixar-like body language;
+- generic AI sparkle.
 
-## Dynamic color without overengineering
+Pit visually lives behind the interface and is expressed through gaze, eyelids, timing, and small movements.
 
-P0: - support system Light and Dark appearances; - define semantic color
-assets/tokens with light/dark variants; - use system semantic colors for
-text/background where possible; - define only the minimum custom PitStop
-tokens.
+> Pit waits nearby.
 
-Do not build: - user-selectable themes; - per-vehicle themes; - dynamic
-palette generation from car photo; - remote theme configuration; - a
-general design-system framework.
+See `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`.
 
-Future experiment: - optional vehicle/personality accent; -
-photo-derived accent; - seasonal or context accents.
+## Screen grammar
 
-These require a product reason and an investigation.
+All primary and detail screens share:
+- consistent navigation rhythm;
+- top inset logic;
+- content width;
+- horizontal padding;
+- section spacing;
+- card geometry;
+- vertical scrolling;
+- bottom utility layer;
+- stable Pit position.
 
-## Dark mode
+Header pattern:
 
-Dark mode remains supported because it is a system appearance.
-
-It is not the primary brand direction.
-
-The dark palette should feel like the same calm product in a low-light
-environment, not a black automotive cockpit.
-
-Avoid: - pure black as a branding decision; - neon blue; - excessive
-glowing borders; - dashboard/gauge visual metaphors.
-
-## Status hero
-
-The one-glance status should use:
-
-``` text
-icon
-short state
-one supporting fact
+```text
+eyebrow / context
+large title
+optional trailing action
 ```
 
 Examples:
 
-``` text
-✓
-All caught up
-Next service in about 3,200 km
+```text
+MY CAR
+Arteon
 ```
 
-``` text
-!
-Service approaching
-Engine oil in about 900 km
+```text
+ARTEON
+Notes
 ```
 
-``` text
-●
-Time to service
-Engine oil service is due
+The large car photo belongs primarily on Car Board. Do not repeat the hero on every screen.
+
+## Visual principle
+
+> Neutral surfaces. One calm accent. Semantic maintenance colours only where state matters.
+
+Use semantic system-aware colours and design tokens.
+
+Recommended character:
+
+```text
+Cloud Blue + Soft Gray + Warm Amber
 ```
 
-Color is reinforcement, not the only information channel.
+This is not a fixed hex palette.
 
-Required: - icon/shape; - text; - accessible contrast; - VoiceOver
-meaning.
+Red is reserved for destructive, error, or genuine danger states. Ordinary maintenance due state must not use danger semantics.
 
-## Card design
+## Car image
 
-Prefer: - generous whitespace; - moderate corner radius; - low visual
-noise; - clear hierarchy; - restrained material usage; - one primary
-action per card where possible.
+The driver's relationship with the car is important. Car Hero is high-value.
 
-Avoid: - every section as a bordered card; - heavy shadows; - automotive
-carbon/metal textures; - gradients without semantic purpose; - dense
-status chips.
+Do not require a photo during first launch.
 
-## Typography
+Fallback order:
+1. user photo;
+2. validated model-aware visual;
+3. validated make-aware visual;
+4. neutral abstract car visual.
 
-Use the system typography and Dynamic Type.
+Never show a random unrelated car as if it were the user's vehicle.
 
-The product voice should be plain and concise.
+## Native Apple boundary
 
-Prefer:
+Default to native Apple components and interaction patterns:
+- SwiftUI;
+- NavigationStack;
+- ScrollView;
+- sheets;
+- confirmation dialogs;
+- menus where semantically appropriate;
+- PhotosPicker;
+- ContentUnavailableView;
+- sensory feedback;
+- system typography;
+- semantic colours;
+- SF Symbols.
 
-``` text
-Service approaching
-Engine oil in about 900 km
-```
+Custom identity should concentrate in:
+- Car Hero;
+- Road;
+- Pit Eyes;
+- Pit Capture Surface;
+- maintenance visualisation;
+- Car Board summary tiles where native components are insufficient.
 
-Avoid:
+> If a standard Apple component solves the interaction, PitStop must justify replacing it.
 
-``` text
-CRITICAL MAINTENANCE ALERT
-ENGINE LUBRICATION SERVICE THRESHOLD 88% EXCEEDED
-```
+## Accessibility
 
-## Vehicle image
+Support:
+- Dynamic Type;
+- VoiceOver;
+- Reduce Motion;
+- sufficient contrast;
+- non-colour status meaning;
+- minimum practical hit targets.
 
-The driver may have emotional attachment to the car. A personal photo
-can be a high-value personalization surface.
-
-P0: - deliberate neutral vehicle placeholder; - photo optional; - no
-photo required during onboarding.
-
-P1: - PhotosPicker; - crop/position; - image downsampling/storage
-review.
-
-Exact model image catalog: - INVESTIGATE licensing, exact-generation
-matching and source quality.
-
-A wrong car image is a product failure.
-
-## Design validation tasks
-
-### DSGN-001 Current UI visual inventory
-
-Capture every current screen and classify: - Volkswagen-specific
-color; - fixed color; - semantic system color; - status color; -
-decorative color.
-
-Success: - inventory exists; - no redesign yet.
-
-### DSGN-002 Introduce minimal semantic color tokens
-
-Tests: - snapshot/UI validation where practical; - contrast/manual
-accessibility checklist.
-
-Success: - core screens no longer depend directly on VW brand colors; -
-light/dark variants exist; - token count remains small.
-
-Failure: - generic theme engine is introduced.
-
-### DSGN-003 Status hero visual spike
-
-Create 3 visual variants: 1. icon-led; 2. soft tinted status surface; 3.
-neutral surface with status accent.
-
-Test with five-second comprehension review.
-
-Success: - viewer can state status and next concern without explanation.
-
-### DSGN-004 Friendly home hierarchy
-
-Goal: - car identity/personal photo; - one-glance status; - next
-service; - contextual notes.
-
-Failure: - home becomes an analytics dashboard.
-
-## Design success criteria
-
--   5-second status comprehension: 5/5 internal/beta checks.
--   No maintenance meaning relies on color alone.
--   Dynamic Type does not break critical status hierarchy.
--   Light and Dark appearances both pass the release visual checklist.
--   User can identify PitStop screenshots without Volkswagen branding.
--   Beta interviews do not describe the app primarily as "dark",
-    "technical", or "dealer-like".
-
-## Design failure criteria
-
--   the UI looks like a generic automotive dashboard;
--   dark mode dictates the brand;
--   blue is used everywhere because the current car is Volkswagen;
--   semantic status colors become decorative accents;
--   a theme architecture is built before a second real theme exists.
+Pit's life must not depend on animation. Road meaning must not depend only on spatial animation.

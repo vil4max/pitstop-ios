@@ -1,8 +1,8 @@
 # pitstop-ios
 
-Personal car diary: odometer, service visits, reminders, and insurance for your vehicle.
+Smart driver's journal and contextual car memory for your vehicle (greenfield rebuild on `main`).
 
-**Pitstop** ships with optional demo data for one vehicle. Future versions can support multiple cars by adding a vehicle manually or decoding a VIN to pre-fill make, model, and year.
+**Legacy tab-bar spike** (pre–Car Board): branch [`legacy/spike`](https://github.com/vil4max/pitstop-ios/tree/legacy/spike).
 
 ## Distribution
 
@@ -13,13 +13,7 @@ Personal car diary: odometer, service visits, reminders, and insurance for your 
 
 ## Screenshots
 
-Launch → My car → Service (default tab order).
-
-<p align="center">
-  <img src="screenshots/01-launch.png" width="220" alt="Launch screen" />
-  <img src="screenshots/02-my-car.png" width="220" alt="My car — odometer and status widgets" />
-  <img src="screenshots/03-service.png" width="220" alt="Service — visit schedule and task lists" />
-</p>
+Legacy UI (tab bar) — see `legacy/spike`. Greenfield screenshots TBD after Car Board ships.
 
 ## Stack
 

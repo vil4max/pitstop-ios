@@ -84,7 +84,7 @@ duration; - unexpected hot symbols.
 Record: - fetch/projection duration; - peak memory; - retained growth
 after repeated flow.
 
-#### Tell PitStop / Foundation Models
+#### Remember / Foundation Models
 
 -   signposted interpretation latency;
 -   main-thread responsiveness;
