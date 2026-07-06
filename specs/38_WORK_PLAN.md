@@ -42,7 +42,7 @@ Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
 
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
-| DOM-001 | Domain inventory from specs (`02`, `34`, `32`) | 1d | — | ready | — |
+| DOM-001 | Domain inventory from specs (`02`, `34`, `32`) | 1d | — | tracked | #1 |
 | DOM-002 | Spec-derived test fixtures | 1d | DOM-001 | ready | — |
 | DOM-003 | Capture domain types + confirmation policy tests | 4d | DOM-001 | ready | — |
 | DOM-004 | ADR-001 open questions closure | 1d | — | ready | — |
