@@ -51,7 +51,7 @@ Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
 
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
-| BOOT-001 | Greenfield app target + folder tree + empty build | 2d | — | done | — |
+| BOOT-001 | App target + folder tree + empty build | 2d | — | done | — |
 | ENG-001 | Logging facade | 1d | BOOT-001 | done | — |
 | ENG-003 | CI quality gates | 2d | BOOT-001 | done | — |
 | ENG-004 | Persistence + provisional car context | 3d | DOM-003, BOOT-001 | ready | — |

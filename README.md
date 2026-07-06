@@ -1,8 +1,8 @@
-# pitstop-ios
+# PitStop
 
-Smart driver's journal and contextual car memory for your vehicle (greenfield rebuild on `main`).
+Smart driver's journal and contextual car memory for your vehicle.
 
-**Legacy tab-bar spike** (pre–Car Board): branch [`legacy/spike`](https://github.com/vil4max/pitstop-ios/tree/legacy/spike).
+**Current app:** `main`. **Legacy tab-bar spike:** branch [`legacy/spike`](https://github.com/vil4max/pitstop-ios/tree/legacy/spike).
 
 ## Distribution
 
@@ -13,7 +13,7 @@ Smart driver's journal and contextual car memory for your vehicle (greenfield re
 
 ## Screenshots
 
-Legacy UI (tab bar) — see `legacy/spike`. Greenfield screenshots TBD after Car Board ships.
+Legacy UI (tab bar) — see `legacy/spike`. Car Board screenshots TBD.
 
 ## Stack
 
