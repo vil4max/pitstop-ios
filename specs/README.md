@@ -142,7 +142,11 @@ WIP limit: **1** active implementation issue (solo).
 
 Legacy tab-bar spike: branch `legacy/spike`. Current product: `main`.
 
-**GitHub Project:** [PitStop board](https://github.com/users/vil4max/projects/2). Create with `gh project create --owner vil4max --title "PitStop"`. Columns: Backlog → Ready → In progress (max 1) → In review → Done. Labels: `domain`, `ui`, `capture`, `investigation`, `ci`, `p0`, `p1`, `blocked`.
+**GitHub Project:** [PitStop board #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36. Board columns: Backlog → Ready → In progress (max 1) → In review → Done.
+
+**Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. PR must pass CI (branch check, SwiftFormat, build, tests).
+
+**Branch protection (enable in repo settings):** require PR + status checks `branch-name`, `quality`, `build-and-test` before merge to `main`.
 
 ## Current explicit decisions
 
