@@ -18,7 +18,7 @@ jobs:
       - name: Install SwiftFormat
         run: brew install swiftformat
       - name: Lint Swift formatting
-        run: swiftformat --lint Pitstop PitstopTests
+        run: swiftformat Pitstop PitstopTests --lint
 
   build-and-test:
     runs-on: macos-15
