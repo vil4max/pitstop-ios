@@ -1,5 +1,5 @@
-import Testing
 @testable import Pitstop
+import Testing
 
 @Suite("ProvisionalCarContext")
 struct ProvisionalCarContextTests {
