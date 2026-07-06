@@ -51,9 +51,9 @@ Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
 
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
-| BOOT-001 | Greenfield app target + folder tree + empty build | 2d | — | ready | — |
-| ENG-001 | Logging facade | 1d | BOOT-001 | ready | — |
-| ENG-003 | CI quality gates | 2d | BOOT-001 | ready | — |
+| BOOT-001 | Greenfield app target + folder tree + empty build | 2d | — | done | — |
+| ENG-001 | Logging facade | 1d | BOOT-001 | done | — |
+| ENG-003 | CI quality gates | 2d | BOOT-001 | done | — |
 | ENG-004 | Persistence + provisional car context | 3d | DOM-003, BOOT-001 | ready | — |
 | ENG-002 | Analytics boundary | 2d | CB-002 | deferred | — |
 | ANL-001 | Provider-neutral analytics spike | 2d | ENG-002 | deferred | — |
@@ -122,8 +122,6 @@ Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
 | LEG-001 | Tab-bar spike preserved on `legacy/spike` | — | — | done | — |
-
-## Suggested pick-up order
 
 ```text
 BOOT-001 → ENG-001 → ENG-003 → DOM-001 → DOM-003 → ENG-004
