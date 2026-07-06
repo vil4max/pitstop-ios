@@ -1,8 +1,9 @@
 # Work Plan
 
 **Status:** authoritative execution horizon  
-**Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2)  
-**WIP limit:** 1 implementation task in **In progress** (solo)  
+**Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
+**Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
+**WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
 **Estimates:** ideal focused dev days  
 **Process:** [`24_PROJECT_MANAGEMENT_AND_GITFLOW.md`](24_PROJECT_MANAGEMENT_AND_GITFLOW.md)
 
@@ -49,7 +50,7 @@ CI checks on every PR: branch name, SwiftFormat, build, tests.
 
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
-| DOM-001 | Domain inventory from specs | 1d | — | tracked | #1 |
+| DOM-001 | Domain inventory from specs | 1d | — | done | #1 |
 | DOM-002 | Spec-derived test fixtures | 1d | DOM-001 | tracked | #2 |
 | DOM-003 | Capture domain + policy tests | 4d | DOM-001 | tracked | #3 |
 | DOM-004 | ADR-001 closure | 1d | — | tracked | #4 |
@@ -137,3 +138,14 @@ DOM-001 → DOM-002 → DOM-003 → ENG-004 → INV-ROAD-* → CB-001…007 → 
 ```
 
 Deferred after M4: DISC-*, SYS-*, MNT-INT-001, ENG-002, ANL-001.
+
+## Backlog vs active work
+
+| Layer | Role |
+|---|---|
+| `38_WORK_PLAN.md` | Horizon, estimates, deps, issue links |
+| GitHub Project #2 | Board/Table — see all tasks and status |
+| GitHub issues #1–#36 | Acceptance detail per task |
+| Specs `01`, `31`–`36`, `34` | Product contracts — not replaced by issues |
+
+Create issues upfront for the full horizon. Move only **one** card to **In progress** at a time. On issue close: row → `done` in this file.
