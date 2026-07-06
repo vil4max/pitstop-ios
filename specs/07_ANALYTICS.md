@@ -63,7 +63,7 @@ noun_verb
 Examples:
 
 ``` text
-onboarding_completed
+car_context_first_enriched
 note_created
 note_archived
 note_context_opened
@@ -97,11 +97,11 @@ context=car_wash
 
 | Event | Product question / requirement | Status |
 | --- | --- | --- |
-| `onboarding_completed` | `AQ-002` lightweight vehicle setup | `P0` |
+| `car_context_first_enriched` | `AQ-002` lightweight vehicle setup | `P0` |
 | `note_created` | `AQ-001`, `AQ-003` | `P0` |
 | `note_context_opened` | `AQ-001` contextual recall value | `P0` |
 | `note_archived` | `AQ-001` funnel support | `P0` |
-| `input_interpretation_completed` | `AQ-004` Tell PitStop friction | `P0` |
+| `input_interpretation_completed` | `AQ-004` Remember friction | `P0` |
 | `draft_saved` | `AQ-004` | `P0` |
 | `draft_cancelled` | `AQ-004` | `P0` |
 | `odometer_updated` | `AQ-002`; release diagnostic for vehicle facts | `P0` |
@@ -114,7 +114,7 @@ Thresholds and decision rules live in `29_ANALYTICS_QUESTIONS.md`.
 
 ## P0 event taxonomy
 
-### onboarding_completed
+### car_context_first_enriched
 
 Parameters:
 

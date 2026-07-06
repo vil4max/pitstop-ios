@@ -1,214 +1,186 @@
 # AI Architecture
 
-## Shared trust-boundary principle
+## Trust boundary
 
-> AI interprets truth. AI does not own truth.
+> AI interprets human input. AI does not own product truth.
 
-Product runtime:
+Runtime:
 
-``` text
-MaintenanceDomain
-→ deterministic truth
-→ AI may explain or compose a typed draft
+```text
+CaptureInput
+    ↓
+Semantic Interpreter
+    ↓
+MemoryProposal
+    ↓
+Deterministic validation
+    ↓
+ConfirmationPolicy
+    ↓
+DomainCommand
+    ↓
+Domain mutation + persistence
 ```
 
-Product-development analytics:
+Product analytics:
 
-``` text
-Analytics engine
-→ deterministic evidence
-→ AI may interpret and propose hypotheses
+```text
+Analytics evidence
+    ↓
+AI-assisted interpretation
+    ↓
+Product hypothesis
 ```
 
-These are separate systems. Do not merge maintenance AI runtime with
-AI Product Analyst workflow.
+These are separate systems. Do not merge runtime semantic interpretation with AI Product Analyst workflows.
 
-AI-assisted product analytics workflow:
-`30_AI_PRODUCT_ANALYTICS.md`
-
-MCP and PostHog MCP are development-tool integrations, not iOS runtime
-architecture.
-
-## Role of the local model
-
-Foundation Models is an interface layer between human language and the
-deterministic PitStop domain.
+## Role of the model
 
 Allowed roles:
+1. Semantic Interpreter for Remember.
+2. Clarification proposal generator.
+3. Attention editor for bounded summaries.
+4. Later: document extraction assistant.
+5. Later: planned-vs-actual reconciliation assistant.
 
-1.  **Input Interpreter**
-2.  **Attention Editor**
-3.  Later: **document extraction assistant**
-4.  Later: **planned-vs-actual reconciliation assistant**
+The model is not:
+- the maintenance engine;
+- the Road engine;
+- persistence;
+- a direct SwiftData writer;
+- a diagnostic system;
+- the owner of confirmation policy.
 
-The model is not the maintenance engine.
+## Capture architecture
 
-## Input Interpreter
+All sources produce `CaptureInput`.
 
-Pipeline:
-
-``` text
-text / transcript / recognized document text
+```text
+Pit voice
+Pit text
+Siri
+App Shortcut
+Widget capture
+Direct app capture
+Recognized document text
         ↓
-InputInterpreter
-        ↓
-structured draft
-        ↓
-domain validation
-        ↓
-user confirmation
-        ↓
-domain command
-        ↓
-persistence
-        ↓
-recalculation
+CaptureInput
 ```
 
-Initial supported intents:
+A source may add context:
 
-``` text
-note
-odometer
-carWashHistory
-basicServiceHistory
+```text
+source
+selectedVehicleID
+visibleFeature
+visibleEntityID
+locale
+timestamp
 ```
 
-Later:
+Context changes semantic priors. It must not constrain the interpreter to one domain.
 
-``` text
-insurance
-purchase
+Example: input from the Service screen may still become a Note.
+
+## MemoryProposal
+
+A model output is a typed proposal, never persisted truth.
+
+Conceptual proposal kinds:
+
+```text
+rawNote
+contextualNote
+odometerReading
+vehicleFact
+maintenanceCompletion
 maintenancePolicyDraft
-documentServiceDraft
+vehicleEvent
+expense
+reminderCandidate
+unknown
 ```
 
-## Draft rule
+A proposal must be:
+- typed;
+- validatable without the model;
+- inspectable;
+- cancellable;
+- convertible to deterministic domain commands;
+- observable through privacy-safe telemetry.
 
-A model output is a draft, never persisted truth.
+If confidence or domain support is insufficient, preserve the input as a raw memory proposal rather than invent structure.
 
-Every draft must be: - typed; - validatable without the model; -
-editable; - cancellable; - observable through non-sensitive telemetry.
+## Confirmation policy
 
-## Fallback
+Confirmation is a deterministic policy owned outside the model.
 
-Foundation Models availability must be checked.
+Possible outcomes:
 
-Core product behavior must survive: - ineligible device; - Apple
-Intelligence disabled; - model unavailable; - unsupported language
-behavior; - generation error.
-
-Fallback: - Notes always work. - Manual odometer update always works. -
-Explicit maintenance/history flows remain available. - Unsupported
-natural input may be saved as a raw note after user confirmation.
-
-## Guided generation before broad tool calling
-
-Use the smallest model capability that solves the task.
-
-Preferred progression:
-
-``` text
-typed guided generation
-→ evaluation
-→ only then tool calling where the model truly needs app knowledge/actions
+```text
+autoAcceptSafe
+confirmCompact
+clarify
+preserveRaw
+rejectUnsupported
 ```
 
-Tool calling is justified when the model must retrieve current app state
-or invoke bounded domain capabilities.
+Always investigate/confirm high-impact mutations such as:
+- maintenance completion that resets a cycle;
+- exact vehicle facts used for applicability;
+- destructive replacement of existing data;
+- custom maintenance interval changes.
 
-Example future tools:
+Do not ask for confirmation merely because AI was involved. Confirmation cost must correspond to mutation risk and ambiguity.
 
-``` text
-searchActiveNotes(context)
-getMaintenanceSnapshot()
-getOperationHistory(operationID)
-```
+## Foundation Models
 
-Mutation tools should be approached conservatively. Prefer drafts and
-explicit domain commands.
+Apple Foundation Models may be a preferred local interpreter where available and validated.
 
-## Evaluations are part of the feature
+Availability must be checked.
 
-Every supported intent requires a golden dataset.
+The product must survive:
+- ineligible device;
+- Apple Intelligence disabled;
+- model unavailable;
+- unsupported language quality;
+- generation failure;
+- schema failure.
 
-Initial minimum: 50 real phrases.
+Fallback order is a product/architecture decision to validate. The safe terminal fallback is preserving the raw capture.
 
-Coverage: - Russian; - Ukrainian automotive vocabulary in otherwise
-Russian speech; - English automotive terms; - typos; - speech-like
-fragments; - omitted currency; - relative dates; - ambiguous operation
-names; - unsupported requests.
+## Pit and AI
 
-For each case record:
+Pit is a product interaction layer, not the model.
 
-``` text
-input
-expected intent
-expected required fields
-allowed optional differences
-must ask/confirm ambiguity
-must not infer
-```
+Pit may:
+- open capture;
+- show a proposal;
+- ask one clarification;
+- communicate completion;
+- progressively ask a high-value question.
 
-Model quality gates:
+Pit must not imply model certainty where the proposal is ambiguous.
 
-``` text
-supported intent classification ≥ 90% on local golden set
-critical numeric extraction ≥ 95%
-unsafe silent mutation = 0
-unsupported input data loss = 0
-```
+## Testing
 
-These are initial engineering gates, not claims of statistical product
-quality.
+Test:
+- source-to-`CaptureInput` mapping;
+- interpreter schema decoding;
+- proposal validation;
+- confirmation policy;
+- proposal-to-command mapping;
+- unsupported/ambiguous fallback;
+- AI unavailable fallback;
+- raw input preservation;
+- privacy-safe telemetry.
 
-## Tool-calling evaluation
+Model quality evaluation is separate from deterministic unit tests.
 
-When tools are introduced, evaluate: - expected tool trajectory; -
-argument values; - call ordering; - no unnecessary mutation call; - no
-repeated tool loop.
+## Related specifications
 
-## Prompt/version observability
-
-Every interpretation result should have non-sensitive technical metadata
-available locally/logged:
-
-``` text
-interpreterVersion
-model availability state
-intent
-latency bucket
-result type
-validation outcome
-draft edited?
-saved?
-```
-
-Do not log raw input in production telemetry by default.
-
-Debug builds may support an explicit local-only AI trace.
-
-## Attention Editor
-
-Input: - deterministic `MaintenanceSnapshot`; - selected relevant
-notes/counts; - no hidden world knowledge required.
-
-Output: - one short title; - one short detail; - optional highlighted
-entity ID.
-
-Constraints: - cannot change severity; - cannot invent vehicle
-condition; - cannot invent a due date; - deterministic fallback always
-exists.
-
-## AI feature success criteria
-
-A natural-input feature is successful when it reduces input friction
-without reducing trust.
-
-Measure: - save rate; - edit-before-save rate; - cancel rate; - fallback
-rate; - interpretation latency; - repeated retry rate.
-
-Failure: - user learns prompt tricks; - drafts need routine structural
-repair; - AI feature becomes required to access a core capability; -
-telemetry requires collecting private raw notes to understand basic
-failures.
+- `34_CAPTURE_PIPELINE_SPEC.md`
+- `02_DOMAIN_MODEL.md`
+- `03_MAINTENANCE_ENGINE.md`
+- `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
+- `30_AI_PRODUCT_ANALYTICS.md`

@@ -84,7 +84,7 @@ Study: - unified logging; - privacy-aware log interpolation; - Logger
 categories; - signposts; - Instruments; - MetricKit; - Crashlytics
 correlation.
 
-Lab output: - one documented end-to-end trace for `Tell PitStop`; - one
+Lab output: - one documented end-to-end trace for `Remember`; - one
 documented end-to-end trace for maintenance snapshot rebuild.
 
 ## AI-assisted analytics laboratory metrics

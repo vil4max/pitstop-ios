@@ -145,7 +145,7 @@ Do users complete lightweight vehicle setup without abandoning onboarding?
 ### Required events
 
 ``` text
-onboarding_completed
+car_context_first_enriched
 odometer_updated
 ```
 
@@ -208,14 +208,14 @@ description: at least 3 of 5 invited beta users create at least one
 If below threshold, prioritize input friction, value clarity, and demo
 vs real-data boundaries before expanding Note types.
 
-## AQ-004 — Tell PitStop input friction
+## AQ-004 — Remember input friction
 
 **Question version:** 1\
 **Status:** `P0`
 
 ### Product question
 
-Does Tell PitStop reduce input friction for supported intents?
+Does Remember reduce input friction for supported intents?
 
 ### Required events
 

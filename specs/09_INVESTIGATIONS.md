@@ -2,7 +2,7 @@
 
 An investigation is complete only when it ends with:
 
-``` text
+```text
 Question
 Evidence
 Options
@@ -13,109 +13,219 @@ Implementation impact
 Follow-up tasks
 ```
 
-## INV-001 Official maintenance data
+## Product-core investigations
 
-Question: Can PitStop legally and reliably curate official manufacturer
-maintenance recommendations?
+### INV-PROD-001 Repeated value after week one
 
-Investigate: - source availability; - redistribution rights; - market
-specificity; - model-year/powertrain applicability; - source revision; -
-correction workflow.
+Question: Does contextual car memory create repeated value after initial setup curiosity?
 
-Success: - at least one manufacturer can be represented with explicit
-provenance and applicability.
+Evidence:
+- dogfood;
+- small beta;
+- Remember frequency;
+- return sessions;
+- interviews.
 
-Failure: - data requires guessing or prohibited redistribution.
+Failure signal: product becomes a one-time vehicle setup exercise.
 
-## INV-002 Procedure composition
+### INV-PROD-002 Remember habit
 
-Question: Can official sources reliably identify required components of
-procedures?
+Question: Is `Remember` frequent and useful enough to become a recurring behaviour?
 
-Example: - oil; - filter; - seal/plug where applicable.
+Measure:
+- time to first memory;
+- memories per active week;
+- capture source;
+- correction rate;
+- retrieval/open rate.
 
-Success: - procedure composition is sourced per applicability.
+### INV-PROD-003 Car Board comprehension
 
-Failure: - global assumptions such as `DSG = fluid + filter` are needed.
+Question: Is Car Board obvious without tabs?
 
-## INV-003 Service grouping
+Test:
+- first-use task comprehension;
+- feature discovery;
+- Settings discovery;
+- Pit discovery.
 
-Question: What grouping window matches real owner behavior?
+Failure: users hunt for navigation or interpret tiles as static widgets.
 
-Method: - dogfood Arteon; - five-car beta; - inspect
-`service_plan_edited` telemetry; - interview users.
+### INV-PROD-004 Notes differentiation
 
-Success: - most due-nearby suggestions are accepted.
+Question: Are car-context Notes meaningfully different from generic Notes/Reminders?
 
-Failure: - users routinely remove grouped work.
+Failure: users prefer the system Notes app for the same job.
 
-## INV-004 Vehicle onboarding
+### INV-PROD-005 Pit value vs mascot noise
 
-Compare: - natural description; - minimal explicit fields; - VIN
-scan/entry later.
+Question: Does Pit improve capture/discovery without becoming distracting?
 
-Success: - median setup under two minutes; - no irrelevant mandatory
-fields.
+Evaluate:
+- Pit use;
+- dismissals;
+- question answer rate;
+- motion sentiment;
+- ability to use app without Pit.
 
-## INV-005 Vehicle hero image
+## Road investigations
 
-Decision path: 1. neutral deliberate placeholder; 2. optional
-PhotosPicker personal image; 3. exact model imagery only after
-licensing/API investigation.
+### INV-ROAD-001 Horizon and spacing
 
-Failure: - wrong generation/model shown as user's car.
+Question: What initial horizon makes Road useful with sparse and dense milestone sets?
 
-## INV-006 Foundation Models language quality
+Compare:
+- fixed six months;
+- nearest-N milestones;
+- adaptive bounded horizon.
 
-Evaluate real Russian input with Ukrainian/English automotive
-vocabulary.
+### INV-ROAD-002 Mixed time/mileage representation
 
-Success: - supported intent and critical numeric gates from AI spec.
+Question: How should date and mileage milestones coexist without fake conversion?
 
-Failure: - prompt tricks or repeated correction are required.
+Decision must define stale/unknown mileage behaviour.
 
-## INV-007 Engine-hours policy
+### INV-ROAD-003 Milestone clustering
 
-Question: Is manual engine-hours tracking realistic for target users?
+Question: When should nearby milestones visually cluster?
 
-Success: - users can access and update the fact; - policy explanation is
-understandable.
+Do not assume Service Planner grouping equals Road grouping.
 
-Failure: - input burden exceeds value.
+### INV-ROAD-004 Return to current position
 
-## INV-008 Workload policy
+Question: What native-feeling mechanism returns a scrolled Road to default/current position?
 
-Keep as advanced experiment.
+No custom gesture without evidence.
 
-Do not market as oil-life diagnosis.
+## Capture investigations
 
-## INV-009 Siri/App Intents
+### INV-CAP-001 Semantic false classification
 
-Investigate domain fit only after domain commands stabilize.
+Question: What proposal error rate is acceptable per mutation class?
 
-## INV-010 Document import
+Separate low-risk Note classification from maintenance completion or vehicle facts.
 
-Pipeline: Vision/VisionKit recognition → structured extraction → draft →
-confirmation.
+### INV-CAP-002 Confirmation frequency
 
-Need real Ukrainian service orders.
+Question: Which mutations can be accepted without confirmation?
 
-## INV-011 CarPlay/driving signals
+Goal: minimise friction without unsafe mutation.
 
-Separate: - signal feasibility; - CarPlay app entitlement/category fit.
+### INV-CAP-003 Siri/widget capture latency
 
-Never infer exact mileage from session duration.
+Question: Can system capture feel materially faster than opening the app?
 
-## INV-012 CloudKit/SwiftData sync
+### INV-CAP-004 Microphone activation constraints
 
-Investigate after schema direction stabilizes.
+Investigate widget/deep-link-to-capture platform constraints.
 
-Need: - migration; - asset/document storage; - conflicts; - widget/App
-Group interaction.
+### INV-CAP-005 Foundation Models language quality
 
-## INV-013 Firebase privacy and disclosure
+Evaluate real Russian input, short fragments, automotive slang, mixed Russian/English vehicle terms, and ambiguity.
 
-Before external beta: - verify Firebase Apple-platform data collection
-documentation; - update App Privacy answers; - verify Crashlytics custom
-logs/keys; - verify Analytics collection controls; - document
-opt-out/collection decision.
+Success:
+- typed proposals are useful;
+- unsupported meaning safely falls back to raw preservation.
+
+## Pit investigations
+
+### INV-PIT-001 Idle motion frequency
+
+Question: How often can Pit visibly move before becoming noise?
+
+A normal session may contain no idle animation.
+
+### INV-PIT-002 Attention value policy
+
+Question: What measurable threshold justifies a Pit question?
+
+Every candidate question must document value unlocked.
+
+### INV-PIT-003 Interruption cooldown
+
+Determine dismissal/defer/repeat policy.
+
+### INV-PIT-004 Accessibility
+
+Validate Reduce Motion and VoiceOver behaviour.
+
+## Vehicle-data investigations
+
+### INV-VEH-001 Vehicle hero image
+
+Decision path:
+1. neutral deliberate placeholder;
+2. optional PhotosPicker image;
+3. exact model imagery only after licensing/API investigation.
+
+Failure: wrong model/generation shown as the user's car.
+
+### INV-VEH-002 Official maintenance data
+
+Can PitStop legally and reliably curate official manufacturer recommendations?
+
+Investigate:
+- source availability;
+- redistribution rights;
+- market specificity;
+- model-year/powertrain applicability;
+- source revision;
+- correction workflow.
+
+### INV-VEH-003 Progressive vehicle discovery
+
+Question: Which vehicle facts unlock immediate product value?
+
+Do not optimise for profile completeness.
+
+### INV-VEH-004 Regional priors
+
+Question: Can locale/App Store region safely improve choice ordering?
+
+Region may reorder options. It must not become vehicle truth.
+
+## Maintenance investigations
+
+### INV-MNT-001 Procedure composition
+
+Can official sources reliably identify required components of procedures?
+
+### INV-MNT-002 Service grouping
+
+What grouping window matches real owner behaviour?
+
+### INV-MNT-003 User interval overrides
+
+Validate how users express simple anchor philosophies such as 5/7.5/10/15 thousand km.
+
+## System investigations
+
+### INV-SYS-001 App Intents phrase UX
+
+### INV-SYS-002 Action Button applicability
+
+### INV-SYS-003 Lock Screen / Control Center applicability
+
+### INV-SYS-004 Spotlight applicability
+
+### INV-SYS-005 CarPlay
+
+Do not commit to CarPlay before platform and product-value validation.
+
+## Architecture investigations
+
+### INV-ARCH-001 Capture boundary
+
+Validate that all sources can use one `CaptureInput` and command pipeline.
+
+### INV-ARCH-002 Cross-feature dependency growth
+
+Car Board aggregates projections. Prevent feature modules from importing each other arbitrarily.
+
+### INV-ARCH-003 Existing data migration
+
+Inventory and map seeded/hard-coded note-like records before replacement.
+
+### INV-ARCH-004 Modularity pressure
+
+Use narrow contracts. Do not introduce protocols without a substitution/testing/boundary reason.

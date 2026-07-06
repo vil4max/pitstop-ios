@@ -101,7 +101,7 @@ Important multi-stage pipelines receive an ephemeral correlation ID.
 Example:
 
 ``` text
-Tell PitStop
+Remember
 correlationID=...
 
 interpretation started
