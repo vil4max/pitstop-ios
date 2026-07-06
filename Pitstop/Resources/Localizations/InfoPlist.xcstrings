@@ -7,19 +7,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pitstop"
+            "value" : "PitStop"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pitstop"
+            "value" : "PitStop"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pitstop"
+            "value" : "PitStop"
           }
         }
       }
@@ -31,7 +31,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Pitstop"
+            "value" : "PitStop"
           }
         }
       }

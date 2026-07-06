@@ -1,7 +1,7 @@
 # Atomic Development Roadmap
 
 **Status:** phase index — detail lives in [`38_WORK_PLAN.md`](38_WORK_PLAN.md) and GitHub issues  
-**Rule:** greenfield on `main`; legacy tab app on `legacy/spike`
+**Rule:** current product on `main`; legacy tab app on `legacy/spike`
 
 ## Phase index
 

@@ -140,9 +140,9 @@ Status values: `contract` | `ready` → `tracked` → `done` | `deferred` | `can
 
 WIP limit: **1** active implementation issue (solo).
 
-Legacy tab-bar spike: branch `legacy/spike`. Greenfield implementation: `main`.
+Legacy tab-bar spike: branch `legacy/spike`. Current product: `main`.
 
-**GitHub Project:** create manually after `gh auth refresh -s project,read:project` → `gh project create --owner vil4max --title "Pitstop Greenfield"`. Columns: Backlog → Ready → In progress (max 1) → In review → Done. Labels: `domain`, `ui`, `capture`, `investigation`, `ci`, `p0`, `p1`, `blocked`.
+**GitHub Project:** [PitStop board](https://github.com/users/vil4max/projects/2). Create with `gh project create --owner vil4max --title "PitStop"`. Columns: Backlog → Ready → In progress (max 1) → In review → Done. Labels: `domain`, `ui`, `capture`, `investigation`, `ci`, `p0`, `p1`, `blocked`.
 
 ## Current explicit decisions
 

@@ -6,7 +6,7 @@ struct PitstopApp: App {
 
     init() {
         let log = AppLog.logger(category: "app.lifecycle")
-        log.info("Pitstop greenfield launched")
+        log.info("PitStop launched")
     }
 
     var body: some Scene {

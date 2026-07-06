@@ -1,9 +1,9 @@
 import Testing
 @testable import Pitstop
 
-@Suite("Greenfield")
-struct GreenfieldTests {
-    @Test func provisionalCarContext_defaults() {
+@Suite("ProvisionalCarContext")
+struct ProvisionalCarContextTests {
+    @Test func defaults() {
         let context = ProvisionalCarContext.firstLaunch
         #expect(context.name == ProvisionalCarContext.defaultName)
         #expect(context.odometerKm == 0)

@@ -2040,19 +2040,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enable both in iOS Settings → Pitstop → Notifications."
+            "value" : "Enable both in iOS Settings → PitStop → Notifications."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Включите оба в Настройки iOS → Pitstop → Уведомления."
+            "value" : "Включите оба в Настройки iOS → PitStop → Уведомления."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Увімкніть обидва в Налаштування iOS → Pitstop → Сповіщення."
+            "value" : "Увімкніть обидва в Налаштування iOS → PitStop → Сповіщення."
           }
         }
       }
@@ -2870,7 +2870,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Welcome to Pitstop"
+            "value" : "Welcome to PitStop"
           }
         }
       }

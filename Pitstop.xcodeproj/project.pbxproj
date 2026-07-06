@@ -19,7 +19,7 @@
 		A1000000000000000000000A /* pitstop-launch.png in Resources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000010A /* pitstop-launch.png */; };
 		A1000000000000000000000B /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000010B /* InfoPlist.xcstrings */; };
 		A1000000000000000000000C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000010C /* Localizable.xcstrings */; };
-		A1000000000000000000000D /* GreenfieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000010D /* GreenfieldTests.swift */; };
+		A1000000000000000000000D /* ProvisionalCarContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000010D /* ProvisionalCarContextTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,7 +45,7 @@
 		A1000000000000000000010A /* pitstop-launch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pitstop-launch.png; sourceTree = "<group>"; };
 		A1000000000000000000010B /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		A1000000000000000000010C /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
-		A1000000000000000000010D /* GreenfieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreenfieldTests.swift; sourceTree = "<group>"; };
+		A1000000000000000000010D /* ProvisionalCarContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvisionalCarContextTests.swift; sourceTree = "<group>"; };
 		A1000000000000000000010E /* Pitstop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pitstop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000000000000000000010F /* PitstopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PitstopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -95,7 +95,7 @@
 		A10000000000000000000603 /* PitstopTests */ = {
 			isa = PBXGroup;
 			children = (
-				A1000000000000000000010D /* GreenfieldTests.swift */,
+				A1000000000000000000010D /* ProvisionalCarContextTests.swift */,
 			);
 			path = PitstopTests;
 			sourceTree = "<group>";
@@ -312,7 +312,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1000000000000000000000D /* GreenfieldTests.swift in Sources */,
+				A1000000000000000000000D /* ProvisionalCarContextTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -433,7 +433,7 @@
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDevelopmentRegion = ru;
-				INFOPLIST_KEY_CFBundleDisplayName = Pitstop;
+				INFOPLIST_KEY_CFBundleDisplayName = PitStop;
 				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -459,7 +459,7 @@
 				DEVELOPMENT_TEAM = BTHRDS7254;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDevelopmentRegion = ru;
-				INFOPLIST_KEY_CFBundleDisplayName = Pitstop;
+				INFOPLIST_KEY_CFBundleDisplayName = PitStop;
 				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
