@@ -35,6 +35,7 @@ This folder is the authoritative working source of truth for PitStop.
 - `10_ADR_001_MAINTENANCE_ANCHORS.md`
 - `11_CURRENT_DOMAIN_AUDIT.md`
 - `34_CAPTURE_PIPELINE_SPEC.md`
+- `39_DOMAIN_INVENTORY.md`
 
 ## AI and learning laboratory
 

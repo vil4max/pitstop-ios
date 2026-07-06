@@ -1,6 +1,6 @@
 import Foundation
 
-struct ProvisionalCarContext: Equatable, Sendable {
+struct ProvisionalCarContext: Equatable {
     static let defaultName = "My New Car"
 
     var name: String

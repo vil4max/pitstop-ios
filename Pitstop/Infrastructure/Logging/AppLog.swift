@@ -1,5 +1,5 @@
-import os
 import Foundation
+import os
 
 enum AppLog {
     private static let subsystem = Bundle.main.bundleIdentifier ?? "dev.vil4max.pitstop"
