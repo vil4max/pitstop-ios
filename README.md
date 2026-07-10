@@ -2,7 +2,7 @@
 
 Smart driver's journal and contextual car memory for your vehicle.
 
-**Current app:** `main`. **Legacy tab-bar spike:** branch [`legacy/spike`](https://github.com/vil4max/pitstop-ios/tree/legacy/spike).
+**Current baseline:** M1 complete. **Next task:** DOM-002 — spec-derived domain test fixtures. **Legacy tab-bar spike:** branch [`legacy/spike`](https://github.com/vil4max/pitstop-ios/tree/legacy/spike).
 
 ## Distribution
 
@@ -10,10 +10,6 @@ Smart driver's journal and contextual car memory for your vehicle.
 - **SwiftData:** no automatic migration between bundle IDs; fresh install or manual re-import
 - **Notifications:** permission must be granted again on the new bundle
 - **iCloud (future):** `iCloud.dev.vil4max.pitstop`
-
-## Screenshots
-
-Legacy UI (tab bar) — see `legacy/spike`. Car Board screenshots TBD.
 
 ## Stack
 

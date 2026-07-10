@@ -142,7 +142,7 @@ WIP limit: **1** active implementation issue (solo).
 
 Legacy tab-bar spike: branch `legacy/spike`. Current product: `main`.
 
-**GitHub Project:** [PitStop board #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36. Board columns: Backlog → Ready → In progress (max 1) → In review → Done.
+**GitHub Project:** [PitStop board #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36. One task **In progress** at a time (solo).
 
 **Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. PR must pass CI (branch check, SwiftFormat, build, tests).
 
