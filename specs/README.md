@@ -35,13 +35,7 @@ The application must remain useful without AI and without Pit. Pit is a persiste
 
 Do not block value with authentication, a vehicle form, or a classical onboarding funnel.
 
-Open into a usable Car Board with a provisional car context:
-
-```text
-name: My New Car
-mileage: 0
-vehicle details: unknown
-```
+Open into a usable Car Board with a provisional car context. Do not invent vehicle facts such as mileage, age, fuel type, or service state. Unknown data remains unknown until supplied or safely inferred.
 
 Unknown data must degrade gracefully. Learn vehicle context progressively and ask only questions that unlock measurable value.
 
@@ -81,6 +75,24 @@ voice / text / shortcut / widget / Siri / Pit
 ```
 
 The source does not determine the domain operation.
+
+## Intelligence boundary
+
+AI/model access is a replaceable infrastructure concern, not a feature-level dependency.
+
+```text
+Feature / Capture Pipeline
+            ↓
+   Intelligence abstraction
+            ↓
+  Apple on-device / PCC / external model provider
+```
+
+Feature and domain code must not depend on a concrete vendor SDK or model family. The intelligence boundary owns provider selection, model-session lifecycle, request/response adaptation, and capability differences.
+
+The semantic contract above the boundary is typed product meaning such as a `Memory Proposal`, not provider-specific chat messages or tool-call payloads. Provider-specific orchestration, including programmatic tool execution or multi-agent workflows, must remain behind the intelligence boundary.
+
+Do not add orchestration complexity until a concrete product flow requires it. Prefer the cheapest deterministic or single-model path that satisfies the product contract.
 
 ## Maintenance boundary
 
@@ -153,6 +165,7 @@ Legacy tab-bar spike: branch `legacy/spike`. Current product: `main`.
 - Smart driver's journal / contextual car memory is the primary mental model.
 - User-first, not vehicle-first.
 - One provisional car context exists immediately.
+- Provisional context must not fabricate vehicle facts.
 - No mandatory authentication before value.
 - No mandatory voice.
 - No mandatory vehicle questionnaire.
@@ -167,5 +180,7 @@ Legacy tab-bar spike: branch `legacy/spike`. Current product: `main`.
 - Pit Eyes / Behind the UI is the working visual hypothesis.
 - Remember is the core capture capability.
 - One Capture Pipeline serves all capture sources.
+- AI/model providers live behind an intelligence abstraction.
+- Feature and domain code must not depend on concrete model vendor SDKs.
 - Native Apple interaction patterns are the default.
 - Existing seeded/hard-coded records must be audited before domain migration.
