@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		A10000000000000000000001 /* PitstopApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000101 /* PitstopApp.swift */; };
 		A10000000000000000000002 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000102 /* AppCoordinator.swift */; };
-		A10000000000000000000003 /* CompositionRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000103 /* CompositionRoot.swift */; };
 		A10000000000000000000004 /* CarBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000104 /* CarBoardView.swift */; };
 		A10000000000000000000005 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000105 /* DesignTokens.swift */; };
 		A10000000000000000000006 /* ProvisionalCarContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000106 /* ProvisionalCarContext.swift */; };
@@ -35,7 +34,6 @@
 /* Begin PBXFileReference section */
 		A10000000000000000000101 /* PitstopApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PitstopApp.swift; sourceTree = "<group>"; };
 		A10000000000000000000102 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
-		A10000000000000000000103 /* CompositionRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionRoot.swift; sourceTree = "<group>"; };
 		A10000000000000000000104 /* CarBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarBoardView.swift; sourceTree = "<group>"; };
 		A10000000000000000000105 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		A10000000000000000000106 /* ProvisionalCarContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvisionalCarContext.swift; sourceTree = "<group>"; };
@@ -114,7 +112,6 @@
 			children = (
 				A10000000000000000000101 /* PitstopApp.swift */,
 				A10000000000000000000102 /* AppCoordinator.swift */,
-				A10000000000000000000103 /* CompositionRoot.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -300,7 +297,6 @@
 			files = (
 				A10000000000000000000001 /* PitstopApp.swift in Sources */,
 				A10000000000000000000002 /* AppCoordinator.swift in Sources */,
-				A10000000000000000000003 /* CompositionRoot.swift in Sources */,
 				A10000000000000000000004 /* CarBoardView.swift in Sources */,
 				A10000000000000000000005 /* DesignTokens.swift in Sources */,
 				A10000000000000000000006 /* ProvisionalCarContext.swift in Sources */,
