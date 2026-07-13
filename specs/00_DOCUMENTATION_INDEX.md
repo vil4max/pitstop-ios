@@ -7,20 +7,22 @@ This folder is the authoritative working source of truth for PitStop.
 1. `../PROJECT_STATUS.md` (freeze status — read when resuming)
 2. `README.md`
 3. `01_PRODUCT_CHARTER.md`
-4. `41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md`
-5. `39_DOMAIN_INVENTORY.md`
-6. `17_PRODUCT_DESIGN.md`
-7. `31_CAR_BOARD_SCREEN_CONTRACT.md`
-8. `32_ROAD_DOMAIN_AND_UI_CONTRACT.md`
-9. `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
-10. `34_CAPTURE_PIPELINE_SPEC.md`
-11. `08_ROADMAP.md`
-12. `38_WORK_PLAN.md`
-13. `09_INVESTIGATIONS.md`
+4. `42_PRODUCT_REVIEW.md` (mandatory idea validation before new features)
+5. `41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md`
+6. `39_DOMAIN_INVENTORY.md`
+7. `17_PRODUCT_DESIGN.md`
+8. `31_CAR_BOARD_SCREEN_CONTRACT.md`
+9. `32_ROAD_DOMAIN_AND_UI_CONTRACT.md`
+10. `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
+11. `34_CAPTURE_PIPELINE_SPEC.md`
+12. `08_ROADMAP.md`
+13. `38_WORK_PLAN.md`
+14. `09_INVESTIGATIONS.md`
 
 ## Product, UX and IA
 
 - `01_PRODUCT_CHARTER.md`
+- `42_PRODUCT_REVIEW.md` — mandatory Idea Validation & Product Review before new features
 - `17_PRODUCT_DESIGN.md`
 - `20_COMPETITIVE_RESEARCH.md`
 - `26_DESIGN_SYSTEM.md`
@@ -73,6 +75,7 @@ This folder is the authoritative working source of truth for PitStop.
 - `09_INVESTIGATIONS.md`
 - `16_TASK_TEMPLATE.md`
 - `24_PROJECT_MANAGEMENT_AND_GITFLOW.md`
+- `42_PRODUCT_REVIEW.md` — gate before feature implementation
 
 ## Research and diary
 

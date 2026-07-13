@@ -56,6 +56,7 @@ Another way to express the same idea:
 The product starts from the driver's memory rather than from vehicle configuration.
 
 Owner for product statement and jobs: [`01_PRODUCT_CHARTER.md`](01_PRODUCT_CHARTER.md).  
+Owner for idea validation before new features: [`42_PRODUCT_REVIEW.md`](42_PRODUCT_REVIEW.md).  
 Owner for product framing: [`README.md`](README.md).
 
 ---
