@@ -68,7 +68,7 @@ Packages/
     NotesFeature/
     HistoryFeature/
     OdometerFeature/
-    TellPitStopFeature/
+    RememberFeature/
     SettingsFeature/
 
     DesignSystem/

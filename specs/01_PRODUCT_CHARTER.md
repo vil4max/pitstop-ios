@@ -1,5 +1,8 @@
 # Product Charter
 
+For design rationale (why), see [`41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md`](41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md).  
+For freeze / resume status, see [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).
+
 ## Product statement
 
 > PitStop is a smart driver's journal and contextual memory for a car.

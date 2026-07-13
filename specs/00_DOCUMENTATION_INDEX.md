@@ -4,16 +4,19 @@ This folder is the authoritative working source of truth for PitStop.
 
 ## Start here
 
-1. `README.md`
-2. `01_PRODUCT_CHARTER.md`
-3. `17_PRODUCT_DESIGN.md`
-4. `31_CAR_BOARD_SCREEN_CONTRACT.md`
-5. `32_ROAD_DOMAIN_AND_UI_CONTRACT.md`
-6. `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
-7. `34_CAPTURE_PIPELINE_SPEC.md`
-8. `08_ROADMAP.md`
-9. `38_WORK_PLAN.md`
-10. `09_INVESTIGATIONS.md`
+1. `../PROJECT_STATUS.md` (freeze status — read when resuming)
+2. `README.md`
+3. `01_PRODUCT_CHARTER.md`
+4. `41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md`
+5. `39_DOMAIN_INVENTORY.md`
+6. `17_PRODUCT_DESIGN.md`
+7. `31_CAR_BOARD_SCREEN_CONTRACT.md`
+8. `32_ROAD_DOMAIN_AND_UI_CONTRACT.md`
+9. `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
+10. `34_CAPTURE_PIPELINE_SPEC.md`
+11. `08_ROADMAP.md`
+12. `38_WORK_PLAN.md`
+13. `09_INVESTIGATIONS.md`
 
 ## Product, UX and IA
 
@@ -27,6 +30,7 @@ This folder is the authoritative working source of truth for PitStop.
 - `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
 - `35_BOTTOM_UTILITY_LAYER_SPEC.md`
 - `36_SCREEN_GRAMMAR_AND_DESIGN_SYSTEM.md`
+- `41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md` — product why / rejected alternatives (not a behaviour contract)
 
 ## Domain
 
@@ -39,9 +43,10 @@ This folder is the authoritative working source of truth for PitStop.
 
 ## AI and learning laboratory
 
-- `04_AI_ARCHITECTURE.md`
+- `04_AI_ARCHITECTURE.md` — runtime AI architecture owner
 - `12_LEARNING_LAB.md`
-- `30_AI_PRODUCT_ANALYTICS.md`
+- `30_AI_PRODUCT_ANALYTICS.md` — AI Product Analyst workflow (not app runtime)
+- `40_AI_ENGINEERING_ROADMAP.md` — deferred AI roadmap (not an implementation contract)
 
 ## Engineering, tests, observability and quality
 

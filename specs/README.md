@@ -3,7 +3,8 @@
 **Status:** authoritative working source of truth  
 **Primary platform:** iOS  
 **Current product boundary:** one car context per user for the first product slice  
-**Core product statement:** **PitStop is a smart driver's journal and contextual memory for a car.**
+**Core product statement:** **PitStop is a smart driver's journal and contextual memory for a car.**  
+**Project state:** Frozen — see [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md)
 
 > PitStop remembers the car with the driver.
 
@@ -124,14 +125,20 @@ Experimental technology belongs behind explicit boundaries. Product correctness 
 
 ## Documentation map
 
+Resume / freeze reading order: [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).
+
 Start with:
 1. `01_PRODUCT_CHARTER.md`
-2. `17_PRODUCT_DESIGN.md`
-3. `31_CAR_BOARD_SCREEN_CONTRACT.md`
-4. `32_ROAD_DOMAIN_AND_UI_CONTRACT.md`
-5. `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
-6. `34_CAPTURE_PIPELINE_SPEC.md`
-7. `08_ROADMAP.md`
+2. `41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md`
+3. `39_DOMAIN_INVENTORY.md`
+4. `17_PRODUCT_DESIGN.md`
+5. `31_CAR_BOARD_SCREEN_CONTRACT.md`
+6. `32_ROAD_DOMAIN_AND_UI_CONTRACT.md`
+7. `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
+8. `34_CAPTURE_PIPELINE_SPEC.md`
+9. `04_AI_ARCHITECTURE.md`
+10. `40_AI_ENGINEERING_ROADMAP.md` (deferred direction only)
+11. `08_ROADMAP.md` / `38_WORK_PLAN.md`
 
 See `00_DOCUMENTATION_INDEX.md` for the complete map.
 
