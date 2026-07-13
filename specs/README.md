@@ -129,16 +129,17 @@ Resume / freeze reading order: [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md).
 
 Start with:
 1. `01_PRODUCT_CHARTER.md`
-2. `41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md`
-3. `39_DOMAIN_INVENTORY.md`
-4. `17_PRODUCT_DESIGN.md`
-5. `31_CAR_BOARD_SCREEN_CONTRACT.md`
-6. `32_ROAD_DOMAIN_AND_UI_CONTRACT.md`
-7. `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
-8. `34_CAPTURE_PIPELINE_SPEC.md`
-9. `04_AI_ARCHITECTURE.md`
-10. `40_AI_ENGINEERING_ROADMAP.md` (deferred direction only)
-11. `08_ROADMAP.md` / `38_WORK_PLAN.md`
+2. `42_PRODUCT_REVIEW.md` (mandatory idea validation before new features)
+3. `41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md`
+4. `39_DOMAIN_INVENTORY.md`
+5. `17_PRODUCT_DESIGN.md`
+6. `31_CAR_BOARD_SCREEN_CONTRACT.md`
+7. `32_ROAD_DOMAIN_AND_UI_CONTRACT.md`
+8. `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
+9. `34_CAPTURE_PIPELINE_SPEC.md`
+10. `04_AI_ARCHITECTURE.md`
+11. `40_AI_ENGINEERING_ROADMAP.md` (deferred direction only)
+12. `08_ROADMAP.md` / `38_WORK_PLAN.md`
 
 See `00_DOCUMENTATION_INDEX.md` for the complete map.
 
@@ -150,10 +151,11 @@ Two classes of documents:
 
 **Executable backlog** — tracked in [`38_WORK_PLAN.md`](38_WORK_PLAN.md). When work starts:
 
-1. Create one GitHub issue (template: `16_TASK_TEMPLATE.md`).
-2. Set work-plan row to `tracked` with issue number.
-3. Remove duplicated acceptance text from `08_ROADMAP.md`.
-4. On completion: `done`; delete empty roadmap rows.
+1. Complete Product Review for new features ([`42_PRODUCT_REVIEW.md`](42_PRODUCT_REVIEW.md)).
+2. Create one GitHub issue (template: `16_TASK_TEMPLATE.md`).
+3. Set work-plan row to `tracked` with issue number.
+4. Remove duplicated acceptance text from `08_ROADMAP.md`.
+5. On completion: `done`; delete empty roadmap rows.
 
 Status values: `contract` | `ready` → `tracked` → `done` | `deferred` | `cancelled`.
 
