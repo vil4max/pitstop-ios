@@ -13,6 +13,10 @@ parent/child progress. A second project system would duplicate state.
 ## Work hierarchy
 
 ``` text
+Idea
+        ↓
+Product Review (42_PRODUCT_REVIEW.md)
+        ↓
 Product hypothesis / Investigation
         ↓
 Epic issue
@@ -29,6 +33,8 @@ Merge
         ↓
 Project status/metrics
 ```
+
+New features do not skip Product Review. See [`42_PRODUCT_REVIEW.md`](42_PRODUCT_REVIEW.md).
 
 ## Issue types by label
 
