@@ -13,7 +13,7 @@
 | Capture pipeline | — | Not started |
 | Road projection | — | Not started |
 | Maintenance engine | — | Legacy on `legacy/spike` only |
-| Persistence | — | Not started |
+| Persistence | — | Intentionally deferred to ENG-004 |
 | Notes / History / Service | — | Not started |
 
 ## Core domain (`02`)
@@ -129,7 +129,7 @@
 |---|---|
 | No inventory fixtures | DOM-002 |
 | No capture types/tests | DOM-003 |
-| No persistence / provisional car store | ENG-004 |
+| Persistence schema intentionally deferred to ENG-004 | ENG-004 |
 | Road rules undecided | INV-ROAD-001…004 |
 | No real Car Board data | CB-001…007 |
 | No capture UI/pipeline | CAP-001…007 |
@@ -137,3 +137,13 @@
 ## Legacy reference
 
 Tab-bar app on `legacy/spike` contains prior maintenance engine, SwiftData models, and seed import. **Not** source of truth for greenfield domain shapes — use this inventory and specs only.
+
+For historical seeded-domain findings from the spike era, see `11_CURRENT_DOMAIN_AUDIT.md`. Treat that audit as legacy reference, not as the current `main` inventory.
+
+## Related documents
+
+- `../PROJECT_STATUS.md` — freeze / resume status and product-baseline definition
+- `40_AI_ENGINEERING_ROADMAP.md` — deferred AI roadmap
+- `41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md` — product why
+- `34_CAPTURE_PIPELINE_SPEC.md` — Capture / Remember contract
+- `02_DOMAIN_MODEL.md` — domain concept owner

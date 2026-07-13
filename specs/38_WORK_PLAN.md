@@ -1,6 +1,7 @@
 # Work Plan
 
-**Status:** M0–M1 complete; DOM-002 is the next implementation task
+**Status:** Frozen — no implementation until unfrozen; see [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md)  
+**Resume next task:** DOM-002 — spec-derived domain test fixtures (after M1)  
 **Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
 **Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  

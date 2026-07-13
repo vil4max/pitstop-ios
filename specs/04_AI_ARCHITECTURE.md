@@ -179,8 +179,11 @@ Model quality evaluation is separate from deterministic unit tests.
 
 ## Related specifications
 
-- `34_CAPTURE_PIPELINE_SPEC.md`
+- `34_CAPTURE_PIPELINE_SPEC.md` — Capture / Remember pipeline owner
 - `02_DOMAIN_MODEL.md`
 - `03_MAINTENANCE_ENGINE.md`
 - `33_PIT_BEHAVIOR_AND_MOTION_SPEC.md`
-- `30_AI_PRODUCT_ANALYTICS.md`
+- `30_AI_PRODUCT_ANALYTICS.md` — separate AI Product Analyst workflow
+- `39_DOMAIN_INVENTORY.md` — implementation snapshot (`main`)
+- `40_AI_ENGINEERING_ROADMAP.md` — deferred AI roadmap (not an implementation contract)
+- `../PROJECT_STATUS.md` — freeze / resume status

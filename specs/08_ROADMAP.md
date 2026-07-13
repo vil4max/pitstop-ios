@@ -1,6 +1,7 @@
 # Atomic Development Roadmap
 
 **Status:** phase index — detail lives in [`38_WORK_PLAN.md`](38_WORK_PLAN.md) and GitHub issues  
+**Project state:** Frozen — see [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md)  
 **Rule:** current product on `main`; legacy tab app on `legacy/spike`
 
 ## Phase index
