@@ -3,7 +3,10 @@
 **Priority:** P0 / P1 / P2\
 **Status:** Ready / In Progress / Blocked / Done\
 **Feature flag:** none / name\
-**ADR dependency:** none / ADR-XXX
+**ADR dependency:** none / ADR-XXX\
+**Product Review:** not required / Pass / Pass with constraints — link: ...
+
+New user-facing features must complete [`42_PRODUCT_REVIEW.md`](42_PRODUCT_REVIEW.md) before this task becomes Ready.
 
 ## Problem
 
