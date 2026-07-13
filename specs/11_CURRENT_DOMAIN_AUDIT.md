@@ -1,7 +1,10 @@
 # Current Domain Audit
 
-**Scope:** findings from the current public PitStop repository discussed
+**Scope:** findings from the legacy / pre-greenfield PitStop codebase discussed
 during product/domain audit.\
+**Not** the implementation snapshot for greenfield `main` — use
+[`39_DOMAIN_INVENTORY.md`](39_DOMAIN_INVENTORY.md) for that.
+Legacy code reference: branch `legacy/spike`.\
 **Required next action:** verify every finding against the full local
 workspace before refactoring.
 

@@ -263,3 +263,11 @@ Do not log raw content.
 - unsupported input disappears;
 - every AI result requires a large confirmation form;
 - screen context hard-locks interpretation.
+
+## Related specifications
+
+- `04_AI_ARCHITECTURE.md` — runtime AI trust boundary and model roles
+- `39_DOMAIN_INVENTORY.md` — capture types not present on `main` today
+- `01_PRODUCT_CHARTER.md` — Remember product job
+- `40_AI_ENGINEERING_ROADMAP.md` — deferred AI direction (not a pipeline contract)
+- `../PROJECT_STATUS.md` — freeze / resume status
