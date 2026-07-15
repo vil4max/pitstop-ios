@@ -6,6 +6,27 @@
 
 ---
 
+# Career proof product loop
+
+**Role:** this repository is the career proof product for the private target:
+
+> AI-assisted Product Engineer able to design, develop, deploy, and maintain a modern product.
+
+**Loop to complete after unfreeze (one product, not three pets):**
+
+1. **Design** — owner-formulated problem / MVP (charter: [`specs/01_PRODUCT_CHARTER.md`](specs/01_PRODUCT_CHARTER.md)).
+2. **Develop** — AI-assisted delivery with human review (agents as engineering workflow).
+3. **Deploy** — ship a usable build (TestFlight / App Store as applicable).
+4. **Maintain** — 1–2 months of post-ship iteration with metrics and user feedback.
+
+**Ordering constraint (unchanged):** complete the product baseline through M3 before runtime AI features (`Remember` / Foundation Models / CAP-*). Agent-assisted coding during baseline work is a workflow choice, not early AI product scope.
+
+**Career upgrade gate (lives in Profile/career, not here):** public phrasing `Senior iOS + AI Product Engineer` stays blocked until shipped/production-grade AI feature evidence is recorded in `career.md`.
+
+Local agent visibility: root `AGENTS.md` (gitignored / machine-local).
+
+---
+
 # Project Phase
 
 - Architecture Complete
@@ -73,7 +94,7 @@ AI and Remember are specified, not implemented. Product baseline remains higher 
 
 Recommended order:
 
-1. [`PROJECT_STATUS.md`](PROJECT_STATUS.md) (this file)
+1. [`PROJECT_STATUS.md`](PROJECT_STATUS.md) (this file) — including Career proof product loop
 2. [`specs/README.md`](specs/README.md)
 3. [`specs/01_PRODUCT_CHARTER.md`](specs/01_PRODUCT_CHARTER.md)
 4. [`specs/39_DOMAIN_INVENTORY.md`](specs/39_DOMAIN_INVENTORY.md)
