@@ -4,7 +4,7 @@ Smart driver's journal and contextual car memory for your vehicle.
 
 **Project state:** Frozen — see [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
 **Resume next task (when unfrozen):** DOM-002 — spec-derived domain test fixtures.  
-**Legacy tab-bar spike:** branch [`legacy/spike`](https://github.com/vil4max/pitstop-ios/tree/legacy/spike).
+**Legacy tab-bar spike:** branch [`legacy/spike`](https://github.com/Engineering-University/pitstop-ios/tree/legacy/spike).
 
 ## Distribution
 
