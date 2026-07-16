@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="vil4max/pitstop-ios"
+REPO="vil4engineering/pitstop-ios"
 PROJECT_OWNER="vil4max"
 PROJECT_NUMBER="2"
 
