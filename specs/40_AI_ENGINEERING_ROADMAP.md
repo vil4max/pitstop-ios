@@ -32,6 +32,90 @@ This roadmap preserves:
 
 When implementation resumes, start from the product baseline and the authoritative owners above. Use this document for direction, not as a parallel source of truth.
 
+## AI Product Engineering Map
+
+This section connects PitStop's product direction with a full AI Product
+Engineering learning loop. It is a planning and study map only; it does not
+authorize runtime AI work while the project is frozen and does not replace the
+owning specifications below.
+
+Keep two tracks separate:
+
+- **AI-assisted development** — how the owner uses agents to investigate,
+  design, implement, verify, review, release, and learn from PitStop.
+- **AI inside PitStop** — where the shipped product may use a model to
+  interpret input or provide bounded assistance.
+
+The first track may support ordinary product-baseline work after unfreeze. The
+second track starts only after the baseline is useful without AI.
+
+### Full-cycle loop
+
+```text
+Problem / trigger
+    → JTBD + Product Review
+    → product and domain contract
+    → design + bounded work plan
+    → agent-assisted implementation
+    → deterministic verification + defect-first review
+    → AI evaluation where a model is involved
+    → TestFlight / beta release
+    → bounded telemetry + interviews
+    → evidence-backed product decision
+    → updated contract, investigation, or task
+```
+
+The release loop is complete only when a usable slice is deployed and
+maintained long enough to produce feedback. “The model works” is not a product
+success criterion.
+
+### Capability map
+
+| Capability | User problem | AI role | Deterministic boundary | Eval | Telemetry | Release gate |
+|---|---|---|---|---|---|---|
+| Product baseline: Car Board, Notes, Service, History, Road | The driver cannot understand what matters about the car at a glance | None required; prefer deterministic projections | Domain state, persistence, and projections own truth | Domain, integration, and critical UI tests | Approved P0 product events; no raw content | M3 exit criteria in [`38_WORK_PLAN.md`](38_WORK_PLAN.md); core beta gate in [`15_RELEASE_AND_BETA.md`](15_RELEASE_AND_BETA.md) |
+| Raw Remember capture | A thought is easy to lose when the user must choose a record type first | No model required for initial capture; preserve the input | `CaptureInput`, raw preservation, and one command path | Source mapping, cancellation, unavailable-AI, and raw-preservation cases in [`34_CAPTURE_PIPELINE_SPEC.md`](34_CAPTURE_PIPELINE_SPEC.md) | `input_interpretation_completed`, `draft_saved`, `draft_cancelled` with bounded fields | CAP-001, CAP-006, and a usable capture surface |
+| Contextual note interpretation | The driver wants to save meaning without filling out a form or maintaining taxonomy | Propose typed note meaning and, when safe, a context | Proposal validation plus deterministic `CreateNote`; original wording remains available | Golden set: positive, ambiguous, unsupported, and correction cases | Result, intent, latency bucket, interpreter version; never raw text | CAP-002, CAP-004, CAP-005, CAP-007 plus `INV-CAP-001` decision |
+| Odometer capture | Numeric facts are slow and error-prone to enter manually | Extract an odometer value from natural input | Range/anomaly validation and deterministic `RecordOdometerReading` | Boundary, malformed-number, conflict, and correction cases | `odometer_updated` without the exact value | Domain validation, confirmation policy, and data-integrity release gate |
+| Progressive vehicle facts | The driver needs useful personalization without a VIN-first setup | Propose a fact only when it is explicitly present or safely confirmed | Unknown remains unknown; user confirmation and deterministic `RecordVehicleFact` | Missing, conflicting, and unsupported fact cases | Bounded enrichment mode and source; avoid identifying combinations | `INV-VEH-003`, persistence baseline, and Product Review |
+| Maintenance completion | A service memory should update the right cycle without creating false urgency | Suggest a possible completion and missing fields | Validation, risk-based confirmation, and deterministic cycle reset | Separate high-risk false-classification set; partial-completion invariants | Pipeline stage/reason plus bounded maintenance outcomes | CAP-002, maintenance matrix in [`13_TEST_STRATEGY.md`](13_TEST_STRATEGY.md), and beta stop criteria |
+| Document extraction | A service document contains useful facts but is costly to transcribe | Later: extract a bounded proposal from OCR/document text | Redacted input, typed validation, user confirmation, and domain commands | Redacted golden documents, OCR errors, omissions, and unsupported layouts | Stage, reason, latency bucket; never OCR or invoice text | Separate investigation and explicit release decision; not part of the first AI slice |
+| Contextual recall and Pit assistance | The driver needs a previous memory at the right moment, without a generic chat workflow | Later: bounded clarification, summary, or relevance assistance | Stored history and deterministic retrieval remain authoritative; Pit is optional | Retrieval relevance, clarification usefulness, dismissal, and no-Pit usability | `note_context_opened`, bounded Pit outcomes, interruption/cooldown data | Product investigations `INV-PROD-001`, `INV-PROD-005`, and beta evidence |
+| AI-assisted product analytics | The owner needs to turn small-beta evidence into the next discriminating investigation | Interpret a deterministic evidence package and propose hypotheses | AQ thresholds, query results, privacy rules, and human product decisions | Evidence-grounding and limitation-awareness checks | Analytics channel only; no raw notes or silent event creation | `30_AI_PRODUCT_ANALYTICS.md`, approved `AQ-*`, and human decision |
+
+The map deliberately keeps deterministic product work ahead of model work. A
+model can be replaced or removed without changing the product's ownership of
+truth, persistence, confirmation, or release decisions.
+
+### First learning slice after the baseline
+
+A useful candidate is the real-world prompt:
+
+> “Перед зимой поменять дворники” / “Replace the wipers before winter.”
+
+This is a study scenario, not yet an accepted product contract. Product Review
+and the capture owners must decide whether its first supported meaning is a
+contextual note, a reminder candidate, or another validated proposal kind.
+The learning path is:
+
+```text
+raw input
+    → CaptureInput
+    → typed proposal
+    → deterministic validation
+    → risk-based confirmation or clarification
+    → domain command
+    → persistence and projection
+    → correction path
+    → golden-set evaluation
+    → bounded telemetry
+    → TestFlight feedback
+```
+
+This single slice is sufficient to study context engineering, structured
+output, fallback, confirmation UX, evaluation, privacy-safe observability, and
+post-release product learning without turning PitStop into an AI-first app.
+
 ---
 
 # Current State (Repository Audit)
