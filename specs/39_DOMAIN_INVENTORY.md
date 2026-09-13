@@ -8,13 +8,13 @@
 
 | Area | In code today | Notes |
 |---|---|---|
-| Vehicle / provisional car | `ProvisionalCarContext` | Name, odometer, optional make/model/year only |
+| Vehicle / provisional car | `ProvisionalCarContext`, `Vehicle`, `OdometerReading` | Domain models and reading facts on `main` |
 | Car Board UI | `CarBoardView` placeholder | Tiles and utility buttons not wired |
-| Capture pipeline | — | Not started |
+| Capture pipeline | `CaptureInput`, `MemoryProposal`, domain commands | Boundary types on `main`; execution pipeline in M4 |
 | Road projection | — | Not started |
-| Maintenance engine | — | Legacy on `legacy/spike` only |
+| Maintenance engine | `MaintenanceOperationID`, `MaintenancePolicy`, `MaintenanceCompletion`, `MaintenanceStatus` | Pure domain value models on `main`; engine logic pending |
 | Persistence | — | Intentionally deferred to ENG-004 |
-| Notes / History / Service | — | Not started |
+| Notes / History / Service | `Note`, `HistoryEvent` | Pure domain models on `main`; screen wiring in M3 |
 
 The current `ProvisionalCarContext.firstLaunch` uses `odometerKm: 0`, which the
 placeholder board displays as `0 km`. This is a scaffold gap: the product
