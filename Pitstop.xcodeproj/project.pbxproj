@@ -19,6 +19,12 @@
 		A1000000000000000000000B /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000010B /* InfoPlist.xcstrings */; };
 		A1000000000000000000000C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000010C /* Localizable.xcstrings */; };
 		A1000000000000000000000D /* ProvisionalCarContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000010D /* ProvisionalCarContextTests.swift */; };
+		A10000000000000000000011 /* Vehicle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000111 /* Vehicle.swift */; };
+		A10000000000000000000012 /* Maintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000112 /* Maintenance.swift */; };
+		A10000000000000000000013 /* NotesAndHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000113 /* NotesAndHistory.swift */; };
+		A10000000000000000000014 /* CapturePipelineTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000114 /* CapturePipelineTypes.swift */; };
+		A10000000000000000000015 /* DomainFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000115 /* DomainFixtures.swift */; };
+		A10000000000000000000016 /* DomainFixturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000116 /* DomainFixturesTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +52,12 @@
 		A1000000000000000000010D /* ProvisionalCarContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvisionalCarContextTests.swift; sourceTree = "<group>"; };
 		A1000000000000000000010E /* Pitstop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pitstop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000000000000000000010F /* PitstopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PitstopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000111 /* Vehicle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vehicle.swift; sourceTree = "<group>"; };
+		A10000000000000000000112 /* Maintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Maintenance.swift; sourceTree = "<group>"; };
+		A10000000000000000000113 /* NotesAndHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesAndHistory.swift; sourceTree = "<group>"; };
+		A10000000000000000000114 /* CapturePipelineTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipelineTypes.swift; sourceTree = "<group>"; };
+		A10000000000000000000115 /* DomainFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainFixtures.swift; sourceTree = "<group>"; };
+		A10000000000000000000116 /* DomainFixturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainFixturesTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,7 +105,9 @@
 		A10000000000000000000603 /* PitstopTests */ = {
 			isa = PBXGroup;
 			children = (
+				A10000000000000000000613 /* Fixtures */,
 				A1000000000000000000010D /* ProvisionalCarContextTests.swift */,
+				A10000000000000000000116 /* DomainFixturesTests.swift */,
 			);
 			path = PitstopTests;
 			sourceTree = "<group>";
@@ -136,6 +150,9 @@
 			isa = PBXGroup;
 			children = (
 				A1000000000000000000060D /* Vehicle */,
+				A10000000000000000000610 /* Maintenance */,
+				A10000000000000000000611 /* Notes */,
+				A10000000000000000000612 /* Capture */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -177,8 +194,41 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000106 /* ProvisionalCarContext.swift */,
+				A10000000000000000000111 /* Vehicle.swift */,
 			);
 			path = Vehicle;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000610 /* Maintenance */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000112 /* Maintenance.swift */,
+			);
+			path = Maintenance;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000611 /* Notes */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000113 /* NotesAndHistory.swift */,
+			);
+			path = Notes;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000612 /* Capture */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000114 /* CapturePipelineTypes.swift */,
+			);
+			path = Capture;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000613 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000115 /* DomainFixtures.swift */,
+			);
+			path = Fixtures;
 			sourceTree = "<group>";
 		};
 		A1000000000000000000060E /* Logging */ = {
@@ -301,6 +351,10 @@
 				A10000000000000000000005 /* DesignTokens.swift in Sources */,
 				A10000000000000000000006 /* ProvisionalCarContext.swift in Sources */,
 				A10000000000000000000007 /* AppLog.swift in Sources */,
+				A10000000000000000000011 /* Vehicle.swift in Sources */,
+				A10000000000000000000012 /* Maintenance.swift in Sources */,
+				A10000000000000000000013 /* NotesAndHistory.swift in Sources */,
+				A10000000000000000000014 /* CapturePipelineTypes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,6 +363,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000000000000000000000D /* ProvisionalCarContextTests.swift in Sources */,
+				A10000000000000000000015 /* DomainFixtures.swift in Sources */,
+				A10000000000000000000016 /* DomainFixturesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
