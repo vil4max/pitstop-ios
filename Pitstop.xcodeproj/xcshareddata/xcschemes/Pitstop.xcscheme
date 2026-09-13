@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C13732C8E715C9BEE4FA51C9"
+               BlueprintIdentifier = "A10000000000000000000401"
                BuildableName = "Pitstop.app"
                BlueprintName = "Pitstop"
                ReferencedContainer = "container:Pitstop.xcodeproj">
@@ -32,7 +32,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "64BCB755386F844C96A2A5B0"
+               BlueprintIdentifier = "A10000000000000000000402"
                BuildableName = "PitstopTests.xctest"
                BlueprintName = "PitstopTests"
                ReferencedContainer = "container:Pitstop.xcodeproj">
@@ -54,7 +54,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C13732C8E715C9BEE4FA51C9"
+            BlueprintIdentifier = "A10000000000000000000401"
             BuildableName = "Pitstop.app"
             BlueprintName = "Pitstop"
             ReferencedContainer = "container:Pitstop.xcodeproj">

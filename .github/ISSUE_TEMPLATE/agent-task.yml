@@ -1,0 +1,36 @@
+name: Agent development task
+description: One bounded PitStop task for implementation, verification, and independent review.
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Problem and desired behavior
+      description: Include the task ID from the work plan and an observable example.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Owning contracts and readiness
+      description: Link the relevant specs, dependencies, and Product Review decision where required. Check PROJECT_STATUS.md.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and file ownership
+      description: State included changes, excluded work, and any competing edits.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance and failure cases
+      description: State testable behavior, meaningful edge cases, and any check that requires a device or user observation.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Required evidence
+      description: Name task-specific evidence beyond the normal Runtime gate. Include AI evaluations only when this task changes a runtime model.

@@ -66,6 +66,11 @@ What did I build or inspect?
 ## Evidence
 Tests, evaluation numbers, analytics, screenshots, traces.
 
+For agent-loop work: task/commit or exact diff, host and agent roles,
+verification result and tool versions, independent reviewer findings,
+repair attempts and supporting evidence, owner interventions, CI/release
+state. Use "not measured" or "pending" where appropriate.
+
 ## Result
 What happened?
 
@@ -77,6 +82,10 @@ ADOPT / ADOPT WITH BOUNDARY / DEFER / REJECT
 
 ## What I learned
 Technical explanation in my own words.
+
+## Claim boundary
+What the evidence demonstrates; what still requires a product experiment,
+model evaluation, user feedback, or release. Keep setup distinct from use.
 
 ## LinkedIn angle
 One sentence. What is the useful professional lesson?
