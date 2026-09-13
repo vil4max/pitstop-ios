@@ -1,0 +1,11 @@
+scheme: Pitstop
+project: "Pitstop.xcodeproj"
+workspace: ""
+simulator:
+  name: iPhone 17
+backend:
+  prefer: xcodebuild
+lint: true
+format: true
+tests: true
+todo_scan: false

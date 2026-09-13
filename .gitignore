@@ -32,6 +32,15 @@ playground.xcworkspace
 .build/
 build/
 
+# Runtime shell executors must survive a fresh clone and CI checkout.
+!Tooling/backend/build/
+!Tooling/backend/build/**
+Tooling/runtime.local.yml
+.codex/
+.DS_Store
+DerivedData/
+*.xcresult/
+
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However
@@ -61,3 +70,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+.agents/project-context.yaml
+.cursor/project-context
+.cursor/project-context.yaml
+.cursor/plans/

@@ -4,6 +4,12 @@
 **Reason:** personal and interview priority  
 **Last freeze preparation:** documentation and architecture preservation (no runtime changes)
 
+**2026-09-13 infrastructure exception:** the owner authorized the PitStop
+agent development loop setup: project Entry, deterministic verification tooling,
+CI configuration, independent review, and checks of the existing app baseline.
+Product feature implementation remains paused. This exception does not start
+DOM-002 or authorize runtime AI, deployment, or personal publication.
+
 ---
 
 # reference product loop
@@ -21,9 +27,11 @@
 
 **Ordering constraint (unchanged):** complete the product baseline through M3 before runtime AI features (`Remember` / Foundation Models / CAP-*). Agent-assisted coding during baseline work is a workflow choice, not early AI product scope.
 
-**personal upgrade gate (lives in [private notes] not here):** public phrasing `Senior iOS + AI Product Engineer` stays blocked until shipped/production-grade AI feature evidence is recorded in `personal.md`.
+personal wording belongs to `[private notes]` and its
+presentation configuration. Record demonstrated workflow results separately
+from shipped AI product capabilities; installation alone proves neither.
 
-Local agent visibility: root `AGENTS.md` (gitignored / machine-local).
+Agent entry: tracked root `AGENTS.md`; local project marker is gitignored.
 
 ---
 
@@ -45,6 +53,7 @@ Allowed:
 - architecture clarification
 - terminology cleanup
 - specification refactoring
+- the bounded infrastructure setup and existing-baseline checks authorized above
 
 Not allowed:
 
