@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Frozen — no implementation until unfrozen; see [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md)  
-**Resume next task:** DOM-002 — spec-derived domain test fixtures (after M1)  
+**Resume next task:** DOM-003 — capture domain + policy tests (after DOM-002)  
 **Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
 **Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -80,7 +80,7 @@ and its first observed run are pending. See `23_ENGINEERING_QUALITY_AND_CI.md`.
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
 | DOM-001 | Domain inventory from specs | 1d | — | done | #1 |
-| DOM-002 | Spec-derived test fixtures | 1d | DOM-001 | next | #2 |
+| DOM-002 | Spec-derived test fixtures | 1d | DOM-001 | done | #2 |
 | DOM-003 | Capture domain + policy tests | 4d | DOM-001 | tracked | #3 |
 | DOM-004 | ADR-001 closure | 1d | — | tracked | #4 |
 
