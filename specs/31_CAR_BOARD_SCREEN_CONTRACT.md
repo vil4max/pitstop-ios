@@ -29,11 +29,14 @@ Render immediately with a provisional car context:
 
 ```text
 displayName: My New Car
-odometer: 0
+odometer: unknown until a valid reading exists
 vehicle facts: unknown
 ```
 
 This state is editable and explicitly provisional in the domain. UI must not falsely claim the user bought a new car.
+
+Omit numeric mileage or label it unknown until supplied. The scaffold's `0 km`
+is not a confirmed reading and must not feed Service or Road calculations.
 
 No authentication or setup gate.
 
@@ -64,6 +67,10 @@ Exact visual spacing belongs to the design system.
 A tile is `summary + entrance`.
 
 A tile must expose meaningful state before tap.
+
+The [charter feature map](01_PRODUCT_CHARTER.md#product-loop-and-feature-responsibilities)
+defines what the destination does. Tile implementation does not establish that
+the destination can save, retrieve, or correct records.
 
 Allowed V1 sizes:
 
@@ -106,6 +113,10 @@ Candidate summary:
 
 Sparse state must invite capture without looking like an error.
 
+Input: saved Notes, including raw Notes without AI metadata. The destination
+lets the user read, correct, and archive them. A context filter must not make
+unclassified Notes disappear from the main list.
+
 ### Service
 
 `.half`
@@ -117,6 +128,10 @@ Candidate summary:
 
 Must not display a health score.
 
+Input: deterministic operation states from confirmed policies and completion
+facts. The destination owns maintenance orientation and planning; the tile
+does not infer that service happened or invent a baseline when facts are absent.
+
 ### History
 
 `.half`
@@ -124,6 +139,9 @@ Must not display a health score.
 Candidate summary:
 - latest meaningful event;
 - recency.
+
+Input: recorded vehicle events. The destination shows what happened and the
+known supporting facts; an unconfirmed plan or archived Note is not an event.
 
 ## Car Hero
 

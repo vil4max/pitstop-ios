@@ -16,6 +16,11 @@
 | Persistence | — | Intentionally deferred to ENG-004 |
 | Notes / History / Service | — | Not started |
 
+The current `ProvisionalCarContext.firstLaunch` uses `odometerKm: 0`, which the
+placeholder board displays as `0 km`. This is a scaffold gap: the product
+contracts in `01` and `31` require unknown mileage until a valid reading exists.
+No reading history or maintenance baseline is implemented by that default.
+
 ## Core domain (`02`)
 
 | Concept | Role | Source of truth | Derived / calculated | Code (`main`) |
@@ -43,8 +48,8 @@
 | Concept | Layer | Mutates state | Code (`main`) |
 |---|---|---|---|
 | CaptureInput | Input contract | No | — |
-| SemanticInterpreter | AI adapter | No | — |
-| MemoryProposal | Draft interpretation | No | — |
+| SemanticInterpreter | Optional interpreted-mode adapter | No | — |
+| MemoryProposal | Raw-preservation or interpreted draft | No | — |
 | ProposalValidator | Deterministic validation | No | — |
 | ConfirmationPolicy | Risk-based outcome | No | — |
 | DomainCommandMapper | Proposal → command | No | — |
@@ -55,7 +60,7 @@
 | SetMaintenancePolicy | Domain command | Yes | — |
 | RecordVehicleEvent | Domain command | Yes | — |
 | RecordExpense | Domain command | Yes | — |
-| Raw preservation | Fallback path | Yes (as Note/raw) | — |
+| Raw preservation | Model-free mode and fallback | Via CreateNote after validation/policy | — |
 | RememberInPitStopIntent | System entry | No (→ CaptureInput) | — |
 
 ### MemoryProposal kinds (V1 product-core subset)

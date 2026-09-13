@@ -205,7 +205,9 @@ Sources include:
 
 Input source never determines domain behavior.
 
-Everything becomes structured meaning through the same pipeline, then deterministic validation and mutation.
+Every input uses the same proposal, validation, and command boundaries. A raw
+thought can remain a Note without model interpretation; supported interpretation
+may propose stronger meaning but cannot establish truth on its own.
 
 Reasoning: source-specific mutation paths create inconsistent truth and duplicate stacks (for example Siri writing persistence directly). One pipeline keeps tests, confirmation policy, and raw preservation shared.
 
@@ -217,7 +219,7 @@ Conceptual pipeline:
 ```text
 CaptureInput
         ↓
-Semantic Interpreter
+Raw preservation OR Semantic Interpreter
         ↓
 Memory Proposal
         ↓

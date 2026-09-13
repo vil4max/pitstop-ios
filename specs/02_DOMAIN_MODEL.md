@@ -21,6 +21,9 @@ source
 
 Latest valid reading is a projection.
 
+No reading means unknown mileage, not zero. A provisional display value must
+not create an Odometer Reading or become a maintenance baseline.
+
 ### Maintenance Operation
 
 A stable identity for a recurring or trackable maintenance concern.
@@ -189,6 +192,11 @@ archived
 
 Semantic metadata is derived.
 
+Notes hold thoughts, observations, and intentions. They must remain readable
+without semantic metadata. The user can correct or archive a Note; AI must not
+replace its original wording. Archiving changes its visibility/status, not the
+truth of a service operation or a History Event.
+
 ### Note Context
 
 Canonical navigation contexts in beta:
@@ -218,6 +226,13 @@ other
 ```
 
 Money is an optional event attribute, not a separate accounting domain.
+
+A Note about intended work is not a History Event. Recording that work happened
+requires the appropriate domain command and confirmation policy; a service
+event produces completions only for the operations actually confirmed.
+
+Feature surfaces read these records and derived projections. Car Board and
+Road do not maintain independent copies of historical truth.
 
 ## Source-of-truth matrix
 

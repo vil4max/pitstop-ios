@@ -12,23 +12,22 @@
 
 PitStop starts from the driver, not from a complete vehicle profile.
 
-```text
-CAR BOARD
-    ↓
-ROAD + NOTES + SERVICE + HISTORY
-    ↑
-REMEMBER
-    ↑
-Pit / Siri / Widget / Shortcuts / direct UI
-```
+The [product charter](01_PRODUCT_CHARTER.md#product-loop-and-feature-responsibilities)
+owns feature descriptions and user journeys. Notes hold thoughts and intentions;
+History holds recorded facts; Service derives maintenance state; Road presents
+eligible milestones. Car Board summarises these surfaces, while Remember supplies
+new records through the capture contract.
 
-Core lifecycle:
+Core lifecycle (intended behaviour, not implementation status):
 
 ```text
-THINK → REMEMBER → MEMORY PROPOSAL → SAFE DOMAIN MUTATION
-DO    → HISTORY
-FACTS + POLICIES → MAINTENANCE STATE → ROAD
+THOUGHT → REMEMBER → VALIDATED SAVE → NOTES → FIND AND USE
+PERFORMED WORK → CONFIRMED RECORD → HISTORY
+FACTS + POLICIES + COMPLETIONS → SERVICE STATE → ELIGIBLE ROAD MILESTONES
 ```
+
+Finding or archiving a Note does not confirm performed work. A Car Board tile
+is a summary and entrance, not evidence that the underlying feature is complete.
 
 The application must remain useful without AI and without Pit. Pit is a persistent helper for capture, clarification, and progressive discovery. Pit is not navigation and is not the product itself.
 
@@ -59,20 +58,26 @@ Settings and Pit live in a persistent bottom utility layer. Settings is one tap 
 
 `Remember` is the product capability and preferred product verb.
 
-All capture sources feed one semantic pipeline:
+Raw saving needs no model. Optional interpretation may propose stronger meaning;
+it does not establish a fact. All capture sources share one validation and
+mutation pipeline, owned by [`34_CAPTURE_PIPELINE_SPEC.md`](34_CAPTURE_PIPELINE_SPEC.md):
 
 ```text
 voice / text / shortcut / widget / Siri / Pit
                 ↓
           CaptureInput
                 ↓
-       Semantic Interpreter
+    Raw preservation OR interpretation
                 ↓
          Memory Proposal
                 ↓
+        Proposal Validator
+                ↓
         Confirmation Policy
                 ↓
-          Domain Mutation
+           Domain Command
+                ↓
+       Persistence → visible result
 ```
 
 The source does not determine the domain operation.
@@ -188,6 +193,7 @@ Legacy tab-bar spike: branch `legacy/spike`. Current product: `main`.
 - Pit is a restrained persistent helper.
 - Pit Eyes / Behind the UI is the working visual hypothesis.
 - Remember is the core capture capability.
+- Raw Remember is useful without a model; interpretation is optional.
 - One Capture Pipeline serves all capture sources.
 - AI/model providers live behind an intelligence abstraction.
 - Feature and domain code must not depend on concrete model vendor SDKs.
