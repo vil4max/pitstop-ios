@@ -19,3 +19,26 @@ Smart driver's journal and contextual car memory for your vehicle.
 iOS 26+ · Xcode 26+ · SwiftUI · SwiftData · Foundation Models · UserNotifications · Swift Testing + XCTest · en / uk / ru · MVVM
 
 Product and engineering specs: [`specs/`](specs/)
+
+## Agent development loop
+
+Start an authorized task with: **Run the agent loop for TASK-ID**. The agent
+reads the owning specification, implements a bounded change, verifies it, and
+delegates independent review using the host's available agent tools. The
+[development workflow](specs/24_PROJECT_MANAGEMENT_AND_GITFLOW.md#agent-development-loop)
+defines the handoff and evidence. Product work follows `PROJECT_STATUS.md`;
+the infrastructure setup exception does not unfreeze features.
+
+```sh
+just doctor --json
+just verify
+```
+
+The installed Runtime and shell executors are included in this repository;
+verification does not need access to the private Kit repository. Host setup
+instructions and project facts are in [`AGENTS.md`](AGENTS.md).
+
+PR CI runs `just verify-ci` on macOS 26 with Xcode 26.6 and preserves logs and
+test results. The workflow becomes active after publication; the ruleset JSON
+is a configuration proposal until applied in GitHub. A passing local gate does
+not prove CI, independent review, release, or production AI capability.

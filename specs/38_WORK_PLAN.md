@@ -20,6 +20,9 @@
 
 Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
 
+M0/M1 completion records are historical. ENG-003 is reopened for the current
+agent-loop setup; its remote CI and branch-protection validation remain pending.
+
 ## Status legend
 
 | Status | Meaning |
@@ -40,7 +43,8 @@ Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
 | Merge | Squash to `main` after CI green |
 | WIP | Max 1 issue **In progress** on board |
 
-CI checks on every PR: branch name, SwiftFormat, build, tests.
+Configured PR job: `verify` (formatting, lint, build, tests). Remote activation
+and its first observed run are pending. See `23_ENGINEERING_QUALITY_AND_CI.md`.
 
 ## Phase 0 — Product contracts
 
@@ -64,7 +68,7 @@ CI checks on every PR: branch name, SwiftFormat, build, tests.
 |---|---|---:|---|---|---|
 | BOOT-001 | App scaffold + folder tree | 2d | — | done | — |
 | ENG-001 | Logging facade | 1d | BOOT-001 | done | — |
-| ENG-003 | CI quality gates | 2d | BOOT-001 | done | — |
+| ENG-003 | CI quality gates (local setup; remote validation pending) | 2d | BOOT-001 | tracked | — |
 | ENG-004 | Persistence + provisional car | 3d | DOM-003 | tracked | #5 |
 | ENG-002 | Analytics boundary | 2d | CB-002 | tracked | #6 |
 | ANL-001 | Analytics spike | 2d | ENG-002 | tracked | #7 |

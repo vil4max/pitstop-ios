@@ -1,0 +1,54 @@
+name: Verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: verify
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install verification tools
+        run: brew install just swiftformat swiftlint yq jq xcbeautify
+
+      - name: Record verification environment
+        run: |
+          mkdir -p "$RUNNER_TEMP/pitstop-evidence"
+          git rev-parse HEAD > "$RUNNER_TEMP/pitstop-evidence/commit.txt"
+          just env > "$RUNNER_TEMP/pitstop-evidence/environment.txt"
+
+      - name: Verify checkout
+        run: |
+          set -o pipefail
+          just verify-ci 2>&1 | tee "$RUNNER_TEMP/pitstop-evidence/verify.log"
+
+      - name: Preserve verification evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: pitstop-verification-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/pitstop-evidence/
+            ~/Library/Developer/Xcode/DerivedData/Pitstop-*/Logs/Test/*.xcresult

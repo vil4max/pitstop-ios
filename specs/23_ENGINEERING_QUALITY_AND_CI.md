@@ -187,22 +187,26 @@ Use GitHub Actions.
 
 ### PR required checks
 
-``` text
-quality
-build
-domain-tests
-integration-tests
-```
+Current configured job: `verify`, in
+[`verify.yml`](../.github/workflows/verify.yml). It runs `just verify-ci`:
+format check → doctor → Runtime format/lint/build/tests → unchanged tracked
+checkout check. The current suite is the existing app baseline; domain,
+persistence, and UI coverage must grow with their implementations.
 
-`quality`: - formatting check; - SwiftLint; - forbidden architecture
-imports; - warning policy.
+The job uses the GitHub `macos-26` runner and explicitly selects Xcode 26.6.
+Runner availability and installed versions were checked against the
+[official runner inventory](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md).
+Homebrew tool versions are captured in the run evidence, not locked; a runner
+or formula update can change their behavior and must be diagnosed explicitly.
 
-`build`: - clean build selected scheme/configuration.
+Verification logs, tool versions, tested commit, and `.xcresult` output are
+retained as CI artifacts for 14 days. Long-term conclusions belong in the
+diary with commit/run references. Neither independent review nor product
+acceptance is implied by a green `verify` check.
 
-`domain-tests`: - pure Swift/domain package tests.
-
-`integration-tests`: - persistence/adapters and critical integration
-suite.
+Remote activation is pending until the workflow is published and its first
+run is observed. Apply the proposed ruleset only after the named check exists.
+The local JSON file is not evidence of active GitHub branch protection.
 
 ### Scheduled checks
 
