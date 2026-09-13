@@ -23,6 +23,28 @@ Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
 M0/M1 completion records are historical. ENG-003 is reopened for the current
 agent-loop setup; its remote CI and branch-protection validation remain pending.
 
+## Feature readiness vs milestone completion
+
+The [product charter](01_PRODUCT_CHARTER.md#product-loop-and-feature-responsibilities)
+defines useful features; task rows below schedule implementation slices. **M3 is
+a domain and screen foundation. M4 is the Remember end-to-end checkpoint.**
+A finished tile or navigation entry does not establish the complete user journey.
+
+| Capability | Evidence required beyond a tile or shell |
+|---|---|
+| Notes | Save a thought, reopen the app, find and read it, then correct or archive it without requiring AI classification. |
+| History | Read persisted vehicle events created through supported domain commands; intentions and unconfirmed work are not events. |
+| Service | Derive status from effective policies and confirmed operations, handle missing baselines honestly, and reset only completed operations. |
+| Road | Project eligible facts and plans under the agreed horizon rules; show unknown or no-known-milestones states instead of fabricated data. |
+| Remember | CAP-007 proves capture → policy → command → persistence → visible result. Raw saving works without a model; interpreted capture obeys the same validation and confirmation boundary. |
+
+The current tile-task estimates are not estimates for every behaviour above.
+Before implementing an owning task, reconcile its acceptance criteria and domain
+dependencies with the linked contracts; report missing scope for owner agreement
+instead of silently expanding a tile task. This clarification does not change
+task IDs, estimates, dependencies, milestone order, or the next task. CAP-* stays
+in M4; raw preservation is both a normal Remember mode and the safe fallback.
+
 ## Status legend
 
 | Status | Meaning |
