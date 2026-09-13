@@ -6,6 +6,21 @@ Smart driver's journal and contextual car memory for your vehicle.
 **Resume next task (when unfrozen):** DOM-002 — spec-derived domain test fixtures.  
 **Legacy tab-bar spike:** branch [`legacy/spike`](https://github.com/vil4engineering/pitstop-ios/tree/legacy/spike).
 
+## Intended product
+
+Save a thought about the car, find it when needed, record what actually happened,
+and understand what matters next. **Notes** hold thoughts and intentions;
+**History** holds recorded events; **Service** calculates maintenance state;
+**Road** shows eligible milestones. **Car Board** brings their summaries together.
+
+**Remember** is the shared capture capability: preserve a raw thought without AI
+or use optional interpretation to propose structured data. **Pit** helps with
+capture and clarification; it is not navigation or the product itself.
+
+These are [product contracts](specs/01_PRODUCT_CHARTER.md#product-loop-and-feature-responsibilities),
+not a shipped feature list. The current app is a scaffold; see the
+[implementation inventory](specs/39_DOMAIN_INVENTORY.md).
+
 ## Distribution
 
 - **Org:** [vil4engineering](https://github.com/vil4engineering) · **Repo:** [vil4engineering/pitstop-ios](https://github.com/vil4engineering/pitstop-ios)

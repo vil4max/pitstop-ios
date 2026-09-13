@@ -8,6 +8,20 @@ The product action is **Remember**.
 
 > Capture first. Interpret safely. Mutate deterministically.
 
+## Two modes, one capability
+
+**Raw Remember** saves a thought without assigning stronger meaning. It is a
+normal useful mode, not only an error fallback, and needs no model.
+
+**Interpreted Remember** proposes typed meaning such as an odometer reading or
+maintenance completion. Interpretation does not make the proposal a fact.
+
+Both modes share validation, confirmation policy, domain commands, persistence,
+and an inspectable result. Pit and system entry points are sources, not separate
+versions of Remember. Delivery remains staged by `38_WORK_PLAN.md`; describing
+raw mode does not authorize CAP-* implementation before the current freeze and
+milestone gates permit it.
+
 ## Sources
 
 All sources produce the same input contract:
@@ -53,7 +67,8 @@ Raw source content is privacy-sensitive.
 ```text
 CaptureInput
     ↓
-SemanticInterpreter
+Proposal creation
+(deterministic raw preservation OR SemanticInterpreter)
     ↓
 MemoryProposal
     ↓
@@ -71,6 +86,11 @@ Persistence
     ↓
 Derived projections recalculate
 ```
+
+Raw mode produces a `rawNote` proposal without a model call. Interpreted mode
+uses `SemanticInterpreter` to propose a supported kind. Both enter the same
+`ProposalValidator` / `ConfirmationPolicy` path; neither writes directly to
+persistence. Cancellation performs no mutation in either mode.
 
 ## MemoryProposal
 
@@ -111,6 +131,19 @@ If safe structure cannot be produced:
 - allow later correction/reclassification.
 
 Do not silently discard.
+
+## Saved result and later use
+
+- Report saving only after persistence succeeds; make failure visible and keep
+  the input available for retry rather than presenting a false success.
+- Show the destination of the saved result. Raw and contextual Notes remain
+  accessible from Notes even without AI metadata.
+- Reopening the app must not lose a successfully saved memory.
+- Let the user inspect and correct the stored result. AI reclassification must
+  not silently rewrite the original wording or confirm performed work.
+- An intention such as "replace the wipers" remains a Note unless a supported
+  proposal and policy explicitly permit another operation. It is not proof of
+  completion and does not implicitly create a reminder or Road milestone.
 
 ## ConfirmationPolicy
 
@@ -244,6 +277,9 @@ Do not log raw content.
 10. correlation ID spans the pipeline;
 11. one clarification at a time;
 12. cancellation performs no mutation.
+13. explicit raw mode uses no model and reaches the same validation/command path;
+14. saved raw Notes remain findable after relaunch without classification;
+15. persistence failure does not report successful saving.
 
 ## Acceptance criteria
 

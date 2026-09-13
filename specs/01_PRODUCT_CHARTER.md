@@ -26,6 +26,40 @@ Supporting mental models:
 
 Maintenance is a domain inside the product. It is not the whole product identity.
 
+## Product loop and feature responsibilities
+
+The core loop is **save a thought → find and use it → record what actually
+happened → understand what matters next**. Not every thought becomes a task,
+service event, or reminder. A useful Note may remain a Note.
+
+The following descriptions define intended behaviour, not shipped capability.
+Current implementation is recorded in [`39_DOMAIN_INVENTORY.md`](39_DOMAIN_INVENTORY.md).
+
+| Capability / surface | User's question or trigger | Minimum useful result | Boundary and dependencies |
+|---|---|---|---|
+| Remember | "I need to save this before I forget." | Preserve the input, show where it was saved, and let the user inspect it later. | A capability, not a screen or model. Raw saving needs no AI; interpretation may propose structure. Both use the capture contract in `34`. |
+| Notes | "What did I want to remember or ask about?" | Read, correct, and archive saved thoughts; find them again through an understandable list or supported context. | Original wording is authoritative. A context is optional metadata, not a required taxonomy. Archiving is not proof that work was performed. Domain owner: `02`. |
+| History | "What actually happened, and when?" | Inspect recorded vehicle events with their known date, mileage, performed work, and optional cost. | Contains recorded facts, not intentions or unconfirmed proposals. Service completion has its own confirmation rules. Domain owner: `02`. |
+| Service | "What is approaching, what should I plan, and what was done?" | Explain known maintenance status, help plan a visit, and record confirmed operations. | Depends on effective policies and completion facts. Unknown stays unknown; partial service resets only completed operations. Behaviour owner: `03`. |
+| Road | "What meaningful event is ahead?" | Show the nearest relevant milestone or an honest no-known-milestones state. | A projection of known plans and deterministic maintenance state, not another planner, history database, or map. Behaviour owner: `32`. |
+| Car Board | "What matters about my car right now?" | Show useful summaries and clear entrances to the owned surfaces. | Displays their data; does not create a second source of truth. A tile alone is not a complete feature. Screen owner: `31`. |
+| Car context | "Which car is this, and which facts are known?" | Start with one provisional car and allow progressive correction/enrichment. | No profile gate. A display placeholder is not a mileage reading or a verified vehicle fact. Domain owner: `02`. |
+| Pit | "Help me capture this or clarify one thing." | Open capture, present its outcome, or ask one useful question. | Optional interaction helper, not navigation, storage, a generic chat, or the AI model. Behaviour owner: `33`. |
+| Settings | "Where can I change app preferences?" | Reach the owned settings surface in one tap. | A stable utility action, separate from car facts and primary navigation. Utility owner: `35`. |
+
+### Example journeys
+
+- **Before a car wash:** save "Ask about the stain on the rear seat"; reopen
+  the saved Note later; correct or archive it. AI failure must not hide or lose it.
+- **Looking back:** open History to check a recorded wiper replacement. If its
+  date or mileage is missing, show that uncertainty rather than inventing it.
+- **After a service visit:** confirm only the operations actually performed;
+  record the visit in History; recalculate only the affected cycles in Service
+  and the eligible milestones in Road. Unperformed work remains unchanged.
+
+These journeys are acceptance examples, not automatic context-detection,
+notification, diagnostic, or new system-integration requirements.
+
 ## Primary jobs to be done
 
 ### Remember something with minimal friction
@@ -42,7 +76,7 @@ Success:
 
 Failure:
 - capture begins with a form-type picker;
-- the user must type ordinary structured facts;
+- ordinary structured facts require free-text entry when simple controls would suffice;
 - AI writes directly to persistence;
 - ambiguous meaning is silently guessed.
 
@@ -69,6 +103,7 @@ Failure:
 
 Success:
 - notes preserve original wording;
+- saved notes remain findable without AI or automatic location detection;
 - context can be inferred or attached without mandatory tag management;
 - interpretation failure never loses the raw memory.
 
@@ -102,11 +137,16 @@ The app opens directly into a usable Car Board with a provisional context:
 
 ```text
 My New Car
-0 km
+mileage unknown
 vehicle details unknown
 ```
 
 This is a provisional product context, not a factual claim that the user bought a new vehicle.
+
+Until a valid odometer reading exists, omit the numeric mileage or show an
+explicit unknown label. Zero is a valid reading only when actually supplied;
+it is not a substitute for missing data. The current scaffold's `0 km` is an
+implementation gap, not the intended first-launch behaviour.
 
 The app must not require:
 - authentication;
@@ -197,6 +237,7 @@ The application remains fully usable without Pit.
 - Pit is one tap away;
 - a thought can be captured with minimal friction;
 - captured data has an understandable destination;
+- a saved thought survives relaunch and can be found and used later;
 - stored data can be inspected and corrected;
 - the app remains useful when AI is unavailable.
 
@@ -207,7 +248,7 @@ The application remains fully usable without Pit.
 - authentication is required before value;
 - Pit is required for navigation;
 - Car Board becomes empty navigation tiles;
-- ordinary capture requires typing;
+- structured capture imposes unnecessary typing or a mandatory voice interaction;
 - users cannot understand where captured information went;
 - Road is decorative rather than informative;
 - Pit interrupts without visible value;

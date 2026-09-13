@@ -25,7 +25,7 @@ DOM-002 or authorize runtime AI, deployment, or personal publication.
 3. **Deploy** — ship a usable build (TestFlight / App Store as applicable).
 4. **Maintain** — 1–2 months of post-ship iteration with metrics and user feedback.
 
-**Ordering constraint (unchanged):** complete the product baseline through M3 before runtime AI features (`Remember` / Foundation Models / CAP-*). Agent-assisted coding during baseline work is a workflow choice, not early AI product scope.
+**Ordering constraint (unchanged):** complete the product baseline through M3 before runtime AI features (Foundation Models / interpreted Remember). All CAP-* delivery, including raw saving without a model, remains scheduled for M4. Agent-assisted coding during baseline work is a workflow choice, not early AI product scope.
 
 personal wording belongs to `[private notes]` and its
 presentation configuration. Record demonstrated workflow results separately
@@ -67,14 +67,20 @@ Not allowed:
 
 ## Product baseline (resume definition)
 
-“Complete the product baseline before AI” means reach a usable greenfield product on `main` through **M3** in [`specs/38_WORK_PLAN.md`](specs/38_WORK_PLAN.md):
+“Complete the product baseline before AI” means establish the domain and screen foundation on `main` through **M3** in [`specs/38_WORK_PLAN.md`](specs/38_WORK_PLAN.md):
 
 - domain fixtures and capture-boundary tests (DOM-*)
 - persistence for provisional car context (ENG-004)
 - Car Board tiles wired to real domain projections
 - Road projection and UI
 
-**Remember / Capture / Foundation Models (M4+, CAP-*) stay deferred until that baseline is useful without AI.**
+M3 is a foundation checkpoint, not completion of the save-and-retrieve product
+loop. Tile completion alone does not prove Notes, History, or Service readiness;
+the work plan records the distinction.
+
+**Remember / Capture delivery (M4, CAP-*) stays deferred until M3.** Remember
+includes useful raw saving without AI as well as optional interpreted capture;
+this distinction does not move tasks earlier or change the freeze.
 
 Open after unfreeze: DOM-002.
 

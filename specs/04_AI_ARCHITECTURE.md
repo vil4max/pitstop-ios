@@ -4,7 +4,12 @@
 
 > AI interprets human input. AI does not own product truth.
 
-Runtime:
+Remember itself does not require AI. Its raw mode preserves input through the
+same proposal, validation, and command boundary without a model call. This
+document describes the optional interpreted mode; both modes are owned by
+[`34_CAPTURE_PIPELINE_SPEC.md`](34_CAPTURE_PIPELINE_SPEC.md).
+
+Interpreted runtime path:
 
 ```text
 CaptureInput
