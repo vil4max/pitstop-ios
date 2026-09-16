@@ -1,7 +1,7 @@
 # Work Plan
 
-**Status:** Frozen — no implementation until unfrozen; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Resume next task:** DOM-003 — capture domain + policy tests (after DOM-002)  
+**Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
+**Next task:** DOM-003 — capture domain + policy tests  
 **Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
 **Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  

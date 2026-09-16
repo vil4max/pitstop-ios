@@ -23,13 +23,11 @@ Authoritative behaviour remains in the owning specs. Prefer links over duplicati
 
 Current status:
 
-- Product implementation paused.
-- Architecture continues only through documentation.
-- No new runtime features.
-- No AI implementation.
+- Product baseline implementation is active (unfrozen 2026-09-16).
+- No runtime AI implementation before the product baseline is complete.
 - Product baseline has higher priority than AI.
 
-See also [`PROJECT_STATUS.md`](../../PROJECT_STATUS.md) and the freeze rules in [`../planning/ai-roadmap.md`](../planning/ai-roadmap.md).
+See also [`PROJECT_STATUS.md`](../../PROJECT_STATUS.md) and the AI deferral rules in [`../planning/ai-roadmap.md`](../planning/ai-roadmap.md).
 
 ---
 
@@ -258,7 +256,7 @@ Reasoning behind the major AI boundaries:
 | Explainability | The driver should understand why Pit suggests something |
 | Evaluation | Prompt and provider changes need measurable quality ([`../engineering/test-strategy.md`](../engineering/test-strategy.md)); long-term evaluation direction in [`../planning/ai-roadmap.md`](../planning/ai-roadmap.md) |
 
-Long-term AI direction and freeze rules: [`../planning/ai-roadmap.md`](../planning/ai-roadmap.md).  
+Long-term AI direction and deferral rules: [`../planning/ai-roadmap.md`](../planning/ai-roadmap.md).  
 AI Product Analyst (development workflow, not app runtime): [`../operations/ai-product-analytics.md`](../operations/ai-product-analytics.md).
 
 ---

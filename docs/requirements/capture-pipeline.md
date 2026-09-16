@@ -21,8 +21,8 @@ maintenance completion. Interpretation does not make the proposal a fact.
 Both modes share validation, confirmation policy, domain commands, persistence,
 and an inspectable result. Pit and system entry points are sources, not separate
 versions of Remember. Delivery remains staged by `../planning/work-plan.md`; describing
-raw mode does not authorize CAP-* implementation before the current freeze and
-milestone gates permit it.
+raw mode does not authorize CAP-* implementation before the milestone gates
+permit it.
 
 ## Sources
 

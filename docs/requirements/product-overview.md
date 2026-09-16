@@ -4,7 +4,7 @@
 **Primary platform:** iOS  
 **Current product boundary:** one car context per user for the first product slice  
 **Core product statement:** **PitStop is a smart driver's journal and contextual memory for a car.**  
-**Project state:** Frozen — see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)
+**Project state:** Active — see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)
 
 > PitStop remembers the car with the driver.
 

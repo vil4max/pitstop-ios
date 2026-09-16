@@ -2,8 +2,8 @@
 
 Smart driver's journal and contextual car memory for your vehicle.
 
-**Project state:** Frozen — see [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
-**Resume next task (when unfrozen):** DOM-002 — spec-derived domain test fixtures.  
+**Project state:** Active — see [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
+**Next task:** DOM-003 — capture domain and confirmation policy tests.  
 **Legacy tab-bar spike:** branch [`legacy/spike`](https://github.com/vil4engineering/pitstop-ios/tree/legacy/spike).
 
 ## Intended product
@@ -41,8 +41,7 @@ Start an authorized task with: **Run the agent loop for TASK-ID**. The agent
 reads the owning specification, implements a bounded change, verifies it, and
 delegates independent review using the host's available agent tools. The
 [development workflow](docs/engineering/agent-loop-and-gitflow.md#agent-development-loop)
-defines the handoff and evidence. Product work follows `PROJECT_STATUS.md`;
-the infrastructure setup exception does not unfreeze features.
+defines the handoff and evidence. Product work follows `PROJECT_STATUS.md`.
 
 ```sh
 just doctor --json

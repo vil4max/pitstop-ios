@@ -1,23 +1,14 @@
 # PitStop — Project Status
 
-**Project State:** Active — Agent SDLC learning phase
-**Reason:** Understanding and building the agent-assisted development loop
-(see `docs/engineering/agent-loop-and-gitflow.md`, "Agent development loop")
-**Note (2026-09-16):** Previously recorded as "Frozen"; corrected per owner.
-The freeze rules below (feature implementation, runtime AI, deployment) still stand until
-the owner separately unfreezes them — this correction only fixes the
-active/frozen state declaration, it does not by itself authorize product
-feature work.
-
-**2026-09-13 infrastructure exception:** the owner authorized the PitStop
-agent development loop setup: project Entry, deterministic verification tooling,
-CI configuration, independent review, and checks of the existing app baseline.
-Product feature implementation remains paused. This exception does not start
-DOM-002 or authorize runtime AI or deployment.
+**Project State:** Active — product baseline implementation
+**Unfrozen (2026-09-16):** the owner unfroze product feature implementation.
+Work follows the spec pyramid ([`docs/core.md`](docs/core.md)) and the agent
+development loop (`docs/engineering/agent-loop-and-gitflow.md`). Runtime AI
+stays deferred by core priority P4 and the ordering constraint below.
 
 ---
 
-# Product loop after unfreeze
+# Product loop
 
 1. **Design** — owner-formulated problem / MVP ([`docs/core.md`](docs/core.md), [`docs/requirements/product-charter.md`](docs/requirements/product-charter.md)).
 2. **Develop** — agent-assisted delivery with human review.
@@ -34,13 +25,13 @@ Agent entry: tracked root `AGENTS.md`; local project marker is gitignored.
 
 - Architecture Complete
 - Documentation Stable
-- Implementation Paused
+- Implementation Active
 - Product Baseline Pending
 - AI Deferred
 
 ---
 
-## Freeze rules
+## Work rules
 
 Allowed:
 
@@ -48,15 +39,14 @@ Allowed:
 - architecture clarification
 - terminology cleanup
 - specification refactoring
-- the bounded infrastructure setup and existing-baseline checks authorized above
+- product baseline feature implementation (domain, persistence, Car Board, Road) and its verification tooling
 
-Not allowed:
+Not allowed until the product baseline (M3) is complete:
 
 - runtime AI
 - provider integration
 - prompt engineering
 - evaluation implementation
-- feature implementation
 
 ---
 
@@ -75,9 +65,9 @@ the work plan records the distinction.
 
 **Remember / Capture delivery (M4, CAP-*) stays deferred until M3.** Remember
 includes useful raw saving without AI as well as optional interpreted capture;
-this distinction does not move tasks earlier or change the freeze.
+this distinction does not move tasks earlier.
 
-Open after unfreeze: DOM-002.
+Next task: DOM-003 (see [`docs/planning/work-plan.md`](docs/planning/work-plan.md)).
 
 ---
 

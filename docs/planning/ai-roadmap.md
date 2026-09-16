@@ -27,7 +27,7 @@ This roadmap preserves:
 
 - the audited current state of AI-related contracts and code
 - long-term direction that must not be mistaken for present runtime behaviour
-- freeze rules that keep AI work deferred until the product baseline is active again
+- rules that keep AI work deferred until the product baseline is complete
 
 When implementation resumes, start from the product baseline and the authoritative owners above. Use this document for direction, not as a parallel source of truth.
 
@@ -35,7 +35,7 @@ When implementation resumes, start from the product baseline and the authoritati
 
 This section connects PitStop's product direction with a full AI Product
 Engineering learning loop. It is a planning and study map only; it does not
-authorize runtime AI work while the project is frozen and does not replace the
+authorize runtime AI work before the product baseline is complete and does not replace the
 owning specifications below.
 
 Keep two tracks separate:
@@ -45,7 +45,7 @@ Keep two tracks separate:
 - **AI inside PitStop** — where the shipped product may use a model to
   interpret input or provide bounded assistance.
 
-The first track may support ordinary product-baseline work after unfreeze. The
+The first track may support ordinary product-baseline work. The
 second track starts only after the baseline is useful without AI.
 
 ### Full-cycle loop
@@ -673,13 +673,11 @@ The system executes.
 
 ---
 
-# Project Freeze
+# AI Deferral
 
-Canonical freeze rules live in [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
+Canonical work rules live in [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
 
-Summary: documentation and architecture clarification only. No runtime AI, provider integration, prompt engineering, evaluation implementation, or feature work.
-
-Implementation resumes only after the product baseline becomes active again.
+Summary: product baseline implementation is active. No runtime AI, provider integration, prompt engineering, or evaluation implementation until the product baseline (M3) is complete.
 
 Do not resume AI implementation first.
 Complete the product baseline before any AI work.

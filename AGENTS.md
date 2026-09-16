@@ -37,13 +37,11 @@ kit skill `spec-pyramid`.
 - Record a lesson only when a check or upper layer changed:
   [`docs/lessons.md`](docs/lessons.md).
 
-## Freeze awareness
+## Project state
 
-Read `PROJECT_STATUS.md` first. The approved infrastructure exception permits
-agent-loop setup and verification of the existing app while product features
-remain frozen. No feature/AI runtime implementation until unfreeze.
-
-Product baseline (through M3) still precedes runtime AI features. Agent-assisted coding workflow during baseline work is allowed when the project is unfrozen and the owner asks for implementation.
+Read `PROJECT_STATUS.md` first. Product feature implementation is unfrozen
+(2026-09-16); the owner still assigns tasks. Product baseline (through M3)
+precedes runtime AI features (core P4).
 
 ## System over random
 
