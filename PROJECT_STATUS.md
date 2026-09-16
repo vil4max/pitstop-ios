@@ -1,8 +1,14 @@
 # PitStop — Project Status
 
-**Project State:** Frozen  
-**Reason:** personal and interview priority  
-**Last freeze preparation:** documentation and architecture preservation (no runtime changes)
+**Project State:** Active — Agent SDLC learning phase
+**Reason:** Understanding and building the agent-assisted development loop
+(see `specs/24_PROJECT_MANAGEMENT_AND_GITFLOW.md`, "Agent development loop")
+**Note (2026-09-16):** Previously recorded as "Frozen" (personal/interview
+priority); corrected per owner. The freeze rules below (feature
+implementation, runtime AI, deployment, personal publication) still stand until
+the owner separately unfreezes them — this correction only fixes the
+active/frozen state declaration, it does not by itself authorize product
+feature work.
 
 **2026-09-13 infrastructure exception:** the owner authorized the PitStop
 agent development loop setup: project Entry, deterministic verification tooling,

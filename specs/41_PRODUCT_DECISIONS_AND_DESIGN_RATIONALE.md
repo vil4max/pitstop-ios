@@ -372,6 +372,12 @@ They are not backlog commitments.
 - Shared vehicles
 - Cloud sync
 - Smart reminders powered by AI
+- Pet/companion-style Pit persona (inspired by mewmori.com's pet mechanic and
+  OpenAI Codex's mascot use) — tension: conflicts with the current "Pit Eyes /
+  Behind the UI" visual hypothesis (`17_PRODUCT_DESIGN.md`), which explicitly
+  rejects "oversized cute mascot eyes" and "Pixar-like body language"; see the
+  open `INV-PROD-005 Pit value vs mascot noise` investigation
+  (`09_INVESTIGATIONS.md`).
 
 Executable product backlog remains [`38_WORK_PLAN.md`](38_WORK_PLAN.md).  
 Deferred AI phase framing: [`40_AI_ENGINEERING_ROADMAP.md`](40_AI_ENGINEERING_ROADMAP.md).  

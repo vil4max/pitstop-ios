@@ -68,6 +68,10 @@ Evaluate:
 - motion sentiment;
 - ability to use app without Pit.
 
+Evidence (external reference, unvalidated): mewmori.com's pet-companion
+mechanic and OpenAI Codex's mascot use, raised as a "Pit as pet" framing to
+weigh against the existing eyes-only hypothesis in `17_PRODUCT_DESIGN.md`.
+
 ## Road investigations
 
 ### INV-ROAD-001 Horizon and spacing
