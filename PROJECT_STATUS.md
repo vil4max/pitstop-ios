@@ -2,10 +2,9 @@
 
 **Project State:** Active — Agent SDLC learning phase
 **Reason:** Understanding and building the agent-assisted development loop
-(see `specs/24_PROJECT_MANAGEMENT_AND_GITFLOW.md`, "Agent development loop")
-**Note (2026-09-16):** Previously recorded as "Frozen" (personal/interview
-priority); corrected per owner. The freeze rules below (feature
-implementation, runtime AI, deployment, personal publication) still stand until
+(see `docs/engineering/agent-loop-and-gitflow.md`, "Agent development loop")
+**Note (2026-09-16):** Previously recorded as "Frozen"; corrected per owner.
+The freeze rules below (feature implementation, runtime AI, deployment) still stand until
 the owner separately unfreezes them — this correction only fixes the
 active/frozen state declaration, it does not by itself authorize product
 feature work.
@@ -14,28 +13,18 @@ feature work.
 agent development loop setup: project Entry, deterministic verification tooling,
 CI configuration, independent review, and checks of the existing app baseline.
 Product feature implementation remains paused. This exception does not start
-DOM-002 or authorize runtime AI, deployment, or personal publication.
+DOM-002 or authorize runtime AI or deployment.
 
 ---
 
-# reference product loop
+# Product loop after unfreeze
 
-**Role:** this repository is the reference product for the private target:
-
-> AI-assisted Product Engineer able to design, develop, deploy, and maintain a modern product.
-
-**Loop to complete after unfreeze (one product, not three pets):**
-
-1. **Design** — owner-formulated problem / MVP (charter: [`specs/01_PRODUCT_CHARTER.md`](specs/01_PRODUCT_CHARTER.md)).
-2. **Develop** — AI-assisted delivery with human review (agents as engineering workflow).
+1. **Design** — owner-formulated problem / MVP ([`docs/core.md`](docs/core.md), [`docs/requirements/product-charter.md`](docs/requirements/product-charter.md)).
+2. **Develop** — agent-assisted delivery with human review.
 3. **Deploy** — ship a usable build (TestFlight / App Store as applicable).
-4. **Maintain** — 1–2 months of post-ship iteration with metrics and user feedback.
+4. **Maintain** — post-ship iteration with metrics and user feedback.
 
 **Ordering constraint (unchanged):** complete the product baseline through M3 before runtime AI features (Foundation Models / interpreted Remember). All CAP-* delivery, including raw saving without a model, remains scheduled for M4. Agent-assisted coding during baseline work is a workflow choice, not early AI product scope.
-
-personal wording belongs to `[private notes]` and its
-presentation configuration. Record demonstrated workflow results separately
-from shipped AI product capabilities; installation alone proves neither.
 
 Agent entry: tracked root `AGENTS.md`; local project marker is gitignored.
 
@@ -73,7 +62,7 @@ Not allowed:
 
 ## Product baseline (resume definition)
 
-“Complete the product baseline before AI” means establish the domain and screen foundation on `main` through **M3** in [`specs/38_WORK_PLAN.md`](specs/38_WORK_PLAN.md):
+“Complete the product baseline before AI” means establish the domain and screen foundation on `main` through **M3** in [`docs/planning/work-plan.md`](docs/planning/work-plan.md):
 
 - domain fixtures and capture-boundary tests (DOM-*)
 - persistence for provisional car context (ENG-004)
@@ -94,11 +83,11 @@ Open after unfreeze: DOM-002.
 
 ## Current implementation status
 
-Source of truth for what exists on `main`: [`specs/39_DOMAIN_INVENTORY.md`](specs/39_DOMAIN_INVENTORY.md).
+Source of truth for what exists on `main`: [`docs/engineering/domain-inventory.md`](docs/engineering/domain-inventory.md).
 
 | Area | Status on `main` |
 |---|---|
-| Product contracts / specs | Present and authoritative under `specs/` |
+| Product contracts / specs | Present and authoritative under `docs/` (see `docs/README.md`) |
 | Provisional car context | Partial (`ProvisionalCarContext`) |
 | Car Board | Placeholder UI |
 | Capture / Remember pipeline | Not started (intentional; after product baseline) |
@@ -115,20 +104,20 @@ AI and Remember are specified, not implemented. Product baseline remains higher 
 
 Recommended order:
 
-1. [`PROJECT_STATUS.md`](PROJECT_STATUS.md) (this file) — including reference product loop
-2. [`specs/README.md`](specs/README.md)
-3. [`specs/01_PRODUCT_CHARTER.md`](specs/01_PRODUCT_CHARTER.md)
-4. [`specs/39_DOMAIN_INVENTORY.md`](specs/39_DOMAIN_INVENTORY.md)
-5. [`specs/41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md`](specs/41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md)
-6. [`specs/40_AI_ENGINEERING_ROADMAP.md`](specs/40_AI_ENGINEERING_ROADMAP.md)
+1. [`PROJECT_STATUS.md`](PROJECT_STATUS.md) (this file)
+2. [`docs/requirements/product-overview.md`](docs/requirements/product-overview.md)
+3. [`docs/requirements/product-charter.md`](docs/requirements/product-charter.md)
+4. [`docs/engineering/domain-inventory.md`](docs/engineering/domain-inventory.md)
+5. [`docs/decisions/0004-product-design-rationale.md`](docs/decisions/0004-product-design-rationale.md)
+6. [`docs/planning/ai-roadmap.md`](docs/planning/ai-roadmap.md)
 
 Then open behavioural owners as needed:
 
-- Capture: `34_CAPTURE_PIPELINE_SPEC.md`
-- AI runtime: `04_AI_ARCHITECTURE.md`
-- Car Board / Road / Pit: `31`, `32`, `33`
-- Work plan: `38_WORK_PLAN.md`
-- Full map: `00_DOCUMENTATION_INDEX.md`
+- Capture: `docs/requirements/capture-pipeline.md`
+- AI runtime: `docs/engineering/ai-architecture.md`
+- Car Board / Road / Pit: `car-board-screen`, `road-domain-and-ui`, `pit-behavior-and-motion`
+- Work plan: `docs/planning/work-plan.md`
+- Full map: `docs/README.md`
 
 Do not resume AI implementation first.
 
@@ -142,13 +131,13 @@ Complete the product baseline before any AI work.
 |---|---|
 | Root `README.md` | Repository entry point |
 | `PROJECT_STATUS.md` | Current project state / freeze / resume |
-| `01_PRODUCT_CHARTER.md` | Product contract (what) |
-| `04_AI_ARCHITECTURE.md` | Runtime AI contract |
-| `34_CAPTURE_PIPELINE_SPEC.md` | Capture / Remember contract |
-| `39_DOMAIN_INVENTORY.md` | Implementation snapshot |
-| `40_AI_ENGINEERING_ROADMAP.md` | Deferred AI direction |
-| `41_PRODUCT_DECISIONS_AND_DESIGN_RATIONALE.md` | Architectural / product reasoning (why) |
-| `38_WORK_PLAN.md` | Executable backlog |
+| `docs/requirements/product-charter.md` | Product contract (what) |
+| `docs/engineering/ai-architecture.md` | Runtime AI contract |
+| `docs/requirements/capture-pipeline.md` | Capture / Remember contract |
+| `docs/engineering/domain-inventory.md` | Implementation snapshot |
+| `docs/planning/ai-roadmap.md` | Deferred AI direction |
+| `docs/decisions/0004-product-design-rationale.md` | Architectural / product reasoning (why) |
+| `docs/planning/work-plan.md` | Executable backlog |
 
 Do not create parallel sources of truth. Cross-reference owners instead of duplicating them.
 

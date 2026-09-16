@@ -17,9 +17,9 @@ and understand what matters next. **Notes** hold thoughts and intentions;
 or use optional interpretation to propose structured data. **Pit** helps with
 capture and clarification; it is not navigation or the product itself.
 
-These are [product contracts](specs/01_PRODUCT_CHARTER.md#product-loop-and-feature-responsibilities),
+These are [product contracts](docs/requirements/product-charter.md#product-loop-and-feature-responsibilities),
 not a shipped feature list. The current app is a scaffold; see the
-[implementation inventory](specs/39_DOMAIN_INVENTORY.md).
+[implementation inventory](docs/engineering/domain-inventory.md).
 
 ## Distribution
 
@@ -33,14 +33,14 @@ not a shipped feature list. The current app is a scaffold; see the
 
 iOS 26+ · Xcode 26+ · SwiftUI · SwiftData · Foundation Models · UserNotifications · Swift Testing + XCTest · en / uk / ru · MVVM
 
-Product and engineering specs: [`specs/`](specs/)
+Product and engineering docs: [`docs/`](docs/README.md)
 
 ## Agent development loop
 
 Start an authorized task with: **Run the agent loop for TASK-ID**. The agent
 reads the owning specification, implements a bounded change, verifies it, and
 delegates independent review using the host's available agent tools. The
-[development workflow](specs/24_PROJECT_MANAGEMENT_AND_GITFLOW.md#agent-development-loop)
+[development workflow](docs/engineering/agent-loop-and-gitflow.md#agent-development-loop)
 defines the handoff and evidence. Product work follows `PROJECT_STATUS.md`;
 the infrastructure setup exception does not unfreeze features.
 

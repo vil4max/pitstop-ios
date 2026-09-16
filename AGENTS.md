@@ -5,7 +5,7 @@
 ## Development entry
 
 Read `PROJECT_STATUS.md`, then the **Agent development loop** in
-`specs/24_PROJECT_MANAGEMENT_AND_GITFLOW.md` for implementation tasks.
+`docs/engineering/agent-loop-and-gitflow.md` for implementation tasks.
 That loop explicitly delegates independent review to a separate agent when
 the host supports it. If unavailable, report independent review as pending.
 
@@ -19,25 +19,23 @@ the installed `Tooling/` slice from `ios-agent-toolchain`.
 - Local implementation gate: `just verify`.
 - PR gate: `just verify-ci` (includes formatting check and the same Runtime gate).
 - Release preflight after committing verified contents: `just release --check`.
-- Task input: `specs/16_TASK_TEMPLATE.md`; evidence: PR and `specs/19_DEVELOPMENT_DIARY_AND_blog.md`.
+- Task input: `docs/tasks/template.md`; evidence: the PR.
 
 `Tooling/backend/build/` contains tracked shell executors, not build output.
 Keep `Tooling/runtime.local.yml`, `.codex/`, and local markers untracked.
 
-## reference product
+## Spec pyramid
 
-This repo is the reference product for:
+Start from [`docs/core.md`](docs/core.md) (approved 2026-09-16). Layers:
+core → `docs/requirements/` + `docs/decisions/` → tests named with
+`REQ-<AREA>-NNN` → code. Index: [`docs/README.md`](docs/README.md). Method:
+kit skill `spec-pyramid`.
 
-> AI-assisted Product Engineer — design, develop, deploy, maintain.
-
-When unfrozen / actively shipping, complete one end-to-end loop:
-
-1. Owner-formulated problem / MVP (charter already exists).
-2. AI-assisted delivery with human engineering review (agents as workflow, not unsupervised ship).
-3. Deploy (TestFlight / App Store as applicable).
-4. Maintain 1–2 months with metrics and feedback.
-
-Do not start parallel pet products for the same reference goal.
+- Change starts at the highest affected layer; propose, do not approve, core
+  or requirement edits.
+- Bug → failing spec with a REQ ID first, then the fix.
+- Record a lesson only when a check or upper layer changed:
+  [`docs/lessons.md`](docs/lessons.md).
 
 ## Freeze awareness
 
