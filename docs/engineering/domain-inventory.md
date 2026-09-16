@@ -16,10 +16,10 @@
 | Persistence | — | Intentionally deferred to ENG-004 |
 | Notes / History / Service | `Note`, `HistoryEvent` | Pure domain models on `main`; screen wiring in M3 |
 
-The current `ProvisionalCarContext.firstLaunch` uses `odometerKm: 0`, which the
-placeholder board displays as `0 km`. This is a scaffold gap: the product
-contracts in `product-charter` and `car-board-screen` require unknown mileage until a valid reading exists.
-No reading history or maintenance baseline is implemented by that default.
+`ProvisionalCarContext.firstLaunch` has `odometerKm: nil`, and the placeholder
+board shows "Mileage unknown" until a reading is supplied (REQ-DOMAIN-002,
+REQ-BOARD-004, REQ-BOARD-005). No reading history or maintenance baseline is
+implemented yet.
 
 ## Core domain (`domain-model`)
 

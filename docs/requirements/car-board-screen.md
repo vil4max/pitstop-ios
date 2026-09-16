@@ -37,7 +37,7 @@ vehicle facts: unknown
 
 This state is editable and explicitly provisional in the domain. UI must not falsely claim the user bought a new car.
 
-Omit numeric mileage or label it unknown until supplied. The scaffold's `0 km`
+Omit numeric mileage or label it unknown until supplied. A display placeholder
 is not a confirmed reading and must not feed Service or Road calculations.
 
 No authentication or setup gate.

@@ -145,8 +145,7 @@ This is a provisional product context, not a factual claim that the user bought 
 
 Until a valid odometer reading exists, omit the numeric mileage or show an
 explicit unknown label. Zero is a valid reading only when actually supplied;
-it is not a substitute for missing data. The current scaffold's `0 km` is an
-implementation gap, not the intended first-launch behaviour.
+it is not a substitute for missing data.
 
 The app must not require:
 - authentication;

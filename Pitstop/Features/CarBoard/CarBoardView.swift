@@ -9,7 +9,7 @@ struct CarBoardView: View {
                 VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
                     Text(carContext.name)
                         .font(.largeTitle.bold())
-                    Text("\(carContext.odometerKm) km")
+                    mileageText
                         .font(.title3)
                         .foregroundStyle(.secondary)
                     placeholderTiles
@@ -19,6 +19,15 @@ struct CarBoardView: View {
                 .padding(.bottom, 80)
             }
             utilityLayer
+        }
+    }
+
+    private var mileageText: Text {
+        switch CarBoardMileage(odometerKm: carContext.odometerKm) {
+        case .unknown:
+            Text("carBoard.mileage.unknown")
+        case let .kilometers(value):
+            Text("carBoard.mileage.km \(value)")
         }
     }
 
@@ -58,5 +67,19 @@ struct CarBoardView: View {
         }
         .padding(.horizontal, DesignTokens.screenPadding)
         .padding(.bottom, 8)
+    }
+}
+
+/// Car Board mileage presentation; a missing reading must never render as `0 km`.
+enum CarBoardMileage: Equatable {
+    case unknown
+    case kilometers(Int)
+
+    init(odometerKm: Int?) {
+        if let odometerKm {
+            self = .kilometers(odometerKm)
+        } else {
+            self = .unknown
+        }
     }
 }
