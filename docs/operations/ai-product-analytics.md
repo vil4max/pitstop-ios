@@ -371,7 +371,7 @@ AQ-001 evidence
 → GitHub Issue
 → atomic branch
 → PR
-→ CI
+→ local verification and review
 → TestFlight
 → new evidence window
 → AQ-001 re-evaluation

@@ -12,7 +12,7 @@
 
 | Milestone | Exit criteria | Status | Cumulative est. |
 |---|---|---|---:|
-| M0 | Work plan + board + CI | done | — |
+| M0 | Work plan + board + local verification | done | — |
 | M1 | `legacy/spike`; BOOT-001; ENG-001; ENG-003 | done | ~8d |
 | M2 | DOM-003 tests; INV-ROAD decisions | next | ~11d |
 | M3 | Car Board tiles + Road | planned | ~21d |
@@ -21,7 +21,8 @@
 Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
 
 M0/M1 completion records are historical. ENG-003 is reopened for the current
-agent-loop setup; its remote CI and branch-protection validation remain pending.
+agent-loop setup. Hosted CI was retired by owner decision; branch protection
+remains a proposal, not an active guarantee.
 
 ## Feature readiness vs milestone completion
 
@@ -62,11 +63,11 @@ in M4; raw preservation is both a normal Remember mode and the safe fallback.
 |---|---|
 | Branch | `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory` |
 | PR title | `{TASK-ID} Short title (#N)` |
-| Merge | Squash to `main` after CI green |
+| Merge | Squash to `main` after local verification and review |
 | WIP | Max 1 issue **In progress** on board |
 
-Configured PR job: `verify` (formatting, lint, build, tests). Remote activation
-and its first observed run are pending. See `../engineering/quality-and-ci.md`.
+Implementation verification: local `just verify` (formatting, lint, build, tests).
+Hosted checks are disabled. See `../engineering/quality-and-ci.md`.
 
 ## Phase 0 — Product contracts
 
@@ -90,7 +91,7 @@ and its first observed run are pending. See `../engineering/quality-and-ci.md`.
 |---|---|---:|---|---|---|
 | BOOT-001 | App scaffold + folder tree | 2d | — | done | — |
 | ENG-001 | Logging facade | 1d | BOOT-001 | done | — |
-| ENG-003 | CI quality gates (local setup; remote validation pending) | 2d | BOOT-001 | tracked | — |
+| ENG-003 | Local quality gates (hosted CI retired) | 2d | BOOT-001 | tracked | — |
 | ENG-004 | Persistence + provisional car | 3d | DOM-003 | tracked | #5 |
 | ENG-002 | Analytics boundary | 2d | CB-002 | tracked | #6 |
 | ANL-001 | Analytics spike | 2d | ENG-002 | tracked | #7 |

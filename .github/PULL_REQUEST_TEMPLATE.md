@@ -6,7 +6,7 @@
 
 ## Tests first / evidence
 
-- Verification command, result, and CI run/artifact:
+- Local verification command, result, and relevant evidence:
 - Task-specific acceptance evidence:
 
 ## Independent review

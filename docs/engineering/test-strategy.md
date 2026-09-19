@@ -115,7 +115,7 @@ Suggested tags:
 .migration
 ```
 
-## CI gate
+## Local verification gate
 
 Minimum: - build; - domain tests; - adapter tests; - integration tests
 that do not require unavailable device AI.

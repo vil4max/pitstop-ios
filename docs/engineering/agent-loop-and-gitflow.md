@@ -27,7 +27,7 @@ Branch
         ↓
 Pull Request
         ↓
-Tests + CI + evidence
+Local tests + review evidence
         ↓
 Merge
         ↓
@@ -242,7 +242,7 @@ existing-baseline checks only.
 | Verify | Installed Runtime | Working contents → `just verify` result and local content fingerprint |
 | Review | Separate agent in a fresh review context | Task + owning contracts + actual diff → actionable findings or `No findings.` |
 | Repair | Implementation agent | Findings → targeted fixes, affected checks, final verification and review |
-| Integrate | Owner + coordinating agent | Reviewed result → authorized commit/PR, remote CI, merge decision |
+| Integrate | Owner + coordinating agent | Reviewed result → authorized commit/PR, local verification evidence, merge decision |
 | Learn | Owner + agent | Observable results → evidence record and next investigation |
 
 The coordinating agent may implement the task itself. Before handing off a
@@ -270,9 +270,11 @@ verification policy. Review findings are proposals to validate against code.
 
 ### Verification and handoff
 
-The normal command is `just verify`. Before edits, use `just doctor --json` and
-resolve configuration from `Tooling/runtime.yml`. CI calls `just verify-ci`,
-which checks formatting before verification and fails if tracked files change.
+For app implementation, the normal command is `just verify`. Diagnose setup
+with `just doctor --json` when needed and resolve configuration from
+`Tooling/runtime.yml`. GitHub Actions is disabled for this private repository;
+record local verification evidence without requiring a hosted status check.
+Documentation/config-only changes use proportional checks without an app build.
 `Tooling/.runtime-lock` identifies the installed Runtime content. Runtime
 executors are tracked so another checkout can run the same commands.
 
@@ -318,7 +320,7 @@ Track monthly:
 ``` text
 issues completed
 median issue cycle time
-PR CI success on first run
+local verification success on first run
 reopened bugs
 escaped regressions
 WIP violations

@@ -52,7 +52,8 @@ The installed Runtime and shell executors are included in this repository;
 verification does not need access to the private Kit repository. Host setup
 instructions and project facts are in [`AGENTS.md`](AGENTS.md).
 
-PR CI runs `just verify-ci` on macOS 26 with Xcode 26.6 and preserves logs and
-test results. The workflow becomes active after publication; the ruleset JSON
-is a configuration proposal until applied in GitHub. A passing local gate does
-not prove CI, independent review, release, or production AI capability.
+This private repository uses local verification; GitHub Actions is disabled.
+Record the command and result in the PR. The ruleset JSON remains a proposal
+until applied in GitHub and does not require a hosted check. Documentation-only
+edits do not require an app build. Local verification does not prove independent
+review, release, or production AI capability.

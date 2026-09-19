@@ -133,7 +133,7 @@ Audit date context: pause before further PitStop implementation. Sources are `do
 | [`../requirements/maintenance-engine.md`](../requirements/maintenance-engine.md) | Deterministic maintenance; AI not required for engine truth |
 | [`../engineering/ai-architecture.md`](../engineering/ai-architecture.md) | Runtime trust boundary; model roles; MemoryProposal; confirmation; Foundation Models fallbacks |
 | [`../operations/observability.md`](../operations/observability.md) | `ai.interpreter` logging contract |
-| [`../engineering/test-strategy.md`](../engineering/test-strategy.md) | AI evaluations; golden set; regression rule; CI lane separation |
+| [`../engineering/test-strategy.md`](../engineering/test-strategy.md) | AI evaluations; golden set; regression rule; evaluation lane separation |
 | [`../operations/telemetry-contract.md`](../operations/telemetry-contract.md) | AI runtime observability vs product analytics; prohibited raw content |
 | [`../requirements/product-design.md`](../requirements/product-design.md) | Product is not an AI chat wrapper |
 | [`../engineering/modular-architecture.md`](../engineering/modular-architecture.md) | Domain must not import Foundation Models; target `FoundationModelsAdapter`; runtime vs AI Product Analyst separation |
@@ -417,7 +417,7 @@ Proposal kinds, validation requirements, and command mapping remain owned by [`.
 
 Every AI change must be measurable.
 
-Existing seed: [`../engineering/test-strategy.md`](../engineering/test-strategy.md) (AI evaluations, golden set, regression rule, separate CI lane).
+Existing seed: [`../engineering/test-strategy.md`](../engineering/test-strategy.md) (AI evaluations, golden set, regression rule, separate evaluation lane).
 
 ### Golden Dataset
 

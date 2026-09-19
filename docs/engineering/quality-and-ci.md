@@ -179,80 +179,33 @@ build
 fast domain tests
 ```
 
-Full CI remains authoritative. Hooks are convenience, not security.
+The local Runtime gate is authoritative for implementation verification.
+Hooks provide early feedback; they are not security boundaries. Avoid rerunning
+a completed gate on unchanged contents solely for another workflow stage.
 
-## CI pipeline
+## Local verification
 
-Use GitHub Actions.
+GitHub Actions is disabled for this private repository. Hosted CI duplicated
+the owner-operated local Runtime gate and added runner cost and setup maintenance.
+Use `just verify` for app implementation and record the command, result, and
+reviewed revision in the PR. Use proportional diff/link/config checks for
+non-behavioral documentation changes, without an app build.
 
-### PR required checks
+The current suite covers the existing app baseline; domain, persistence, and UI
+coverage grow with their implementations. Preserve relevant failure evidence
+locally and durable conclusions in `docs/lessons.md`. A passing gate does not
+imply independent review or product acceptance.
 
-Current configured job: `verify`, in
-[`verify.yml`](../../.github/workflows/verify.yml). It runs `just verify-ci`:
-format check → doctor → Runtime format/lint/build/tests → unchanged tracked
-checkout check. The current suite is the existing app baseline; domain,
-persistence, and UI coverage must grow with their implementations.
+Do not schedule Periphery, dependency reports, or performance lanes without a
+specific investigation or measured regression risk. Run them on demand when
+relevant. TestFlight delivery is a separate owner-approved setup; this repository
+does not inherit the production delivery flows of OneCart or DriveCheckUA.
 
-The job uses the GitHub `macos-26` runner and explicitly selects Xcode 26.6.
-Runner availability and installed versions were checked against the
-[official runner inventory](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md).
-Homebrew tool versions are captured in the run evidence, not locked; a runner
-or formula update can change their behavior and must be diagnosed explicitly.
+## Verification metrics
 
-Verification logs, tool versions, tested commit, and `.xcresult` output are
-retained as CI artifacts for 14 days. Long-term conclusions belong in
-`docs/lessons.md` with commit/run references. Neither independent review nor product
-acceptance is implied by a green `verify` check.
-
-Remote activation is pending until the workflow is published and its first
-run is observed. Apply the proposed ruleset only after the named check exists.
-The local JSON file is not evidence of active GitHub branch protection.
-
-### Scheduled checks
-
-Weekly:
-
-``` text
-Periphery report
-dependency update/status report
-large-fixture performance lane
-```
-
-### Release/TestFlight workflow
-
-On version tag or manual dispatch:
-
-``` text
-required checks green
-→ archive
-→ export/upload TestFlight
-→ release metadata artifact
-→ quality ledger reminder/check
-```
-
-Start with manual approval before TestFlight upload.
-
-## CI metrics
-
-Track:
-
-``` text
-CI duration
-build duration
-domain test duration
-integration test duration
-test count
-flaky test count
-warnings
-lint violations
-scheduled dead-code findings
-performance baseline regressions
-```
-
-The purpose is to learn CI/CD operations, not build a dashboard before
-there is data.
-
-Store machine-readable reports as workflow artifacts where practical.
+Record build/test duration, failures, warnings, and material performance
+regressions when they help a current decision. Do not create a recurring report
+or blocking threshold before there is a measured baseline and a reason to act.
 
 ## Regression budgets
 
@@ -275,17 +228,14 @@ fixture; - sample method.
 
 ## GitHub quality enforcement
 
-Protect `main` with a ruleset/branch protection: - pull request
-required; - required status checks; - branch must be up to date if CI
-semantics require it; - no force push; - no direct normal development
-push; - linear history preferred.
-
-For a solo project, required human approval is optional and may create
-ceremony without quality. CI is mandatory.
+The ruleset JSON is a proposal, not evidence of active GitHub protection.
+It may protect history and require a PR where the account supports rulesets,
+but must not require a hosted check while Actions is disabled. A solo project
+does not need an extra approval ritual without a concrete review benefit.
 
 ## Quality Definition of Done addition
 
-Every phase/epic closes only when: - correctness tests pass; - CI is
-green; - quality ledger row is added; - required Instruments profile is
-recorded; - material regression has an issue or is fixed; -
-analytics/privacy smoke check passes for changed telemetry.
+Close a phase/epic after relevant correctness tests and review pass. Record a
+quality baseline or focused profile when that phase affects the measured path;
+file or fix material regressions. Run analytics/privacy smoke checks when
+telemetry changes. Documentation-only changes do not require these app gates.

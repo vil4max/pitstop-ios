@@ -17,7 +17,8 @@ the installed `Tooling/` slice from `ios-agent-toolchain`.
 - Simulator and gate settings: `Tooling/runtime.yml`.
 - Environment: `just doctor --json`.
 - Local implementation gate: `just verify`.
-- PR gate: `just verify-ci` (includes formatting check and the same Runtime gate).
+- GitHub Actions is disabled; report local verification evidence in the PR.
+- Documentation/config-only edits use proportional checks without an app build.
 - Release preflight after committing verified contents: `just release --check`.
 - Task input: `docs/tasks/template.md`; evidence: the PR.
 
