@@ -51,7 +51,7 @@ just verify
 3. Existing apps keep their app-owned configs until you explicitly reset:
 
 ```bash
-~/Developer/Personal/ios-agent-toolchain/scripts/install.sh /path/to/app --force --reset-style
+~/Developer/Personal/agent-tools/ios-agent-toolchain/scripts/install.sh /path/to/app --force --reset-style
 ```
 
 Or only reset style without forcing the whole slice: `--reset-style` alone is enough to rewrite the two style files (other Tooling files still follow normal `--force` rules).
