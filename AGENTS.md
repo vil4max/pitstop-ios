@@ -1,5 +1,18 @@
 # pitstop-ios — notes for AI agents
 
+<!-- repository-visibility-policy -->
+Repository visibility: **PRIVATE**.
+
+## Data handling
+
+Task-relevant sensitive data may be processed and retained within this
+repository's documented scope and protected zones. Private visibility does not
+authorize public export or disclosure to other repositories or recipients.
+Verify current visibility before adding sensitive data; use public-safe handling
+when visibility is unknown. Never commit credentials, tokens, passwords,
+session data, or private keys.
+<!-- /repository-visibility-policy -->
+
 **Project context:** `personal` — local marker: `.agents/project-context.yaml`.
 
 ## Development entry
