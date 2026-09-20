@@ -31,7 +31,7 @@ not a shipped feature list. The current app is a scaffold; see the
 
 ## Stack
 
-iOS 26+ · Xcode 26+ · SwiftUI · SwiftData · Foundation Models · UserNotifications · Swift Testing + XCTest · en / uk / ru · MVVM
+iOS 27+ · Xcode 27+ · Swift 6 language mode · SwiftUI · SwiftData · Foundation Models · UserNotifications · Swift Testing + XCTest · en / uk / ru · MVVM
 
 Product and engineering docs: [`docs/`](docs/README.md)
 
