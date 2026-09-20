@@ -7,17 +7,36 @@ struct CarBoardTileView: View {
     var notes: NotesSummary = .empty
     var history: HistoryTimeline = .empty
     var service: [MaintenanceOperationState] = []
+    var road: RoadProjection?
 
     var body: some View {
         TileCard(minHeight: minHeight) {
             VStack(alignment: .leading, spacing: 8) {
                 TileTitle(title: title, systemImage: systemImage)
                 if descriptor.kind == .road {
-                    RoadSparseLine()
-                        .frame(height: 34)
-                        .padding(.vertical, 2)
+                    if let road, !road.initialSlots.isEmpty {
+                        RoadLaneView(slots: Array(road.initialSlots), isCompact: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .clipped()
+                            // Decorative here: the summary line below says the same thing in words.
+                            .accessibilityHidden(true)
+                    } else {
+                        RoadSparseLine()
+                            .frame(height: 34)
+                            .padding(.vertical, 2)
+                    }
                 }
-                if descriptor.kind == .notes, let latest = notes.latest {
+                if descriptor.kind == .road, let road, !road.isCompletelyEmpty {
+                    road.summaryText
+                        .font(.subheadline)
+                        .foregroundStyle(PitColor.contentPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if road.horizon == .extendedToNearest {
+                        Text("road.tile.nothingSoon")
+                            .font(.footnote)
+                            .foregroundStyle(PitColor.contentSecondary)
+                    }
+                } else if descriptor.kind == .notes, let latest = notes.latest {
                     // The latest thought in the driver's own words, then how many are waiting.
                     Text(latest.rawText)
                         .font(.headline)

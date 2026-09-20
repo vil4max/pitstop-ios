@@ -98,8 +98,8 @@ Native scroll position, no custom gesture:
 
 - Road is a horizontal `ScrollView` bound with `scrollPosition(id:)`; the car
   slot has a stable ID.
-- When the car slot is scrolled out of view, a "Now" button appears at the
-  leading edge and scrolls back to it.
+- When the lane is scrolled away from the car slot, a "Back to now" button
+  appears under the lane and scrolls back to it.
 - Road resets to the car slot whenever the screen appears again.
 
 Rejected: automatic snap-back after a delay (moves content under the user's

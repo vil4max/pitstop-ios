@@ -356,4 +356,26 @@ struct RoadProjectorTests {
         #expect(road.semanticSummary == .nearest(nearest, alsoAhead: 1, waitingForMileage: 0))
         #expect(nearest.remainingKm == 1000)
     }
+
+    @Test(
+        "ADR-0008: at zero the distance wording follows the state, so approaching never reads as reached",
+        arguments: [(59999.6, RoadDistanceLabel.almost), (60000, .reached), (59000, .inKm(1000)), (60700, .pastKm(700))]
+    )
+    func distanceLabelFollowsState(currentKm: Double, expected: RoadDistanceLabel) throws {
+        let road = project([Fix.oil10k], [Fix.completion(.engineOilService, km: 50000)], currentKm: currentKm, day: 10)
+        #expect(try #require(road.slots.first?.lead).distanceLabel == expected)
+    }
+
+    @Test("REQ-ROAD-006: a blocked milestone is labelled with its reason instead of a number")
+    func blockedLabel() throws {
+        let road = project([Fix.oil10k], [Fix.completion(.engineOilService, km: nil)], currentKm: 90000, day: 10)
+        #expect(try #require(road.waitingForMileage.first).distanceLabel == .blocked(.completionMileageMissing))
+        #expect(!road.isCompletelyEmpty)
+    }
+
+    @Test("REQ-ROAD-009: only a road with nothing tracked is completely empty")
+    func completelyEmpty() {
+        #expect(project([], [], currentKm: nil, day: 1).isCompletelyEmpty)
+        #expect(!project([Fix.oil10k], [], currentKm: nil, day: 1).isCompletelyEmpty)
+    }
 }

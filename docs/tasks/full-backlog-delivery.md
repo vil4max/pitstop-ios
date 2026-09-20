@@ -62,6 +62,7 @@ nothing lands on `main` without owner authorization.
 | CB-004 | `CB-004/history` | committed | `just verify` passed; independent review: 9 + 3 findings repaired; UI not exercised in the simulator (shared device was in use by another session) |
 | CB-005 | `CB-005/service` | committed | `just verify` passed; independent review: 8 + 4 findings repaired (incl. one high: completion mileage above the last reading), final `No findings.`; ADR 0010; UI not exercised in the simulator |
 | CB-006 | `CB-006/road-projection` | committed | `just verify` passed; independent review: 8 + 4 findings repaired (one high changed ADR 0008: lane order is nearness in horizon units, not share of interval), final `No findings.` |
+| CB-007 | `CB-007/road-ui` | committed | `just verify` passed; simulator (dedicated device, tap-free demo launch): Car Board with four live tiles and the Road screen; independent review: 11 + 2 findings repaired; the last two fixes were not re-reviewed |
 
 ## Open for owner
 
@@ -82,6 +83,10 @@ nothing lands on `main` without owner authorization.
 ## Untested scope
 
 - The launch screen was not inspected in the simulator after `5da5135`.
+- CB-007: horizontal scrolling of the lane, the "Back to now" control, Reduce
+  Motion, clusters, and the waiting-for-mileage list were not exercised in the
+  simulator (no taps on the dedicated device without the owner's approval of
+  the simulator panel).
 - CB-005: the Service screen (track, mark done, change interval, undo) was not
   exercised in the simulator; covered by engine, planner, view-model, and on-disk
   tests.

@@ -8,6 +8,7 @@ struct CarBoardViewState: Equatable {
     var history: HistoryTimeline = .empty
     /// Most urgent first; empty when nothing is tracked.
     var service: [MaintenanceOperationState] = []
+    var road: RoadProjection?
     var isStorageTemporary = false
     /// Kept apart from `failure` so dismissing a save alert can never hide the retry row.
     var isLoadFailed = false
@@ -41,6 +42,8 @@ final class CarBoardViewModel {
     }
 
     func load() async {
+        // One moment for every projection on the board, so they cannot disagree with each other.
+        let moment = now()
         do {
             let vehicle = try await store.currentVehicle()
             let latest = try await store.odometerReadings().latest
@@ -56,8 +59,13 @@ final class CarBoardViewModel {
             state.service = try await MaintenanceEngine().states(
                 policies: store.maintenancePolicies(),
                 completions: completions,
-                context: MaintenanceContext(now: now(), latestReading: latest, completions: completions)
+                context: MaintenanceContext(now: moment, latestReading: latest, completions: completions)
             ).byUrgency
+            state.road = RoadProjector().project(RoadContext(
+                now: moment,
+                maintenanceStates: state.service,
+                history: state.history
+            ))
             state.isLoadFailed = false
         } catch {
             // The last known state stays on screen; Car Board never becomes an error page.

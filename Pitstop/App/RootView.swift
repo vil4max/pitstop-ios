@@ -7,9 +7,25 @@ struct RootView: View {
     let notes: NotesViewModel
     let history: HistoryViewModel
     let service: ServiceViewModel
+    let road: RoadViewModel
+    /// DEBUG demo seeding; it must finish before any surface loads, or a surface opened first reads an empty store.
+    var prepare: (@Sendable () async -> Void)?
 
-    @State private var path: [CarBoardRoute] = []
+    @State private var path: [CarBoardRoute] = RootView.initialPath()
     @State private var sheet: UtilitySheet?
+    @State private var isPrepared = false
+
+    /// DEBUG only: `-pitstop-open road` opens a surface directly, for smoke checks without taps.
+    private static func initialPath(arguments: [String] = ProcessInfo.processInfo.arguments) -> [CarBoardRoute] {
+        #if DEBUG
+            if let index = arguments.firstIndex(of: "-pitstop-open"), arguments.indices.contains(index + 1),
+               let kind = CarBoardTileKind(rawValue: arguments[index + 1])
+            {
+                return [.tile(kind)]
+            }
+        #endif
+        return []
+    }
 
     private enum UtilitySheet: String, Identifiable {
         case settings
@@ -21,6 +37,19 @@ struct RootView: View {
     }
 
     var body: some View {
+        if prepare == nil || isPrepared {
+            content
+        } else {
+            PitColor.surfacePrimary
+                .ignoresSafeArea()
+                .task {
+                    await prepare?()
+                    isPrepared = true
+                }
+        }
+    }
+
+    private var content: some View {
         NavigationStack(path: $path) {
             CarBoardView(viewModel: carBoard)
                 .navigationDestination(for: CarBoardRoute.self) { route in
@@ -54,6 +83,8 @@ struct RootView: View {
         switch route {
         case .tile(.notes):
             NotesView(viewModel: notes, carName: carBoard.state.car.name)
+        case .tile(.road):
+            RoadView(viewModel: road, carName: carBoard.state.car.name)
         case .tile(.service):
             ServiceView(viewModel: service, carName: carBoard.state.car.name)
         case .tile(.history):

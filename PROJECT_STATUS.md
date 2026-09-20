@@ -67,7 +67,9 @@ the work plan records the distinction.
 includes useful raw saving without AI as well as optional interpreted capture;
 this distinction does not move tasks earlier.
 
-Next task: CB-007; CB-001…006 are implemented; INV-ROAD is decided in ADR 0008; DOM-003 and ENG-004 are implemented on unmerged branches (see [`docs/planning/work-plan.md`](docs/planning/work-plan.md)).
+Next task: CAP-001. The M3 scope (DOM-003, ENG-004, INV-ROAD, CB-001…007) is implemented on stacked local
+branches that are not yet merged into `main`; see [`docs/planning/work-plan.md`](docs/planning/work-plan.md)
+and [`docs/tasks/full-backlog-delivery.md`](docs/tasks/full-backlog-delivery.md).
 
 ---
 
@@ -75,18 +77,21 @@ Next task: CB-007; CB-001…006 are implemented; INV-ROAD is decided in ADR 0008
 
 Source of truth for what exists on `main`: [`docs/engineering/domain-inventory.md`](docs/engineering/domain-inventory.md).
 
-| Area | Status on `main` |
+| Area | Status (stacked branches through `CB-007/road-ui`, unmerged) |
 |---|---|
 | Product contracts / specs | Present and authoritative under `docs/` (see `docs/README.md`) |
-| Provisional car context | Partial (`ProvisionalCarContext`) |
-| Car Board | Placeholder UI |
-| Capture / Remember pipeline | Not started (intentional; after product baseline) |
-| Intelligence / AI runtime | Not started (intentionally deferred) |
-| Maintenance engine | Not on `main` (legacy on `legacy/spike` only) |
-| Persistence | Intentionally deferred to ENG-004 |
-| Notes / Service / History / Road | Not started (product baseline work) |
+| Car context | Persisted provisional car, optional name and mileage edit |
+| Car Board | Design language, four live tiles, utility layer (ADR 0009) |
+| Persistence | SwiftData behind a command-only store (ADR 0007) |
+| Notes | Save, find, correct, archive without AI |
+| History | Record and correct events; timeline of events and confirmed completions |
+| Service | Deterministic engine, visit planner, track / mark done / change interval / undo (ADR 0010) |
+| Road | Deterministic projection, tile and screen (ADR 0008) |
+| Capture / Remember pipeline | Domain path and raw mode only; Pit surface and interpreted mode are M4 |
+| Intelligence / AI runtime | Not started (M4, after this baseline) |
 
-AI and Remember are specified, not implemented. Product baseline remains higher priority than AI.
+Interpreted Remember and runtime AI are specified, not implemented. `main` itself still holds only the
+pre-baseline state until the owner integrates the branches.
 
 ---
 

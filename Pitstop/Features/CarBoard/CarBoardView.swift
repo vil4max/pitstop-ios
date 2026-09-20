@@ -85,7 +85,8 @@ struct CarBoardView: View {
                 descriptor: descriptor,
                 notes: viewModel.state.notes,
                 history: viewModel.state.history,
-                service: viewModel.state.service
+                service: viewModel.state.service,
+                road: viewModel.state.road
             )
         }
         .buttonStyle(.plain)

@@ -95,6 +95,41 @@ public struct RoadMilestone: Hashable, Identifiable, Sendable {
     }
 }
 
+/// How far a milestone is, as the surface should say it. At zero the wording follows the state, so
+/// "approaching" never reads "reached" because a fraction of a day was truncated.
+public enum RoadDistanceLabel: Hashable, Sendable {
+    case inKm(Int)
+    case pastKm(Int)
+    case daysLeft(Int)
+    case daysPast(Int)
+    case reached
+    case almost
+    case blocked(DistanceBlock)
+}
+
+public extension RoadMilestone {
+    var distanceLabel: RoadDistanceLabel {
+        guard let remaining = remainingKm ?? remainingDays else {
+            return .blocked(mileageDependency ?? .mileageUnknown)
+        }
+        if remaining == 0 {
+            return isDueNow ? .reached : .almost
+        }
+        let isDistance = remainingKm != nil
+        if remaining > 0 {
+            return isDistance ? .inKm(remaining) : .daysLeft(remaining)
+        }
+        return isDistance ? .pastKm(-remaining) : .daysPast(-remaining)
+    }
+}
+
+public extension RoadProjection {
+    /// Nothing is known at all: no milestone, nothing waiting, and nothing tracked without a baseline.
+    var isCompletelyEmpty: Bool {
+        semanticSummary == .noKnownMilestones(trackedWithoutBaseline: 0)
+    }
+}
+
 /// One position on the road: a single milestone or a cluster of close ones (REQ-ROAD-013).
 public struct RoadSlot: Hashable, Identifiable, Sendable {
     public let milestones: [RoadMilestone]

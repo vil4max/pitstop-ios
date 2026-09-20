@@ -115,6 +115,21 @@ Suggested tags:
 .migration
 ```
 
+## Tap-free smoke launches (DEBUG builds only)
+
+Two launch arguments exist so a surface can be checked in a simulator without
+driving the UI, which matters when the simulator is shared between sessions:
+
+``` text
+-pitstop-demo-data      in-memory store seeded with fictional facts through domain commands
+-pitstop-open <tile>    open road | notes | service | history directly
+-pitstop-in-memory      empty in-memory store
+```
+
+The first two are compiled out of Release. `-pitstop-in-memory` also exists in
+Release, where it can only open an empty in-memory store. None of them can open
+the on-disk store.
+
 ## Local verification gate
 
 Minimum: - build; - domain tests; - adapter tests; - integration tests

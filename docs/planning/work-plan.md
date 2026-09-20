@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** CB-007 (CB-001…006 implemented; INV-ROAD decided in ADR 0008; DOM-003 and ENG-004 are implemented on stacked branches, not yet on `main`)  
+**Next task:** CAP-001 (M3 scope CB-001…007 implemented; INV-ROAD decided in ADR 0008; DOM-003 and ENG-004 are implemented on stacked branches, not yet on `main`)  
 **Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
 **Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -14,8 +14,8 @@
 |---|---|---|---:|
 | M0 | Work plan + board + local verification | done | — |
 | M1 | `legacy/spike`; BOOT-001; ENG-001; ENG-003 | done | ~8d |
-| M2 | DOM-003 tests; INV-ROAD decisions | next | ~11d |
-| M3 | Car Board tiles + Road | planned | ~21d |
+| M2 | DOM-003 tests; INV-ROAD decisions | implemented on stacked branches, unmerged | ~11d |
+| M3 | Car Board tiles + Road | implemented on stacked branches, unmerged | ~21d |
 | M4 | Remember end-to-end | planned | ~21d |
 
 Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
@@ -115,7 +115,7 @@ Hosted checks are disabled. See `../engineering/quality-and-ci.md`.
 | CB-004 | History tile + entry | 2d | CB-002 | implemented on branch, unmerged | #15 |
 | CB-005 | Service tile summary | 3d | CB-002 | implemented on branch, unmerged (includes the engine; see ADR 0010) | #16 |
 | CB-006 | Road projection domain | 4d | DOM-001, INV-ROAD-* | implemented on branch, unmerged | #17 |
-| CB-007 | Road UI | 4d | CB-006, INV-ROAD-* | tracked | #18 |
+| CB-007 | Road UI | 4d | CB-006, INV-ROAD-* | implemented on branch, unmerged | #18 |
 
 ## Phase 4 — Capture / Pit
 

@@ -12,9 +12,20 @@ struct AppEnvironment: Sendable {
 
     let store: any CarMemoryStore
     let persistence: Persistence
+    /// Runs once before the first load. Only the DEBUG demo launch uses it.
+    var prepare: (@Sendable () async -> Void)?
 
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppEnvironment {
         let log = AppLog.logger(category: "app.persistence")
+        #if DEBUG
+            if arguments.contains(DemoData.argument) {
+                // Demo facts never reach the user's store, even when the in-memory store cannot be built.
+                guard let store = makeStore(url: nil) else {
+                    return AppEnvironment(store: UnavailableCarMemoryStore(), persistence: .temporary)
+                }
+                return AppEnvironment(store: store, persistence: .temporary) { await DemoData.seed(store) }
+            }
+        #endif
         if arguments.contains(inMemoryArgument) {
             // Never fall through to the user's real store from a test or preview launch.
             guard let store = makeStore(url: nil) else {
