@@ -6,6 +6,7 @@ public enum CommandResult: Hashable, Sendable {
     case readingRecorded(OdometerReading)
     case vehicleUpdated(Vehicle)
     case completionConfirmed(MaintenanceCompletion)
+    case completionRevoked(MaintenanceCompletion)
     case policySet(MaintenancePolicy)
     case eventRecorded(HistoryEvent)
     case eventCorrected(HistoryEvent)
@@ -16,6 +17,7 @@ public enum CarMemoryStoreError: Error, Hashable, Sendable {
     case unknownVehicle
     case unknownNote
     case unknownEvent
+    case unknownCompletion
     /// A record with this ID already exists; history is never rewritten by a repeated command.
     case duplicateRecord
     case storageFailure

@@ -6,6 +6,8 @@ struct CarBoardViewState: Equatable {
     var mileage: CarBoardMileage = .unknown
     var notes: NotesSummary = .empty
     var history: HistoryTimeline = .empty
+    /// Most urgent first; empty when nothing is tracked.
+    var service: [MaintenanceOperationState] = []
     var isStorageTemporary = false
     /// Kept apart from `failure` so dismissing a save alert can never hide the retry row.
     var isLoadFailed = false
@@ -50,6 +52,12 @@ final class CarBoardViewModel {
                 events: store.historyEvents(),
                 completions: store.maintenanceCompletions()
             )
+            let completions = try await store.maintenanceCompletions()
+            state.service = try await MaintenanceEngine().states(
+                policies: store.maintenancePolicies(),
+                completions: completions,
+                context: MaintenanceContext(now: now(), latestReading: latest, completions: completions)
+            ).byUrgency
             state.isLoadFailed = false
         } catch {
             // The last known state stays on screen; Car Board never becomes an error page.
@@ -102,22 +110,9 @@ final class CarBoardViewModel {
         return false
     }
 
-    enum OdometerInput: Equatable {
-        /// Blank input means "still unknown"; it must not become a zero reading (REQ-BOARD-004).
-        case absent
-        case value(Int)
-        case invalid
-    }
+    typealias OdometerInput = WholeNumberInput
 
-    /// Plain ASCII digits, optionally grouped in threes by one kind of separator. Any other separator
-    /// may be a decimal point, and dropping it would record a reading ten times too large.
     static func kilometers(from text: String) -> OdometerInput {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return .absent }
-        let grouped = /[0-9]{1,3}([ ,.\u{00A0}\u{202F}])[0-9]{3}(\1[0-9]{3})*|[0-9]+/
-        guard trimmed.wholeMatch(of: grouped) != nil else { return .invalid }
-        let digits = trimmed.filter { $0.isASCII && $0.isNumber }
-        guard let value = Int(digits), DomainCommandLimits.isPlausibleOdometer(Double(value)) else { return .invalid }
-        return .value(value)
+        WholeNumberInput.parse(text, upTo: Int(DomainCommandLimits.maximumOdometerKm))
     }
 }

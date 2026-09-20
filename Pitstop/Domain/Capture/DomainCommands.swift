@@ -97,6 +97,16 @@ public struct ConfirmMaintenanceCompletionCommand: Hashable, Sendable {
     }
 }
 
+/// The user takes back a confirmation made by mistake. The cycle returns to the previous completion,
+/// or to unknown when there is none. Only the user can issue it; no proposal maps to it.
+public struct RevokeMaintenanceCompletionCommand: Hashable, Sendable {
+    public let completionID: UUID
+
+    public init(completionID: UUID) {
+        self.completionID = completionID
+    }
+}
+
 public struct SetMaintenancePolicyCommand: Hashable, Sendable {
     public let vehicleID: VehicleID
     public let policy: MaintenancePolicy
@@ -141,6 +151,7 @@ public enum DomainCommand: Hashable, Sendable {
     case recordOdometerReading(RecordOdometerReadingCommand)
     case recordVehicleFact(RecordVehicleFactCommand)
     case confirmMaintenanceCompletion(ConfirmMaintenanceCompletionCommand)
+    case revokeMaintenanceCompletion(RevokeMaintenanceCompletionCommand)
     case setMaintenancePolicy(SetMaintenancePolicyCommand)
     case recordVehicleEvent(RecordVehicleEventCommand)
     case correctVehicleEvent(CorrectVehicleEventCommand)
@@ -163,6 +174,8 @@ public enum DomainCommand: Hashable, Sendable {
         case let .confirmMaintenanceCompletion(command):
             try Self.checkOdometer(command.completion.odometerKm.map(Double.init))
             try Self.checkNotFuture(command.completion.performedAt, now: now)
+        case .revokeMaintenanceCompletion:
+            break
         case let .setMaintenancePolicy(command):
             try Self.check(command.policy)
         case let .recordVehicleEvent(command):

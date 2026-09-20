@@ -81,7 +81,12 @@ struct CarBoardView: View {
 
     private func tileLink(_ descriptor: CarBoardTileDescriptor) -> some View {
         NavigationLink(value: CarBoardRoute.tile(descriptor.kind)) {
-            CarBoardTileView(descriptor: descriptor, notes: viewModel.state.notes, history: viewModel.state.history)
+            CarBoardTileView(
+                descriptor: descriptor,
+                notes: viewModel.state.notes,
+                history: viewModel.state.history,
+                service: viewModel.state.service
+            )
         }
         .buttonStyle(.plain)
         // On the link itself, so VoiceOver gets one button whose label is the tile's summary.

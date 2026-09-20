@@ -359,6 +359,41 @@ struct SwiftDataNoteUpdateTests {
     }
 }
 
+@Suite("SwiftData completion revoke")
+struct SwiftDataCompletionRevokeTests {
+    @Test("ADR-0010: a revoked completion is gone after reopening, and an unknown ID changes nothing")
+    func revokeSurvivesRelaunch() async throws {
+        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
+        defer {
+            for suffix in ["", "-shm", "-wal"] {
+                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
+            }
+        }
+        let store = try makeStore(url: url)
+        let vehicleID = try await store.currentVehicle().id
+        let kept = MaintenanceCompletion(
+            vehicleID: vehicleID,
+            operationID: .brakeFluid,
+            performedAt: DomainFixtures.Odometers.baseDate
+        )
+        let mistaken = MaintenanceCompletion(
+            vehicleID: vehicleID,
+            operationID: .engineOilService,
+            performedAt: DomainFixtures.Odometers.baseDate
+        )
+        for completion in [kept, mistaken] {
+            try await store.execute(.confirmMaintenanceCompletion(.init(completion: completion)), now: now)
+        }
+
+        try await store.execute(.revokeMaintenanceCompletion(.init(completionID: mistaken.id)), now: now)
+        await #expect(throws: CarMemoryStoreError.unknownCompletion) {
+            try await store.execute(.revokeMaintenanceCompletion(.init(completionID: UUID())), now: now)
+        }
+
+        #expect(try await makeStore(url: url).maintenanceCompletions() == [kept])
+    }
+}
+
 @Suite("SwiftData event correction")
 struct SwiftDataEventCorrectionTests {
     @Test("REQ-DOMAIN-016: a corrected event reads back from disk with the same identity")

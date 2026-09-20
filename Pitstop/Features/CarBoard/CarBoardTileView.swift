@@ -6,6 +6,7 @@ struct CarBoardTileView: View {
     let descriptor: CarBoardTileDescriptor
     var notes: NotesSummary = .empty
     var history: HistoryTimeline = .empty
+    var service: [MaintenanceOperationState] = []
 
     var body: some View {
         TileCard(minHeight: minHeight) {
@@ -32,6 +33,17 @@ struct CarBoardTileView: View {
                         .foregroundStyle(PitColor.contentPrimary)
                         .lineLimit(2)
                     latest.recencyText()
+                        .font(.footnote)
+                        .foregroundStyle(PitColor.contentSecondary)
+                } else if descriptor.kind == .service, let subject = service.summarySubject {
+                    subject.id.titleText
+                        .font(.headline)
+                        .foregroundStyle(PitColor.contentPrimary)
+                        .lineLimit(2)
+                    Label(subject.statusLabel, systemImage: subject.status.systemImage)
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(subject.status.color)
+                    subject.progressText
                         .font(.footnote)
                         .foregroundStyle(PitColor.contentSecondary)
                 } else {

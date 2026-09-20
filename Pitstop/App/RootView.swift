@@ -6,6 +6,7 @@ struct RootView: View {
     let carBoard: CarBoardViewModel
     let notes: NotesViewModel
     let history: HistoryViewModel
+    let service: ServiceViewModel
 
     @State private var path: [CarBoardRoute] = []
     @State private var sheet: UtilitySheet?
@@ -53,6 +54,8 @@ struct RootView: View {
         switch route {
         case .tile(.notes):
             NotesView(viewModel: notes, carName: carBoard.state.car.name)
+        case .tile(.service):
+            ServiceView(viewModel: service, carName: carBoard.state.car.name)
         case .tile(.history):
             HistoryView(viewModel: history, carName: carBoard.state.car.name)
         case let .tile(kind):

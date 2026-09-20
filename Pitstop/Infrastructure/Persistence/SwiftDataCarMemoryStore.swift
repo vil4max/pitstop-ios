@@ -114,6 +114,14 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             try requireNew(Schema1.MaintenanceCompletionRecord.self, id: confirm.completion.id)
             modelContext.insert(Schema1.MaintenanceCompletionRecord(confirm.completion))
             return .completionConfirmed(confirm.completion)
+        case let .revokeMaintenanceCompletion(revoke):
+            let matches = try modelContext.fetch(
+                FetchDescriptor(predicate: Schema1.MaintenanceCompletionRecord.matching(revoke.completionID))
+            )
+            guard let record = matches.first else { throw CarMemoryStoreError.unknownCompletion }
+            let revoked = record.domain
+            modelContext.delete(record)
+            return .completionRevoked(revoked)
         case let .setMaintenancePolicy(set):
             try requireVehicle(set.vehicleID)
             try upsert(set.policy, vehicleID: set.vehicleID)

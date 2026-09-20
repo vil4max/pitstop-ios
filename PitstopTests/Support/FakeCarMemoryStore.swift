@@ -109,6 +109,11 @@ actor FakeCarMemoryStore: CarMemoryStore {
         case let .confirmMaintenanceCompletion(confirm):
             completions.append(confirm.completion)
             return .completionConfirmed(confirm.completion)
+        case let .revokeMaintenanceCompletion(revoke):
+            guard let index = completions.firstIndex(where: { $0.id == revoke.completionID }) else {
+                throw .unknownCompletion
+            }
+            return .completionRevoked(completions.remove(at: index))
         case let .setMaintenancePolicy(set):
             policies.removeAll { $0.operationID == set.policy.operationID && $0.source == set.policy.source }
             policies.append(set.policy)

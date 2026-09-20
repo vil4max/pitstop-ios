@@ -60,9 +60,15 @@ nothing lands on `main` without owner authorization.
 | CB-002 | `CB-002/car-board-shell` | committed | `just verify` passed; simulator: light, dark, accessibility-large, pushed detail screen, Pit sheet from an off-glyph tap; independent review: 8 findings repaired, final `No findings.`; ADR 0009 |
 | CB-003 | `CB-003/notes` | committed | `just verify` passed; simulator: fresh install → new note → terminate → relaunch showed the note in the Notes tile; independent review: 9 + 2 findings repaired. Pulled forward: raw `RememberPipeline` (CAP-001/006 scope) |
 | CB-004 | `CB-004/history` | committed | `just verify` passed; independent review: 9 + 3 findings repaired; UI not exercised in the simulator (shared device was in use by another session) |
+| CB-005 | `CB-005/service` | committed | `just verify` passed; independent review: 8 + 4 findings repaired (incl. one high: completion mileage above the last reading), final `No findings.`; ADR 0010; UI not exercised in the simulator |
 
 ## Open for owner
 
+- Service scope left out of CB-005 and needing owner scoping: procedure
+  components with provenance, recording a multi-operation visit with linked
+  completions, accepted Service Plans, the "Consider" list, engine-hours and
+  vehicle-reported rules. No default maintenance intervals are seeded.
+- Undo of a "done" record reaches only the newest completion of an operation.
 - History amounts have no currency (the domain has none). Decide whether one
   currency per car, per event, or none is wanted.
 - Notes tile shows the latest note's text on Car Board and therefore in the app
@@ -72,6 +78,9 @@ nothing lands on `main` without owner authorization.
 ## Untested scope
 
 - The launch screen was not inspected in the simulator after `5da5135`.
+- CB-005: the Service screen (track, mark done, change interval, undo) was not
+  exercised in the simulator; covered by engine, planner, view-model, and on-disk
+  tests.
 - CB-004: the History screen and event editor were only opened once in the
   simulator (empty state); adding and correcting an event through the UI was not
   exercised because another session was driving the shared `iPhone 17`

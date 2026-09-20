@@ -22,6 +22,11 @@ public struct MaintenanceOperationID: Hashable, Codable, Sendable, CustomStringC
     public static let cabinFilter: MaintenanceOperationID = "cabinFilter"
     public static let airFilter: MaintenanceOperationID = "airFilter"
     public static let sparkPlugs: MaintenanceOperationID = "sparkPlugs"
+
+    /// Operations the app can name. An ID outside this list is still valid domain identity.
+    public static let catalog: [MaintenanceOperationID] = [
+        .engineOilService, .dsgService, .awdCouplingService, .brakeFluid, .cabinFilter, .airFilter, .sparkPlugs,
+    ]
 }
 
 public enum PolicySource: String, Codable, Sendable {
