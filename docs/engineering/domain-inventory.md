@@ -9,7 +9,7 @@
 | Area | In code today | Notes |
 |---|---|---|
 | Vehicle / provisional car | `ProvisionalCarContext`, `Vehicle`, `OdometerReading` | Domain models and reading facts on `main` |
-| Car Board UI | `CarBoardView`, `CarBoardViewModel`, `CarEditorView`, `AppEnvironment` | Persisted car context with optional name and mileage edit (CB-001); tiles and utility buttons not wired (CB-002) |
+| Car Board UI | `CarBoardView`, `CarBoardViewModel`, `CarEditorView`, `AppEnvironment` | Persisted car context with optional name and mileage edit (CB-001); design language, tile grid, detail scaffold, and utility layer in place (CB-002, ADR 0009); tiles show sparse states until CB-003…007 |
 | Capture pipeline | `CaptureInput`, `MemoryProposal`, `RawProposalFactory`, `ProposalValidator`, `ConfirmationPolicy`, `DomainCommandMapper`, `DomainCommand` | Pure domain path with tests (DOM-003, ADR 0006); async orchestration, persistence, and UI in M4 |
 | Road projection | — | Not started |
 | Maintenance engine | `MaintenanceOperationID`, `MaintenancePolicy`, `MaintenanceCompletion`, `MaintenanceStatus` | Pure domain value models on `main`; engine logic pending |

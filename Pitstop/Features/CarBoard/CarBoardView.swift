@@ -4,50 +4,32 @@ struct CarBoardView: View {
     let viewModel: CarBoardViewModel
 
     @State private var isEditingCar = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
-                    if viewModel.state.isStorageTemporary {
-                        Label("carBoard.storage.temporary", systemImage: "externaldrive.badge.exclamationmark")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                    if viewModel.state.isLoadFailed {
-                        HStack {
-                            Label("carBoard.load.failed", systemImage: "exclamationmark.arrow.circlepath")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Button("carBoard.load.retry") {
-                                Task { await viewModel.load() }
-                            }
-                            .font(.footnote.weight(.semibold))
-                        }
-                    }
-                    Button {
-                        isEditingCar = true
-                    } label: {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(viewModel.state.car.name)
-                                .font(.largeTitle.bold())
-                            mileageText
-                                .font(.title3)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityHint("carBoard.hero.editHint")
-                    .accessibilityIdentifier("carBoard.hero")
-                    placeholderTiles
+        ScrollView {
+            VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
+                notices
+                // The header stays outside the button so VoiceOver reads a heading, then an action.
+                ScreenHeader(eyebrow: String(localized: "carBoard.eyebrow"), title: viewModel.state.car.name)
+                Button {
+                    isEditingCar = true
+                } label: {
+                    CarHeroView(car: viewModel.state.car, mileage: viewModel.state.mileage)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(DesignTokens.screenPadding)
-                .padding(.bottom, 80)
+                .buttonStyle(.plain)
+                .accessibilityHint("carBoard.hero.editHint")
+                .accessibilityIdentifier("carBoard.hero")
+                .padding(.bottom, DesignTokens.sectionSpacing - DesignTokens.tileSpacing)
+
+                ForEach(CarBoardTileDescriptor.rows(), id: \.first?.kind) { row in
+                    tileRow(row)
+                }
             }
-            utilityLayer
+            .padding(.horizontal, DesignTokens.screenPadding)
+            .padding(.bottom, DesignTokens.tileSpacing)
         }
+        .background(PitColor.surfacePrimary)
         .task { await viewModel.load() }
         .sheet(isPresented: $isEditingCar) {
             CarEditorView(car: viewModel.state.car) { name, odometer in
@@ -57,6 +39,54 @@ struct CarBoardView: View {
                 Button("common.ok") { viewModel.dismissFailure() }
             }
         }
+    }
+
+    @ViewBuilder
+    private var notices: some View {
+        if viewModel.state.isStorageTemporary {
+            Label("carBoard.storage.temporary", systemImage: "externaldrive.badge.exclamationmark")
+                .font(.footnote)
+                .foregroundStyle(PitColor.contentSecondary)
+        }
+        if viewModel.state.isLoadFailed {
+            HStack {
+                Label("carBoard.load.failed", systemImage: "exclamationmark.arrow.circlepath")
+                    .font(.footnote)
+                    .foregroundStyle(PitColor.contentSecondary)
+                Spacer()
+                Button("carBoard.load.retry") {
+                    Task { await viewModel.load() }
+                }
+                .font(.footnote.weight(.semibold))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func tileRow(_ row: [CarBoardTileDescriptor]) -> some View {
+        if dynamicTypeSize.isAccessibilitySize {
+            // Half width cannot hold large text; the order stays the same, one tile per row.
+            ForEach(row) { tileLink($0) }
+        } else {
+            HStack(alignment: .top, spacing: DesignTokens.tileSpacing) {
+                ForEach(row) { tileLink($0) }
+                if row.count == 1, row.first?.size == .half {
+                    // Future slot: left empty on purpose rather than filled with a fake tile.
+                    Color.clear.frame(maxWidth: .infinity)
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func tileLink(_ descriptor: CarBoardTileDescriptor) -> some View {
+        NavigationLink(value: CarBoardRoute.tile(descriptor.kind)) {
+            CarBoardTileView(descriptor: descriptor)
+        }
+        .buttonStyle(.plain)
+        // On the link itself, so VoiceOver gets one button whose label is the tile's summary.
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("carBoard.tile.\(descriptor.kind.rawValue)")
     }
 
     private var failureBinding: Binding<Bool> {
@@ -76,53 +106,6 @@ struct CarBoardView: View {
         case .mileageNotSaved: "carEditor.failure.mileageOnly"
         case .saveFailed, .none: "carEditor.failure.save"
         }
-    }
-
-    private var mileageText: Text {
-        switch viewModel.state.mileage {
-        case .unknown:
-            Text("carBoard.mileage.unknown")
-        case let .kilometers(value):
-            Text("carBoard.mileage.km \(value)")
-        }
-    }
-
-    private var placeholderTiles: some View {
-        VStack(spacing: DesignTokens.tileSpacing) {
-            tilePlaceholder(title: "Road")
-            HStack(spacing: DesignTokens.tileSpacing) {
-                tilePlaceholder(title: "Notes")
-                tilePlaceholder(title: "Service")
-            }
-            tilePlaceholder(title: "History")
-        }
-    }
-
-    private func tilePlaceholder(title: String) -> some View {
-        RoundedRectangle(cornerRadius: 16, style: .continuous)
-            .fill(.quaternary)
-            .frame(height: title == "Road" ? 120 : 88)
-            .overlay(alignment: .leading) {
-                Text(title)
-                    .font(.headline)
-                    .padding()
-            }
-    }
-
-    private var utilityLayer: some View {
-        HStack {
-            Image(systemName: "gearshape")
-                .font(.title2)
-                .frame(width: DesignTokens.utilityButtonSize, height: DesignTokens.utilityButtonSize)
-                .accessibilityLabel("Settings")
-            Spacer()
-            Image(systemName: "eye")
-                .font(.title2)
-                .frame(width: DesignTokens.utilityButtonSize, height: DesignTokens.utilityButtonSize)
-                .accessibilityLabel("Pit")
-        }
-        .padding(.horizontal, DesignTokens.screenPadding)
-        .padding(.bottom, 8)
     }
 }
 

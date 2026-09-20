@@ -64,6 +64,7 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0003-logging.md`
 - `engineering/quality-and-ci.md`
 - `engineering/modular-architecture.md`
+- `decisions/0009-design-language.md` — surfaces vs glass controls, colour roles, hero fallback, tile layout, utility layer
 - `decisions/0008-road-projection-rules.md` — INV-ROAD-001…004 outcomes: horizon, mixed dimensions, clustering, return to now
 - `decisions/0007-persistence.md` — SwiftData behind a command-only store, schema rules
 - `decisions/0006-capture-confirmation-policy.md` — confirmation outcome table and mutation permit

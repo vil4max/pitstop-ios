@@ -57,10 +57,14 @@ nothing lands on `main` without owner authorization.
 | ENG-004 | `ENG-004/persistence` | committed | `just verify` passed; independent review: 6 + 2 findings repaired |
 | INV-ROAD-001…004 | `INV-ROAD/road-decisions` | committed | ADR 0008; docs only, no build |
 | CB-001 | `CB-001/provisional-car` | committed | `just verify` passed; simulator: fresh install → edit → terminate → relaunch kept "Arteon, 84 200 km"; independent review: 6 + 3 findings repaired, final `No findings.` |
+| CB-002 | `CB-002/car-board-shell` | committed | `just verify` passed; simulator: light, dark, accessibility-large, pushed detail screen, Pit sheet from an off-glyph tap; independent review: 8 findings repaired, final `No findings.`; ADR 0009 |
 
 ## Untested scope
 
 - The launch screen was not inspected in the simulator after `5da5135`.
+- CB-002: VoiceOver reading order, AX5 text size, Reduce Transparency, RTL, and
+  ru/uk strings were not checked on screen. Tiles show sparse states only until
+  CB-003…007.
 - CB-001: the load-failed row, the temporary-storage banner, and the save alerts
   were not exercised in the simulator; ru/uk strings were not viewed on device.
 - DOM-003 has no async pipeline, persistence, logging, or UI; REQ-CAPTURE-004,

@@ -10,6 +10,6 @@ final class AppCoordinator {
     }
 
     var rootView: some View {
-        CarBoardView(viewModel: carBoard)
+        RootView(carBoard: carBoard)
     }
 }
