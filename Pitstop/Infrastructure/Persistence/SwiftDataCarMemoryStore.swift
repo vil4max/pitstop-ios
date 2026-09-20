@@ -87,6 +87,18 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             )
             modelContext.insert(Schema1.NoteRecord(note))
             return .noteCreated(note)
+        case let .updateNote(update):
+            let id = update.noteID
+            let matches = try modelContext
+                .fetch(FetchDescriptor<Schema1.NoteRecord>(predicate: #Predicate { $0.id == id }))
+            guard let record = matches.first else { throw CarMemoryStoreError.unknownNote }
+            if let text = update.rawText {
+                record.rawText = text
+            }
+            if let status = update.status {
+                record.status = status.rawValue
+            }
+            return .noteUpdated(record.domain)
         case let .recordOdometerReading(record):
             try requireVehicle(record.reading.vehicleID)
             try requireNew(Schema1.OdometerReadingRecord.self, id: record.reading.id)

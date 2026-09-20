@@ -4,6 +4,7 @@ import SwiftUI
 /// Settings and Pit keep one position on Car Board and on every detail screen (REQ-UTILITY-003, 005).
 struct RootView: View {
     let carBoard: CarBoardViewModel
+    let notes: NotesViewModel
 
     @State private var path: [CarBoardRoute] = []
     @State private var sheet: UtilitySheet?
@@ -25,6 +26,12 @@ struct RootView: View {
                 }
         }
         .tint(PitColor.accentPrimary)
+        // Car Board is a projection: refresh it whenever the user comes back from an owned surface.
+        .onChange(of: path) { _, newPath in
+            if newPath.isEmpty {
+                Task { await carBoard.load() }
+            }
+        }
         // A safe-area inset, not an overlay: scroll content is inset by the layer's height, so the
         // last tile always scrolls clear of the controls (REQ-UTILITY-008).
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -43,6 +50,8 @@ struct RootView: View {
     @ViewBuilder
     private func destination(for route: CarBoardRoute) -> some View {
         switch route {
+        case .tile(.notes):
+            NotesView(viewModel: notes, carName: carBoard.state.car.name)
         case let .tile(kind):
             FeatureScaffold(carName: carBoard.state.car.name, title: title(for: kind)) {
                 PendingSurfaceView(kind: kind)

@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// Summary + entrance. Until the owning surfaces exist (CB-003…007) each tile shows its honest
+/// Summary + entrance. Until the owning surfaces exist (CB-004…007) each tile shows its honest
 /// sparse state: no placeholder metrics, no fake urgency (REQ-BOARD-014, REQ-BOARD-018).
 struct CarBoardTileView: View {
     let descriptor: CarBoardTileDescriptor
+    var notes: NotesSummary = .empty
 
     var body: some View {
         TileCard(minHeight: minHeight) {
@@ -14,13 +15,24 @@ struct CarBoardTileView: View {
                         .frame(height: 34)
                         .padding(.vertical, 2)
                 }
-                Text(headline)
-                    .font(.headline)
-                    .foregroundStyle(PitColor.contentPrimary)
-                Text(detail)
-                    .font(.footnote)
-                    .foregroundStyle(PitColor.contentSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                if descriptor.kind == .notes, let latest = notes.latest {
+                    // The latest thought in the driver's own words, then how many are waiting.
+                    Text(latest.rawText)
+                        .font(.headline)
+                        .foregroundStyle(PitColor.contentPrimary)
+                        .lineLimit(2)
+                    Text("tile.notes.count \(notes.activeCount)")
+                        .font(.footnote)
+                        .foregroundStyle(PitColor.contentSecondary)
+                } else {
+                    Text(headline)
+                        .font(.headline)
+                        .foregroundStyle(PitColor.contentPrimary)
+                    Text(detail)
+                        .font(.footnote)
+                        .foregroundStyle(PitColor.contentSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
     }

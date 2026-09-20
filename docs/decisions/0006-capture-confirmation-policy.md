@@ -81,6 +81,25 @@ entry (CB-003…005), which never passes through a proposal.
 An expense is a `HistoryEvent` that must carry an amount, not a new entity:
 money is an event attribute in the domain model.
 
+## Raw pipeline pulled forward (CB-003)
+
+`RememberPipeline.rememberRaw` was implemented with CB-003, ahead of CAP-001/002,
+because Notes cannot "save a thought" without a capture path and core C4 forbids
+a second, Notes-only path. It covers Raw Remember only: no interpreter, no
+confirmation UI. It reports `saved` only after the store returned, maps blank
+input to `nothingToSave`, and throws for any other non-valid validation so that
+a future interpreted path cannot lose input by falling through. CAP-001/002
+extend this type; they do not replace it.
+
+`UpdateNoteCommand` is the user's own correction or archive action. "Original
+wording is authoritative" constrains models, not the author: the user may
+rewrite their note, and `DomainCommandMapper` never emits this command, so no
+proposal, interpreted or raw, can reach it.
+
+The Notes view model outlives its screen, so every visit resets to the active
+main list with no context filter; a filter left over from an earlier visit
+would hide unclassified notes (REQ-BOARD-012).
+
 ## Rejected alternatives
 
 - **Typed associated values on `MemoryProposal.kind`.** Cannot represent a

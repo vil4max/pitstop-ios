@@ -4,6 +4,7 @@ import Observation
 struct CarBoardViewState: Equatable {
     var car: ProvisionalCarContext = .firstLaunch
     var mileage: CarBoardMileage = .unknown
+    var notes: NotesSummary = .empty
     var isStorageTemporary = false
     /// Kept apart from `failure` so dismissing a save alert can never hide the retry row.
     var isLoadFailed = false
@@ -43,6 +44,7 @@ final class CarBoardViewModel {
             vehicleID = vehicle.id
             state.car = ProvisionalCarContext(vehicle: vehicle, latestReading: latest)
             state.mileage = CarBoardMileage(odometerKm: state.car.odometerKm)
+            state.notes = try await NotesSummary(notes: store.notes())
             state.isLoadFailed = false
         } catch {
             // The last known state stays on screen; Car Board never becomes an error page.

@@ -2,6 +2,7 @@ import Foundation
 
 public enum CommandResult: Hashable, Sendable {
     case noteCreated(Note)
+    case noteUpdated(Note)
     case readingRecorded(OdometerReading)
     case vehicleUpdated(Vehicle)
     case completionConfirmed(MaintenanceCompletion)
@@ -12,6 +13,7 @@ public enum CommandResult: Hashable, Sendable {
 public enum CarMemoryStoreError: Error, Hashable, Sendable {
     case invalidCommand(DomainCommandError)
     case unknownVehicle
+    case unknownNote
     /// A record with this ID already exists; history is never rewritten by a repeated command.
     case duplicateRecord
     case storageFailure

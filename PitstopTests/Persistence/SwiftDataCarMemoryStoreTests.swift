@@ -312,3 +312,49 @@ struct SwiftDataCarMemoryStoreTests {
         }
     }
 }
+
+@Suite("SwiftData note updates")
+struct SwiftDataNoteUpdateTests {
+    @Test("REQ-CAPTURE-012: a corrected and archived note reads back from disk with its identity")
+    func noteUpdateSurvivesRelaunch() async throws {
+        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
+        defer {
+            for suffix in ["", "-shm", "-wal"] {
+                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
+            }
+        }
+        let store = try makeStore(url: url)
+        guard case let .noteCreated(note) = try await store.execute(
+            .createNote(CreateNoteCommand(rawText: "заменить дворники")),
+            now: now
+        ) else {
+            Issue.record("expected a created note")
+            return
+        }
+
+        try await store.execute(
+            .updateNote(UpdateNoteCommand(noteID: note.id, rawText: "заменить задний дворник")),
+            now: now
+        )
+        try await store.execute(.updateNote(UpdateNoteCommand(noteID: note.id, status: .archived)), now: now)
+
+        let reopened = try await makeStore(url: url).notes()
+        #expect(reopened.count == 1)
+        #expect(reopened.first?.id == note.id)
+        #expect(reopened.first?.rawText == "заменить задний дворник")
+        #expect(reopened.first?.status == .archived)
+        #expect(reopened.first?.createdAt == note.createdAt)
+        // REQ-DOMAIN-013: archiving and correcting a note record no work and no event.
+        #expect(try await store.historyEvents().isEmpty)
+        #expect(try await store.maintenanceCompletions().isEmpty)
+    }
+
+    @Test("ADR-0007: updating a note that does not exist fails and writes nothing")
+    func unknownNoteIsRejected() async throws {
+        let store = try makeStore()
+        await #expect(throws: CarMemoryStoreError.unknownNote) {
+            try await store.execute(.updateNote(UpdateNoteCommand(noteID: UUID(), status: .archived)), now: now)
+        }
+        #expect(try await store.notes().isEmpty)
+    }
+}

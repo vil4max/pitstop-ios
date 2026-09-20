@@ -1,0 +1,217 @@
+import Foundation
+@testable import Pitstop
+import Testing
+
+private let now = DomainFixtures.Odometers.baseDate
+
+@Suite("Notes summary and commands")
+struct NotesDomainTests {
+    @Test("REQ-BOARD-012: the summary counts raw notes without any classification")
+    func summaryCountsUnclassifiedNotes() {
+        let summary = NotesSummary(notes: [
+            DomainFixtures.Notes.rawThought,
+            DomainFixtures.Notes.contextualWash,
+            DomainFixtures.Notes.archivedNote,
+        ])
+        #expect(summary.activeCount == 2)
+        #expect(summary.latest != nil)
+        #expect(summary.latest?.status == .active)
+    }
+
+    @Test("REQ-BOARD-011: no notes is an empty summary, not an error")
+    func emptySummary() {
+        #expect(NotesSummary(notes: []) == .empty)
+        #expect(NotesSummary.empty.activeCount == 0 && NotesSummary.empty.latest == nil)
+        #expect(NotesSummary(notes: [DomainFixtures.Notes.archivedNote]).latest == nil)
+    }
+
+    @Test(
+        "REQ-CAPTURE-021: a note update must change something and may not blank the text",
+        arguments: [
+            (UpdateNoteCommand(noteID: UUID()), DomainCommandError.emptyNoteUpdate),
+            (UpdateNoteCommand(noteID: UUID(), rawText: "  "), .emptyNoteText)
+        ]
+    )
+    func invalidUpdateIsRejected(command: UpdateNoteCommand, expected: DomainCommandError) {
+        #expect(throws: expected) { try DomainCommand.updateNote(command).validate(now: now) }
+    }
+}
+
+@Suite("Raw Remember pipeline")
+struct RememberPipelineTests {
+    @Test("REQ-CAPTURE-001: raw mode saves a note through the shared path without a model")
+    func rawRememberSavesNote() async throws {
+        let store = FakeCarMemoryStore()
+        let pipeline = RememberPipeline(store: store, now: { now })
+        let input = CaptureInput(
+            payload: .text("Спросить про пятно на заднем сиденье"),
+            source: .directApp,
+            capturedAt: now
+        )
+
+        let outcome = try await pipeline.rememberRaw(input)
+
+        let notes = await store.storedNotes
+        #expect(notes.map(\.rawText) == ["Спросить про пятно на заднем сиденье"])
+        #expect(outcome == .saved(.noteCreated(notes[0]), preservedRaw: true))
+        #expect(await store.executed.count == 1)
+    }
+
+    @Test("ADR-0006: blank input performs no mutation")
+    func blankInputSavesNothing() async throws {
+        let store = FakeCarMemoryStore()
+        let outcome = try await RememberPipeline(store: store, now: { now })
+            .rememberRaw(CaptureInput(payload: .text("  \n"), source: .pitText, capturedAt: now))
+        #expect(outcome == .nothingToSave)
+        #expect(await store.executed.isEmpty)
+    }
+
+    @Test("REQ-CAPTURE-009: a persistence failure is an error, never a saved outcome")
+    func persistenceFailureIsNotSuccess() async {
+        let store = FakeCarMemoryStore()
+        await store.failEverything()
+        await #expect(throws: RememberError.notSaved) {
+            try await RememberPipeline(store: store, now: { now })
+                .rememberRaw(CaptureInput(payload: .text("мысль"), source: .widget, capturedAt: now))
+        }
+    }
+}
+
+@MainActor
+@Suite("Notes view model")
+struct NotesViewModelTests {
+    private func makeModel(_ store: FakeCarMemoryStore) -> NotesViewModel {
+        NotesViewModel(store: store, now: { now })
+    }
+
+    @Test("REQ-CAPTURE-012: a saved note can be found, corrected, and keeps its identity")
+    func noteCanBeCorrected() async throws {
+        let store = FakeCarMemoryStore()
+        let model = makeModel(store)
+        #expect(await model.add(text: "заменить дворники"))
+        let note = try #require(model.state.visibleNotes.first)
+
+        #expect(await model.correct(note, text: "заменить задний дворник"))
+
+        let corrected = try #require(model.state.visibleNotes.first)
+        #expect(corrected.rawText == "заменить задний дворник")
+        #expect(corrected.id == note.id && corrected.createdAt == note.createdAt)
+    }
+
+    @Test("REQ-DOMAIN-013: archiving moves the note to the archived list and keeps its wording")
+    func archivingChangesOnlyStatus() async throws {
+        let store = FakeCarMemoryStore()
+        let model = makeModel(store)
+        #expect(await model.add(text: "поменял масло, надо записать"))
+        let note = try #require(model.state.visibleNotes.first)
+
+        #expect(await model.setStatus(.archived, for: note))
+
+        #expect(model.state.visibleNotes.isEmpty)
+        model.select(scope: .archived)
+        #expect(model.state.visibleNotes.map(\.rawText) == ["поменял масло, надо записать"])
+    }
+
+    @Test("REQ-BOARD-012: the main list keeps unclassified notes; a context filter only narrows while selected")
+    func contextFilterNeverHidesFromMainList() async {
+        let store = FakeCarMemoryStore()
+        let model = makeModel(store)
+        let vehicleID = await store.vehicle.id
+        for (text, contexts) in [("без контекста", Set<NoteContext>()), ("мойка", [.carWash])] {
+            _ = try? await store.execute(
+                .createNote(CreateNoteCommand(vehicleID: vehicleID, rawText: text, canonicalContexts: contexts)),
+                now: now
+            )
+        }
+        await model.load()
+
+        #expect(Set(model.state.visibleNotes.map(\.rawText)) == ["без контекста", "мойка"])
+        #expect(model.state.availableContexts == [.carWash])
+        model.select(context: .carWash)
+        #expect(model.state.visibleNotes.map(\.rawText) == ["мойка"])
+        model.select(context: nil)
+        #expect(model.state.visibleNotes.count == 2)
+    }
+
+    @Test("REQ-CAPTURE-009: a failed save reports failure so the editor keeps the text")
+    func failedSaveKeepsEditorOpen() async {
+        let store = FakeCarMemoryStore()
+        let model = makeModel(store)
+        await store.failEverything()
+
+        #expect(await !model.add(text: "мысль"))
+        #expect(model.state.editorFailure == .notSaved)
+        #expect(model.state.listFailure == nil)
+    }
+
+    @Test("ADR-0006: blank text saves nothing")
+    func blankTextSavesNothing() async {
+        let store = FakeCarMemoryStore()
+        let model = makeModel(store)
+        #expect(await !model.add(text: "   "))
+        #expect(model.state.editorFailure == .emptyText)
+        #expect(await store.executed.isEmpty)
+    }
+
+    @Test("REQ-CAPTURE-009: a failed archive is reported on the list and never leaks into the editor")
+    func failedArchiveIsVisibleOnTheList() async throws {
+        let store = FakeCarMemoryStore()
+        let model = makeModel(store)
+        #expect(await model.add(text: "мысль"))
+        let note = try #require(model.state.visibleNotes.first)
+        await store.failEverything()
+
+        #expect(await !model.setStatus(.archived, for: note))
+
+        #expect(model.state.listFailure == .notSaved)
+        #expect(model.state.editorFailure == nil)
+        #expect(model.state.visibleNotes.map(\.id) == [note.id])
+    }
+
+    @Test("REQ-BOARD-012: a filter whose last note was archived falls back to the main list")
+    func orphanedFilterIsCleared() async throws {
+        let store = FakeCarMemoryStore()
+        let model = makeModel(store)
+        let vehicleID = await store.vehicle.id
+        for (text, contexts) in [("без контекста", Set<NoteContext>()), ("мойка", [.carWash])] {
+            _ = try await store.execute(
+                .createNote(CreateNoteCommand(vehicleID: vehicleID, rawText: text, canonicalContexts: contexts)),
+                now: now
+            )
+        }
+        await model.load()
+        model.select(context: .carWash)
+        let wash = try #require(model.state.visibleNotes.first)
+
+        #expect(await model.setStatus(.archived, for: wash))
+
+        #expect(model.state.contextFilter == nil)
+        #expect(model.state.visibleNotes.map(\.rawText) == ["без контекста"])
+    }
+
+    @Test("ADR-0006: each visit to Notes starts from the active main list")
+    func visitStartsFromMainList() async {
+        let model = makeModel(FakeCarMemoryStore())
+        model.select(scope: .archived)
+        await model.prepareForDisplay()
+        #expect(model.state.scope == .active && model.state.contextFilter == nil)
+    }
+}
+
+@MainActor
+@Suite("Car Board notes summary")
+struct CarBoardNotesSummaryTests {
+    @Test("REQ-BOARD-012: the Notes tile state accounts for a saved raw note after a reload")
+    func tileStateIncludesRawNote() async throws {
+        let store = FakeCarMemoryStore()
+        let board = CarBoardViewModel(store: store, now: { now })
+        await board.load()
+        #expect(board.state.notes == .empty)
+
+        _ = try await store.execute(.createNote(CreateNoteCommand(rawText: "проверить давление")), now: now)
+        await board.load()
+
+        #expect(board.state.notes.activeCount == 1)
+        #expect(board.state.notes.latest?.rawText == "проверить давление")
+    }
+}

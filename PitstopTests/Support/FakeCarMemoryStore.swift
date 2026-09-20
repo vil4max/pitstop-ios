@@ -83,6 +83,19 @@ actor FakeCarMemoryStore: CarMemoryStore {
             )
             storedNotes.append(note)
             return .noteCreated(note)
+        case let .updateNote(update):
+            guard let index = storedNotes.firstIndex(where: { $0.id == update.noteID }) else { throw .unknownNote }
+            let old = storedNotes[index]
+            let note = Note(
+                id: old.id,
+                vehicleID: old.vehicleID,
+                rawText: update.rawText ?? old.rawText,
+                createdAt: old.createdAt,
+                status: update.status ?? old.status,
+                canonicalContexts: old.canonicalContexts
+            )
+            storedNotes[index] = note
+            return .noteUpdated(note)
         case let .recordOdometerReading(record):
             guard !failsReadings else { throw .storageFailure }
             guard record.reading.vehicleID == vehicle.id else { throw .unknownVehicle }

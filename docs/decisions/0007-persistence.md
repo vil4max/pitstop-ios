@@ -88,6 +88,7 @@ provisional car creates no reading, policy, completion, or event
 
 - The store file is `Application Support/Pitstop.store`. There is no iCloud
   sync, export, or deletion flow yet.
-- Correcting or archiving a note has no command yet; CB-003 adds it.
+- Correcting or archiving a note uses `UpdateNoteCommand` (CB-003). It changes
+  text or status only and can never create an event or completion.
 - App wiring (container creation at launch and the failure path when the
   container cannot open) belongs to CB-001.

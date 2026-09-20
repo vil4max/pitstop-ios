@@ -13,6 +13,7 @@ public enum DomainCommandError: Error, Hashable, Sendable {
     case policyWithoutInterval
     case nonPositiveInterval
     case nonPositiveAmount
+    case emptyNoteUpdate
 }
 
 public enum DomainCommandLimits {
@@ -52,6 +53,21 @@ public struct CreateNoteCommand: Hashable, Sendable {
         self.rawText = rawText
         self.canonicalContexts = canonicalContexts
         self.createdAt = createdAt
+    }
+}
+
+/// The user's own correction or archive action. Archiving changes only the status; it never
+/// records work or history (REQ-DOMAIN-013). A model may not issue this command: its
+/// reclassification must leave the wording alone (REQ-CAPTURE-013).
+public struct UpdateNoteCommand: Hashable, Sendable {
+    public let noteID: UUID
+    public let rawText: String?
+    public let status: NoteStatus?
+
+    public init(noteID: UUID, rawText: String? = nil, status: NoteStatus? = nil) {
+        self.noteID = noteID
+        self.rawText = rawText
+        self.status = status
     }
 }
 
@@ -111,6 +127,7 @@ public struct RecordExpenseCommand: Hashable, Sendable {
 
 public enum DomainCommand: Hashable, Sendable {
     case createNote(CreateNoteCommand)
+    case updateNote(UpdateNoteCommand)
     case recordOdometerReading(RecordOdometerReadingCommand)
     case recordVehicleFact(RecordVehicleFactCommand)
     case confirmMaintenanceCompletion(ConfirmMaintenanceCompletionCommand)
@@ -122,6 +139,11 @@ public enum DomainCommand: Hashable, Sendable {
         switch self {
         case let .createNote(command):
             guard !command.rawText.isBlank else { throw .emptyNoteText }
+        case let .updateNote(command):
+            guard command.rawText != nil || command.status != nil else { throw .emptyNoteUpdate }
+            if let text = command.rawText, text.isBlank {
+                throw .emptyNoteText
+            }
         case let .recordOdometerReading(command):
             try Self.checkOdometer(command.reading.valueInKilometers)
             try Self.checkNotFuture(command.reading.recordedAt, now: now)
