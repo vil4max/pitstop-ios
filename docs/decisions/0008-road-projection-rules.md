@@ -26,7 +26,7 @@ Rule:
   cluster.
 - Overdue and due milestones always occupy the first slots.
 - If no milestone falls inside the default horizon, the horizon extends to the
-  nearest known milestone and the projection marks it `beyondDefaultHorizon`,
+  nearest known milestone and the projection reports `extendedToNearest`,
   so the UI can say "nothing soon; next is …" instead of showing empty road.
 - Later milestones exist in the projection and are reached by scrolling.
 - Spacing is ordinal, not metric: slots are evenly spaced in order of
@@ -35,22 +35,36 @@ Rule:
 
 ## INV-ROAD-002 — Mixed time and mileage
 
-One lane, ordered by proximity, where proximity is a fraction of the
-milestone's own interval that remains (`remaining / interval`), computed
-separately per dimension. Fractions are comparable without converting months to
-kilometres, so REQ-ROAD-007 holds.
+One lane. Each milestone is placed and labelled by one dimension: the one that
+decided its maintenance status, or the date for a planned event. The label shows
+that dimension ("in 1,200 km" or "20 days left"), never a converted value, so
+REQ-ROAD-007 holds.
 
-- A distance-or-time policy uses the dimension with the smaller remaining
-  fraction; the label shows that dimension ("in 1,200 km" or "in 3 weeks"),
-  never a converted value.
-- A milestone with no interval (insurance expiry, planned event) uses days
-  remaining over the default horizon.
-- Mileage is **unknown** when there is no reading, and **stale** when the
-  latest reading is older than 90 days. In both cases a mileage-dependent
-  milestone keeps its place only through its time dimension if it has one;
-  otherwise it is listed after all placed milestones with dependency
-  `mileageUnknown` or `mileageStale`, and no remaining distance is shown
-  (REQ-ROAD-005, REQ-ROAD-006). Stale mileage still shows "as of" its date.
+The lane is ordered by an **ordering key in horizon units**: remaining km /
+5,000 or remaining days / 183. The key is never displayed. It uses the pairing
+the horizon already states ("six months or 5,000 km are equally far for this
+product"), and nothing else is derived from it. Nearness alone orders the lane:
+due and overdue have a non-positive key and therefore lead, and on an exact tie
+the more urgent state comes first. A milestone is inside the default viewport
+when its key is at most 1. State does not move a milestone forward: a
+transmission service that is "approaching" with 8,000 km left is still farther
+than an oil change 5,500 km away.
+
+An earlier version of this ADR ordered the lane by the remaining share of each
+milestone's own interval. Independent review showed it is wrong: a transmission
+service 12,000 km away (20% of 60,000) sorted ahead of an oil change 3,000 km
+away (30% of 10,000), and the default viewport then hid the oil change. Share
+decides *status* in the engine; it does not measure *nearness*.
+
+- Mileage is **unknown** with no observation and **stale** when the newest one
+  is older than 90 days. A milestone with a date rule keeps its place through
+  the date and carries the mileage dependency as a flag (REQ-ROAD-005). A
+  mileage-only milestone that cannot be evaluated, including one whose
+  completion was saved without mileage, is returned in `waitingForMileage` with
+  its reason and is not placed (REQ-ROAD-006). When only such milestones exist
+  the horizon is `waitingForMileage`, not "no known milestones".
+- A planned date that has passed stays on the road as due for 14 days and then
+  leaves it; nothing else owns an expired plan, and it must not linger forever.
 
 Rejected: two parallel lanes (time above, mileage below). It doubles the
 vertical cost of a compact tile and makes a distance-or-time operation appear
@@ -62,16 +76,18 @@ readings and an owner decision, and belongs to MNT-INT-001.
 
 ## INV-ROAD-003 — Clustering
 
-Two milestones cluster when both are distance-anchored within 1,500 km of each
-other, or both are date-anchored within 21 days. A cluster takes one slot,
-is labelled with its earliest member plus a count, and lists its members in
-proximity order. Mixed-dimension milestones never cluster with each other
-because their distance apart is unknown.
+Two milestones cluster when both are placed by distance within 1,500 km of each
+other, or both by date within 21 days (inclusive). A cluster takes one slot,
+is led by its nearest member, and lists its members nearest first. Milestones
+placed by different dimensions never cluster, because how far apart a date and
+a mileage are is unknown; this holds even when a date-decided operation also
+has a mileage anchor nearby. Work that is due or overdue is never merged with
+milestones that are still ahead, so it always leads its own slot.
 
-Clustering is single-pass over the proximity-ordered list, comparing each
-milestone with the first member of the current cluster, so the result is
-deterministic and a chain of close milestones cannot grow without bound
-(REQ-ROAD-003, REQ-ROAD-013).
+Clustering runs per dimension, nearest first, comparing each milestone with the
+first member of the open cluster. It therefore does not depend on what sorts in
+between in the other dimension, it is deterministic, and a chain of close
+milestones cannot grow without bound (REQ-ROAD-003).
 
 This is visual only. It does not read or write Service Planner grouping, and
 it never changes an operation's anchor (REQ-MAINT-007).

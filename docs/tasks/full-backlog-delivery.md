@@ -61,6 +61,7 @@ nothing lands on `main` without owner authorization.
 | CB-003 | `CB-003/notes` | committed | `just verify` passed; simulator: fresh install → new note → terminate → relaunch showed the note in the Notes tile; independent review: 9 + 2 findings repaired. Pulled forward: raw `RememberPipeline` (CAP-001/006 scope) |
 | CB-004 | `CB-004/history` | committed | `just verify` passed; independent review: 9 + 3 findings repaired; UI not exercised in the simulator (shared device was in use by another session) |
 | CB-005 | `CB-005/service` | committed | `just verify` passed; independent review: 8 + 4 findings repaired (incl. one high: completion mileage above the last reading), final `No findings.`; ADR 0010; UI not exercised in the simulator |
+| CB-006 | `CB-006/road-projection` | committed | `just verify` passed; independent review: 8 + 4 findings repaired (one high changed ADR 0008: lane order is nearness in horizon units, not share of interval), final `No findings.` |
 
 ## Open for owner
 
@@ -68,6 +69,9 @@ nothing lands on `main` without owner authorization.
   components with provenance, recording a multi-operation visit with linked
   completions, accepted Service Plans, the "Consider" list, engine-hours and
   vehicle-reported rules. No default maintenance intervals are seeded.
+- Planned vehicle events (insurance expiry, planned visit) exist as a projection
+  input but cannot be created or stored yet; that needs a schema version and an
+  owner decision on where the user enters them.
 - Undo of a "done" record reaches only the newest completion of an operation.
 - History amounts have no currency (the domain has none). Decide whether one
   currency per car, per event, or none is wanted.

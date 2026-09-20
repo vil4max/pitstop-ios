@@ -11,7 +11,7 @@
 | Vehicle / provisional car | `ProvisionalCarContext`, `Vehicle`, `OdometerReading` | Domain models and reading facts on `main` |
 | Car Board UI | `CarBoardView`, `CarBoardViewModel`, `CarEditorView`, `AppEnvironment` | Persisted car context with optional name and mileage edit (CB-001); design language, tile grid, detail scaffold, and utility layer in place (CB-002, ADR 0009); tiles show sparse states until CB-003…007 |
 | Capture pipeline | `CaptureInput`, `MemoryProposal`, `RawProposalFactory`, `ProposalValidator`, `ConfirmationPolicy`, `DomainCommandMapper`, `DomainCommand` | Pure domain path with tests (DOM-003, ADR 0006); async orchestration, persistence, and UI in M4 |
-| Road projection | — | Not started |
+| Road projection | `RoadProjector`, `RoadProjection`, `RoadMilestone`, `RoadSlot`, `PlannedVehicleEvent` | Pure projection with tests (CB-006, ADR 0008); UI in CB-007 |
 | Maintenance engine | `MaintenanceOperationID`, `MaintenancePolicy`, `MaintenanceCompletion`, `MaintenanceStatus` | Pure domain value models on `main`; engine logic pending |
 | Persistence | `CarMemoryStore`, `SwiftDataCarMemoryStore`, `PitstopSchemaV1` | Command-only store behind a domain protocol (ENG-004, ADR 0007); not yet wired into the app (CB-001) |
 | Notes | `Note`, `NotesSummary`, `UpdateNoteCommand`, `RememberPipeline` (raw), `NotesViewModel`, `NotesView` | Save, find, correct, archive, and restore without AI; Notes tile summarizes real notes (CB-003) |
@@ -84,13 +84,13 @@ implemented yet.
 
 | Concept | Type | Pure domain | Code (`main`) |
 |---|---|---|---|
-| RoadContext | Input snapshot | Yes | — |
-| RoadProjection | Projection output | Yes | — |
-| RoadMilestone | Eligible future/past marker | Yes | — |
-| Milestone eligibility rules | Deterministic filter | Yes | — |
-| Mixed time/mileage lanes | Projection rule | Yes | — |
-| Horizon selection | Projection rule | Investigate INV-ROAD-001 | — |
-| Clustering | Projection rule | Investigate INV-ROAD-003 | — |
+| RoadContext | Input snapshot | Yes | `RoadContext` |
+| RoadProjection | Projection output | Yes | `RoadProjection`, `RoadProjector` |
+| RoadMilestone | Eligible future/past marker | Yes | `RoadMilestone`, `RoadSlot` |
+| Milestone eligibility rules | Deterministic filter | Yes | `RoadProjector` |
+| Mixed time/mileage lanes | Projection rule | Yes | ADR 0008: one lane, ordering key in horizon units |
+| Horizon selection | Projection rule | Investigate INV-ROAD-001 | `RoadHorizon` (ADR 0008) |
+| Clustering | Projection rule | Investigate INV-ROAD-003 | per-dimension clustering (ADR 0008) |
 | Return to current | UI behaviour | Investigate INV-ROAD-004 | — |
 
 ### Milestone eligibility (deterministic)
