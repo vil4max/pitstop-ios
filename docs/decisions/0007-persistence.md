@@ -72,6 +72,31 @@ persisted domain flag; applying any confirmed `VehicleFact` clears it. The
 provisional car creates no reading, policy, completion, or event
 (REQ-DOMAIN-003).
 
+## History projection and correction (CB-004)
+
+`HistoryTimeline` is a pure projection over recorded events and confirmed
+completions, newest first with ties broken by ID. A completion whose
+`sourceEventID` names an event in the same timeline is represented by that
+event and not listed twice; if the named event is missing, the completion is
+listed itself so it can never vanish. Notes, plans, and proposals are not inputs.
+
+`CorrectVehicleEventCommand` replaces the facts of an existing event and keeps
+its ID and vehicle. "Never rewrites history" above is about repeated or forged
+writes; a correction is an explicit user action, and stored data must be
+inspectable and correctable (core P1). Limits:
+
+- A correction passes the same checks as a new event, so it cannot move an
+  event into the future. It may clear mileage, cost, or note: the user can stop
+  trusting a fact, and unknown is a valid state.
+- An event with an amount is still one History event. `RecordExpense` differs
+  only at capture time, where a proposal of kind `expense` must carry an amount;
+  hand entry and correction use the event commands.
+- Correcting a visit does not yet update completions linked to it through
+  `sourceEventID`. Nothing creates such links before CB-005, which owns that
+  rule.
+- There is no delete. No contract requires it; a mistaken event is corrected.
+- Amounts have no currency in the domain, so History shows a plain number.
+
 ## Rejected alternatives
 
 - **Generic `Repository<T>`.** Hides domain semantics and invites ad-hoc
@@ -82,7 +107,7 @@ provisional car creates no reading, policy, completion, or event
 - **Reusing the `legacy/spike` models.** They predate the current domain
   inventory, which names the spike as not a source of truth.
 - **A confirmed completion also inserting a History event.** That conflates
-  completion with visit; History projection of completions belongs to CB-004.
+  completion with visit. History is a projection instead (see below).
 
 ## Consequences and limits
 

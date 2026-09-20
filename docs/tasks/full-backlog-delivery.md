@@ -59,9 +59,12 @@ nothing lands on `main` without owner authorization.
 | CB-001 | `CB-001/provisional-car` | committed | `just verify` passed; simulator: fresh install → edit → terminate → relaunch kept "Arteon, 84 200 km"; independent review: 6 + 3 findings repaired, final `No findings.` |
 | CB-002 | `CB-002/car-board-shell` | committed | `just verify` passed; simulator: light, dark, accessibility-large, pushed detail screen, Pit sheet from an off-glyph tap; independent review: 8 findings repaired, final `No findings.`; ADR 0009 |
 | CB-003 | `CB-003/notes` | committed | `just verify` passed; simulator: fresh install → new note → terminate → relaunch showed the note in the Notes tile; independent review: 9 + 2 findings repaired. Pulled forward: raw `RememberPipeline` (CAP-001/006 scope) |
+| CB-004 | `CB-004/history` | committed | `just verify` passed; independent review: 9 + 3 findings repaired; UI not exercised in the simulator (shared device was in use by another session) |
 
 ## Open for owner
 
+- History amounts have no currency (the domain has none). Decide whether one
+  currency per car, per event, or none is wanted.
 - Notes tile shows the latest note's text on Car Board and therefore in the app
   switcher snapshot. No privacy setting exists; decide whether the tile should
   show text, a count only, or follow a setting.
@@ -69,6 +72,10 @@ nothing lands on `main` without owner authorization.
 ## Untested scope
 
 - The launch screen was not inspected in the simulator after `5da5135`.
+- CB-004: the History screen and event editor were only opened once in the
+  simulator (empty state); adding and correcting an event through the UI was not
+  exercised because another session was driving the shared `iPhone 17`
+  simulator. Covered by view-model and on-disk store tests.
 - CB-003: correcting, archiving, and restoring a note were covered by tests but
   not exercised in the simulator; VoiceOver on the note row was not checked.
 - CB-002: VoiceOver reading order, AX5 text size, Reduce Transparency, RTL, and

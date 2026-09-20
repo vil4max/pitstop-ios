@@ -5,6 +5,7 @@ import SwiftUI
 struct CarBoardTileView: View {
     let descriptor: CarBoardTileDescriptor
     var notes: NotesSummary = .empty
+    var history: HistoryTimeline = .empty
 
     var body: some View {
         TileCard(minHeight: minHeight) {
@@ -22,6 +23,15 @@ struct CarBoardTileView: View {
                         .foregroundStyle(PitColor.contentPrimary)
                         .lineLimit(2)
                     Text("tile.notes.count \(notes.activeCount)")
+                        .font(.footnote)
+                        .foregroundStyle(PitColor.contentSecondary)
+                } else if descriptor.kind == .history, let latest = history.latest {
+                    // The latest thing that actually happened, and when.
+                    latest.titleText
+                        .font(.headline)
+                        .foregroundStyle(PitColor.contentPrimary)
+                        .lineLimit(2)
+                    latest.recencyText()
                         .font(.footnote)
                         .foregroundStyle(PitColor.contentSecondary)
                 } else {

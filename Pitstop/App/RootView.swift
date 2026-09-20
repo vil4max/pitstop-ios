@@ -5,6 +5,7 @@ import SwiftUI
 struct RootView: View {
     let carBoard: CarBoardViewModel
     let notes: NotesViewModel
+    let history: HistoryViewModel
 
     @State private var path: [CarBoardRoute] = []
     @State private var sheet: UtilitySheet?
@@ -52,6 +53,8 @@ struct RootView: View {
         switch route {
         case .tile(.notes):
             NotesView(viewModel: notes, carName: carBoard.state.car.name)
+        case .tile(.history):
+            HistoryView(viewModel: history, carName: carBoard.state.car.name)
         case let .tile(kind):
             FeatureScaffold(carName: carBoard.state.car.name, title: title(for: kind)) {
                 PendingSurfaceView(kind: kind)

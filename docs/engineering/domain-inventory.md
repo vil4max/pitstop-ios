@@ -15,7 +15,8 @@
 | Maintenance engine | `MaintenanceOperationID`, `MaintenancePolicy`, `MaintenanceCompletion`, `MaintenanceStatus` | Pure domain value models on `main`; engine logic pending |
 | Persistence | `CarMemoryStore`, `SwiftDataCarMemoryStore`, `PitstopSchemaV1` | Command-only store behind a domain protocol (ENG-004, ADR 0007); not yet wired into the app (CB-001) |
 | Notes | `Note`, `NotesSummary`, `UpdateNoteCommand`, `RememberPipeline` (raw), `NotesViewModel`, `NotesView` | Save, find, correct, archive, and restore without AI; Notes tile summarizes real notes (CB-003) |
-| History / Service | `HistoryEvent`, maintenance value types | Pure domain models; screen wiring in CB-004 / CB-005 |
+| History | `HistoryEvent`, `HistoryTimeline`, `CorrectVehicleEventCommand`, `HistoryViewModel`, `HistoryView` | Record and correct events by hand; timeline projects events and confirmed completions; tile shows the latest (CB-004) |
+| Service | maintenance value types | Pure domain models; engine and screen in CB-005 |
 
 `ProvisionalCarContext.firstLaunch` has `odometerKm: nil`, and the placeholder
 board shows "Mileage unknown" until a reading is supplied (REQ-DOMAIN-002,

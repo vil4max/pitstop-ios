@@ -120,6 +120,8 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             return .policySet(set.policy)
         case let .recordVehicleEvent(record):
             return try insert(record.event)
+        case let .correctVehicleEvent(correct):
+            return try update(correct.event)
         case let .recordExpense(record):
             return try insert(record.event)
         }
@@ -130,6 +132,21 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
         try requireNew(Schema1.HistoryEventRecord.self, id: event.id)
         modelContext.insert(Schema1.HistoryEventRecord(event))
         return .eventRecorded(event)
+    }
+
+    private func update(_ event: HistoryEvent) throws -> CommandResult {
+        try requireVehicle(event.vehicleID)
+        let matches = try modelContext.fetch(FetchDescriptor(predicate: Schema1.HistoryEventRecord.matching(event.id)))
+        // A correction edits facts of the same event; it can never move it to another vehicle.
+        guard let record = matches.first, record.vehicleID == event.vehicleID.rawValue else {
+            throw CarMemoryStoreError.unknownEvent
+        }
+        record.kind = event.kind.rawValue
+        record.date = event.date
+        record.odometerKm = event.odometerKm
+        record.amount = event.amount
+        record.note = event.note
+        return .eventCorrected(event)
     }
 
     private func upsert(_ policy: MaintenancePolicy, vehicleID: VehicleID) throws {

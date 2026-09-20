@@ -8,12 +8,14 @@ public enum CommandResult: Hashable, Sendable {
     case completionConfirmed(MaintenanceCompletion)
     case policySet(MaintenancePolicy)
     case eventRecorded(HistoryEvent)
+    case eventCorrected(HistoryEvent)
 }
 
 public enum CarMemoryStoreError: Error, Hashable, Sendable {
     case invalidCommand(DomainCommandError)
     case unknownVehicle
     case unknownNote
+    case unknownEvent
     /// A record with this ID already exists; history is never rewritten by a repeated command.
     case duplicateRecord
     case storageFailure

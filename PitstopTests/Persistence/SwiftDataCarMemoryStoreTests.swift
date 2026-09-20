@@ -358,3 +358,63 @@ struct SwiftDataNoteUpdateTests {
         #expect(try await store.notes().isEmpty)
     }
 }
+
+@Suite("SwiftData event correction")
+struct SwiftDataEventCorrectionTests {
+    @Test("REQ-DOMAIN-016: a corrected event reads back from disk with the same identity")
+    func correctionSurvivesRelaunch() async throws {
+        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
+        defer {
+            for suffix in ["", "-shm", "-wal"] {
+                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
+            }
+        }
+        let store = try makeStore(url: url)
+        let vehicleID = try await store.currentVehicle().id
+        let event = HistoryEvent(vehicleID: vehicleID, kind: .service, date: DomainFixtures.Odometers.baseDate)
+        try await store.execute(.recordVehicleEvent(RecordVehicleEventCommand(event: event)), now: now)
+
+        let corrected = HistoryEvent(
+            id: event.id,
+            vehicleID: vehicleID,
+            kind: .service,
+            date: DomainFixtures.Odometers.baseDate,
+            odometerKm: 84200,
+            amount: 12500,
+            note: "замена масла"
+        )
+        try await store.execute(.correctVehicleEvent(CorrectVehicleEventCommand(event: corrected)), now: now)
+
+        #expect(try await makeStore(url: url).historyEvents() == [corrected])
+    }
+
+    @Test("ADR-0007: correcting an event that does not exist fails and writes nothing")
+    func unknownEventIsRejected() async throws {
+        let store = try makeStore()
+        let vehicleID = try await store.currentVehicle().id
+        let ghost = HistoryEvent(vehicleID: vehicleID, kind: .other, date: DomainFixtures.Odometers.baseDate)
+        await #expect(throws: CarMemoryStoreError.unknownEvent) {
+            try await store.execute(.correctVehicleEvent(CorrectVehicleEventCommand(event: ghost)), now: now)
+        }
+        #expect(try await store.historyEvents().isEmpty)
+    }
+
+    @Test("ADR-0007: a correction cannot move an event to another vehicle")
+    func correctionCannotChangeVehicle() async throws {
+        let store = try makeStore()
+        let vehicleID = try await store.currentVehicle().id
+        let event = HistoryEvent(vehicleID: vehicleID, kind: .carWash, date: DomainFixtures.Odometers.baseDate)
+        try await store.execute(.recordVehicleEvent(RecordVehicleEventCommand(event: event)), now: now)
+        let moved = HistoryEvent(
+            id: event.id,
+            vehicleID: DomainFixtures.Vehicles.secondaryID,
+            kind: .carWash,
+            date: DomainFixtures.Odometers.baseDate
+        )
+
+        await #expect(throws: CarMemoryStoreError.self) {
+            try await store.execute(.correctVehicleEvent(CorrectVehicleEventCommand(event: moved)), now: now)
+        }
+        #expect(try await store.historyEvents() == [event])
+    }
+}

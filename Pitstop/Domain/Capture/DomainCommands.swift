@@ -115,6 +115,16 @@ public struct RecordVehicleEventCommand: Hashable, Sendable {
     }
 }
 
+/// The user's correction of a recorded event. It replaces the fields of an existing event and
+/// keeps its identity; surfaces re-read the corrected record (REQ-DOMAIN-016).
+public struct CorrectVehicleEventCommand: Hashable, Sendable {
+    public let event: HistoryEvent
+
+    public init(event: HistoryEvent) {
+        self.event = event
+    }
+}
+
 /// Money stays an attribute of a History Event (domain-model.md), so an expense is
 /// recorded as an event that must carry an amount rather than as an accounting entry.
 public struct RecordExpenseCommand: Hashable, Sendable {
@@ -133,6 +143,7 @@ public enum DomainCommand: Hashable, Sendable {
     case confirmMaintenanceCompletion(ConfirmMaintenanceCompletionCommand)
     case setMaintenancePolicy(SetMaintenancePolicyCommand)
     case recordVehicleEvent(RecordVehicleEventCommand)
+    case correctVehicleEvent(CorrectVehicleEventCommand)
     case recordExpense(RecordExpenseCommand)
 
     public func validate(now: Date) throws(DomainCommandError) {
@@ -155,6 +166,8 @@ public enum DomainCommand: Hashable, Sendable {
         case let .setMaintenancePolicy(command):
             try Self.check(command.policy)
         case let .recordVehicleEvent(command):
+            try Self.check(command.event, now: now, requiresAmount: false)
+        case let .correctVehicleEvent(command):
             try Self.check(command.event, now: now, requiresAmount: false)
         case let .recordExpense(command):
             try Self.check(command.event, now: now, requiresAmount: true)
