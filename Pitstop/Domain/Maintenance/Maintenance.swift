@@ -49,6 +49,27 @@ public struct MaintenancePolicy: Hashable, Codable, Sendable {
     }
 }
 
+public extension PolicySource {
+    /// Higher wins when several rules exist for one operation. A custom policy outranks the
+    /// recommendation without replacing its record (REQ-DOMAIN-006).
+    var precedence: Int {
+        switch self {
+        case .defaultRecommendation: 0
+        case .vehicleCondition: 1
+        case .userCustom: 2
+        }
+    }
+}
+
+public extension Sequence<MaintenancePolicy> {
+    /// One effective policy per operation, ordered by operation ID for stable output.
+    var effective: [MaintenancePolicy] {
+        Dictionary(grouping: self, by: \.operationID)
+            .compactMap { $0.value.max { $0.source.precedence < $1.source.precedence } }
+            .sorted { $0.operationID.rawValue < $1.operationID.rawValue }
+    }
+}
+
 public struct MaintenanceCompletion: Identifiable, Hashable, Codable, Sendable {
     public let id: UUID
     public let vehicleID: VehicleID

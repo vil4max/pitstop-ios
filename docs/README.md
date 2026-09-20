@@ -64,6 +64,7 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0003-logging.md`
 - `engineering/quality-and-ci.md`
 - `engineering/modular-architecture.md`
+- `decisions/0007-persistence.md` — SwiftData behind a command-only store, schema rules
 - `decisions/0006-capture-confirmation-policy.md` — confirmation outcome table and mutation permit
 - `decisions/0005-toolchain-and-project-format.md` — Swift 6, iOS 27, file-system-synchronized project
 

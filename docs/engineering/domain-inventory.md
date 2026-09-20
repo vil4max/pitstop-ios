@@ -13,7 +13,7 @@
 | Capture pipeline | `CaptureInput`, `MemoryProposal`, `RawProposalFactory`, `ProposalValidator`, `ConfirmationPolicy`, `DomainCommandMapper`, `DomainCommand` | Pure domain path with tests (DOM-003, ADR 0006); async orchestration, persistence, and UI in M4 |
 | Road projection | — | Not started |
 | Maintenance engine | `MaintenanceOperationID`, `MaintenancePolicy`, `MaintenanceCompletion`, `MaintenanceStatus` | Pure domain value models on `main`; engine logic pending |
-| Persistence | — | Intentionally deferred to ENG-004 |
+| Persistence | `CarMemoryStore`, `SwiftDataCarMemoryStore`, `PitstopSchemaV1` | Command-only store behind a domain protocol (ENG-004, ADR 0007); not yet wired into the app (CB-001) |
 | Notes / History / Service | `Note`, `HistoryEvent` | Pure domain models on `main`; screen wiring in M3 |
 
 `ProvisionalCarContext.firstLaunch` has `odometerKm: nil`, and the placeholder

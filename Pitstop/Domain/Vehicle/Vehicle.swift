@@ -19,6 +19,8 @@ public struct Vehicle: Identifiable, Hashable, Codable, Sendable {
     public var model: String?
     public var year: Int?
     public var vin: String?
+    /// `true` until the user supplies or confirms any fact; the name is then a placeholder (core C2).
+    public var isProvisional: Bool
 
     public init(
         id: VehicleID = VehicleID(),
@@ -26,7 +28,8 @@ public struct Vehicle: Identifiable, Hashable, Codable, Sendable {
         make: String? = nil,
         model: String? = nil,
         year: Int? = nil,
-        vin: String? = nil
+        vin: String? = nil,
+        isProvisional: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -34,6 +37,7 @@ public struct Vehicle: Identifiable, Hashable, Codable, Sendable {
         self.model = model
         self.year = year
         self.vin = vin
+        self.isProvisional = isProvisional
     }
 }
 
@@ -107,6 +111,29 @@ public struct VehicleFact: Hashable, Codable, Sendable {
 }
 
 public extension Vehicle {
+    /// Fixed so that two processes sharing one store (app and a system extension) converge on
+    /// the same first-launch car instead of creating two.
+    static let provisionalID = VehicleID(rawValue: UUID(uuidString: "00000000-0000-4000-8000-0000000C0FFE") ?? UUID())
+
+    static func provisional(id: VehicleID = provisionalID) -> Vehicle {
+        Vehicle(id: id, name: ProvisionalCarContext.defaultName, isProvisional: true)
+    }
+
+    /// Applying a user-supplied or confirmed fact ends the provisional state.
+    func applying(_ fact: VehicleFact) -> Vehicle {
+        var copy = self
+        let value = fact.value.trimmingCharacters(in: .whitespacesAndNewlines)
+        switch fact.field {
+        case .name: copy.name = value
+        case .make: copy.make = value
+        case .model: copy.model = value
+        case .year: copy.year = Int(value)
+        case .vin: copy.vin = value
+        }
+        copy.isProvisional = false
+        return copy
+    }
+
     func value(of field: VehicleFactField) -> String? {
         switch field {
         case .name: name
@@ -115,5 +142,13 @@ public extension Vehicle {
         case .year: year.map(String.init)
         case .vin: vin
         }
+    }
+}
+
+public extension Sequence<OdometerReading> {
+    /// Odometer truth is reading history; the latest reading is a projection (REQ-DOMAIN-001).
+    /// An empty history yields `nil`, never zero (REQ-DOMAIN-002).
+    var latest: OdometerReading? {
+        self.max { ($0.recordedAt, $0.valueInKilometers) < ($1.recordedAt, $1.valueInKilometers) }
     }
 }

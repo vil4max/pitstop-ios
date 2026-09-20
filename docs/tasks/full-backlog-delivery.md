@@ -24,6 +24,10 @@ architecture and other decisions, and send the kit agent a detailed flow report.
 - Integration: local commits only on `{TASK-ID}/{slug}` branches. No push, PR,
   or merge without new authorization.
 - Board: one card in progress at a time, in work-plan pick-up order.
+- Final state (owner, later the same day): everything merged into `main`, clean
+  Git state, and smoke tests run on the simulator showing the functionality
+  works. This authorizes the local merge at the end; push was not mentioned and
+  still needs its own authorization.
 - Visual design and the open INV-ROAD questions are delegated to the agent;
   each outcome is recorded as an ADR for the owner to review.
 
@@ -50,6 +54,7 @@ nothing lands on `main` without owner authorization.
 |---|---|---|---|
 | ENG-003 prep | `ENG-003/swift6-ios27-synced-groups` | committed | `6e1a85a`, `5da5135`; `just verify` passed before `6e1a85a` |
 | DOM-003 | `DOM-003/capture-domain` | committed | `just verify` passed; independent review: 7 + 3 findings repaired, final `No findings.`; spec_trace covered 3 → 21 of 136 |
+| ENG-004 | `ENG-004/persistence` | committed | `just verify` passed; independent review: 6 + 2 findings repaired; 47 tests |
 
 ## Untested scope
 

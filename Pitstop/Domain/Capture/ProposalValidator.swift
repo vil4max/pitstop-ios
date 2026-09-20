@@ -175,7 +175,8 @@ public struct ProposalValidator: Sendable {
         }
         var conflicts: [ProposalConflict] = []
         // The provisional display name is a placeholder, not a known fact (core C2).
-        let isPlaceholderName = fact.field == .name && context.vehicle.name == ProvisionalCarContext.defaultName
+        let isPlaceholderName = fact.field == .name
+            && (context.vehicle.isProvisional || context.vehicle.name == ProvisionalCarContext.defaultName)
         if let existing = context.vehicle.value(of: fact.field), existing != fact.value, !isPlaceholderName {
             conflicts.append(.replacesVehicleFact(field: fact.field, existing: existing))
         }

@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** ENG-004 — persistence + provisional car (DOM-003 implemented on branch `DOM-003/capture-domain`, not yet on `main`)  
+**Next task:** INV-ROAD-001…004 (DOM-003 and ENG-004 are implemented on stacked branches, not yet on `main`)  
 **Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
 **Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -92,7 +92,7 @@ Hosted checks are disabled. See `../engineering/quality-and-ci.md`.
 | BOOT-001 | App scaffold + folder tree | 2d | — | done | — |
 | ENG-001 | Logging facade | 1d | BOOT-001 | done | — |
 | ENG-003 | Local quality gates (hosted CI retired) | 2d | BOOT-001 | tracked | — |
-| ENG-004 | Persistence + provisional car | 3d | DOM-003 | tracked | #5 |
+| ENG-004 | Persistence + provisional car | 3d | DOM-003 | implemented on branch, unmerged | #5 |
 | ENG-002 | Analytics boundary | 2d | CB-002 | tracked | #6 |
 | ANL-001 | Analytics spike | 2d | ENG-002 | tracked | #7 |
 
