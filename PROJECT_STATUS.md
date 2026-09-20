@@ -67,7 +67,7 @@ the work plan records the distinction.
 includes useful raw saving without AI as well as optional interpreted capture;
 this distinction does not move tasks earlier.
 
-Next task: DOM-003 (see [`docs/planning/work-plan.md`](docs/planning/work-plan.md)).
+Next task: ENG-004; DOM-003 is implemented on an unmerged branch (see [`docs/planning/work-plan.md`](docs/planning/work-plan.md)).
 
 ---
 

@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** DOM-003 — capture domain + policy tests  
+**Next task:** ENG-004 — persistence + provisional car (DOM-003 implemented on branch `DOM-003/capture-domain`, not yet on `main`)  
 **Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
 **Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -82,7 +82,7 @@ Hosted checks are disabled. See `../engineering/quality-and-ci.md`.
 |---|---|---:|---|---|---|
 | DOM-001 | Domain inventory from specs | 1d | — | done | #1 |
 | DOM-002 | Spec-derived test fixtures | 1d | DOM-001 | done | #2 |
-| DOM-003 | Capture domain + policy tests | 4d | DOM-001 | tracked | #3 |
+| DOM-003 | Capture domain + policy tests | 4d | DOM-001 | implemented on branch, unmerged | #3 |
 | DOM-004 | ADR-001 closure | 1d | — | tracked | #4 |
 
 ## Phase 2 — Engineering

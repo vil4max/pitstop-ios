@@ -81,3 +81,39 @@ public struct OdometerReading: Identifiable, Hashable, Codable, Sendable {
         }
     }
 }
+
+public enum VehicleFactField: String, Codable, Sendable, CaseIterable {
+    case name
+    case make
+    case model
+    case year
+    case vin
+
+    /// Exact identity facts select which maintenance recommendations apply, so a wrong
+    /// value silently changes service guidance. `name` is a display label only.
+    public var affectsRecommendationApplicability: Bool {
+        self != .name
+    }
+}
+
+public struct VehicleFact: Hashable, Codable, Sendable {
+    public let field: VehicleFactField
+    public let value: String
+
+    public init(field: VehicleFactField, value: String) {
+        self.field = field
+        self.value = value
+    }
+}
+
+public extension Vehicle {
+    func value(of field: VehicleFactField) -> String? {
+        switch field {
+        case .name: name
+        case .make: make
+        case .model: model
+        case .year: year.map(String.init)
+        case .vin: vin
+        }
+    }
+}

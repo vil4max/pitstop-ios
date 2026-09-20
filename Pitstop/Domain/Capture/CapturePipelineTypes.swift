@@ -1,6 +1,6 @@
 import Foundation
 
-public enum CaptureSource: String, Codable, Sendable {
+public enum CaptureSource: String, Codable, Sendable, CaseIterable {
     case pitVoice
     case pitText
     case directApp
@@ -12,13 +12,23 @@ public enum CaptureSource: String, Codable, Sendable {
 public enum CapturePayload: Hashable, Codable, Sendable {
     case text(String)
     case transcript(String)
+    case recognizedDocumentText(String)
 
     public var rawContent: String {
         switch self {
-        case let .text(text), let .transcript(text):
+        case let .text(text), let .transcript(text), let .recognizedDocumentText(text):
             text
         }
     }
+}
+
+/// Surface that was visible when the capture started. A prior for interpretation only.
+public enum VisibleFeature: String, Codable, Sendable, CaseIterable {
+    case carBoard
+    case notes
+    case service
+    case history
+    case road
 }
 
 public struct CaptureInput: Identifiable, Hashable, Codable, Sendable {
@@ -28,6 +38,8 @@ public struct CaptureInput: Identifiable, Hashable, Codable, Sendable {
     public let capturedAt: Date
     public let localeIdentifier: String
     public let selectedVehicleID: VehicleID?
+    public let visibleFeature: VisibleFeature?
+    public let visibleEntityID: UUID?
 
     public init(
         id: UUID = UUID(),
@@ -35,7 +47,9 @@ public struct CaptureInput: Identifiable, Hashable, Codable, Sendable {
         source: CaptureSource,
         capturedAt: Date = Date(),
         localeIdentifier: String = "ru_RU",
-        selectedVehicleID: VehicleID? = nil
+        selectedVehicleID: VehicleID? = nil,
+        visibleFeature: VisibleFeature? = nil,
+        visibleEntityID: UUID? = nil
     ) {
         self.id = id
         self.payload = payload
@@ -43,10 +57,12 @@ public struct CaptureInput: Identifiable, Hashable, Codable, Sendable {
         self.capturedAt = capturedAt
         self.localeIdentifier = localeIdentifier
         self.selectedVehicleID = selectedVehicleID
+        self.visibleFeature = visibleFeature
+        self.visibleEntityID = visibleEntityID
     }
 }
 
-public enum ProposalKind: String, Codable, Sendable {
+public enum ProposalKind: String, Codable, Sendable, CaseIterable {
     case rawNote
     case contextualNote
     case odometerReading
@@ -75,7 +91,15 @@ public struct MemoryProposal: Identifiable, Hashable, Codable, Sendable {
     public let confidence: Double?
     public let extractedOdometerKm: Double?
     public let extractedOperationID: MaintenanceOperationID?
-    public let missingRequiredFields: [String]
+    public let extractedDate: Date?
+    public let extractedNoteContexts: Set<NoteContext>
+    public let extractedVehicleFact: VehicleFact?
+    public let extractedDistanceIntervalKm: Int?
+    public let extractedTimeIntervalMonths: Int?
+    public let extractedEventKind: HistoryEventKind?
+    public let extractedAmount: Decimal?
+    /// Fields the producer already knows it could not fill. The validator recomputes this itself.
+    public let missingRequiredFields: [ProposalField]
 
     public init(
         id: UUID = UUID(),
@@ -85,7 +109,14 @@ public struct MemoryProposal: Identifiable, Hashable, Codable, Sendable {
         confidence: Double? = nil,
         extractedOdometerKm: Double? = nil,
         extractedOperationID: MaintenanceOperationID? = nil,
-        missingRequiredFields: [String] = []
+        extractedDate: Date? = nil,
+        extractedNoteContexts: Set<NoteContext> = [],
+        extractedVehicleFact: VehicleFact? = nil,
+        extractedDistanceIntervalKm: Int? = nil,
+        extractedTimeIntervalMonths: Int? = nil,
+        extractedEventKind: HistoryEventKind? = nil,
+        extractedAmount: Decimal? = nil,
+        missingRequiredFields: [ProposalField] = []
     ) {
         self.id = id
         self.sourceInputID = sourceInputID
@@ -94,40 +125,22 @@ public struct MemoryProposal: Identifiable, Hashable, Codable, Sendable {
         self.confidence = confidence
         self.extractedOdometerKm = extractedOdometerKm
         self.extractedOperationID = extractedOperationID
+        self.extractedDate = extractedDate
+        self.extractedNoteContexts = extractedNoteContexts
+        self.extractedVehicleFact = extractedVehicleFact
+        self.extractedDistanceIntervalKm = extractedDistanceIntervalKm
+        self.extractedTimeIntervalMonths = extractedTimeIntervalMonths
+        self.extractedEventKind = extractedEventKind
+        self.extractedAmount = extractedAmount
         self.missingRequiredFields = missingRequiredFields
     }
 }
 
-// MARK: - Domain Mutation Boundary Commands (spec 34)
-
-public struct CreateNoteCommand: Hashable, Sendable {
-    public let vehicleID: VehicleID?
-    public let rawText: String
-    public let canonicalContexts: Set<NoteContext>
-
-    public init(
-        vehicleID: VehicleID? = nil,
-        rawText: String,
-        canonicalContexts: Set<NoteContext> = []
-    ) {
-        self.vehicleID = vehicleID
-        self.rawText = rawText
-        self.canonicalContexts = canonicalContexts
-    }
-}
-
-public struct RecordOdometerReadingCommand: Hashable, Sendable {
-    public let reading: OdometerReading
-
-    public init(reading: OdometerReading) {
-        self.reading = reading
-    }
-}
-
-public struct ConfirmMaintenanceCompletionCommand: Hashable, Sendable {
-    public let completion: MaintenanceCompletion
-
-    public init(completion: MaintenanceCompletion) {
-        self.completion = completion
-    }
+public enum ProposalField: String, Codable, Sendable, CaseIterable {
+    case odometerKm
+    case operationID
+    case vehicleFact
+    case policyInterval
+    case eventKind
+    case amount
 }

@@ -10,7 +10,7 @@
 |---|---|---|
 | Vehicle / provisional car | `ProvisionalCarContext`, `Vehicle`, `OdometerReading` | Domain models and reading facts on `main` |
 | Car Board UI | `CarBoardView` placeholder | Tiles and utility buttons not wired |
-| Capture pipeline | `CaptureInput`, `MemoryProposal`, domain commands | Boundary types on `main`; execution pipeline in M4 |
+| Capture pipeline | `CaptureInput`, `MemoryProposal`, `RawProposalFactory`, `ProposalValidator`, `ConfirmationPolicy`, `DomainCommandMapper`, `DomainCommand` | Pure domain path with tests (DOM-003, ADR 0006); async orchestration, persistence, and UI in M4 |
 | Road projection | — | Not started |
 | Maintenance engine | `MaintenanceOperationID`, `MaintenancePolicy`, `MaintenanceCompletion`, `MaintenanceStatus` | Pure domain value models on `main`; engine logic pending |
 | Persistence | — | Intentionally deferred to ENG-004 |
@@ -47,20 +47,20 @@ implemented yet.
 
 | Concept | Layer | Mutates state | Code (`main`) |
 |---|---|---|---|
-| CaptureInput | Input contract | No | — |
+| CaptureInput | Input contract | No | `CaptureInput` |
 | SemanticInterpreter | Optional interpreted-mode adapter | No | — |
-| MemoryProposal | Raw-preservation or interpreted draft | No | — |
-| ProposalValidator | Deterministic validation | No | — |
-| ConfirmationPolicy | Risk-based outcome | No | — |
-| DomainCommandMapper | Proposal → command | No | — |
-| CreateNote | Domain command | Yes | — |
-| RecordOdometerReading | Domain command | Yes | — |
-| RecordVehicleFact | Domain command | Yes | — |
-| ConfirmMaintenanceCompletion | Domain command | Yes | — |
-| SetMaintenancePolicy | Domain command | Yes | — |
-| RecordVehicleEvent | Domain command | Yes | — |
-| RecordExpense | Domain command | Yes | — |
-| Raw preservation | Model-free mode and fallback | Via CreateNote after validation/policy | — |
+| MemoryProposal | Raw-preservation or interpreted draft | No | `MemoryProposal` |
+| ProposalValidator | Deterministic validation | No | `ProposalValidator` |
+| ConfirmationPolicy | Risk-based outcome | No | `ConfirmationPolicy` + `MutationPermit` |
+| DomainCommandMapper | Proposal → command | No | `DomainCommandMapper` |
+| CreateNote | Domain command | Yes | `CreateNoteCommand` |
+| RecordOdometerReading | Domain command | Yes | `RecordOdometerReadingCommand` |
+| RecordVehicleFact | Domain command | Yes | `RecordVehicleFactCommand` |
+| ConfirmMaintenanceCompletion | Domain command | Yes | `ConfirmMaintenanceCompletionCommand` |
+| SetMaintenancePolicy | Domain command | Yes | `SetMaintenancePolicyCommand` |
+| RecordVehicleEvent | Domain command | Yes | `RecordVehicleEventCommand` |
+| RecordExpense | Domain command | Yes | `RecordExpenseCommand` |
+| Raw preservation | Model-free mode and fallback | Via CreateNote after validation/policy | `RawProposalFactory` |
 | RememberInPitStopIntent | System entry | No (→ CaptureInput) | — |
 
 ### MemoryProposal kinds (V1 product-core subset)
@@ -133,7 +133,7 @@ implemented yet.
 | Gap | Task |
 |---|---|
 | No inventory fixtures | DOM-002 |
-| No capture types/tests | DOM-003 |
+| Capture types and policy tests | DOM-003 (done on branch) |
 | Persistence schema intentionally deferred to ENG-004 | ENG-004 |
 | Road rules undecided | INV-ROAD-001…004 |
 | No real Car Board data | CB-001…007 |
