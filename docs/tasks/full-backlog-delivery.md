@@ -63,9 +63,17 @@ nothing lands on `main` without owner authorization.
 | CB-005 | `CB-005/service` | committed | `just verify` passed; independent review: 8 + 4 findings repaired (incl. one high: completion mileage above the last reading), final `No findings.`; ADR 0010; UI not exercised in the simulator |
 | CB-006 | `CB-006/road-projection` | committed | `just verify` passed; independent review: 8 + 4 findings repaired (one high changed ADR 0008: lane order is nearness in horizon units, not share of interval), final `No findings.` |
 | CB-007 | `CB-007/road-ui` | committed | `just verify` passed; simulator (dedicated device, tap-free demo launch): Car Board with four live tiles and the Road screen; independent review: 11 + 2 findings repaired; the last two fixes were not re-reviewed |
+| CAP-001 | `CAP-001/capture-boundary` | committed | `just verify` passed; independent review: 6 findings repaired (repairs not re-reviewed) |
 
 ## Open for owner
 
+- Proposed contract additions awaiting approval: the `capture_discarded`
+  pipeline stage (ADR 0006).
+- Integration: fast-forwarding `main` to the verified stack was blocked by the
+  host permission classifier on 2026-09-21. `main` is unchanged; the owner can
+  run `git checkout main && git merge --ff-only <top branch>` or allow the agent
+  to. CAP-005 (runtime AI) waits for that, because the project gate requires the
+  baseline on `main` first.
 - Service scope left out of CB-005 and needing owner scoping: procedure
   components with provenance, recording a multi-operation visit with linked
   completions, accepted Service Plans, the "Consider" list, engine-hours and

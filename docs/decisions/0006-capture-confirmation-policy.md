@@ -100,6 +100,25 @@ The Notes view model outlives its screen, so every visit resets to the active
 main list with no context filter; a filter left over from an earlier visit
 would hide unclassified notes (REQ-BOARD-012).
 
+## Pipeline observability (CAP-001)
+
+`CaptureStageEvent` carries the input ID as the correlation ID, the stage, the
+source, and optionally the proposal kind and confirmation outcome. Every field
+is an ID or a closed enum, and a test fails if a field of another type is
+added, so raw content cannot travel through it. The domain defines only the
+`CaptureStageObserving` protocol; `CaptureStageLogger` (Infrastructure) writes
+DEBUG-only OSLog lines under the category `capture.pipeline` (ADR 0003).
+
+- A stage is reported after the step it names succeeded: `domain_command_created`
+  after the mapper returned, `mutation_completed` after the store returned.
+- `raw_preserved` is reserved for degradation. A note the user chose to save raw
+  is an ordinary completed mutation; counting it would make the contract's
+  "raw-preservation rate" meaningless.
+- **Proposed contract addition, owner approval pending:** `capture_discarded`.
+  Blank input otherwise leaves `capture_received` with no terminal stage, which
+  cannot be told apart from a stalled pipeline and makes "pipeline abandonment"
+  unanswerable.
+
 ## Rejected alternatives
 
 - **Typed associated values on `MemoryProposal.kind`.** Cannot represent a

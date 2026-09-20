@@ -13,6 +13,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
     private(set) var executed: [DomainCommand] = []
     private var failure: CarMemoryStoreError?
     private var failsReadings = false
+    private var failsCommands = false
 
     init(vehicle: Vehicle = .provisional()) {
         self.vehicle = vehicle
@@ -25,6 +26,12 @@ actor FakeCarMemoryStore: CarMemoryStore {
     func recover() {
         failure = nil
         failsReadings = false
+        failsCommands = false
+    }
+
+    /// Reads keep working; only writes fail, as when the disk is full.
+    func failCommands() {
+        failsCommands = true
     }
 
     func failReadingCommands() {
@@ -63,6 +70,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
 
     func execute(_ command: DomainCommand, now: Date) throws(CarMemoryStoreError) -> CommandResult {
         try check()
+        guard !failsCommands else { throw .storageFailure }
         do {
             try command.validate(now: now)
         } catch {

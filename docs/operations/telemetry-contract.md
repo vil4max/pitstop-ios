@@ -83,6 +83,8 @@ Categories:
 
 ``` text
 app.lifecycle
+app.persistence
+capture.pipeline
 persistence
 maintenance.engine
 maintenance.planner

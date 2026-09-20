@@ -44,7 +44,7 @@ final class NotesViewModel {
     init(store: any CarMemoryStore, now: @escaping @Sendable () -> Date = { Date() }) {
         self.store = store
         self.now = now
-        pipeline = RememberPipeline(store: store, now: now)
+        pipeline = RememberPipeline(store: store, observer: CaptureStageLogger(), now: now)
     }
 
     func load() async {
