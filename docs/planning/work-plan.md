@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** CB-001 (INV-ROAD decided in ADR 0008; DOM-003 and ENG-004 are implemented on stacked branches, not yet on `main`)  
+**Next task:** CB-002 (CB-001 implemented; INV-ROAD decided in ADR 0008; DOM-003 and ENG-004 are implemented on stacked branches, not yet on `main`)  
 **Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
 **Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -109,7 +109,7 @@ Hosted checks are disabled. See `../engineering/quality-and-ci.md`.
 
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
-| CB-001 | Provisional car context | 2d | ENG-004 | tracked | #12 |
+| CB-001 | Provisional car context | 2d | ENG-004 | implemented on branch, unmerged | #12 |
 | CB-002 | Car Board shell + utility layer | 4d | CB-001 | tracked | #13 |
 | CB-003 | Notes tile + entry | 2d | CB-002, DOM-003 | tracked | #14 |
 | CB-004 | History tile + entry | 2d | CB-002 | tracked | #15 |

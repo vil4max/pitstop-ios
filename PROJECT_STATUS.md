@@ -67,7 +67,7 @@ the work plan records the distinction.
 includes useful raw saving without AI as well as optional interpreted capture;
 this distinction does not move tasks earlier.
 
-Next task: CB-001; INV-ROAD is decided in ADR 0008; DOM-003 and ENG-004 are implemented on unmerged branches (see [`docs/planning/work-plan.md`](docs/planning/work-plan.md)).
+Next task: CB-002; CB-001 is implemented; INV-ROAD is decided in ADR 0008; DOM-003 and ENG-004 are implemented on unmerged branches (see [`docs/planning/work-plan.md`](docs/planning/work-plan.md)).
 
 ---
 

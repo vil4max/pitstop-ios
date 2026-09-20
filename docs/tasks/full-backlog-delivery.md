@@ -56,10 +56,13 @@ nothing lands on `main` without owner authorization.
 | DOM-003 | `DOM-003/capture-domain` | committed | `just verify` passed; independent review: 7 + 3 findings repaired, final `No findings.`; spec_trace covered 3 → 21 of 136 |
 | ENG-004 | `ENG-004/persistence` | committed | `just verify` passed; independent review: 6 + 2 findings repaired |
 | INV-ROAD-001…004 | `INV-ROAD/road-decisions` | committed | ADR 0008; docs only, no build |
+| CB-001 | `CB-001/provisional-car` | committed | `just verify` passed; simulator: fresh install → edit → terminate → relaunch kept "Arteon, 84 200 km"; independent review: 6 + 3 findings repaired, final `No findings.` |
 
 ## Untested scope
 
 - The launch screen was not inspected in the simulator after `5da5135`.
+- CB-001: the load-failed row, the temporary-storage banner, and the save alerts
+  were not exercised in the simulator; ru/uk strings were not viewed on device.
 - DOM-003 has no async pipeline, persistence, logging, or UI; REQ-CAPTURE-004,
   005, 007–013, 023–025 stay uncovered until CAP-* and ENG-004.
 - SwiftFormat adds trailing commas that SwiftLint then warns about (3 warnings,

@@ -3,13 +3,13 @@ import SwiftUI
 @MainActor
 @Observable
 final class AppCoordinator {
-    private(set) var carContext: ProvisionalCarContext
+    private let carBoard: CarBoardViewModel
 
-    init(carContext: ProvisionalCarContext = .firstLaunch) {
-        self.carContext = carContext
+    init(environment: AppEnvironment = .live()) {
+        carBoard = CarBoardViewModel(store: environment.store, persistence: environment.persistence)
     }
 
     var rootView: some View {
-        CarBoardView(carContext: carContext)
+        CarBoardView(viewModel: carBoard)
     }
 }
