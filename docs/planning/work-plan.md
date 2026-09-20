@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** INV-ROAD-001…004 (DOM-003 and ENG-004 are implemented on stacked branches, not yet on `main`)  
+**Next task:** CB-001 (INV-ROAD decided in ADR 0008; DOM-003 and ENG-004 are implemented on stacked branches, not yet on `main`)  
 **Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
 **Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -100,10 +100,10 @@ Hosted checks are disabled. See `../engineering/quality-and-ci.md`.
 
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
-| INV-ROAD-001 | Horizon and spacing | 1d | — | tracked | #8 |
-| INV-ROAD-002 | Mixed time/mileage | 1d | — | tracked | #9 |
-| INV-ROAD-003 | Milestone clustering | 1d | INV-ROAD-001 | tracked | #10 |
-| INV-ROAD-004 | Return to current position | 1d | INV-ROAD-001 | tracked | #11 |
+| INV-ROAD-001 | Horizon and spacing | 1d | — | decided in ADR 0008, unmerged | #8 |
+| INV-ROAD-002 | Mixed time/mileage | 1d | — | decided in ADR 0008, unmerged | #9 |
+| INV-ROAD-003 | Milestone clustering | 1d | INV-ROAD-001 | decided in ADR 0008, unmerged | #10 |
+| INV-ROAD-004 | Return to current position | 1d | INV-ROAD-001 | decided in ADR 0008, unmerged | #11 |
 
 ## Phase 3 — Car Board
 

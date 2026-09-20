@@ -74,6 +74,8 @@ weigh against the existing eyes-only hypothesis in `../requirements/product-desi
 
 ## Road investigations
 
+Decided 2026-09-20 in [`../decisions/0008-road-projection-rules.md`](../decisions/0008-road-projection-rules.md); the questions below are kept as the record of what was asked.
+
 ### INV-ROAD-001 Horizon and spacing
 
 Question: What initial horizon makes Road useful with sparse and dense milestone sets?
