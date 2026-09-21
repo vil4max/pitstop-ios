@@ -118,8 +118,17 @@ implement. The requirements themselves are still `proposed`.
 | glance at object | none; it needs a model of UI objects | not in `PitState` |
 
 Every state the accepted behaviour requires was already triggered. The gap was
-the activity that stops them, which this ADR closes. No state was added, and
+the activity that stops them, which this ADR closes. No state was added by DISC-004, and
 the idle vocabulary and weights are unchanged.
+
+**Amended by ADR 0028 (PIT-MOTION-001, owner request 2026-09-21):** the owner
+asked for the full motion language. Closed eyes now show after a saved capture
+in the sheet and when the Pit sheet closes (leaving); double blink is a rare
+idle action (two blinks, not a state); glance at object is a new `glance`
+state, shown after a save in the sheet only; fixed gaze blinks less; the
+capture flow plays fixed gaze, blink, side gaze, then the proposal. Hidden
+stays drawable and untriggered. The table and the paragraph above describe the
+state before that change.
 
 ## Tests
 

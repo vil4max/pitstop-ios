@@ -10,8 +10,11 @@ struct PitCaptureView: View {
     let onOpen: (PitDestination) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var eyes = PitCaptureEyes()
     @FocusState private var isFocused: Bool
     @State private var answerText = ""
+    @State private var isScrolling = false
 
     var body: some View {
         @Bindable var model = viewModel
@@ -19,7 +22,7 @@ struct PitCaptureView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {
                     HStack(spacing: 12) {
-                        PitEyesGlyph(state: eyeState).scaleEffect(1.6)
+                        PitEyesGlyph(state: eyes.state, life: eyes.life).scaleEffect(1.6)
                             .frame(width: 44, height: 36)
                         Text("pit.title").font(.title2.bold())
                     }
@@ -27,6 +30,7 @@ struct PitCaptureView: View {
                 }
                 .padding(DesignTokens.screenPadding)
             }
+            .onScrollPhaseChange { _, phase in isScrolling = phase != .idle }
             .background(PitColor.surfacePrimary)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -50,6 +54,12 @@ struct PitCaptureView: View {
                 || (viewModel.phase == .composing && !viewModel.text.isBlank)
         )
         .onChange(of: viewModel.phase) { answerText = "" }
+        // The eyes follow the capture; the beats between moments live in `PitCaptureEyes` (ADR 0028).
+        .onChange(of: EyeInput(moment: eyeMoment, reduceMotion: reduceMotion), initial: true) { _, input in
+            eyes.update(to: input.moment, reduceMotion: input.reduceMotion)
+        }
+        .onChange(of: sheetActivity, initial: true) { _, activity in eyes.setActivity(activity) }
+        .onDisappear { eyes.stop() }
     }
 
     @ViewBuilder
@@ -284,15 +294,6 @@ struct PitCaptureView: View {
         }
     }
 
-    private var eyeState: PitState {
-        switch viewModel.phase {
-        case .composing: question.isAsking ? .knock : .fixedGaze
-        case .working: .sideGaze
-        case .confirming, .clarifying: .knock
-        case .saved: .resting
-        }
-    }
-
     private func summary(_ content: ValidatedContent) -> Text {
         switch content {
         case let .maintenanceCompletion(operation, _, _): Text("pit.confirm.completion \(operation.titleText)")
@@ -349,6 +350,22 @@ struct PitCaptureView: View {
         case .invalidAmount: "history.failure.amount"
         case .notSaved, .none: "pit.failure.notSaved"
         }
+    }
+}
+
+private extension PitCaptureView {
+    struct EyeInput: Equatable {
+        let moment: PitCaptureMoment
+        let reduceMotion: Bool
+    }
+
+    /// Typing in the composer and scrolling the sheet; Pit's eyes hold still for both (REQ-PIT-005).
+    var sheetActivity: PitActivity {
+        PitActivity().union(isFocused ? .editing : []).union(isScrolling ? .scrolling : [])
+    }
+
+    var eyeMoment: PitCaptureMoment {
+        PitCaptureMoment(viewModel.phase, isAsking: question.isAsking)
     }
 }
 

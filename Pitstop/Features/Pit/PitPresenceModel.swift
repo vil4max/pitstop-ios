@@ -38,6 +38,8 @@ final class PitPresenceModel {
     /// Sees every state as it is shown, so a sequence such as startle-then-knock is observable.
     private let onShow: (PitState) -> Void
     private var loop: Task<Void, Never>?
+    /// Counts `leave()` calls, so only the latest one reopens the eyes.
+    private var leaving = 0
 
     init(
         scheduler: PitIdleScheduler = PitIdleScheduler(),
@@ -75,6 +77,20 @@ final class PitPresenceModel {
         show(.startle)
         try? await sleep(0.35)
         show(.knock)
+    }
+
+    /// The Pit sheet closed: Pit closes its eyes for a moment and goes back to waiting ("close eyes:
+    /// completion / leaving"). A pending question keeps its knock, and Reduce Motion keeps this: it is a
+    /// state change, not wandering.
+    func leave() async {
+        guard !isAsking else { return }
+        leaving += 1
+        let generation = leaving
+        show(.closedEyes)
+        try? await sleep(PitBeat.closedEyesHold)
+        // A later leave owns the eyes now; this one must not open them early.
+        guard generation == leaving, state == .closedEyes else { return }
+        show(.resting)
     }
 
     /// The question was answered, deferred, or dismissed: Pit goes back to waiting.
@@ -127,10 +143,12 @@ final class PitPresenceModel {
                 sinceLastAction += plan.delay
                 // The interface may have become busy during the wait.
                 guard !Task.isCancelled, activity == .idle else { continue }
-                show(plan.state)
-                try? await sleep(0.28)
-                guard !Task.isCancelled, activity == .idle else { return }
-                show(.resting)
+                for beat in plan.action.beats(returningTo: .resting) {
+                    show(beat.state)
+                    guard beat.hold > 0 else { continue }
+                    try? await sleep(beat.hold)
+                    guard !Task.isCancelled, activity == .idle else { return }
+                }
                 sinceLastAction = 0
             }
         }

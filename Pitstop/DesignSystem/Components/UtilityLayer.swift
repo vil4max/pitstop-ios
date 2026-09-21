@@ -7,8 +7,6 @@ struct UtilityLayer: View {
     let onPit: () -> Void
     var pitState: PitState = .resting
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
     var body: some View {
         GlassEffectContainer {
             HStack {
@@ -27,8 +25,8 @@ struct UtilityLayer: View {
                 Spacer()
 
                 Button(action: onPit) {
+                    // The glyph animates itself and drops animation with Reduce Motion.
                     PitEyesGlyph(state: pitState)
-                        .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: pitState)
                         .frame(width: DesignTokens.utilityButtonSize, height: DesignTokens.utilityButtonSize)
                         .contentShape(.circle)
                 }

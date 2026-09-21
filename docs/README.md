@@ -76,6 +76,7 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0017-first-question-current-mileage.md` — first Pit question: current mileage when stale or unknown, relevance gate, answer through `recordOdometerReading`
 - `decisions/0018-attention-cooldown-and-return.md` — declared return after answer, deferral, and dismissal; answers hold for their interval, relevance decides after it; asking reopens a question
 - `decisions/0019-pit-activity-reporting.md` — surfaces report scrolling, editing, and editor sheets to Pit as a union of per-source reports; motion audit of `PitState` against accepted behaviour
+- `decisions/0028-pit-eyes-and-motion.md` — PIT-MOTION-001: livelier Pit eyes (lids, highlight parallax, springs, micro-saccades, sheet-only breathing) and every motion-language state wired: double blink, listening blinks, post-input transition, glance and closed eyes after a save, closed eyes on leaving, knock bumps; Reduce Motion mapping; glance outside the sheet deferred
 - `decisions/0011-interpreted-capture-without-a-model.md` — interpreter protocol, rule-based stand-in, confirmation and clarification flow
 - `decisions/0006-capture-confirmation-policy.md` — confirmation outcome table and mutation permit
 - `decisions/0023-remember-intent.md` — `RememberInPitStopIntent`: app-target background intent, in-place `requestChoice` confirmation, unlocked phone only, source `.siri`, temporary storage refused, no retry draft

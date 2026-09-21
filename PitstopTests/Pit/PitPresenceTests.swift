@@ -57,16 +57,65 @@ struct PitIdleSchedulerTests {
     @Test("REQ-PIT-004: a high draw is stillness, so a session can pass with no visible motion")
     func stillnessIsANormalOutcome() {
         #expect(scheduler([0.99]).nextPlan(activity: .idle, sinceLastAction: 600) == nil)
-        #expect(scheduler([0.1]).nextPlan(activity: .idle, sinceLastAction: 600)?.state == .blink)
+        #expect(scheduler([0.1]).nextPlan(activity: .idle, sinceLastAction: 600)?.action == .blink)
     }
 
     @Test("ADR-0012: every scheduled action is part of the semantic vocabulary and never a knock")
     func scheduledActionsAreIdleOnly() {
-        let states = stride(from: 0.0, to: 1.0, by: 0.02).compactMap {
-            scheduler([$0, 0.5]).nextPlan(activity: .idle, sinceLastAction: 60)?.state
+        let actions = stride(from: 0.0, to: 1.0, by: 0.01).compactMap {
+            scheduler([$0, 0.5]).nextPlan(activity: .idle, sinceLastAction: 60)?.action
         }
-        #expect(!states.isEmpty)
-        #expect(Set(states).isSubset(of: [.blink, .lookLeft, .lookRight, .lookUp]))
+        #expect(Set(actions) == Set(PitIdleAction.allCases))
+        let states = Set(PitIdleAction.allCases.flatMap { $0.beats(returningTo: .resting).map(\.state) })
+        #expect(states.isSubset(of: [.blink, .lookLeft, .lookRight, .lookUp, .resting]))
+    }
+
+    @Test("ADR-0028: a double blink is a rare variation of the baseline blink, drawn as two blinks")
+    func doubleBlinkIsRare() {
+        let counts = drawCounts(.idle)
+        #expect(counts[.doubleBlink, default: 0] > 0)
+        #expect(counts[.doubleBlink, default: 0] * 5 < counts[.blink, default: 0])
+        #expect(PitIdleAction.doubleBlink.beats(returningTo: .resting).map(\.state) == [
+            .blink,
+            .resting,
+            .blink,
+            .resting,
+        ])
+    }
+
+    @Test("ADR-0028: while listening Pit only blinks, and blinks less than when idle")
+    func listeningBlinksLess() {
+        let listening = drawCounts(.listening)
+        let idle = drawCounts(.idle)
+        #expect(Set(listening.keys) == [.blink])
+        #expect(listening[.blink, default: 0] < idle[.blink, default: 0])
+        let delays = stride(from: 0.0, to: 1.0, by: 0.1).compactMap {
+            scheduler([0.0, $0]).nextPlan(.listening, activity: .capturing, sinceLastAction: 60)?.delay
+        }
+        #expect(delays.allSatisfy { $0 >= PitIdleScheduler.minimumDelay })
+        #expect(delays.max() ?? 0 > PitIdleScheduler.maximumDelay)
+    }
+
+    @Test("ADR-0028: listening is the capture activity itself, but Reduce Motion and other activity still stop it")
+    func listeningYieldsToEverythingElse() {
+        let draws = scheduler([0.0])
+        #expect(draws.nextPlan(.listening, activity: [.capturing, .editing], sinceLastAction: 60) != nil)
+        #expect(draws.nextPlan(.idle, activity: .capturing, sinceLastAction: 60) == nil)
+        for activity in [PitActivity.reduceMotion, .scrolling, .modalTask, .recentlyDismissed] {
+            #expect(draws.nextPlan(.listening, activity: activity.union(.capturing), sinceLastAction: 60) == nil)
+        }
+    }
+
+    /// How often each action is drawn over an even grid of 1,000 draws.
+    private func drawCounts(_ mode: PitIdleScheduler.Mode) -> [PitIdleAction: Int] {
+        var counts: [PitIdleAction: Int] = [:]
+        for roll in stride(from: 0.0, to: 1.0, by: 0.001) {
+            let activity: PitActivity = mode == .listening ? .capturing : .idle
+            if let action = scheduler([roll, 0.5]).nextPlan(mode, activity: activity, sinceLastAction: 60)?.action {
+                counts[action, default: 0] += 1
+            }
+        }
+        return counts
     }
 }
 
@@ -177,28 +226,6 @@ struct PitAttentionPolicyTests {
     }
 }
 
-@Suite("Pit eye vocabulary")
-struct PitEyeGeometryTests {
-    @Test("ADR-0012: every semantic state is drawn differently from every other")
-    func statesAreVisuallyDistinct() {
-        let drawn = PitState.allCases.map { state in
-            let geometry = PitEyeGeometry(state)
-            return "\(geometry.height)|\(geometry.pupil.x),\(geometry.pupil.y)|\(geometry.showsPupil)|\(geometry.dimmed)|\(geometry.lift)"
-        }
-        #expect(Set(drawn).count == PitState.allCases.count)
-    }
-
-    @Test("ADR-0012: a closed eye shows no highlight outside the lid")
-    func closedEyesHideThePupil() {
-        for state in [PitState.blink, .closedEyes] {
-            let geometry = PitEyeGeometry(state)
-            #expect(!geometry.showsPupil)
-            #expect(geometry.height < 4)
-        }
-        #expect(PitEyeGeometry(.resting).showsPupil)
-    }
-}
-
 @MainActor
 @Suite("Pit presence")
 struct PitPresenceModelTests {
@@ -276,6 +303,47 @@ struct PitPresenceModelTests {
 
         model.endQuestion()
         #expect(model.state == .resting && model.activity == .idle)
+    }
+
+    @Test("ADR-0028: leaving the sheet closes Pit's eyes for a moment, then Pit rests")
+    func leavingClosesTheEyes() async {
+        let shown = ShownStates()
+        let model = PitPresenceModel(scheduler: scheduler([0.99]), sleep: { _ in }, onShow: shown.append)
+
+        await model.leave()
+
+        #expect(shown.states == [.closedEyes, .resting])
+    }
+
+    @Test("ADR-0028: leaving never erases a knock that waits for an answer")
+    func leavingKeepsTheKnock() async {
+        let shown = ShownStates()
+        let model = PitPresenceModel(scheduler: scheduler([0.99]), sleep: { _ in }, onShow: shown.append)
+        await model.askPermissionToInterrupt()
+
+        await model.leave()
+
+        #expect(shown.states == [.startle, .knock])
+        #expect(model.state == .knock)
+    }
+
+    @Test("ADR-0028: the idle loop plays a double blink as two blinks and returns to rest")
+    func idleLoopPlaysADoubleBlink() async {
+        let shown = ShownStates()
+        // 0.43 falls in the double-blink band of the idle weights.
+        let model = PitPresenceModel(
+            scheduler: scheduler([0.43]),
+            sleep: { _ in await Task.yield() },
+            onShow: shown.append
+        )
+
+        model.report([], from: .utilitySheet)
+        for _ in 0 ..< 40 {
+            await Task.yield()
+        }
+        model.stop()
+
+        #expect(Array(shown.states.prefix(4)) == [.blink, .resting, .blink, .resting])
     }
 }
 

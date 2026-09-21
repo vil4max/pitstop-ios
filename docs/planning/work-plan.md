@@ -81,6 +81,8 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
   (ADR 0007–0010, 0020).
 - M4 Remember: CAP-001…007 (ADR 0006, 0011, 0015, 0027).
 - Progressive discovery: DISC-001…004 (ADR 0012, 0016–0019).
+- Pit motion: PIT-MOTION-001, livelier eyes and the full motion language
+  (owner request 2026-09-21, ADR 0028).
 - System capture: SYS-001…006 (ADR 0023–0026).
 - Analytics: ENG-002, ANL-001 (ADR 0021, 0022); maintenance intelligence
   investigation MNT-INT-001.

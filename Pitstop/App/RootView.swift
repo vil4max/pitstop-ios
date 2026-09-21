@@ -118,6 +118,8 @@ struct RootView: View {
             if wasPit, !isPit {
                 pitCapture.cancel()
                 pitQuestion.acknowledge()
+                // Pit leaves the sheet: its eyes close for a moment in the utility layer (ADR 0028).
+                Task { await pit.leave() }
             }
         }
         // Pit may interrupt only where the question belongs and only once the user has settled there
