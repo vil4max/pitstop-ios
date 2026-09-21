@@ -1,16 +1,15 @@
 # pitstop-ios — notes for AI agents
 
 <!-- repository-visibility-policy -->
-Repository visibility: **PRIVATE**.
+Repository visibility: **PUBLIC**.
 
 ## Data handling
 
-Task-relevant sensitive data may be processed and retained within this
-repository's documented scope and protected zones. Private visibility does not
-authorize public export or disclosure to other repositories or recipients.
-Verify current visibility before adding sensitive data; use public-safe handling
-when visibility is unknown. Never commit credentials, tokens, passwords,
-session data, or private keys.
+Everything committed here is public, including history, commit messages,
+issues, and pull requests. Never add real vehicle data (VIN, plates, policy
+numbers, payments), personal or financial details, or personal plans; use
+fictional examples. The kit private-data scan runs before every push. Never
+commit credentials, tokens, passwords, session data, or private keys.
 <!-- /repository-visibility-policy -->
 
 **Project context:** `personal` — local marker: `.agents/project-context.yaml`.
@@ -30,9 +29,9 @@ the installed `Tooling/` slice from `ios-agent-toolchain`.
 - Simulator and gate settings: `Tooling/runtime.yml`.
 - Environment: `just doctor --json`.
 - Local implementation gate: `just verify`.
-- CI: shared Runtime pipeline (ADR 0013). Once the owner enables Actions and
-  registers the self-hosted runner, a push to `main` runs tests and builds
-  nothing; until then a push runs nothing. Local `just verify` is the gate.
+- CI: shared Runtime pipeline (ADR 0013). A push to `main` runs tests on
+  GitHub-hosted runners (public repository, ADR 0014) and builds nothing.
+  Local `just verify` is the gate.
 - TestFlight: an agent may create and push a `tf-` tag only after
   `just tf-check` prints `Ready` for a commit on `origin/main`. `v` tags and
   App Review submission are owner-only. Procedure: `Tooling/docs/testflight.md`.

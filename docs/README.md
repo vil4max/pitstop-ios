@@ -69,7 +69,8 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0008-road-projection-rules.md` — INV-ROAD-001…004 outcomes: horizon, mixed dimensions, clustering, return to now
 - `decisions/0007-persistence.md` — SwiftData behind a command-only store, schema rules
 - `decisions/0012-pit-presence-and-attention.md` — Pit motion vocabulary, idle drawing, interruption budget
-- `decisions/0013-shared-ci-and-tag-gated-testflight.md` — shared CI on a self-hosted runner, tag-gated TestFlight, tag authority
+- `decisions/0013-shared-ci-and-tag-gated-testflight.md` — shared CI, tag-gated TestFlight, tag authority
+- `decisions/0014-public-repository.md` — public visibility, hosted runners, history rewrite
 - `decisions/0011-interpreted-capture-without-a-model.md` — interpreter protocol, rule-based stand-in, confirmation and clarification flow
 - `decisions/0006-capture-confirmation-policy.md` — confirmation outcome table and mutation permit
 - `decisions/0005-toolchain-and-project-format.md` — Swift 6, iOS 27, file-system-synchronized project

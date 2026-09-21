@@ -186,9 +186,8 @@ a completed gate on unchanged contents solely for another workflow stage.
 ## Local verification
 
 The local Runtime gate is the implementation gate. GitHub Actions runs the
-shared Runtime pipeline on a self-hosted runner on the owner's Mac (no hosted
-macOS minutes) once the owner has completed the setup in ADR 0013; a push to
-`main` then only runs tests
+shared Runtime pipeline on GitHub-hosted runners, free for a public repository
+(ADR 0013, ADR 0014); a push to `main` only runs tests
 ([ADR 0013](../decisions/0013-shared-ci-and-tag-gated-testflight.md)). A green
 hosted run is additional evidence, not a substitute. Use `just verify` for app implementation and record the command, result, and
 reviewed revision in the PR. Use proportional diff/link/config checks for
@@ -233,8 +232,7 @@ fixture; - sample method.
 
 The ruleset JSON is a proposal, not evidence of active GitHub protection.
 It may protect history and require a PR where the account supports rulesets,
-but must not require a hosted check until the self-hosted runner is registered
-and reliable. A solo project
+but must not require a hosted check until the hosted tests run has proven reliable. A solo project
 does not need an extra approval ritual without a concrete review benefit.
 
 ## Quality Definition of Done addition

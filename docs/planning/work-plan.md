@@ -22,7 +22,7 @@ Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
 
 M0/M1 completion records are historical. ENG-003 is reopened for the current
 agent-loop setup. Hosted CI was retired and later replaced by the shared Runtime pipeline on a
-self-hosted runner (ADR 0013); branch protection remains a proposal, not an
+GitHub-hosted runners (ADR 0013, 0014); branch protection remains a proposal, not an
 active guarantee.
 
 ## Feature readiness vs milestone completion
@@ -68,7 +68,7 @@ in M4; raw preservation is both a normal Remember mode and the safe fallback.
 | WIP | Max 1 issue **In progress** on board |
 
 Implementation verification: local `just verify` (formatting, lint, build, tests).
-GitHub Actions adds a tests run on a self-hosted runner once set up (ADR 0013).
+GitHub Actions adds a tests run on GitHub-hosted runners (ADR 0014).
 See `../engineering/quality-and-ci.md`.
 
 ## Phase 0 — Product contracts

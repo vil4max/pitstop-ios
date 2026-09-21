@@ -1,6 +1,7 @@
 # Shared CI and Tag-Gated TestFlight
 
-**Status:** Accepted (owner decision, 2026-09-21)\
+**Status:** Accepted (owner decision, 2026-09-21); the runner choice is
+superseded by [ADR 0014](0014-public-repository.md)\
 **Supersedes:** the "GitHub Actions is disabled" policy in
 [`../engineering/quality-and-ci.md`](../engineering/quality-and-ci.md)\
 **Contracts:** [`../../Tooling/docs/ci.md`](../../Tooling/docs/ci.md),
