@@ -110,6 +110,31 @@ ictool="/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents
 Renditions: `Default`, `Dark`, `ClearLight`, `ClearDark`, `TintedLight`,
 `TintedDark`.
 
+### Launch screen
+
+The launch storyboard no longer shows the old "P" artwork (`pitstop-launch.png`,
+now deleted) on a navy field. It is a plain view whose background is the
+system colour `systemGroupedBackground`, the same colour as `surfacePrimary`
+behind Car Board, so it follows light and dark mode without an asset. It
+carries no image, no text and no constraints.
+
+[Human Interface Guidelines, Launching](https://developer.apple.com/design/human-interface-guidelines/launching)
+says the launch screen is not a branding opportunity: make it nearly identical
+to the first screen, show only a solid colour if the app starts with one, avoid
+text, match the appearance mode, and include logos only when they are a fixed
+part of the first screen. Pit's eyes are on Car Board, but only as the small
+animated glyph inside the Liquid Glass button of the utility layer; a static
+storyboard cannot draw that glass control, so any eyes mark would look
+different from the first frame and flash. The brand match with the icon is
+carried by the icon itself and by the glyph once the app is running.
+
+Rejected: a centred eyes mark on the background colour (a splash logo the HIG
+advises against, and a jump when Car Board replaces it); an eyes imageset at
+the utility-layer position (without the glass circle it does not match the
+first frame, and its position depends on the device's safe-area insets);
+a launch colour asset (it would duplicate a system colour that is
+already dynamic).
+
 ## Verified
 
 - `ictool` renders of all six appearances, and 120, 60 and 40 px downscales on
@@ -124,6 +149,9 @@ Renditions: `Default`, `Dark`, `ClearLight`, `ClearDark`, `TintedLight`,
   simulator's Home Screen icon style did not follow `simctl ui appearance
   dark`, and it could not be switched headlessly, so the dark, clear and
   tinted appearances on a Home Screen are checked only through `ictool`.
+- Launch screen on the iPhone 17 simulator (iOS 27), fresh install, light and
+  dark: the launch frame is a solid #F2F2F7 in light and #000000 in dark, the
+  same pixels as Car Board's background in its first frame, with no flash.
 
 ## Rejected alternatives
 

@@ -85,6 +85,8 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
   (owner request 2026-09-21, ADR 0028).
 - App icon: ICON-001, Pit's eyes as a Liquid Glass Icon Composer icon
   (owner decision 2026-09-21, ADR 0029).
+- Launch screen: the old "P" artwork replaced by Car Board's plain grouped
+  background, per HIG "Launching" (ADR 0029, "Launch screen").
 - System capture: SYS-001…006 (ADR 0023–0026).
 - Analytics: ENG-002, ANL-001 (ADR 0021, 0022); maintenance intelligence
   investigation MNT-INT-001.
