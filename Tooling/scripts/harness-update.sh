@@ -18,6 +18,18 @@ CURRENT="missing"
 if [[ -f "$APP_ROOT/Tooling/.runtime-lock" ]]; then
   CURRENT="$(tr -d '[:space:]' <"$APP_ROOT/Tooling/.runtime-lock")"
 fi
+# Install only committed Runtime content. Another session's work in progress in the
+# Runtime checkout would otherwise land in the app, and the app's commit could not
+# say which Runtime it carries.
+if git -C "$RUNTIME_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+  dirty="$(git -C "$RUNTIME_ROOT" status --porcelain -- Brewfile runtime.manifest.json backend scripts templates docs)"
+  if [[ -n "$dirty" ]]; then
+    echo "Runtime checkout has uncommitted changes; not installing work in progress:" >&2
+    echo "$dirty" | sed 's/^/  /' >&2
+    exit 1
+  fi
+  echo "Source Runtime       $(git -C "$RUNTIME_ROOT" log -1 --format='%h %s')"
+fi
 LATEST="$("$RUNTIME_ROOT/scripts/runtime-lock.sh" "$RUNTIME_ROOT")"
 
 echo "Current Runtime lock ${CURRENT:0:12}"

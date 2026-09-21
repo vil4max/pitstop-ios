@@ -4,8 +4,10 @@ name: Tests
 # unchanged: the file is identical in every app. Per-app settings are repository
 # variables, and per-app CI work is the app's own `just ci` recipe.
 #
-#   IOS_RUNNER         runner label (default xcode-27, GitHub-hosted); a private
-#                      repository uses "self-hosted" to avoid billed macOS minutes
+#   IOS_RUNNER         runner label. Unset: GitHub-hosted xcode-27 for a public
+#                      repository and "self-hosted" for a private one, so a
+#                      private repository never falls onto billed macOS minutes
+#                      (a job waits for the runner instead)
 #   IOS_DEVELOPER_DIR  Xcode to use (default the image's versioned Xcode_27.0)
 #   SONAR_ENABLED      "true" adds the Sonar job; the app's `just ci` writes
 #                      build/ci/sonar/coverage.xml and the repo has SONAR_TOKEN
@@ -32,7 +34,7 @@ concurrency:
 jobs:
   ci:
     name: just ci
-    runs-on: ${{ vars.IOS_RUNNER || 'xcode-27' }}
+    runs-on: ${{ vars.IOS_RUNNER || (github.event.repository.private && 'self-hosted' || 'xcode-27') }}
     timeout-minutes: 45
     env:
       # The versioned path fails loudly if the image changes its default Xcode,

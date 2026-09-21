@@ -24,7 +24,7 @@ keeping manual uploads.
   repository variable, never the workflow text, so a fix in the Runtime reaches
   this app through `just harness-update` and a fresh copy.
 - The repository is private, so the tests job runs on a **self-hosted runner on
-  the owner's Mac** (`IOS_RUNNER=self-hosted`). Hosted macOS minutes are billed
+  the owner's Mac** (the default label for a private repository). Hosted macOS minutes are billed
   at ten times the Linux rate; the self-hosted runner shares the machine-wide
   build slots with local sessions.
 - A push to `main` runs tests and builds nothing. A TestFlight build is
@@ -63,10 +63,12 @@ keeping manual uploads.
 ## Owner setup (outside the repository)
 
 Until these are done, a push runs nothing and a `tf-` tag cannot pass the gate.
-The order matters: with Actions enabled and `IOS_RUNNER` unset, a push runs on
-the default GitHub-hosted macOS image, which is billed.
+Since Runtime 39e7b64 the tests workflow defaults a private repository to the
+`self-hosted` label, so a push without a runner waits instead of landing on a
+billed GitHub-hosted macOS image; `IOS_RUNNER` is needed only to override that.
 
-1. Register the self-hosted runner and set `IOS_RUNNER=self-hosted`,
+1. Register the self-hosted runner (done 2026-09-21: `MacBook-Maxim-pitstop`,
+   service in `~/actions-runner/pitstop-ios`) and set
    `IOS_DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`
    (`Tooling/docs/ci.md`, "Self-hosted runner on this Mac").
 2. Enable GitHub Actions for the repository.

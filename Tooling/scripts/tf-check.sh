@@ -42,6 +42,10 @@ versions="$(marketing_versions "$sha")"
 version="$(head -1 <<<"$versions")"
 if [[ -z "$version" ]]; then
   blocks "no MARKETING_VERSION in $(pbxproj_at "$sha")"
+elif [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  # tf-promote.sh accepts only tf-MAJOR.MINOR.PATCH-BUILD, so a Ready here would
+  # produce a pushed tag the workflow rejects and someone has to delete.
+  blocks "MARKETING_VERSION $version is not MAJOR.MINOR.PATCH (use for example ${version}.0)"
 elif [[ "$(wc -l <<<"$versions")" -eq 1 ]]; then
   ok "MARKETING_VERSION $version in every target and configuration"
 else
