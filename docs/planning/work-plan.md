@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** SYS-001 (ANL-001 implemented over HTTP without the SDK, ADR 0022; a PostHog project and key are owner actions; CAP-005 needs a physical device for the Foundation Models spike)  
+**Next task:** SYS-002 (SYS-001 investigated, see [`investigations/sys-001-app-intents.md`](investigations/sys-001-app-intents.md); owner questions 1–4 there shape SYS-002; a PostHog project and key are owner actions; CAP-005 needs a physical device for the Foundation Models spike)  
 **Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
 **Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -144,7 +144,7 @@ See `../engineering/quality-and-ci.md`.
 
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
-| SYS-001 | App Intent investigation | 1d | CAP-007 | tracked | #30 |
+| SYS-001 | App Intent investigation | 1d | CAP-007 | investigated (see [`investigations/sys-001-app-intents.md`](investigations/sys-001-app-intents.md)); owner decisions pending | #30 |
 | SYS-002 | RememberInPitStopIntent | 2d | SYS-001 | tracked | #31 |
 | SYS-003 | App Shortcut | 1d | CAP-007 | tracked | #32 |
 | SYS-004 | Widget investigation | 1d | CAP-007 | tracked | #33 |

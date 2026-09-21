@@ -121,6 +121,9 @@ Goal: minimise friction without unsafe mutation.
 
 Question: Can system capture feel materially faster than opening the app?
 
+Siri part scoped by SYS-001: measure cold background launch to reply time on
+a device in SYS-006.
+
 ### INV-CAP-004 Microphone activation constraints
 
 Investigate widget/deep-link-to-capture platform constraints.
@@ -224,6 +227,22 @@ its own file because it cites external sources and proposes follow-up tasks.
 ## System investigations
 
 ### INV-SYS-001 App Intents phrase UX
+
+Partly addressed by SYS-001
+([`investigations/sys-001-app-intents.md`](investigations/sys-001-app-intents.md)):
+phrases need the app name, cannot carry free text, and are localized through
+an `AppShortcuts` String Catalog; Russian and Ukrainian phrase recognition
+needs a device check (SYS-006).
+
+### SYS-001 App Intent investigation
+
+Question: Under which platform constraints can `RememberInPitStopIntent`
+feed the one capture pipeline, and how are confirmation, cancellation, and
+time limits handled?
+
+Record: [`investigations/sys-001-app-intents.md`](investigations/sys-001-app-intents.md)
+(investigated 2026-09-21; owner decisions pending). The full record lives in
+its own file because it cites Apple documentation and specifies SYS-002.
 
 ### INV-SYS-002 Action Button applicability
 
