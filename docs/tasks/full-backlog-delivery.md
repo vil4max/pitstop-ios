@@ -68,12 +68,15 @@ nothing lands on `main` without owner authorization.
 | CAP-002 | `CAP-002/proposal-confirmation` | committed | `just verify` passed; independent review: 7 + 4 + 1 findings repaired over three rounds (two of them crashes); ADR 0011 |
 | CAP-003 | `CAP-003/pit-eyes` | committed | `just verify` passed; simulator: 40 sampled frames of the Pit control, 39 identical and 1 transient (rare idle motion, as designed); independent review: 2 high + 4 medium + 3 low, then 3 medium + 2 low, then 1 low, all repaired; ADR 0012 |
 | CAP-004 | `CAP-004/pit-capture` | committed | `just verify` passed; simulator (tap-free `-pitstop-pit`): a completion stops at confirmation showing the operation and mileage, a thought is saved as written with a link to Notes; independent review: 2 high + 3 medium, then 1 medium + 1 low, then no findings |
-| — | TestFlight | blocked | candidate 1.0 (202609211) at 1ddfbfd; Release builds unsigned; archive fails with "No Accounts" in xcodebuild — owner sign-in to Xcode needed |
+| — | TestFlight | uploaded | 1.0 (202609211) built from e11d469, signed with team BTHRDS7254, uploaded 2026-09-21 to the App Store Connect record "PitStop: Car Journal" (`dev.vil4max.pitstop`); `just release --check` passed first. Symbols were not uploaded: Release uses `DEBUG_INFORMATION_FORMAT = dwarf`, so the archive has no dSYM |
 
 ## Open for owner
 
 - Proposed contract additions awaiting approval: the `capture_discarded`
   pipeline stage (ADR 0006).
+- Release builds produce no dSYM (`DEBUG_INFORMATION_FORMAT = dwarf`), so
+  TestFlight crash reports will not be symbolicated. Switching Release to
+  `dwarf-with-dsym` is a one-line project change; not done yet.
 - Runtime and kit updates published 2026-09-21 that this repository has not
   taken: `simulator.udid` in a gitignored `Tooling/runtime.local.yml` would
   reserve the dedicated simulator instead of sharing `iPhone 17`, and the
