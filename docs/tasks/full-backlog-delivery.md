@@ -68,6 +68,7 @@ nothing lands on `main` without owner authorization.
 | CAP-002 | `CAP-002/proposal-confirmation` | committed | `just verify` passed; independent review: 7 + 4 + 1 findings repaired over three rounds (two of them crashes); ADR 0011 |
 | CAP-003 | `CAP-003/pit-eyes` | committed | `just verify` passed; simulator: 40 sampled frames of the Pit control, 39 identical and 1 transient (rare idle motion, as designed); independent review: 2 high + 4 medium + 3 low, then 3 medium + 2 low, then 1 low, all repaired; ADR 0012 |
 | CAP-004 | `CAP-004/pit-capture` | committed | `just verify` passed; simulator (tap-free `-pitstop-pit`): a completion stops at confirmation showing the operation and mileage, a thought is saved as written with a link to Notes; independent review: 2 high + 3 medium, then 1 medium + 1 low, then no findings |
+| CAP-006 | `main` (8c498e9) | committed | `just verify` passed; `RawFallbackTests` covers hung, timely and throwing interpreters and both cancellation paths; with the write guard disabled both REQ-CAPTURE-005 tests failed; independent review: 5 low findings, all fixed; no simulator smoke (no hang or cancellation is reachable from the UI yet) |
 | — | TestFlight | uploaded | 1.0 (202609211) built from e11d469, signed with team BTHRDS7254, uploaded 2026-09-21 to the App Store Connect record "PitStop: Car Journal" (`dev.vil4max.pitstop`); `just release --check` passed first. Symbols were not uploaded: Release uses `DEBUG_INFORMATION_FORMAT = dwarf`, so the archive has no dSYM |
 
 ## Open for owner
