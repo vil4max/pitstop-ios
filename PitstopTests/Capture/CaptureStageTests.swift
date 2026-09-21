@@ -4,19 +4,6 @@ import Testing
 
 private let now = DomainFixtures.Odometers.baseDate
 
-private final class StageSpy: CaptureStageObserving, @unchecked Sendable {
-    private let lock = NSLock()
-    private var recorded: [CaptureStageEvent] = []
-
-    var events: [CaptureStageEvent] {
-        lock.withLock { recorded }
-    }
-
-    func record(_ event: CaptureStageEvent) {
-        lock.withLock { recorded.append(event) }
-    }
-}
-
 @Suite("Capture pipeline observability")
 struct CaptureStageTests {
     private let secret = "VIN WVWZZZ3HZKE012345, стук справа, 84200 км"

@@ -50,7 +50,7 @@ implemented yet.
 | Concept | Layer | Mutates state | Code (`main`) |
 |---|---|---|---|
 | CaptureInput | Input contract | No | `CaptureInput` |
-| SemanticInterpreter | Optional interpreted-mode adapter | No | — |
+| SemanticInterpreter | Optional interpreted-mode adapter | No | `SemanticInterpreting`, `RuleBasedInterpreter`, `NoSemanticInterpreter` (CAP-002, ADR 0011) |
 | MemoryProposal | Raw-preservation or interpreted draft | No | `MemoryProposal` |
 | ProposalValidator | Deterministic validation | No | `ProposalValidator` |
 | ConfirmationPolicy | Risk-based outcome | No | `ConfirmationPolicy` + `MutationPermit` |

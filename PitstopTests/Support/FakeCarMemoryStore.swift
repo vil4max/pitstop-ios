@@ -110,11 +110,21 @@ actor FakeCarMemoryStore: CarMemoryStore {
             guard !readings.contains(where: { $0.id == record.reading.id }) else { throw .duplicateRecord }
             readings.append(record.reading)
             return .readingRecorded(record.reading)
+        default:
+            return try applyToCar(command)
+        }
+    }
+
+    /// The rest of the same switch. Split only to stay under the complexity the project lints for.
+    private func applyToCar(_ command: DomainCommand) throws(CarMemoryStoreError) -> CommandResult {
+        switch command {
         case let .recordVehicleFact(record):
             guard record.vehicleID == vehicle.id else { throw .unknownVehicle }
             vehicle = vehicle.applying(record.fact)
             return .vehicleUpdated(vehicle)
         case let .confirmMaintenanceCompletion(confirm):
+            // A known record ID is rejected, exactly as the real store rejects it.
+            guard !completions.contains(where: { $0.id == confirm.completion.id }) else { throw .duplicateRecord }
             completions.append(confirm.completion)
             return .completionConfirmed(confirm.completion)
         case let .revokeMaintenanceCompletion(revoke):
@@ -127,8 +137,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
             policies.append(set.policy)
             return .policySet(set.policy)
         case let .recordVehicleEvent(record):
-            events.append(record.event)
-            return .eventRecorded(record.event)
+            return try insertEvent(record.event)
         case let .correctVehicleEvent(correct):
             guard let index = events.firstIndex(where: { $0.id == correct.event.id }),
                   events[index].vehicleID == correct.event.vehicleID
@@ -136,9 +145,16 @@ actor FakeCarMemoryStore: CarMemoryStore {
             events[index] = correct.event
             return .eventCorrected(correct.event)
         case let .recordExpense(record):
-            events.append(record.event)
-            return .eventRecorded(record.event)
+            return try insertEvent(record.event)
+        default:
+            throw .storageFailure
         }
+    }
+
+    private func insertEvent(_ event: HistoryEvent) throws(CarMemoryStoreError) -> CommandResult {
+        guard !events.contains(where: { $0.id == event.id }) else { throw .duplicateRecord }
+        events.append(event)
+        return .eventRecorded(event)
     }
 
     private func check() throws(CarMemoryStoreError) {

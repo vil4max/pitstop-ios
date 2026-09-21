@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** CAP-002 (CAP-001 implemented; M3 scope CB-001…007 implemented; INV-ROAD decided in ADR 0008; DOM-003 and ENG-004 are implemented on stacked branches, not yet on `main`)  
+**Next task:** CAP-003 (CAP-002 implemented; M3 scope CB-001…007 implemented; INV-ROAD decided in ADR 0008; DOM-003 and ENG-004 are implemented on stacked branches, not yet on `main`)  
 **Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
 **Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -122,7 +122,7 @@ Hosted checks are disabled. See `../engineering/quality-and-ci.md`.
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
 | CAP-001 | CaptureInput boundary | 2d | DOM-003 | implemented on branch, unmerged | #19 |
-| CAP-002 | Proposal + confirmation | 3d | CAP-001 | tracked | #20 |
+| CAP-002 | Proposal + confirmation | 3d | CAP-001 | implemented on branch, unmerged | #20 |
 | CAP-003 | Pit Eyes affordance | 2d | CB-002 | tracked | #21 |
 | CAP-004 | Pit Capture Surface | 3d | CAP-001, CAP-003 | tracked | #22 |
 | CAP-005 | FM interpreter spike (RU) | 5d | CAP-002 | tracked | #23 |
