@@ -10,6 +10,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
     private(set) var events: [HistoryEvent] = []
     private(set) var policies: [MaintenancePolicy] = []
     private(set) var completions: [MaintenanceCompletion] = []
+    private(set) var planned: [PlannedDatedEvent] = []
     private(set) var executed: [DomainCommand] = []
     private var failure: CarMemoryStoreError?
     private var failsReadings = false
@@ -68,6 +69,11 @@ actor FakeCarMemoryStore: CarMemoryStore {
         return completions
     }
 
+    func plannedEvents() throws(CarMemoryStoreError) -> [PlannedDatedEvent] {
+        try check()
+        return planned.sorted { ($0.date, $0.createdAt) < ($1.date, $1.createdAt) }
+    }
+
     func execute(_ command: DomainCommand, now: Date) throws(CarMemoryStoreError) -> CommandResult {
         try check()
         guard !failsCommands else { throw .storageFailure }
@@ -111,12 +117,12 @@ actor FakeCarMemoryStore: CarMemoryStore {
             readings.append(record.reading)
             return .readingRecorded(record.reading)
         default:
-            return try applyToCar(command)
+            return try applyToCar(command, now: now)
         }
     }
 
     /// The rest of the same switch. Split only to stay under the complexity the project lints for.
-    private func applyToCar(_ command: DomainCommand) throws(CarMemoryStoreError) -> CommandResult {
+    private func applyToCar(_ command: DomainCommand, now: Date) throws(CarMemoryStoreError) -> CommandResult {
         switch command {
         case let .recordVehicleFact(record):
             guard record.vehicleID == vehicle.id else { throw .unknownVehicle }
@@ -155,8 +161,47 @@ actor FakeCarMemoryStore: CarMemoryStore {
         case let .recordExpense(record):
             return try insertEvent(record.event)
         default:
+            return try applyPlanned(command, now: now)
+        }
+    }
+
+    /// Planned dates, with the real store's vehicle, duplicate, and one-insurance checks (ADR 0032).
+    private func applyPlanned(_ command: DomainCommand, now: Date) throws(CarMemoryStoreError) -> CommandResult {
+        switch command {
+        case let .addPlannedEvent(add):
+            guard add.event.vehicleID == vehicle.id else { throw .unknownVehicle }
+            guard !planned.contains(where: { $0.id == add.event.id }) else { throw .duplicateRecord }
+            try requireNoOtherInsurance(for: add.event, now: now)
+            planned.append(add.event)
+            return .plannedEventAdded(add.event)
+        case let .updatePlannedEvent(update):
+            guard update.event.vehicleID == vehicle.id else { throw .unknownVehicle }
+            guard let index = planned.firstIndex(where: { $0.id == update.event.id }) else {
+                throw .unknownPlannedEvent
+            }
+            try requireNoOtherInsurance(for: update.event, now: now)
+            let old = planned[index]
+            planned[index] = PlannedDatedEvent(
+                id: old.id, vehicleID: old.vehicleID, kind: update.event.kind, date: update.event.date,
+                createdAt: old.createdAt
+            )
+            return .plannedEventUpdated(planned[index])
+        case let .removePlannedEvent(remove):
+            guard let index = planned.firstIndex(where: { $0.id == remove.eventID }) else {
+                throw .unknownPlannedEvent
+            }
+            return .plannedEventRemoved(planned.remove(at: index))
+        default:
             throw .storageFailure
         }
+    }
+
+    private func requireNoOtherInsurance(for event: PlannedDatedEvent, now: Date) throws(CarMemoryStoreError) {
+        guard event.isInsuranceExpiry else { return }
+        let conflict = planned.contains {
+            $0.id != event.id && $0.vehicleID == event.vehicleID && $0.isInsuranceExpiry && $0.isOnRoad(now: now)
+        }
+        guard !conflict else { throw .insuranceExpiryAlreadyPlanned }
     }
 
     private func insertEvent(_ event: HistoryEvent) throws(CarMemoryStoreError) -> CommandResult {

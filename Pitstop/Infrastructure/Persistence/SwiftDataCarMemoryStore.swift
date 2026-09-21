@@ -2,6 +2,7 @@ import Foundation
 import SwiftData
 
 private typealias Schema1 = PitstopSchemaV1
+private typealias PlannedRecord = PitstopSchemaV3.PlannedVehicleEventRecord
 
 @ModelActor
 actor SwiftDataCarMemoryStore: CarMemoryStore {
@@ -50,6 +51,13 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
         try storage {
             let sort = SortDescriptor(\Schema1.MaintenanceCompletionRecord.performedAt, order: .reverse)
             return try modelContext.fetch(FetchDescriptor(sortBy: [sort])).map(\.domain)
+        }
+    }
+
+    func plannedEvents() throws(CarMemoryStoreError) -> [PlannedDatedEvent] {
+        try storage {
+            let sort = [SortDescriptor(\PlannedRecord.date), SortDescriptor(\PlannedRecord.createdAt)]
+            return try modelContext.fetch(FetchDescriptor(sortBy: sort)).map(\.domain)
         }
     }
 
@@ -135,7 +143,51 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             return try update(correct.event)
         case let .recordExpense(record):
             return try insert(record.event)
+        case let .addPlannedEvent(add):
+            return try insertPlanned(add.event, now: now)
+        case let .updatePlannedEvent(update):
+            return try updatePlanned(update.event, now: now)
+        case let .removePlannedEvent(remove):
+            let matches = try modelContext.fetch(FetchDescriptor(predicate: PlannedRecord.matching(remove.eventID)))
+            guard let record = matches.first else { throw CarMemoryStoreError.unknownPlannedEvent }
+            let removed = record.domain
+            modelContext.delete(record)
+            return .plannedEventRemoved(removed)
         }
+    }
+
+    private func insertPlanned(_ event: PlannedDatedEvent, now: Date) throws -> CommandResult {
+        try requireVehicle(event.vehicleID)
+        try requireNew(PlannedRecord.self, id: event.id)
+        try requireNoOtherInsurance(for: event, now: now)
+        modelContext.insert(PlannedRecord(event))
+        return .plannedEventAdded(event)
+    }
+
+    private func updatePlanned(_ event: PlannedDatedEvent, now: Date) throws -> CommandResult {
+        try requireVehicle(event.vehicleID)
+        let matches = try modelContext.fetch(FetchDescriptor(predicate: PlannedRecord.matching(event.id)))
+        // A correction changes the date of the same plan; it can never move it to another vehicle.
+        guard let record = matches.first, record.vehicleID == event.vehicleID.rawValue else {
+            throw CarMemoryStoreError.unknownPlannedEvent
+        }
+        try requireNoOtherInsurance(for: event, now: now)
+        record.update(from: event)
+        return .plannedEventUpdated(record.domain)
+    }
+
+    /// One insurance expiry on Road per vehicle, so two unnamed "Insurance ends" rows cannot compete; a
+    /// second policy is an `other` date with its own label (ADR 0032). One that has left Road does not count.
+    private func requireNoOtherInsurance(for event: PlannedDatedEvent, now: Date) throws {
+        guard event.isInsuranceExpiry else { return }
+        let vehicle = event.vehicleID.rawValue
+        let id = event.id
+        let kind = PlannedRecord.insuranceExpiryKind
+        let earliest = PlannedEventLimits.earliestDate(now: now)
+        let others = try modelContext.fetchCount(FetchDescriptor<PlannedRecord>(predicate: #Predicate {
+            $0.vehicleID == vehicle && $0.id != id && $0.kind == kind && $0.date >= earliest
+        }))
+        guard others == 0 else { throw CarMemoryStoreError.insuranceExpiryAlreadyPlanned }
     }
 
     private func insert(_ event: HistoryEvent) throws -> CommandResult {

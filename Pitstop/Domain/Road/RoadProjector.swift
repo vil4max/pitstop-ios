@@ -70,7 +70,7 @@ public struct RoadProjector: Sendable {
             return RoadMilestone(
                 subject: .maintenance(state.id), state: .upcoming, dimension: .distance,
                 remainingKm: nil, remainingDays: nil, anchorKm: state.anchorKm, anchorDate: nil,
-                mileageDependency: state.distanceBlock, proximity: .infinity
+                mileageDependency: state.distanceBlock, plannedLabel: nil, proximity: .infinity
             )
         }
         let remainingKm = dimension == .distance ? state.remainingKm : nil
@@ -84,6 +84,7 @@ public struct RoadProjector: Sendable {
             anchorKm: state.anchorKm,
             anchorDate: state.anchorDate,
             mileageDependency: state.distanceBlock,
+            plannedLabel: nil,
             proximity: horizonUnits(km: remainingKm, days: remainingDays)
         )
     }
@@ -92,7 +93,9 @@ public struct RoadProjector: Sendable {
         let remaining = event.date.timeIntervalSince(now) / 86400
         // A passed date stays visible as due for a short grace period, then leaves the road.
         guard remaining >= -Double(RoadRules.plannedGraceDays) else { return nil }
-        let days = Int(remaining.rounded(.towardZero))
+        // A planned date is a day stored as its start, so an unfinished day still to come counts as a whole
+        // one: at 10:00, tomorrow is "1 day left", not "almost" (ADR 0032). Passed days count whole days past.
+        let days = Int(remaining > 0 ? remaining.rounded(.up) : remaining.rounded(.towardZero))
         let state: RoadMilestoneState = if remaining <= 0 {
             .due
         } else if remaining <= Double(RoadRules.horizonDays) * MaintenanceRules.approachFraction {
@@ -109,6 +112,7 @@ public struct RoadProjector: Sendable {
             anchorKm: nil,
             anchorDate: event.date,
             mileageDependency: nil,
+            plannedLabel: event.label,
             proximity: remaining / Double(RoadRules.horizonDays)
         )
     }

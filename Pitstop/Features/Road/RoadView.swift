@@ -6,6 +6,9 @@ struct RoadView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var position: String? = RoadLaneView.carID
+    @State private var editor: PlannedEditorTarget?
+    /// The alert keeps its title while it animates out, after the view model has cleared the failure.
+    @State private var shownFailure: RoadFailure?
 
     var body: some View {
         FeatureScaffold(carName: carName, title: String(localized: "tile.road.title")) {
@@ -25,6 +28,42 @@ struct RoadView: View {
                 if let projection = viewModel.state.projection {
                     content(projection)
                 }
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("road.addDate", systemImage: "calendar.badge.plus") { editor = .new }
+                    .accessibilityIdentifier("road.addDate")
+            }
+        }
+        .pitActivity(
+            .modalTask,
+            while: editor != nil || viewModel.state.deleteCandidate != nil || listFailureBinding.wrappedValue
+        )
+        .plannedEventDeleteConfirmation(viewModel)
+        .alert("road.failure.notSaved", isPresented: listFailureBinding) {
+            Button("common.ok") { viewModel.dismissFailure() }
+        }
+        .sheet(item: $editor) { target in
+            PlannedEventEditorView(
+                draft: target.event.map(viewModel.draft(for:)) ?? viewModel.newDraft(),
+                isNew: target == .new,
+                kinds: viewModel.canChooseInsurance(editing: target.event)
+                    ? PlannedEventDraft.Kind.allCases : [.other],
+                dateRange: viewModel.dateRange(editing: target.event)
+            ) { draft in
+                await viewModel.save(draft, replacing: target.event)
+            }
+            .alert(
+                (viewModel.state.failure ?? shownFailure)?.title ?? "road.failure.notSaved",
+                isPresented: failureBinding
+            ) {
+                Button("common.ok") { viewModel.dismissFailure() }
+            }
+        }
+        .onChange(of: viewModel.state.failure) { _, failure in
+            if let failure {
+                shownFailure = failure
             }
         }
         .task {
@@ -48,6 +87,9 @@ struct RoadView: View {
                 Label("tile.road.empty.headline", systemImage: "road.lanes")
             } description: {
                 Text("tile.road.empty.detail")
+            } actions: {
+                Button("road.addDate") { editor = .new }
+                    .buttonStyle(.borderedProminent)
             }
             .frame(maxWidth: .infinity)
         } else if !projection.slots.isEmpty {
@@ -100,10 +142,42 @@ struct RoadView: View {
         VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
             ForEach(projection.slots) { slot in
                 ForEach(slot.milestones) { milestone in
-                    MilestoneRow(milestone: milestone)
+                    MilestoneRow(
+                        milestone: milestone,
+                        planned: plannedEvent(for: milestone),
+                        onEdit: { editor = .existing($0) },
+                        onDelete: { viewModel.requestDelete($0) }
+                    )
                 }
             }
         }
+    }
+
+    private func plannedEvent(for milestone: RoadMilestone) -> PlannedDatedEvent? {
+        guard case let .planned(_, id) = milestone.subject else { return nil }
+        return viewModel.state.plannedEvent(id: id)
+    }
+
+    private var failureBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.state.failure != nil },
+            set: { isPresented in
+                if !isPresented {
+                    viewModel.dismissFailure()
+                }
+            }
+        )
+    }
+
+    private var listFailureBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.state.listFailure != nil },
+            set: { isPresented in
+                if !isPresented {
+                    viewModel.dismissFailure()
+                }
+            }
+        )
     }
 
     private func waiting(_ milestones: [RoadMilestone]) -> some View {
@@ -116,35 +190,85 @@ struct RoadView: View {
     }
 }
 
+enum PlannedEditorTarget: Identifiable, Equatable {
+    case new
+    case existing(PlannedDatedEvent)
+
+    var id: String {
+        switch self {
+        case .new: "new"
+        case let .existing(event): event.id.uuidString
+        }
+    }
+
+    var event: PlannedDatedEvent? {
+        if case let .existing(event) = self {
+            event
+        } else {
+            nil
+        }
+    }
+}
+
 private struct MilestoneRow: View {
     let milestone: RoadMilestone
+    /// Set for a planned date the owner stated; only those can be edited or deleted here (ADR 0032).
+    var planned: PlannedDatedEvent?
+    var onEdit: (PlannedDatedEvent) -> Void = { _ in }
+    var onDelete: (PlannedDatedEvent) -> Void = { _ in }
 
     var body: some View {
         TileCard(minHeight: 0) {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Image(systemName: milestone.state.systemImage)
-                    .foregroundStyle(milestone.state.color)
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 4) {
-                    milestone.titleText
-                        .font(.headline)
-                        .foregroundStyle(PitColor.contentPrimary)
-                    if milestone.remainingKm != nil || milestone.remainingDays != nil {
-                        Text(milestone.state.label)
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(milestone.state.color)
+                details
+                if let planned {
+                    Spacer(minLength: 0)
+                    Menu("service.more", systemImage: "ellipsis.circle") {
+                        Button("common.edit", systemImage: "pencil") { onEdit(planned) }
+                            .accessibilityIdentifier("road.planned.edit")
+                        Button("road.planned.delete", systemImage: "trash", role: .destructive) {
+                            onDelete(planned)
+                        }
+                        .accessibilityIdentifier("road.planned.delete")
                     }
-                    milestone.distanceText
+                    .labelStyle(.iconOnly)
+                    .font(.subheadline)
+                }
+            }
+        }
+    }
+
+    /// The text reads as one element; for a planned date the same actions are offered to VoiceOver on it.
+    private var details: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Image(systemName: milestone.state.systemImage)
+                .foregroundStyle(milestone.state.color)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                milestone.titleText
+                    .font(.headline)
+                    .foregroundStyle(PitColor.contentPrimary)
+                if milestone.remainingKm != nil || milestone.remainingDays != nil {
+                    Text(milestone.state.label)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(milestone.state.color)
+                }
+                milestone.distanceText
+                    .font(.footnote)
+                    .foregroundStyle(PitColor.contentSecondary)
+                if milestone.mileageDependency != nil, milestone.remainingDays != nil {
+                    Text("road.milestone.byDateOnly")
                         .font(.footnote)
                         .foregroundStyle(PitColor.contentSecondary)
-                    if milestone.mileageDependency != nil, milestone.remainingDays != nil {
-                        Text("road.milestone.byDateOnly")
-                            .font(.footnote)
-                            .foregroundStyle(PitColor.contentSecondary)
-                    }
                 }
             }
         }
         .accessibilityElement(children: .combine)
+        .accessibilityActions {
+            if let planned {
+                Button("common.edit") { onEdit(planned) }
+                Button("road.planned.delete") { onDelete(planned) }
+            }
+        }
     }
 }

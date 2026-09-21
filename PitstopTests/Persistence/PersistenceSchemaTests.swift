@@ -39,10 +39,38 @@ struct PersistenceSchemaTests {
         #expect(Self.shape(of: Schema(versionedSchema: PitstopSchemaV1.self)) == Self.frozenV1)
     }
 
+    /// Captured 2026-09-22 from the V2 that TestFlight `tf-1.1.0-2` shipped. V3 reuses these classes, so a
+    /// store written by that build must keep matching them: V2 is frozen like V1 (ADR 0032).
+    private static let frozenV2 = (frozenV1 + [
+        "PitQuestionStateRecord lastAskedAt:Optional<Date>? lastDismissedAt:Optional<Date>? questionID:String! "
+            + "resolution:String resolvedAt:Optional<Date>?",
+    ]).sorted()
+
     @Test("ADR-0007: schema V2 is V1 unchanged plus the question state entity")
     func versionTwoExtendsVersionOne() {
         let v2 = Self.shape(of: Schema(versionedSchema: PitstopSchemaV2.self))
         #expect(v2.filter { !$0.hasPrefix("PitQuestionStateRecord ") } == Self.frozenV1)
         #expect(v2.count == Self.frozenV1.count + 1)
+    }
+
+    @Test("ADR-0032: schema V2 is frozen; a change must be a new version that copies its classes")
+    func versionTwoIsFrozen() {
+        #expect(Self.shape(of: Schema(versionedSchema: PitstopSchemaV2.self)) == Self.frozenV2)
+    }
+
+    @Test("ADR-0032: schema V3 is V2 unchanged plus the planned date entity, with no insurer or policy field")
+    func versionThreeExtendsVersionTwo() {
+        let v3 = Self.shape(of: Schema(versionedSchema: PitstopSchemaV3.self))
+        #expect(v3.filter { !$0.hasPrefix("PlannedVehicleEventRecord ") } == Self.frozenV2)
+        #expect(v3.filter { $0.hasPrefix("PlannedVehicleEventRecord ") } == [
+            "PlannedVehicleEventRecord createdAt:Date date:Date id:UUID! kind:String label:Optional<String>? "
+                + "vehicleID:UUID",
+        ])
+    }
+
+    @Test("ADR-0032: the app opens the newest schema version")
+    func containerUsesVersionThree() throws {
+        let container = try PersistenceContainer.make(storeURL: nil)
+        #expect(Self.shape(of: container.schema) == Self.shape(of: Schema(versionedSchema: PitstopSchemaV3.self)))
     }
 }

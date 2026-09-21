@@ -128,7 +128,7 @@ struct SwiftDataPitQuestionStoreTests {
         }
     }
 
-    @Test("ADR-0007: a version 1 store opens under version 2 with car memory intact")
+    @Test("ADR-0007: a version 1 store opens under the current version with car memory intact")
     func versionOneStoreMigrates() async throws {
         let url = temporaryStoreURL()
         defer { removeStore(at: url) }

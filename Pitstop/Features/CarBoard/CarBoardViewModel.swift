@@ -67,9 +67,12 @@ final class CarBoardViewModel {
                 completions: completions,
                 context: context
             ).byUrgency
-            state.road = RoadProjector().project(RoadContext(
+            // The tile projects the same planned dates as the Road screen; insurance has no tile of its own
+            // (ADR 0032).
+            state.road = try await RoadProjector().project(RoadContext(
                 now: moment,
                 maintenanceStates: state.service,
+                plannedEvents: store.plannedEvents().map(\.roadEvent),
                 history: state.history
             ))
             state.isLoadFailed = false

@@ -140,6 +140,22 @@ Service clustering and Road visual clustering are related but not identical:
 - Service Planner may group operations into a visit;
 - Road may visually cluster nearby milestones.
 
+## Planned dated events
+
+Proposed with ROAD-EVT-001 ([ADR 0032](../decisions/0032-planned-dated-events.md)).
+
+The owner can state a future date for the car: an insurance expiry, or another
+date with an optional short name of their own. Only the date is kept; PitStop
+never asks for an insurer, a policy number, or an amount, and never derives a
+date from law, locale, registration year, or a mileage rate.
+
+- The owner adds a date from the Road screen and corrects or deletes it from
+  the Road list; deleting asks first and names the date.
+- The date is a plan, not a History event, and resets nothing.
+- One insurance expiry is on Road per car at a time.
+- The date stays on Road as due for 14 days after it passes, then leaves Road
+  and stays stored.
+
 ## Motion
 
 The car may have subtle motion when state changes or Road recenters, subject to Reduce Motion.
@@ -321,3 +337,51 @@ Source: [Road projection](#road-projection), [Test-first scenarios](#test-first-
 Given any RoadContext, including one with no known milestones
 When the Road projection is computed
 Then it includes a semanticSummary available as a non-visual description of Road
+
+### REQ-ROAD-016 — The owner can state a planned date
+Status: proposed
+Core: P1, C2
+Source: [Planned dated events](#planned-dated-events), [ADR 0032](../decisions/0032-planned-dated-events.md)
+Given the owner enters an insurance expiry, or another date with or without a short name, from the Road screen
+When the date is saved
+Then only its kind, day, and name are stored, it is not a History event, and it appears on Road labelled by days left
+
+### REQ-ROAD-017 — Planned dates are validated before anything is stored
+Status: proposed
+Core: C2
+Source: [Planned dated events](#planned-dated-events), [ADR 0032](../decisions/0032-planned-dated-events.md)
+Given a planned date earlier than 14 days ago or more than ten years ahead, or a name that is blank, spans lines, or is longer than 40 characters
+When it is saved
+Then it is rejected with a reason and nothing is stored
+
+### REQ-ROAD-018 — One insurance expiry on Road per car
+Status: proposed
+Core: P3
+Source: [Planned dated events](#planned-dated-events), [ADR 0032](../decisions/0032-planned-dated-events.md)
+Given an insurance expiry that is still on Road
+When another insurance expiry is added, or another date is changed into one
+Then it is rejected, and correcting the existing expiry, or adding one after it has left Road, still works
+
+### REQ-ROAD-019 — Planned dates can be corrected and deleted
+Status: proposed
+Core: P1
+Source: [Planned dated events](#planned-dated-events), [ADR 0032](../decisions/0032-planned-dated-events.md)
+Given a planned date on the Road list
+When the owner edits it, or confirms a delete dialog that names it
+Then the same plan changes or is removed, cancelling the dialog changes nothing, and no History, completion, or policy changes
+
+### REQ-ROAD-020 — A passed planned date leaves Road after 14 days
+Status: proposed
+Core: P5
+Source: [Planned dated events](#planned-dated-events), [ADR 0008](../decisions/0008-road-projection-rules.md)
+Given a planned date that has passed
+When the Road projection is computed
+Then the date is shown as due for 14 days after it and is not a milestone afterwards, while the stored date is kept
+
+### REQ-ROAD-021 — Planned dates survive relaunch and schema migration
+Status: proposed
+Core: P1
+Source: [Planned dated events](#planned-dated-events), [ADR 0032](../decisions/0032-planned-dated-events.md)
+Given planned dates and a store written by an earlier schema version
+When the app opens the store again
+Then the planned dates, car memory, and Pit question state are all intact

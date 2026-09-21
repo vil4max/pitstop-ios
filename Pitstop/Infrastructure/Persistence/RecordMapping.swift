@@ -153,6 +153,40 @@ extension Schema1.MaintenanceCompletionRecord {
     }
 }
 
+extension PitstopSchemaV3.PlannedVehicleEventRecord {
+    static let insuranceExpiryKind = "insuranceExpiry"
+    private static let otherKind = "other"
+
+    convenience init(_ event: PlannedDatedEvent) {
+        self.init(
+            id: event.id,
+            vehicleID: event.vehicleID.rawValue,
+            kind: event.isInsuranceExpiry ? Self.insuranceExpiryKind : Self.otherKind,
+            label: event.label,
+            date: event.date,
+            createdAt: event.createdAt
+        )
+    }
+
+    var domain: PlannedDatedEvent {
+        PlannedDatedEvent(
+            id: id,
+            vehicleID: VehicleID(rawValue: vehicleID),
+            // A kind this version cannot read stays visible and deletable as the owner's own date rather
+            // than disappearing, and it never blocks a new insurance expiry.
+            kind: kind == Self.insuranceExpiryKind ? .insuranceExpiry : .other(label: label),
+            date: date,
+            createdAt: createdAt
+        )
+    }
+
+    func update(from event: PlannedDatedEvent) {
+        kind = event.isInsuranceExpiry ? Self.insuranceExpiryKind : Self.otherKind
+        label = event.label
+        date = event.date
+    }
+}
+
 protocol Identified {
     static func matching(_ id: UUID) -> Predicate<Self>
 }
@@ -165,6 +199,12 @@ extension Schema1.OdometerReadingRecord: Identified {
 
 extension Schema1.HistoryEventRecord: Identified {
     static func matching(_ id: UUID) -> Predicate<PitstopSchemaV1.HistoryEventRecord> {
+        #Predicate { $0.id == id }
+    }
+}
+
+extension PitstopSchemaV3.PlannedVehicleEventRecord: Identified {
+    static func matching(_ id: UUID) -> Predicate<PitstopSchemaV3.PlannedVehicleEventRecord> {
         #Predicate { $0.id == id }
     }
 }

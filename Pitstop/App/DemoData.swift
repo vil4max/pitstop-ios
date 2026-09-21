@@ -46,6 +46,10 @@
                 .recordVehicleEvent(.init(event: HistoryEvent(
                     vehicleID: vehicleID, kind: .carWash, date: daysAgo(6), odometerKm: 58900, amount: 1200
                 ))),
+                // Only the date: no insurer or policy number exists anywhere in the app (ADR 0032).
+                .addPlannedEvent(.init(event: PlannedDatedEvent(
+                    vehicleID: vehicleID, kind: .insuranceExpiry, date: daysAgo(-40), createdAt: now
+                ))),
                 .createNote(CreateNoteCommand(
                     vehicleID: vehicleID,
                     rawText: "Ask about the stain on the rear seat",

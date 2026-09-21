@@ -35,7 +35,7 @@ extension RoadMilestone {
         case let .maintenance(operation): operation.titleText
         case .planned(.insuranceExpiry, _): Text("road.planned.insurance")
         case .planned(.plannedVisit, _): Text("road.planned.visit")
-        case .planned(.other, _): Text("road.planned.other")
+        case .planned(.other, _): plannedLabel.map { Text(verbatim: $0) } ?? Text("road.planned.other")
         }
     }
 
@@ -52,6 +52,43 @@ extension RoadMilestone {
         case .blocked(.mileageStale): Text("service.progress.mileageStale")
         case .blocked(.completionMileageMissing): Text("service.progress.completionMileageMissing")
         case .blocked(.mileageUnknown): Text("service.progress.mileageUnknown")
+        }
+    }
+}
+
+extension PlannedDatedEvent {
+    /// The same title Road shows for this date; the owner's label is their own words, never translated.
+    var titleText: Text {
+        switch kind {
+        case .insuranceExpiry: Text("road.planned.insurance")
+        case let .other(label): label.map { Text(verbatim: $0) } ?? Text("road.planned.other")
+        }
+    }
+}
+
+extension PlannedEventDraft.Kind {
+    var title: LocalizedStringKey {
+        switch self {
+        case .insuranceExpiry: "road.planned.insurance"
+        case .other: "road.planned.kind.other"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .insuranceExpiry: "checkmark.shield"
+        case .other: "calendar"
+        }
+    }
+}
+
+extension RoadFailure {
+    var title: LocalizedStringKey {
+        switch self {
+        case .notSaved: "road.failure.notSaved"
+        case .dateOutOfRange: "road.failure.date"
+        case .labelTooLong: "road.failure.label"
+        case .insuranceAlreadyPlanned: "road.failure.insurance"
         }
     }
 }

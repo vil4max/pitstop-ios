@@ -15,6 +15,11 @@ public enum DomainCommandError: Error, Hashable, Sendable {
     case nonPositiveAmount
     case emptyNoteUpdate
     case emptyOperationID
+    /// Earlier than the Road grace period or more than ten years ahead (ADR 0032).
+    case plannedDateOutOfRange
+    /// Blank, multi-line, or untrimmed; a missing label is `nil`, never an empty string.
+    case invalidPlannedLabel
+    case plannedLabelTooLong
 }
 
 public enum DomainCommandLimits {
@@ -158,6 +163,35 @@ public struct RecordExpenseCommand: Hashable, Sendable {
     }
 }
 
+/// The owner states a future date for the car (ADR 0032). Only the user can issue it; no proposal maps
+/// to it, so Remember cannot plan a date without a later, confirmed mapping.
+public struct AddPlannedEventCommand: Hashable, Sendable {
+    public let event: PlannedDatedEvent
+
+    public init(event: PlannedDatedEvent) {
+        self.event = event
+    }
+}
+
+/// The owner's correction of a planned date: kind, date, and label change; identity, vehicle, and
+/// creation time stay those of the stored event.
+public struct UpdatePlannedEventCommand: Hashable, Sendable {
+    public let event: PlannedDatedEvent
+
+    public init(event: PlannedDatedEvent) {
+        self.event = event
+    }
+}
+
+/// The owner deletes a planned date. It was never a fact, so nothing else changes.
+public struct RemovePlannedEventCommand: Hashable, Sendable {
+    public let eventID: UUID
+
+    public init(eventID: UUID) {
+        self.eventID = eventID
+    }
+}
+
 public enum DomainCommand: Hashable, Sendable {
     case createNote(CreateNoteCommand)
     case updateNote(UpdateNoteCommand)
@@ -170,6 +204,9 @@ public enum DomainCommand: Hashable, Sendable {
     case recordVehicleEvent(RecordVehicleEventCommand)
     case correctVehicleEvent(CorrectVehicleEventCommand)
     case recordExpense(RecordExpenseCommand)
+    case addPlannedEvent(AddPlannedEventCommand)
+    case updatePlannedEvent(UpdatePlannedEventCommand)
+    case removePlannedEvent(RemovePlannedEventCommand)
 
     public func validate(now: Date) throws(DomainCommandError) {
         switch self {
@@ -200,7 +237,20 @@ public enum DomainCommand: Hashable, Sendable {
             try Self.check(command.event, now: now, requiresAmount: false)
         case let .recordExpense(command):
             try Self.check(command.event, now: now, requiresAmount: true)
+        case let .addPlannedEvent(command):
+            try Self.check(command.event, now: now)
+        case let .updatePlannedEvent(command):
+            try Self.check(command.event, now: now)
+        case .removePlannedEvent:
+            break
         }
+    }
+
+    private static func check(_ event: PlannedDatedEvent, now: Date) throws(DomainCommandError) {
+        guard PlannedEventLimits.isPlausibleDate(event.date, now: now) else { throw .plannedDateOutOfRange }
+        guard let label = event.label else { return }
+        guard PlannedEventLimits.isValidLabel(label) else { throw .invalidPlannedLabel }
+        guard PlannedEventLimits.isLabelWithinLimit(label) else { throw .plannedLabelTooLong }
     }
 
     private static func checkOdometer(_ kilometers: Double?) throws(DomainCommandError) {

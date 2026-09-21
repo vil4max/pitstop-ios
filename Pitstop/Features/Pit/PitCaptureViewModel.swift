@@ -14,6 +14,8 @@ enum PitDestination: Equatable {
         case .eventRecorded, .eventCorrected: self = .history
         case .completionConfirmed, .completionRevoked, .policySet, .trackingStopped: self = .service
         case .readingRecorded, .vehicleUpdated: self = .carBoard
+        // No proposal maps to a planned date (ADR 0032); if one ever does, Road is reached from Car Board.
+        case .plannedEventAdded, .plannedEventUpdated, .plannedEventRemoved: self = .carBoard
         }
     }
 }

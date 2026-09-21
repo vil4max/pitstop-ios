@@ -12,6 +12,9 @@ public enum CommandResult: Hashable, Sendable {
     case trackingStopped(MaintenancePolicy)
     case eventRecorded(HistoryEvent)
     case eventCorrected(HistoryEvent)
+    case plannedEventAdded(PlannedDatedEvent)
+    case plannedEventUpdated(PlannedDatedEvent)
+    case plannedEventRemoved(PlannedDatedEvent)
 }
 
 public enum CarMemoryStoreError: Error, Hashable, Sendable {
@@ -24,6 +27,9 @@ public enum CarMemoryStoreError: Error, Hashable, Sendable {
     case unknownPolicy
     /// A record with this ID already exists; history is never rewritten by a repeated command.
     case duplicateRecord
+    case unknownPlannedEvent
+    /// The vehicle already has an insurance expiry on Road; the owner changes that one instead (ADR 0032).
+    case insuranceExpiryAlreadyPlanned
     case storageFailure
 }
 
@@ -38,6 +44,8 @@ public protocol CarMemoryStore: Sendable {
     /// Every stored rule, including a recommendation shadowed by a custom policy; use `.effective`.
     func maintenancePolicies() async throws(CarMemoryStoreError) -> [MaintenancePolicy]
     func maintenanceCompletions() async throws(CarMemoryStoreError) -> [MaintenanceCompletion]
+    /// Every stored planned date, earliest first, including ones Road no longer shows (ADR 0032).
+    func plannedEvents() async throws(CarMemoryStoreError) -> [PlannedDatedEvent]
 
     /// Validates the command, then persists it. A thrown error means nothing was saved.
     @discardableResult

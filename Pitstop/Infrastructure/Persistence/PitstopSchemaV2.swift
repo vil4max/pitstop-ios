@@ -3,6 +3,9 @@ import SwiftData
 
 /// V1 plus persisted Pit question state (DISC-001). The V1 record classes are reused unchanged, so
 /// code that reads car memory keeps naming `PitstopSchemaV1` types.
+///
+/// Frozen since V3 reuses these classes: a change to a record needs a new schema version with its own
+/// copy of the class (ADR 0016, ADR 0032, `PersistenceSchemaTests`).
 enum PitstopSchemaV2: VersionedSchema {
     static let versionIdentifier = Schema.Version(2, 0, 0)
 

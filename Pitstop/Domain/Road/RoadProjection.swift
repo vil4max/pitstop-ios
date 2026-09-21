@@ -33,11 +33,14 @@ public struct PlannedVehicleEvent: Hashable, Identifiable, Sendable {
     public let id: UUID
     public let kind: Kind
     public let date: Date
+    /// The owner's own short name for an `other` event (ADR 0032); nil for every other kind.
+    public let label: String?
 
-    public init(id: UUID = UUID(), kind: Kind, date: Date) {
+    public init(id: UUID = UUID(), kind: Kind, date: Date, label: String? = nil) {
         self.id = id
         self.kind = kind
         self.date = date
+        self.label = label
     }
 }
 
@@ -57,6 +60,8 @@ public struct RoadMilestone: Hashable, Identifiable, Sendable {
     public let anchorDate: Date?
     /// A distance rule of this milestone could not be evaluated (REQ-ROAD-006).
     public let mileageDependency: DistanceBlock?
+    /// The owner's label of a planned event, shown verbatim instead of the generic title (ADR 0032).
+    public let plannedLabel: String?
     /// Ordering key in horizon units: remaining km / 5,000 or remaining days / 183. It orders the one
     /// lane and is never shown; `.infinity` for a milestone that cannot be placed.
     let proximity: Double
@@ -84,7 +89,7 @@ public struct RoadMilestone: Hashable, Identifiable, Sendable {
         lhs.subject == rhs.subject && lhs.state == rhs.state && lhs.dimension == rhs.dimension
             && lhs.remainingKm == rhs.remainingKm && lhs.remainingDays == rhs.remainingDays
             && lhs.anchorKm == rhs.anchorKm && lhs.anchorDate == rhs.anchorDate
-            && lhs.mileageDependency == rhs.mileageDependency
+            && lhs.mileageDependency == rhs.mileageDependency && lhs.plannedLabel == rhs.plannedLabel
     }
 
     public func hash(into hasher: inout Hasher) {
