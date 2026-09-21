@@ -47,7 +47,6 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0001-maintenance-anchors.md`
 - `decisions/0010-maintenance-engine-rules.md` — status rule, unknown handling, planner window, Service surface scope
 - `decisions/0020-maintenance-anchor-closure.md` — ADR 0001 open questions: evidence, fixed grid deferred, stable IDs pinned, owner questions on data and plan scope
-- `planning/legacy-domain-audit.md`
 - `requirements/capture-pipeline.md`
 - `engineering/domain-inventory.md`
 
@@ -99,9 +98,11 @@ highest affected layer; evidence from operations flows back up.
 ## Planning and execution
 
 - `planning/roadmap.md`
-- `planning/work-plan.md`
+- `planning/work-plan.md` — open work and owner decisions only
 - `planning/investigations.md`
 - `planning/investigations/mnt-int-001-maintenance-intelligence.md` — manufacturer data, presets, richer Road milestones: sources, licences, recommendation
+- `planning/investigations/sys-001-app-intents.md` — App Intents for Remember through Siri: API facts, design, owner questions
+- `planning/investigations/sys-004-widgets.md` — widgets and controls for fast capture; cost of a data widget (SYS-007)
 - `tasks/template.md`
 - `engineering/agent-loop-and-gitflow.md`
 - `engineering/product-review-process.md` — gate before feature implementation

@@ -57,9 +57,9 @@ kit skill `spec-pyramid`.
 
 ## Project state
 
-Read `PROJECT_STATUS.md` first. Product feature implementation is unfrozen
-(2026-09-16); the owner still assigns tasks. Product baseline (through M3)
-precedes runtime AI features (core P4).
+Read `PROJECT_STATUS.md` first. The owner assigns tasks; open work lives in
+`docs/planning/work-plan.md`. Runtime AI stays behind its rollout gate
+(core P4, ADR 0027): the Foundation Models path runs in debug builds only.
 
 ## System over random
 

@@ -1,184 +1,87 @@
 # Work Plan
 
-**Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** Backlog cards implemented; owner decisions and device checks pending — see docs/tasks/full-backlog-delivery.md  
-**Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
-**Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
-**WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
+**Status:** Active; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
+**Next task:** CAP-LOC-001 — pass the request locale into Pit's `CaptureInput`  
+**Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
+**WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
 **Process:** [`../engineering/agent-loop-and-gitflow.md`](../engineering/agent-loop-and-gitflow.md)
 
-## Milestones
+## Plan
 
-| Milestone | Exit criteria | Status | Cumulative est. |
-|---|---|---|---:|
-| M0 | Work plan + board + local verification | done | — |
-| M1 | `legacy/spike`; BOOT-001; ENG-001; ENG-003 | done | ~8d |
-| M2 | DOM-003 tests; INV-ROAD decisions | implemented on stacked branches, unmerged | ~11d |
-| M3 | Car Board tiles + Road | implemented on stacked branches, unmerged | ~21d |
-| M4 | Remember end-to-end | planned | ~21d |
+Order is the pick-up order. `next` is the one task to start; `planned` waits
+for its dependency or owner decision. SYS-007 is last because it moves the
+store that TestFlight testers already hold.
 
-Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
+| ID | Title | Est | Depends on | Status | Source | Owner decision needed |
+|---|---|---:|---|---|---|---|
+| CAP-LOC-001 | Pass the request locale into Pit's `CaptureInput` | 0.5d | — | next | [SYS-001 record](investigations/sys-001-app-intents.md), ADR 0023 | — |
+| MNT-POL-001 | Stop tracking an operation (remove the owner's policy) | 1d | — | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 2 | — |
+| ROAD-EVT-001 | Planned dated events: storage, commands, entry; insurance expiry first | 3d | owner decision | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 3 | Where the user enters a dated event; user label on `other`; whether insurance expiry also shows on Car Board |
+| MNT-PRE-001 | "Track several" starter with owner intervals | 2d | MNT-POL-001, product review gate | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 2 | Build now or after beta evidence; allowed cadence chip values; whether car-class questions may become vehicle facts |
+| MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only) | 1d | owner decision | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 1 | Stop at owner cadence or run it now; target market |
+| ROAD-EST-001 | Mileage-rate estimate for distance milestones (investigation) | 1d | ROAD-EVT-001 | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), R5 | Whether estimates are wanted at all; requires a REQ-ROAD-007 change |
+| MNT-VR-001 | Vehicle-reported remaining value as a rule (investigation) | 1d | — | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), R6 | — |
+| SYS-007 | Widget with car data: App Group, store move, next-service widget | 3d+ | SYS-005 | planned | [SYS-004 record](investigations/sys-004-widgets.md), "Cost of a data widget"; ADR 0025 | Approve the data widget; register the App Group; accept the ADR 0007 change and a device migration check |
 
-M0/M1 completion records are historical. ENG-003 is reopened for the current
-agent-loop setup. Hosted CI was retired and later replaced by the shared Runtime pipeline on a
-GitHub-hosted runners (ADR 0013, 0014); branch protection remains a proposal, not an
-active guarantee.
+Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
+now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
+external entry; needs a voice capture path in Pit).
 
-## Feature readiness vs milestone completion
+## Owner-only work
 
-The [product charter](../requirements/product-charter.md#product-loop-and-feature-responsibilities)
-defines useful features; task rows below schedule implementation slices. **M3 is
-a domain and screen foundation. M4 is the Remember end-to-end checkpoint.**
-A finished tile or navigation entry does not establish the complete user journey.
+| ID | Item | Source |
+|---|---|---|
+| MNT-INT-003 | Private licence and terms review of one real maintenance source, outside this repository (after MNT-INT-002 and a market decision) | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md) |
+| DEV-SIRI | Device check list: Siri in ru and uk, reply language, locked phone, prompt time against the 30-second limit | ADR 0026 |
+| DEV-WIDGET | Widget gallery, Control Center, Lock Screen control, Action button, Shortcuts listing | ADR 0025, ADR 0026 |
+| DEV-FM | Device evaluation of English captures with Foundation Models; then close or keep CAP-005 open, decide the Release rollout gate and the `interpreter_version` value | ADR 0027 |
 
-| Capability | Evidence required beyond a tile or shell |
-|---|---|
-| Notes | Save a thought, reopen the app, find and read it, then correct or archive it without requiring AI classification. |
-| History | Read persisted vehicle events created through supported domain commands; intentions and unconfirmed work are not events. |
-| Service | Derive status from effective policies and confirmed operations, handle missing baselines honestly, and reset only completed operations. |
-| Road | Project eligible facts and plans under the agreed horizon rules; show unknown or no-known-milestones states instead of fabricated data. |
-| Remember | CAP-007 proves capture → policy → command → persistence → visible result. Raw saving works without a model; interpreted capture obeys the same validation and confirmation boundary. |
+## Owner decisions pending
 
-The current tile-task estimates are not estimates for every behaviour above.
-Before implementing an owning task, reconcile its acceptance criteria and domain
-dependencies with the linked contracts; report missing scope for owner agreement
-instead of silently expanding a tile task. This clarification does not change
-task IDs, estimates, dependencies, milestone order, or the next task. CAP-* stays
-in M4; raw preservation is both a normal Remember mode and the safe fallback.
+- Requirements: 136 REQ IDs are `Status: proposed`; only REQ-BOARD-026 is
+  approved. Approval is an owner action.
+- ADR 0020: questions A–D (promote ADR 0001, recommendation data source,
+  Service Plan vs multi-operation visit order, legacy data import) and the
+  proposed maintenance-engine success-criterion change. The legacy spike source
+  is no longer kept anywhere (ADR 0014).
+- ADR 0018: REQ-PIT-008 wording ("is not asked again" versus "while that answer
+  still holds").
+- ADR 0006: the proposed `capture_discarded` pipeline stage.
+- ADR 0022: PostHog project and key, and the consent decision (off by default
+  under ADR 0021).
+- ADR 0024, ADR 0026: review of the ru and uk App Shortcut and Siri phrases.
+- Owner review of the agent decisions that say so in their status: ADR 0024,
+  ADR 0026, ADR 0027.
+- Product scope without a task yet: multi-operation visit recording and
+  accepted Service Plans (ADR 0020 C), procedure components with provenance,
+  the "Consider" list, engine-hours rules; undo reaches only the newest
+  completion of an operation; History amounts have no currency; the Notes tile
+  shows note text in the app switcher snapshot (count only, text, or a
+  setting).
 
-## Status legend
+## Not verified on screen
 
-| Status | Meaning |
-|---|---|
-| `contract` | Accepted spec; no issue |
-| `done` | Shipped; issue closed |
-| `next` | Next task or milestone; not yet in progress |
-| `tracked` | GitHub issue in backlog or active |
-| `planned` | Future milestone; no active work |
-| `deferred` | Later phase; issue exists, low priority |
+Covered by tests but not exercised in the simulator or on a device: Road lane
+scrolling, "Back to now", clusters and Reduce Motion; the Service actions
+(track, mark done, change interval, undo); adding and correcting History
+events; correcting, archiving and restoring notes; VoiceOver order, AX5 text
+size, Reduce Transparency and ru/uk strings on screen; question returns that
+need days of clock time.
 
-## Git workflow
+## Delivered
 
-| Step | Rule |
-|---|---|
-| Branch | `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory` |
-| PR title | `{TASK-ID} Short title (#N)` |
-| Merge | Squash to `main` after local verification and review |
-| WIP | Max 1 issue **In progress** on board |
+Per-card rows were removed on 2026-09-21; `git log` holds them, including the
+retired delivery brief `docs/tasks/full-backlog-delivery.md`. Decisions are
+indexed in [`../README.md`](../README.md) under `decisions/`.
 
-Implementation verification: local `just verify` (formatting, lint, build, tests).
-GitHub Actions adds a tests run on GitHub-hosted runners (ADR 0014).
-See `../engineering/quality-and-ci.md`.
-
-## Phase 0 — Product contracts
-
-| ID | Title | Est | Status | GitHub |
-|---|---|---:|---|---|
-| P0-001…005 | Product contracts accepted | — | contract | — |
-| MIG-001 | Migration note | — | done | — |
-
-## Phase 1 — Domain
-
-| ID | Title | Est | Deps | Status | GitHub |
-|---|---|---:|---|---|---|
-| DOM-001 | Domain inventory from specs | 1d | — | done | #1 |
-| DOM-002 | Spec-derived test fixtures | 1d | DOM-001 | done | #2 |
-| DOM-003 | Capture domain + policy tests | 4d | DOM-001 | implemented on branch, unmerged | #3 |
-| DOM-004 | ADR-001 closure | 1d | — | implemented (ADR 0020) | #4 |
-
-## Phase 2 — Engineering
-
-| ID | Title | Est | Deps | Status | GitHub |
-|---|---|---:|---|---|---|
-| BOOT-001 | App scaffold + folder tree | 2d | — | done | — |
-| ENG-001 | Logging facade | 1d | BOOT-001 | done | — |
-| ENG-003 | Local quality gates (shared CI: ADR 0013) | 2d | BOOT-001 | tracked | — |
-| ENG-004 | Persistence + provisional car | 3d | DOM-003 | implemented on branch, unmerged | #5 |
-| ENG-002 | Analytics boundary | 2d | CB-002 | implemented (ADR 0021) | #6 |
-| ANL-001 | Analytics spike | 2d | ENG-002 | implemented (ADR 0022) | #7 |
-
-## Road investigations
-
-| ID | Title | Est | Deps | Status | GitHub |
-|---|---|---:|---|---|---|
-| INV-ROAD-001 | Horizon and spacing | 1d | — | decided in ADR 0008, unmerged | #8 |
-| INV-ROAD-002 | Mixed time/mileage | 1d | — | decided in ADR 0008, unmerged | #9 |
-| INV-ROAD-003 | Milestone clustering | 1d | INV-ROAD-001 | decided in ADR 0008, unmerged | #10 |
-| INV-ROAD-004 | Return to current position | 1d | INV-ROAD-001 | decided in ADR 0008, unmerged | #11 |
-
-## Phase 3 — Car Board
-
-| ID | Title | Est | Deps | Status | GitHub |
-|---|---|---:|---|---|---|
-| CB-001 | Provisional car context | 2d | ENG-004 | implemented on branch, unmerged | #12 |
-| CB-002 | Car Board shell + utility layer | 4d | CB-001 | implemented on branch, unmerged | #13 |
-| CB-003 | Notes tile + entry | 2d | CB-002, DOM-003 | implemented on branch, unmerged | #14 |
-| CB-004 | History tile + entry | 2d | CB-002 | implemented on branch, unmerged | #15 |
-| CB-005 | Service tile summary | 3d | CB-002 | implemented on branch, unmerged (includes the engine; see ADR 0010) | #16 |
-| CB-006 | Road projection domain | 4d | DOM-001, INV-ROAD-* | implemented on branch, unmerged | #17 |
-| CB-007 | Road UI | 4d | CB-006, INV-ROAD-* | implemented on branch, unmerged | #18 |
-
-## Phase 4 — Capture / Pit
-
-| ID | Title | Est | Deps | Status | GitHub |
-|---|---|---:|---|---|---|
-| CAP-001 | CaptureInput boundary | 2d | DOM-003 | implemented on branch, unmerged | #19 |
-| CAP-002 | Proposal + confirmation | 3d | CAP-001 | done on main | #20 |
-| CAP-003 | Pit Eyes affordance | 2d | CB-002 | done on main | #21 |
-| CAP-004 | Pit Capture Surface | 3d | CAP-001, CAP-003 | done on main | #22 |
-| CAP-005 | FM interpreter spike (RU) | 5d | CAP-002 | implemented (ADR 0027); off by default; ru/uk unsupported by Apple Intelligence on iOS 27; model quality not measured (simulator generation failed), device evaluation pending | #23 |
-| CAP-006 | Raw-preservation fallback | 2d | CAP-002 | implemented (ADR 0015) | #24 |
-| CAP-007 | End-to-end Remember | 4d | CAP-004–006 | implemented (`RememberEndToEndTests`) | #25 |
-
-## Phase 5 — Progressive discovery
-
-| ID | Title | Est | Deps | Status | GitHub |
-|---|---|---:|---|---|---|
-| DISC-001 | Question value registry | 2d | M4 | implemented (ADR 0016) | #26 |
-| DISC-002 | First high-value question | 3d | DISC-001 | implemented (ADR 0017) | #27 |
-| DISC-003 | Attention cooldown | 2d | DISC-001 | implemented (ADR 0018) | #28 |
-| DISC-004 | Pit semantic motion | 3d | CAP-003 | implemented (ADR 0019) | #29 |
-
-## Phase 6 — System capture
-
-| ID | Title | Est | Deps | Status | GitHub |
-|---|---|---:|---|---|---|
-| SYS-001 | App Intent investigation | 1d | CAP-007 | investigated (see [`investigations/sys-001-app-intents.md`](investigations/sys-001-app-intents.md)); owner decisions recorded in ADR 0023 | #30 |
-| SYS-002 | RememberInPitStopIntent | 2d | SYS-001 | implemented (ADR 0023) | #31 |
-| SYS-003 | App Shortcut | 1d | CAP-007 | implemented (ADR 0024) | #32 |
-| SYS-004 | Widget investigation | 1d | CAP-007 | investigated (see [`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)); owner decisions recorded in ADR 0025 | #33 |
-| SYS-005 | Widget capture slice | 3d | SYS-004 | implemented (ADR 0025); gallery and Shortcuts-listing checks pending | #34 |
-| SYS-006 | Siri capture slice | 3d | SYS-002 | implemented (ADR 0026); device checks pending | #35 |
-| SYS-007 | Widget with car data (App Group + store move) | 3d+ | SYS-005 | planned (proposal, owner approval needed; scope in [`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md), "Cost of a data widget") | — |
-
-## Phase 7 — Maintenance intelligence
-
-| ID | Title | Est | Deps | Status | GitHub |
-|---|---|---:|---|---|---|
-| MNT-INT-001 | Maintenance intelligence investigations | 5d+ | M4 | investigated (see [`investigations/mnt-int-001-maintenance-intelligence.md`](investigations/mnt-int-001-maintenance-intelligence.md)); owner decisions pending | #36 |
-
-## Legacy
-
-| ID | Title | Status | GitHub |
-|---|---|---|---|
-| LEG-001 | Tab-bar spike on `legacy/spike` | done | — |
-
-## Pick-up order
-
-```text
-DOM-001 → DOM-002 → DOM-003 → ENG-004 → INV-ROAD-* → CB-001…007 → CAP-001…007
-```
-
-Deferred after M4: DISC-*, SYS-*, MNT-INT-001, ENG-002, ANL-001.
-
-## Backlog vs active work
-
-| Layer | Role |
-|---|---|
-| `work-plan.md` | Horizon, estimates, deps, issue links |
-| GitHub Project #2 | Board/Table — see all tasks and status |
-| GitHub issues #1–#36 | Acceptance detail per task |
-| Specs `product-charter`, `car-board-screen`, `road-domain-and-ui`, `pit-behavior-and-motion`, `capture-pipeline`, `bottom-utility-layer`, `screen-grammar`, `capture-pipeline` | Product contracts — not replaced by issues |
-
-Create issues upfront for the full horizon. Move only **one** card to **In progress** at a time. On issue close: row → `done` in this file.
+- M1 engineering bootstrap: BOOT-001, ENG-001, ENG-003 (local `just verify`
+  gate plus shared hosted CI and rulesets, ADR 0013, 0014).
+- M2–M3 domain and Car Board: DOM-001…004, ENG-004, INV-ROAD-001…004, CB-001…007
+  (ADR 0007–0010, 0020).
+- M4 Remember: CAP-001…007 (ADR 0006, 0011, 0015, 0027).
+- Progressive discovery: DISC-001…004 (ADR 0012, 0016–0019).
+- System capture: SYS-001…006 (ADR 0023–0026).
+- Analytics: ENG-002, ANL-001 (ADR 0021, 0022); maintenance intelligence
+  investigation MNT-INT-001.
+- TestFlight: 1.0.0 and 1.1.0 rounds (tags `tf-1.0.0-1`, `tf-1.1.0-1`).

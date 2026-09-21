@@ -154,21 +154,15 @@ Two classes of documents:
 
 **Permanent contracts** — product and engineering behaviour (everything under `docs/requirements/`, `docs/decisions/`, `docs/engineering/`, and `docs/operations/`). Keep `**Status:**` at the top. Never delete when a task ships.
 
-**Executable backlog** — tracked in [`../planning/work-plan.md`](../planning/work-plan.md). When work starts:
+**Executable backlog** — open work only, in [`../planning/work-plan.md`](../planning/work-plan.md). When work starts:
 
 1. Complete Product Review for new features ([`../engineering/product-review-process.md`](../engineering/product-review-process.md)).
-2. Create one GitHub issue (template: `../tasks/template.md`).
-3. Set work-plan row to `tracked` with issue number.
-4. Remove duplicated acceptance text from `../planning/roadmap.md`.
-5. On completion: `done`; delete empty roadmap rows.
+2. Set the work-plan row to `in progress`; write a brief from `../tasks/template.md` when the task spans sessions.
+3. On completion, remove the row; the ADR index and commit history keep the record.
 
-Status values: `contract` | `ready` → `tracked` → `done` | `deferred` | `cancelled`.
+Status values: `next` | `planned` → `in progress` → removed when delivered | `deferred`.
 
-WIP limit: **1** active implementation issue (solo).
-
-Legacy tab-bar spike: branch `legacy/spike`. Current product: `main`.
-
-**Backlog:** [`../planning/work-plan.md`](../planning/work-plan.md) and the delivery brief; the GitHub board was deleted on 2026-09-21. One task **In progress** at a time (solo).
+WIP limit: **1** task **In progress** at a time (solo). Current product: `main`.
 
 **Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. Implementation PRs must pass the local Runtime gate and review. Documentation-only changes use proportional checks; CI runs on GitHub-hosted runners (ADR 0014).
 

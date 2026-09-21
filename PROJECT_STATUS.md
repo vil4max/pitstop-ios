@@ -1,122 +1,85 @@
 # PitStop — Project Status
 
-**Project State:** Active — product baseline implementation
-**Unfrozen (2026-09-16):** the owner unfroze product feature implementation.
+**Project State:** Active — product baseline delivered; open work in the work plan  
+**Next task:** CAP-LOC-001 — pass the request locale into Pit's `CaptureInput` ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
+**Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
+**TestFlight:** version 1.1.0 (tag `tf-1.1.0-1`); delivery is tag-gated (ADR 0013)
+
 Work follows the spec pyramid ([`docs/core.md`](docs/core.md)) and the agent
-development loop (`docs/engineering/agent-loop-and-gitflow.md`). Runtime AI
-stays deferred by core priority P4 and the ordering constraint below.
+development loop ([`docs/engineering/agent-loop-and-gitflow.md`](docs/engineering/agent-loop-and-gitflow.md)).
+The owner assigns tasks. Agent entry: tracked root `AGENTS.md`; the local
+project marker is gitignored.
 
 ---
 
-# Product loop
+## Product loop
 
 1. **Design** — owner-formulated problem / MVP ([`docs/core.md`](docs/core.md), [`docs/requirements/product-charter.md`](docs/requirements/product-charter.md)).
 2. **Develop** — agent-assisted delivery with human review.
 3. **Deploy** — ship a usable build (TestFlight / App Store as applicable).
 4. **Maintain** — post-ship iteration with metrics and user feedback.
 
-**Ordering constraint (unchanged):** complete the product baseline through M3 before runtime AI features (Foundation Models / interpreted Remember). All CAP-* delivery, including raw saving without a model, remains scheduled for M4. Agent-assisted coding during baseline work is a workflow choice, not early AI product scope.
-
-Agent entry: tracked root `AGENTS.md`; local project marker is gitignored.
-
 ---
 
-# Project Phase
+## Where the project is
 
-- Architecture Complete
-- Documentation Stable
-- Implementation Active
-- Product Baseline Pending
-- AI Deferred
-
----
-
-## Work rules
-
-Allowed:
-
-- documentation
-- architecture clarification
-- terminology cleanup
-- specification refactoring
-- product baseline feature implementation (domain, persistence, Car Board, Road) and its verification tooling
-
-Not allowed until the product baseline (M3) is complete:
-
-- runtime AI
-- provider integration
-- prompt engineering
-- evaluation implementation
-
----
-
-## Product baseline (resume definition)
-
-“Complete the product baseline before AI” means establish the domain and screen foundation on `main` through **M3** in [`docs/planning/work-plan.md`](docs/planning/work-plan.md):
-
-- domain fixtures and capture-boundary tests (DOM-*)
-- persistence for provisional car context (ENG-004)
-- Car Board tiles wired to real domain projections
-- Road projection and UI
-
-M3 is a foundation checkpoint, not completion of the save-and-retrieve product
-loop. Tile completion alone does not prove Notes, History, or Service readiness;
-the work plan records the distinction.
-
-**Remember / Capture delivery (M4, CAP-*) stays deferred until M3.** Remember
-includes useful raw saving without AI as well as optional interpreted capture;
-this distinction does not move tasks earlier.
-
-Next task: CAP-001. The M3 scope (DOM-003, ENG-004, INV-ROAD, CB-001…007) is implemented on stacked local
-branches that are not yet merged into `main`; see [`docs/planning/work-plan.md`](docs/planning/work-plan.md)
-and [`docs/tasks/full-backlog-delivery.md`](docs/tasks/full-backlog-delivery.md).
-
----
+- Every card of the original backlog (DOM, ENG, INV-ROAD, CB, CAP, DISC, SYS
+  through SYS-006, ANL, MNT-INT-001) is delivered on `main`. The GitHub board
+  was deleted; the work plan lists only open work, and ADRs plus `git log`
+  record what was delivered.
+- Remaining work: eight planned tasks (CAP-LOC-001 through SYS-007),
+  owner-only device checks, and owner decisions. All are in
+  [`docs/planning/work-plan.md`](docs/planning/work-plan.md).
+- Requirements: 136 REQ IDs are `Status: proposed`; only REQ-BOARD-026 is
+  approved. Tests cite the proposed IDs.
 
 ## Current implementation status
 
-Source of truth for what exists on `main`: [`docs/engineering/domain-inventory.md`](docs/engineering/domain-inventory.md).
+Source of truth for what exists on `main`:
+[`docs/engineering/domain-inventory.md`](docs/engineering/domain-inventory.md).
 
-| Area | Status (stacked branches through `CB-007/road-ui`, unmerged) |
+| Area | Status on `main` |
 |---|---|
-| Product contracts / specs | Present and authoritative under `docs/` (see `docs/README.md`) |
+| Product contracts / specs | Present under `docs/` (see `docs/README.md`) |
 | Car context | Persisted provisional car, optional name and mileage edit |
 | Car Board | Design language, four live tiles, utility layer (ADR 0009) |
-| Persistence | SwiftData behind a command-only store (ADR 0007) |
+| Persistence | SwiftData behind a command-only store, schema V2 (ADR 0007, 0016) |
 | Notes | Save, find, correct, archive without AI |
 | History | Record and correct events; timeline of events and confirmed completions |
 | Service | Deterministic engine, visit planner, track / mark done / change interval / undo (ADR 0010) |
 | Road | Deterministic projection, tile and screen (ADR 0008) |
-| Capture / Remember pipeline | Domain path and raw mode only; Pit surface and interpreted mode are M4 |
-| Intelligence / AI runtime | Not started (M4, after this baseline) |
+| Remember / Pit | Raw and rule-based interpreted capture end to end, confirmation, deadline, current-mileage question (ADR 0006, 0011, 0015–0019) |
+| System capture | Siri intent, App Shortcuts, voice clarification, Open Pit control and data-free widget (ADR 0023–0026) |
+| Analytics | Provider-neutral boundary and PostHog HTTP adapter, consent off by default, no project key (ADR 0021, 0022) |
+| Runtime AI | Foundation Models interpreter behind a DEBUG launch argument only; off in Release (ADR 0027) |
 
-Interpreted Remember and runtime AI are specified, not implemented. `main` itself still holds only the
-pre-baseline state until the owner integrates the branches.
+## Work rules
+
+- Core priority P4 ([`docs/core.md`](docs/core.md)) gates runtime AI on this
+  file: no runtime AI in Release builds until the owner decides the ADR 0027
+  rollout gate and beta evidence validates the core (INV-PROD-001).
+- Product features start with Product Review
+  ([`docs/engineering/product-review-process.md`](docs/engineering/product-review-process.md)).
+- Local `just verify` is the implementation gate; documentation-only changes
+  use proportional checks.
 
 ---
 
-# Resume Checklist
-
-Recommended order:
+## Resume checklist
 
 1. [`PROJECT_STATUS.md`](PROJECT_STATUS.md) (this file)
-2. [`docs/requirements/product-overview.md`](docs/requirements/product-overview.md)
-3. [`docs/requirements/product-charter.md`](docs/requirements/product-charter.md)
-4. [`docs/engineering/domain-inventory.md`](docs/engineering/domain-inventory.md)
-5. [`docs/decisions/0004-product-design-rationale.md`](docs/decisions/0004-product-design-rationale.md)
-6. [`docs/planning/ai-roadmap.md`](docs/planning/ai-roadmap.md)
+2. [`docs/planning/work-plan.md`](docs/planning/work-plan.md)
+3. [`docs/requirements/product-overview.md`](docs/requirements/product-overview.md)
+4. [`docs/requirements/product-charter.md`](docs/requirements/product-charter.md)
+5. [`docs/engineering/domain-inventory.md`](docs/engineering/domain-inventory.md)
+6. [`docs/decisions/0004-product-design-rationale.md`](docs/decisions/0004-product-design-rationale.md)
 
 Then open behavioural owners as needed:
 
 - Capture: `docs/requirements/capture-pipeline.md`
-- AI runtime: `docs/engineering/ai-architecture.md`
+- AI runtime: `docs/engineering/ai-architecture.md`, `docs/planning/ai-roadmap.md`
 - Car Board / Road / Pit: `car-board-screen`, `road-domain-and-ui`, `pit-behavior-and-motion`
-- Work plan: `docs/planning/work-plan.md`
 - Full map: `docs/README.md`
-
-Do not resume AI implementation first.
-
-Complete the product baseline before any AI work.
 
 ---
 
@@ -125,21 +88,13 @@ Complete the product baseline before any AI work.
 | Document | Answers |
 |---|---|
 | Root `README.md` | Repository entry point |
-| `PROJECT_STATUS.md` | Current project state / freeze / resume |
+| `PROJECT_STATUS.md` | Current project state and the runtime AI gate |
 | `docs/requirements/product-charter.md` | Product contract (what) |
 | `docs/engineering/ai-architecture.md` | Runtime AI contract |
 | `docs/requirements/capture-pipeline.md` | Capture / Remember contract |
 | `docs/engineering/domain-inventory.md` | Implementation snapshot |
 | `docs/planning/ai-roadmap.md` | Deferred AI direction |
 | `docs/decisions/0004-product-design-rationale.md` | Architectural / product reasoning (why) |
-| `docs/planning/work-plan.md` | Executable backlog |
+| `docs/planning/work-plan.md` | Open work and owner decisions |
 
 Do not create parallel sources of truth. Cross-reference owners instead of duplicating them.
-
----
-
-## Resume rule
-
-Do not resume AI implementation first.
-
-Complete the product baseline before any AI work.

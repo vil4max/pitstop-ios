@@ -2,13 +2,16 @@
 
 ## Decision
 
-Use GitHub Issues + GitHub Projects + Pull Requests.
+The backlog lives in the repository: [`../planning/work-plan.md`](../planning/work-plan.md)
+lists open work only, multi-session tasks get a brief from
+[`../tasks/template.md`](../tasks/template.md), and delivered work is recorded
+by ADRs and commit history.
 
-Do not add Trello in P0.
-
-Reason: GitHub Projects already supports table, board and roadmap views
-and integrates issues and pull requests. GitHub sub-issues provide
-parent/child progress. A second project system would duplicate state.
+The GitHub Project board and its issues were retired on 2026-09-21: the board
+had lost its cards when the pre-public repository was deleted (ADR 0014), and a
+second planning surface duplicated the work plan. The template in
+`.github/ISSUE_TEMPLATE/` remains for a task filed as an issue. Do not add Trello or another tracker; revisit only if
+non-technical collaborators need a simpler planning surface.
 
 ## Work hierarchy
 
@@ -19,136 +22,30 @@ Product Review (product-review-process.md)
         ↓
 Product hypothesis / Investigation
         ↓
-Epic issue
-        ↓
-Atomic sub-issues
+Work-plan row (ID, estimate, dependency, owner decision)
         ↓
 Branch
         ↓
-Pull Request
+Local verification + independent review
         ↓
-Local tests + review evidence
+Commit on main (or a pull request)
         ↓
-Merge
-        ↓
-Project status/metrics
+ADR / commit evidence; row leaves the work plan
 ```
 
 New features do not skip Product Review. See [`product-review-process.md`](product-review-process.md).
 
-## Issue types by label
+## Task rule
 
-GitHub labels:
-
-``` text
-type:feature
-type:bug
-type:investigation
-type:architecture
-type:quality
-type:design
-type:experiment
-type:docs
-
-area:maintenance
-area:notes
-area:history
-area:odometer
-area:ai
-area:analytics
-area:design-system
-area:platform
-
-priority:P0
-priority:P1
-priority:P2
-
-status:blocked
-status:needs-evidence
-```
-
-Do not encode status in both label and Project field unless automation
-requires it.
-
-## GitHub Project fields
-
-Minimum:
-
-``` text
-Status
-Priority
-Area
-Type
-Phase
-Target
-```
-
-Status:
-
-``` text
-Backlog
-Ready
-In progress
-In review
-Blocked
-Done
-```
-
-Views:
-
-### Board --- Current work
-
-Group by Status. Filter current target.
-
-### Table --- Backlog
-
-Sort Priority then Phase.
-
-### Roadmap
-
-Epics/investigations only. Do not put every atomic task on a Gantt-like
-timeline.
-
-### Quality / Debt
-
-Filter `type:quality` and bugs.
-
-## Epic rule
-
-An epic describes an outcome/hypothesis.
-
-Example:
-
-``` text
-EPIC: Deterministic maintenance status
-```
-
-Sub-issues:
-
-``` text
-MNT-001 Stable MaintenanceOperationID
-MNT-010 Distance policy
-MNT-011 Unknown baseline
-MNT-012 Time policy
-MNT-013 Distance OR time
-MNT-030 Snapshot projection
-```
-
-GitHub parent/sub-issue progress becomes the epic progress indicator.
-
-## Atomic issue rule
-
-One issue should normally map to one branch and one PR.
-
-Exception: - investigation with no code; - tiny documentation
-correction.
-
-Issue must use `../tasks/template.md` concepts.
+One work-plan row normally maps to one branch and one reviewable change.
+Exceptions: an investigation with no code, or a tiny documentation correction.
+When a task is delivered, remove its row from the work plan; the ADR index and
+`git log` keep the record.
 
 ## Branch naming
 
 Use `{TASK-ID}/{slug}`, matching [`../planning/work-plan.md`](../planning/work-plan.md),
-for example `DOM-002/spec-derived-fixtures`. Link the execution issue in the PR.
+for example `DOM-002/spec-derived-fixtures`. Name the task ID in the PR or commit body.
 
 ## Git flow
 
@@ -187,7 +84,7 @@ Commit and squash messages follow the shared Conventional Commits policy:
 fix(maintenance): preserve unknown state without a baseline
 ```
 
-The task ID and issue link belong in the PR title/body. Commit and publication
+The task ID belongs in the PR title/body or the commit body. Commit and publication
 authorization remain governed by the Brain.
 
 ## Pull request template
@@ -205,7 +102,7 @@ For performance-sensitive PRs attach metric evidence.
 Solo developer:
 
 ``` text
-In progress: max 1 implementation issue
+In progress: max 1 implementation task
 ```
 
 An independent research/design investigation may run alongside implementation
@@ -216,12 +113,12 @@ Do not open five coding branches.
 ## Investigation flow
 
 ``` text
-Issue: type:investigation
+Work-plan row: investigation
 → evidence links
 → comparison table/spike
 → decision
 → ADR if architecture changes
-→ implementation issues
+→ implementation rows in the work plan
 ```
 
 An investigation is not closed with "looks good."
@@ -304,7 +201,7 @@ Once per week:
 
 ``` text
 Review beta/product evidence
-Review current epic progress
+Review work-plan progress
 Review blocked investigations
 Review quality ledger
 Review docs/lessons.md
@@ -318,8 +215,8 @@ This is a 30-minute product review, not sprint ceremony.
 Track monthly:
 
 ``` text
-issues completed
-median issue cycle time
+tasks completed
+median task cycle time
 local verification success on first run
 reopened bugs
 escaped regressions
@@ -329,10 +226,3 @@ investigation → adopted/deferred/rejected count
 
 Do not optimize developer productivity by lines of code, commits or
 story points.
-
-## Decision
-
-No Trello.
-
-Revisit only if non-technical collaborators need a simpler planning
-surface.

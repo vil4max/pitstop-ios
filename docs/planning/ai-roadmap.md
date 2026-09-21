@@ -197,7 +197,7 @@ Contracted behaviour:
 - Raw preservation on interpretation failure or AI unavailability.
 - Only deterministic domain commands mutate state.
 
-**Code on `main` today:** capture pipeline not started ([`../engineering/domain-inventory.md`](../engineering/domain-inventory.md)). Work-plan items CAP-001–CAP-007 remain tracked, not shipped ([`work-plan.md`](work-plan.md)).
+**Code on `main` today:** the capture pipeline is implemented with raw preservation, a rule-based interpreter (ADR 0011), an interpretation deadline (ADR 0015), and an end-to-end Remember path (CAP-001…007); see [`../engineering/domain-inventory.md`](../engineering/domain-inventory.md).
 
 ## Remember capability
 
@@ -207,7 +207,7 @@ Remember is the core capture capability. Pit may open capture, show a proposal, 
 
 Pit is not navigation, not a chat tab, not a generic AI assistant, and not required for the app to remain useful.
 
-**Code on `main` today:** no Remember end-to-end path; Car Board is placeholder UI; Pit utility not wired ([`../engineering/domain-inventory.md`](../engineering/domain-inventory.md)).
+**Code on `main` today:** Pit opens capture, shows proposals and one clarification, and asks the current-mileage question (ADR 0012, 0016–0019); Remember also runs from Siri, App Shortcuts, a control and a widget (ADR 0023–0026); see [`../engineering/domain-inventory.md`](../engineering/domain-inventory.md).
 
 ## Intelligence abstraction
 
@@ -246,7 +246,7 @@ Already decided:
 - Confirmation policy is deterministic and owned outside the model ([`../engineering/ai-architecture.md`](../engineering/ai-architecture.md), [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md)).
 - Progressive discovery: unknown vehicle facts remain unknown; do not fabricate mileage, age, fuel type, or service state ([`README.md`](../requirements/product-overview.md), [`../requirements/product-charter.md`](../requirements/product-charter.md)).
 
-**Code on `main` today:** partial vehicle provisional context only (`ProvisionalCarContext`); maintenance engine, persistence, Notes/History/Service not started on `main` ([`../engineering/domain-inventory.md`](../engineering/domain-inventory.md)).
+**Code on `main` today:** provisional car context, SwiftData persistence, a deterministic maintenance engine, and Notes, History, Service and Road surfaces, none of which depend on a model ([`../engineering/domain-inventory.md`](../engineering/domain-inventory.md)).
 
 ## Existing contracts (summary)
 
@@ -269,7 +269,7 @@ Already decided:
 These are documented assumptions or open decisions, not completed runtime facts:
 
 - Fallback provider order beyond raw preservation is still a product/architecture decision to validate ([`../engineering/ai-architecture.md`](../engineering/ai-architecture.md)).
-- Foundation Models Russian / automotive language quality is an investigation (`INV-CAP-005` in [`investigations.md`](investigations.md)); work-plan spike `CAP-005` is tracked, not done.
+- Foundation Models Russian / automotive language quality is an investigation (`INV-CAP-005` in [`investigations.md`](investigations.md)); the `CAP-005` spike (ADR 0027) ships off by default; Russian and Ukrainian are unsupported by Apple Intelligence on iOS 27 and model quality is not yet measured on a device.
 - Acceptable semantic false-classification rates by mutation class remain open (`INV-CAP-001`).
 - Which mutations may auto-accept remains open (`INV-CAP-002`).
 - Initial MemoryProposal kinds should be limited to validated product-core kinds; unsupported meaning degrades to raw ([`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md), [`../engineering/domain-inventory.md`](../engineering/domain-inventory.md)).

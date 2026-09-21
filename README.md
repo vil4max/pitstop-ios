@@ -3,8 +3,7 @@
 Smart driver's journal and contextual car memory for your vehicle.
 
 **Project state:** Active — see [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
-**Next task:** DOM-003 — capture domain and confirmation policy tests.  
-**Legacy tab-bar spike:** branch [`legacy/spike`](https://github.com/vil4engineering/pitstop-ios/tree/legacy/spike).
+**Next task:** CAP-LOC-001 — pass the request locale into Pit's capture input ([work plan](docs/planning/work-plan.md)).
 
 ## Intended product
 
@@ -18,20 +17,20 @@ or use optional interpretation to propose structured data. **Pit** helps with
 capture and clarification; it is not navigation or the product itself.
 
 These are [product contracts](docs/requirements/product-charter.md#product-loop-and-feature-responsibilities),
-not a shipped feature list. The current app is a scaffold; see the
+not a shipped feature list. What the app implements today is in the
 [implementation inventory](docs/engineering/domain-inventory.md).
 
 ## Distribution
 
-- **Org:** [vil4engineering](https://github.com/vil4engineering) · **Repo:** [vil4engineering/pitstop-ios](https://github.com/vil4engineering/pitstop-ios)
+- **Repo:** [vil4max/pitstop-ios](https://github.com/vil4max/pitstop-ios) (public, ADR 0014)
+- **TestFlight:** tag-gated through Xcode Cloud (ADR 0013); version 1.1.0
 - **Bundle ID:** `dev.vil4max.pitstop` (new App Store listing; not an update from `dev.vilchevskyi.arteon`)
 - **SwiftData:** no automatic migration between bundle IDs; fresh install or manual re-import
-- **Notifications:** permission must be granted again on the new bundle
 - **iCloud (future):** `iCloud.dev.vil4max.pitstop`
 
 ## Stack
 
-iOS 27+ · Xcode 27+ · Swift 6 language mode · SwiftUI · SwiftData · Foundation Models · UserNotifications · Swift Testing + XCTest · en / uk / ru · MVVM
+iOS 27+ · Xcode 27+ · Swift 6 language mode · SwiftUI · SwiftData · Foundation Models (off by default) · App Intents · WidgetKit · Swift Testing + XCTest · en / uk / ru · MVVM
 
 Product and engineering docs: [`docs/`](docs/README.md)
 

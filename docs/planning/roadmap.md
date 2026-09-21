@@ -1,22 +1,22 @@
 # Atomic Development Roadmap
 
-**Status:** phase index — detail lives in [`work-plan.md`](work-plan.md) and GitHub issues  
+**Status:** phase index — open work lives in [`work-plan.md`](work-plan.md)  
 **Project state:** Active — see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Rule:** current product on `main`; legacy tab app on `legacy/spike`
+**Rule:** the current product is `main`; the pre-greenfield tab-bar spike is not kept in this repository (ADR 0014)
 
 ## Phase index
 
-| Phase | Scope | Work-plan section |
+| Phase | Scope | Status |
 |---|---|---|
-| 0 | Product contracts (accepted) | Phase 0 |
-| 1 | Domain inventory + capture boundary | DOM-* |
-| 2 | Engineering bootstrap | BOOT-001, ENG-* |
-| — | Road investigations | INV-ROAD-* |
-| 3 | Car Board vertical slice | CB-* |
-| 4 | Pit and Remember | CAP-* |
-| 5 | Progressive discovery | DISC-* (deferred) |
-| 6 | System capture | SYS-* (deferred) |
-| 7 | Maintenance intelligence | MNT-INT-* (deferred) |
+| 0 | Product contracts | accepted as contracts; requirements await owner approval |
+| 1 | Domain inventory + capture boundary (DOM-*) | delivered |
+| 2 | Engineering bootstrap (BOOT-001, ENG-*, ANL-001) | delivered |
+| — | Road investigations (INV-ROAD-*) | decided in ADR 0008 |
+| 3 | Car Board vertical slice (CB-*) | delivered |
+| 4 | Pit and Remember (CAP-*) | delivered; CAP-005 off by default (ADR 0027) |
+| 5 | Progressive discovery (DISC-*) | delivered |
+| 6 | System capture (SYS-*) | delivered through SYS-006; SYS-007 planned |
+| 7 | Maintenance intelligence (MNT-INT-001) | investigated; follow-ups planned in the work plan |
 
 ## V2 / deferred
 

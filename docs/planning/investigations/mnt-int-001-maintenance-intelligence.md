@@ -76,8 +76,8 @@ product validation." Four sub-questions:
   `RoadProjector` already places planned events by date, keeps a passed date as
   due for 14 days and then drops it (`RoadProjector.swift:91-115`). Nothing
   outside tests supplies `RoadContext.plannedEvents`: there is no stored
-  planned event, no command, and no entry UI (also listed under "Open for
-  owner" in `../../tasks/full-backlog-delivery.md`). History has a past
+  planned event, no command, and no entry UI (now ROAD-EVT-001 in
+  `../work-plan.md`). History has a past
   `insurance` event kind, which is a fact, not a future milestone.
 - **Measurement.** Analytics questions AQ-005 (status trust) and AQ-006
   (planner alignment) exist in `../../operations/analytics-questions.md`; no

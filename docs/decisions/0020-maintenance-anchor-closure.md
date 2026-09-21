@@ -21,7 +21,8 @@ part in task identity) and leaves several points open by its own wording:
 "migration timing remains gated", "a future explicit policy type", and a Costs
 list of work that must exist before the decisions hold. The DOM-004 card
 requires them to be closed before Phase 7 maintenance work, and the delivery
-brief (`../tasks/full-backlog-delivery.md`, "Order") schedules DOM-004 before
+brief (`docs/tasks/full-backlog-delivery.md`, "Order"; retired 2026-09-21,
+kept in git history) schedules DOM-004 before
 MNT-INT-001.
 
 Since then the greenfield `main` has implemented the engine, the planner, the
@@ -194,7 +195,7 @@ the legacy audit is not built.
 - **Note:** `Localizable.xcstrings` still holds legacy `service.task.*`,
   `service.visit*`, `service.oil*` and `service.reopenVisit*` strings that no
   Swift source references. They are not identity; removing them is a separate
-  cleanup.
+  cleanup. (Removed 2026-09-21 with the other unreferenced legacy keys.)
 
 ### Q10 — seeded visits are gone; no migration is scheduled
 
