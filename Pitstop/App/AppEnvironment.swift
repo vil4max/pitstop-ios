@@ -11,42 +11,103 @@ struct AppEnvironment: Sendable {
     static let inMemoryArgument = "-pitstop-in-memory"
 
     let store: any CarMemoryStore
+    /// Shares the car memory's container, so both live in one file under one migration plan (ADR 0016).
+    let questions: any PitQuestionStateStore
+    let registry: PitQuestionRegistry
     let persistence: Persistence
     /// Runs once before the first load. Only the DEBUG demo launch uses it.
     var prepare: (@Sendable () async -> Void)?
 
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppEnvironment {
         let log = AppLog.logger(category: "app.persistence")
+        let registry = productRegistry()
         #if DEBUG
             if arguments.contains(DemoData.argument) {
                 // Demo facts never reach the user's store, even when the in-memory store cannot be built.
-                guard let store = makeStore(url: nil) else {
-                    return AppEnvironment(store: UnavailableCarMemoryStore(), persistence: .temporary)
+                guard let stores = makeStores(url: nil, registry: registry) else {
+                    return .unavailable(registry: registry)
                 }
-                return AppEnvironment(store: store, persistence: .temporary) { await DemoData.seed(store) }
+                let staleMileage = arguments.contains(DemoData.staleMileageArgument)
+                return AppEnvironment(stores, registry: registry, persistence: .temporary) {
+                    await DemoData.seed(stores.car, staleMileage: staleMileage)
+                }
             }
         #endif
         if arguments.contains(inMemoryArgument) {
             // Never fall through to the user's real store from a test or preview launch.
-            guard let store = makeStore(url: nil) else {
-                return AppEnvironment(store: UnavailableCarMemoryStore(), persistence: .temporary)
+            guard let stores = makeStores(url: nil, registry: registry) else {
+                return .unavailable(registry: registry)
             }
-            return AppEnvironment(store: store, persistence: .temporary)
+            return AppEnvironment(stores, registry: registry, persistence: .temporary)
         }
-        if let store = makeStore(url: PersistenceContainer.defaultStoreURL) {
-            return AppEnvironment(store: store, persistence: .durable)
+        if let stores = makeStores(url: PersistenceContainer.defaultStoreURL, registry: registry) {
+            return AppEnvironment(stores, registry: registry, persistence: .durable)
         }
         // Core P2: the app must still open. The user is told that nothing will be kept.
         log.error("Persistent store unavailable; falling back to memory")
-        guard let fallback = makeStore(url: nil) else {
-            return AppEnvironment(store: UnavailableCarMemoryStore(), persistence: .temporary)
+        guard let fallback = makeStores(url: nil, registry: registry) else {
+            return .unavailable(registry: registry)
         }
-        return AppEnvironment(store: fallback, persistence: .temporary)
+        return AppEnvironment(fallback, registry: registry, persistence: .temporary)
     }
 
-    private static func makeStore(url: URL?) -> SwiftDataCarMemoryStore? {
+    private typealias Stores = (car: SwiftDataCarMemoryStore, questions: SwiftDataPitQuestionStore)
+
+    private init(
+        _ stores: Stores,
+        registry: PitQuestionRegistry,
+        persistence: Persistence,
+        prepare: (@Sendable () async -> Void)? = nil
+    ) {
+        self.init(
+            store: stores.car,
+            questions: stores.questions,
+            registry: registry,
+            persistence: persistence,
+            prepare: prepare
+        )
+    }
+
+    init(
+        store: any CarMemoryStore,
+        questions: any PitQuestionStateStore,
+        registry: PitQuestionRegistry,
+        persistence: Persistence,
+        prepare: (@Sendable () async -> Void)? = nil
+    ) {
+        self.store = store
+        self.questions = questions
+        self.registry = registry
+        self.persistence = persistence
+        self.prepare = prepare
+    }
+
+    private static func unavailable(registry: PitQuestionRegistry) -> AppEnvironment {
+        AppEnvironment(
+            store: UnavailableCarMemoryStore(),
+            questions: UnavailablePitQuestionStore(),
+            registry: registry,
+            persistence: .temporary
+        )
+    }
+
+    /// A test builds the same list, so this fails only if the gate was skipped; Pit then asks nothing.
+    private static func productRegistry() -> PitQuestionRegistry {
         do {
-            return try SwiftDataCarMemoryStore(modelContainer: PersistenceContainer.make(storeURL: url))
+            return try PitQuestionRegistry.product()
+        } catch {
+            AppLog.logger(category: "app.pit").error("Question registry rejected: \(String(describing: error))")
+            return .empty
+        }
+    }
+
+    private static func makeStores(url: URL?, registry: PitQuestionRegistry) -> Stores? {
+        do {
+            let container = try PersistenceContainer.make(storeURL: url)
+            return (
+                SwiftDataCarMemoryStore(modelContainer: container),
+                SwiftDataPitQuestionStore(modelContainer: container, registry: registry)
+            )
         } catch {
             let kind = url == nil ? "in-memory" : "on-disk"
             AppLog.logger(category: "app.persistence").error("Cannot open \(kind) store: \(error)")
@@ -82,6 +143,17 @@ struct UnavailableCarMemoryStore: CarMemoryStore {
     }
 
     func execute(_: DomainCommand, now _: Date) async throws(CarMemoryStoreError) -> CommandResult {
+        throw .storageFailure
+    }
+}
+
+/// Question state cannot be read or written, so Pit asks nothing: `evaluate` records the ask first.
+struct UnavailablePitQuestionStore: PitQuestionStateStore {
+    func questionStates() async throws(PitQuestionStoreError) -> [PitQuestionState] {
+        throw .storageFailure
+    }
+
+    func execute(_: PitQuestionCommand, now _: Date) async throws(PitQuestionStoreError) -> PitQuestionState {
         throw .storageFailure
     }
 }

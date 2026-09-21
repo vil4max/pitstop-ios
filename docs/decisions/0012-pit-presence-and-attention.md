@@ -53,7 +53,8 @@ interface is idle.
 "Pit may look alive without permission. Pit may interrupt only for measurable
 value." `PitAttentionPolicy` answers with at most one question, and only when
 
-- the interface is idle (REQ-PIT-006),
+- the interface is idle (REQ-PIT-006); Reduce Motion is not activity here,
+  it only changes how Pit asks (amended by ADR 0017),
 - the question belongs to the surface the user is on (REQ-PIT-007),
 - it is unresolved — answered, deferred, and dismissed are all final for this
   purpose (REQ-PIT-008),

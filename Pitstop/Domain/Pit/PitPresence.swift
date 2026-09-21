@@ -132,6 +132,12 @@ public struct PitAttentionPolicy: Sendable {
 
     public init() {}
 
+    /// The interface is idle (REQ-PIT-006). Reduce Motion changes how Pit asks — the knock alone
+    /// (REQ-PIT-018) — never whether it may.
+    public func allowsInterruption(_ activity: PitActivity) -> Bool {
+        activity.subtracting(.reduceMotion) == .idle
+    }
+
     /// The one question Pit may ask now, or `nil`: highest priority first, then a stable ID order.
     public func question(
         from questions: some Sequence<PitQuestion>,
@@ -140,7 +146,7 @@ public struct PitAttentionPolicy: Sendable {
         sinceLastInterruption: TimeInterval,
         sinceLastDismissal: TimeInterval
     ) -> PitQuestion? {
-        guard activity == .idle else { return nil }
+        guard allowsInterruption(activity) else { return nil }
         guard sinceLastInterruption >= Self.interruptionCooldown else { return nil }
         guard sinceLastDismissal >= Self.dismissalCooldown else { return nil }
         return questions

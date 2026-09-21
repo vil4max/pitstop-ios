@@ -1,7 +1,7 @@
 import Foundation
 @testable import Pitstop
 
-/// Test-only questions. DISC-002 owns the first product question.
+/// Test-only questions; product questions live in `PitQuestionRegistry.productDefinitions`.
 enum PitQuestionFixtures {
     static let oilIntervalID = "fixture.oilInterval"
     static let roadHorizonID = "fixture.roadHorizon"

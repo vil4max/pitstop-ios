@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** DISC-002 (DISC-001 implemented; CAP-005 needs a physical device for the Foundation Models spike)  
+**Next task:** DISC-003 (DISC-002 implemented; CAP-005 needs a physical device for the Foundation Models spike)  
 **Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
 **Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -136,7 +136,7 @@ See `../engineering/quality-and-ci.md`.
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
 | DISC-001 | Question value registry | 2d | M4 | implemented (ADR 0016) | #26 |
-| DISC-002 | First high-value question | 3d | DISC-001 | tracked | #27 |
+| DISC-002 | First high-value question | 3d | DISC-001 | implemented (ADR 0017) | #27 |
 | DISC-003 | Attention cooldown | 2d | DISC-001 | tracked | #28 |
 | DISC-004 | Pit semantic motion | 3d | CAP-003 | tracked | #29 |
 

@@ -10,6 +10,7 @@ final class AppCoordinator {
     private let service: ServiceViewModel
     private let road: RoadViewModel
     private let pitCapture: PitCaptureViewModel
+    private let pitQuestion: PitQuestionViewModel
 
     init(environment: AppEnvironment = .live()) {
         carBoard = CarBoardViewModel(store: environment.store, persistence: environment.persistence)
@@ -23,6 +24,11 @@ final class AppCoordinator {
             interpreter: RuleBasedInterpreter(),
             observer: CaptureStageLogger()
         ))
+        pitQuestion = PitQuestionViewModel(
+            questions: environment.questions,
+            store: environment.store,
+            registry: environment.registry
+        )
     }
 
     var rootView: some View {
@@ -33,6 +39,7 @@ final class AppCoordinator {
             service: service,
             road: road,
             pitCapture: pitCapture,
+            pitQuestion: pitQuestion,
             prepare: prepare
         )
     }

@@ -5,8 +5,11 @@
     /// runs against an in-memory store and writes only through domain commands, like any other caller.
     enum DemoData {
         static let argument = "-pitstop-demo-data"
+        /// With the demo data: the last reading is four months old, so Service's distance rules are blocked
+        /// and Pit's mileage question becomes relevant (ADR 0017).
+        static let staleMileageArgument = "-pitstop-demo-stale-mileage"
 
-        static func seed(_ store: any CarMemoryStore, now: Date = Date()) async {
+        static func seed(_ store: any CarMemoryStore, staleMileage: Bool = false, now: Date = Date()) async {
             func daysAgo(_ days: Double) -> Date {
                 now.addingTimeInterval(-days * 86400)
             }
@@ -16,7 +19,7 @@
                 .recordOdometerReading(.init(reading: OdometerReading(
                     vehicleID: vehicleID,
                     value: 59200,
-                    recordedAt: now
+                    recordedAt: staleMileage ? daysAgo(120) : now
                 ))),
                 .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenancePolicy(
                     operationID: .engineOilService, distanceIntervalKm: 10000, timeIntervalMonths: 12,

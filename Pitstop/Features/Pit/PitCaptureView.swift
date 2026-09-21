@@ -4,6 +4,8 @@ import SwiftUI
 /// question, or see where it went. It is never a chat history (pit-behavior-and-motion.md, "Capture").
 struct PitCaptureView: View {
     let viewModel: PitCaptureViewModel
+    /// Pit's pending question, shown above the composer; it never replaces capture (ADR 0017).
+    let question: PitQuestionViewModel
     let visible: VisibleFeature?
     let onOpen: (PitDestination) -> Void
 
@@ -33,7 +35,7 @@ struct PitCaptureView: View {
                         dismiss()
                     }
                     // A write in flight finishes and shows its result; it is never cancelled halfway.
-                    .disabled(viewModel.phase == .working)
+                    .disabled(viewModel.phase == .working || isQuestionWorking)
                 }
             }
             .alert(failureTitle, isPresented: failureBinding) {
@@ -44,7 +46,8 @@ struct PitCaptureView: View {
         // Neither a save in flight nor unsent words can be swiped away. Close cancels unsent words and
         // pending proposals, and waits for a save in flight.
         .interactiveDismissDisabled(
-            viewModel.phase == .working || (viewModel.phase == .composing && !viewModel.text.isBlank)
+            viewModel.phase == .working || isQuestionWorking
+                || (viewModel.phase == .composing && !viewModel.text.isBlank)
         )
         .onChange(of: viewModel.phase) { answerText = "" }
     }
@@ -53,7 +56,22 @@ struct PitCaptureView: View {
     private func content(model text: Binding<String>, mode: Binding<RememberMode>) -> some View {
         switch viewModel.phase {
         case .composing:
-            composer(text: text, mode: mode)
+            // Remember stays the primary surface (REQ-PIT-013). A pending question sits above it and can be
+            // answered or declined here, but the user may write a note without touching it (ADR 0017).
+            switch question.phase {
+            case let .asking(asked), let .working(asked):
+                TileCard(minHeight: 0) {
+                    PitQuestionCard(model: question, question: asked)
+                }
+                composer(text: text, mode: mode)
+            case let .answered(kilometers):
+                Label("pit.question.answered \(kilometers)", systemImage: "checkmark.circle.fill")
+                    .font(.subheadline)
+                    .foregroundStyle(PitColor.statusUpToDate)
+                composer(text: text, mode: mode)
+            case .silent:
+                composer(text: text, mode: mode)
+            }
         case .working:
             ProgressView()
                 .frame(maxWidth: .infinity)
@@ -93,7 +111,8 @@ struct PitCaptureView: View {
             .disabled(!viewModel.canSubmit)
             .accessibilityIdentifier("pit.save")
         }
-        .onAppear { isFocused = true }
+        // With a question pending the keyboard would cover it; the user chooses where to type.
+        .onAppear { isFocused = !question.isAsking }
     }
 
     private func confirmation(_ pending: PendingCapture) -> some View {
@@ -257,9 +276,17 @@ struct PitCaptureView: View {
         }
     }
 
+    private var isQuestionWorking: Bool {
+        if case .working = question.phase {
+            true
+        } else {
+            false
+        }
+    }
+
     private var eyeState: PitState {
         switch viewModel.phase {
-        case .composing: .fixedGaze
+        case .composing: question.isAsking ? .knock : .fixedGaze
         case .working: .sideGaze
         case .confirming, .clarifying: .knock
         case .saved: .resting

@@ -34,6 +34,8 @@ struct UtilityLayer: View {
                 }
                 .glassEffect(.regular.interactive(), in: .circle)
                 .accessibilityLabel(Text("utility.pit"))
+                // A knock is a request, not motion: it is stated once as a value, not announced (REQ-PIT-019).
+                .accessibilityValue(pitState == .knock ? Text("utility.pit.asking") : Text(verbatim: ""))
                 .accessibilityHint(Text("utility.pit.hint"))
                 .accessibilityIdentifier("utility.pit")
             }

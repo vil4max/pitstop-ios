@@ -64,9 +64,12 @@ public struct PitQuestionRegistry: Sendable {
         case nonPositiveReturn(String)
     }
 
-    /// Product questions. Empty until DISC-002 adds the first one; a test builds the registry from
-    /// this list, so an invalid entry fails the gate rather than a launch.
-    static let productDefinitions: [PitQuestionDefinition] = []
+    /// Product questions (ADR 0017). A test builds the registry from this list, so an invalid entry
+    /// fails the gate rather than a launch.
+    static let productDefinitions: [PitQuestionDefinition] = [CurrentMileageQuestion.definition]
+
+    /// No questions at all: the fallback when the product list cannot be registered, so Pit stays silent.
+    public static let empty = PitQuestionRegistry(validated: [])
 
     public let definitions: [PitQuestionDefinition]
 
@@ -76,6 +79,10 @@ public struct PitQuestionRegistry: Sendable {
             try Self.validate(definition)
             guard seen.insert(definition.id).inserted else { throw .duplicateID(definition.id) }
         }
+        self.definitions = definitions
+    }
+
+    private init(validated definitions: [PitQuestionDefinition]) {
         self.definitions = definitions
     }
 

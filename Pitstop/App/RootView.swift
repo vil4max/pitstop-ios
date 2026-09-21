@@ -9,6 +9,7 @@ struct RootView: View {
     let service: ServiceViewModel
     let road: RoadViewModel
     let pitCapture: PitCaptureViewModel
+    let pitQuestion: PitQuestionViewModel
     /// DEBUG demo seeding; it must finish before any surface loads, or a surface opened first reads an empty store.
     var prepare: (@Sendable () async -> Void)?
 
@@ -27,6 +28,18 @@ struct RootView: View {
             }
         #endif
         return nil
+    }
+
+    /// The user settles on a surface before Pit may knock; arriving is not idleness.
+    private static let questionSettleDelay: Duration = .seconds(2)
+
+    /// DEBUG only: `-pitstop-show-question` opens Pit as soon as it asks, for smoke checks without taps.
+    private static func opensAskedQuestion(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
+        #if DEBUG
+            return arguments.contains("-pitstop-show-question")
+        #else
+            return false
+        #endif
     }
 
     /// DEBUG only: `-pitstop-open road` opens a surface directly, for smoke checks without taps.
@@ -95,9 +108,38 @@ struct RootView: View {
             }
         }
         // However Pit was closed — Close or a swipe — a pending capture is cancelled, never left half-done.
+        // An unanswered question is not: Pit keeps knocking until it is answered, deferred, or dismissed.
         .onChange(of: sheet == .pit) { wasPit, isPit in
             if wasPit, !isPit {
                 pitCapture.cancel()
+                pitQuestion.acknowledge()
+            }
+        }
+        // Pit may interrupt only where the question belongs and only once the user has settled there
+        // (REQ-PIT-006, 007); the policy and the question's relevance decide the rest (ADR 0017).
+        .task(id: path) {
+            do {
+                try await Task.sleep(for: Self.questionSettleDelay)
+            } catch {
+                return
+            }
+            await askIfUseful()
+        }
+        .onChange(of: pitQuestion.isAsking) { wasAsking, isAsking in
+            if wasAsking, !isAsking {
+                pit.endQuestion()
+            }
+        }
+        // A capture may have supplied the fact the pending question asks for (ADR 0017).
+        .onChange(of: pitCapture.phase) { _, phase in
+            if case .saved = phase {
+                Task { await pitQuestion.revalidate() }
+            }
+        }
+        .onChange(of: pitQuestion.phase) { _, phase in
+            // An answer changes what Service, Road, and the board show; they update under the sheet.
+            if case .answered = phase {
+                Task { await refreshVisibleSurface() }
             }
         }
         .onDisappear { pit.stop() }
@@ -111,7 +153,7 @@ struct RootView: View {
             switch sheet {
             case .settings: SettingsView(isStorageTemporary: carBoard.state.isStorageTemporary)
             case .pit:
-                PitCaptureView(viewModel: pitCapture, visible: visibleFeature) { destination in
+                PitCaptureView(viewModel: pitCapture, question: pitQuestion, visible: visibleFeature) { destination in
                     open(destination)
                 }
             }
@@ -126,6 +168,16 @@ struct RootView: View {
         case .tile(.history): .history
         case .tile(.road): .road
         case .none: .carBoard
+        }
+    }
+
+    private func askIfUseful() async {
+        // A reading saved in an editor since the ask may have made the pending question pointless.
+        await pitQuestion.revalidate()
+        guard await pitQuestion.evaluate(context: visibleFeature, activity: { pit.activity }) else { return }
+        await pit.askPermissionToInterrupt()
+        if Self.opensAskedQuestion(), sheet == nil {
+            sheet = .pit
         }
     }
 
