@@ -67,7 +67,8 @@ public enum ClarificationAnswer: Hashable, Sendable {
 public enum RememberOutcome: Hashable, Sendable {
     /// Persistence succeeded. `preservedRaw` is true when no stronger meaning was applied.
     case saved(CommandResult, preservedRaw: Bool)
-    /// There was nothing to remember (blank input).
+    /// There was nothing to remember: blank input, or the capture was cancelled before anything was
+    /// written (REQ-CAPTURE-005).
     case nothingToSave
     /// The proposal may not mutate anything until the user accepts it.
     case needsConfirmation(PendingCapture)
@@ -90,17 +91,20 @@ public struct RememberPipeline: Sendable {
     private let store: any CarMemoryStore
     private let interpreter: any SemanticInterpreting
     private let observer: any CaptureStageObserving
+    private let deadline: InterpretationDeadline
     private let now: @Sendable () -> Date
 
     public init(
         store: any CarMemoryStore,
         interpreter: any SemanticInterpreting = NoSemanticInterpreter(),
         observer: any CaptureStageObserving = NoCaptureStageObserver(),
+        deadline: InterpretationDeadline = .standard,
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.store = store
         self.interpreter = interpreter
         self.observer = observer
+        self.deadline = deadline
         self.now = now
     }
 
@@ -120,10 +124,19 @@ public struct RememberPipeline: Sendable {
         var interpreted: MemoryProposal?
         report(.interpretationStarted, input)
         do {
-            interpreted = try await interpreter.interpret(input)
+            let interpreter = interpreter
+            if case let .finished(proposal) = try await deadline.run({ try await interpreter.interpret(input) }) {
+                interpreted = proposal
+            }
         } catch {
             // The interpreter being unavailable must not lose the input (REQ-CAPTURE-007).
             interpreted = nil
+        }
+        // A capture cancelled while it was being interpreted ends here, before any store access, so a
+        // cancellation-aware read cannot turn it into a failure the user is asked to retry.
+        guard !Task.isCancelled else {
+            report(.captureDiscarded, input)
+            return .nothingToSave
         }
         report(.interpretationCompleted, input, kind: interpreted?.kind)
         guard let interpreted else {
@@ -255,6 +268,12 @@ public struct RememberPipeline: Sendable {
     ) async throws(RememberError) -> RememberOutcome {
         let moment = now()
         let kind = permit.validated.proposal.kind
+        // The last point before a write, and the backstop for every path: a cancelled capture must not
+        // mutate anything (REQ-CAPTURE-005).
+        guard !Task.isCancelled else {
+            report(.captureDiscarded, input, kind: kind)
+            return .nothingToSave
+        }
         do {
             let command = try DomainCommandMapper().command(for: permit, now: moment)
             report(.domainCommandCreated, input, kind: kind)

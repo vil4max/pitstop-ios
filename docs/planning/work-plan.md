@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** CAP-006 (CAP-002…004 implemented; M3 scope CB-001…007 implemented; INV-ROAD decided in ADR 0008; DOM-003 and ENG-004 are implemented on stacked branches, not yet on `main`)  
+**Next task:** CAP-007 (CAP-001…004 and CAP-006 implemented; CAP-005 needs a physical device for the Foundation Models spike)  
 **Board:** [PitStop GitHub Project #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36  
 **Backlog:** all tasks live on the board (Table/Board views); specs stay contracts, issues own execution detail  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -128,7 +128,7 @@ See `../engineering/quality-and-ci.md`.
 | CAP-003 | Pit Eyes affordance | 2d | CB-002 | done on main | #21 |
 | CAP-004 | Pit Capture Surface | 3d | CAP-001, CAP-003 | done on main | #22 |
 | CAP-005 | FM interpreter spike (RU) | 5d | CAP-002 | tracked | #23 |
-| CAP-006 | Raw-preservation fallback | 2d | CAP-002 | tracked | #24 |
+| CAP-006 | Raw-preservation fallback | 2d | CAP-002 | implemented (ADR 0015) | #24 |
 | CAP-007 | End-to-end Remember | 4d | CAP-004–006 | tracked | #25 |
 
 ## Phase 5 — Progressive discovery
