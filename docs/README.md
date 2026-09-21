@@ -10,6 +10,7 @@ highest affected layer; evidence from operations flows back up.
 | L1 decisions — ADRs and design rationale | [decisions/](decisions/) |
 | L2 specs — tests named with `REQ-<AREA>-NNN` | `PitstopTests/` |
 | Engineering — architecture, standards, agent loop, product review gate | [engineering/](engineering/) |
+| As-built overview — diagrams of the delivered system | [engineering/system-overview.md](engineering/system-overview.md) |
 | Operations — observability, telemetry, analytics, beta | [operations/](operations/) |
 | Tasks — task template and briefs | [tasks/](tasks/) |
 | Planning — roadmap, work plan, investigations (not requirements) | [planning/](planning/) |
@@ -59,6 +60,7 @@ highest affected layer; evidence from operations flows back up.
 
 ## Engineering, tests, observability and quality
 
+- [`engineering/system-overview.md`](engineering/system-overview.md) — as-built system overview with Mermaid diagrams: context, layers, capture pipeline, entry points, Pit states and questions, data model, projections, delivery, feature matrix
 - `engineering/engineering-standard.md`
 - `operations/observability.md`
 - `engineering/test-strategy.md`

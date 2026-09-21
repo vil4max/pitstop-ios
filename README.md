@@ -32,7 +32,8 @@ not a shipped feature list. What the app implements today is in the
 
 iOS 27+ · Xcode 27+ · Swift 6 language mode · SwiftUI · SwiftData · Foundation Models (off by default) · App Intents · WidgetKit · Swift Testing + XCTest · en / uk / ru · MVVM
 
-Product and engineering docs: [`docs/`](docs/README.md)
+Product and engineering docs: [`docs/`](docs/README.md). As-built diagrams of the
+delivered system: [`docs/engineering/system-overview.md`](docs/engineering/system-overview.md).
 
 ## Agent development loop
 

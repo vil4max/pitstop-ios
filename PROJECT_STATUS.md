@@ -3,7 +3,7 @@
 **Project State:** Active — product baseline delivered; open work in the work plan  
 **Next task:** CAP-LOC-001 — pass the request locale into Pit's `CaptureInput` ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
-**TestFlight:** version 1.1.0 (tag `tf-1.1.0-1`); delivery is tag-gated (ADR 0013)
+**TestFlight:** version 1.1.0 (tag `tf-1.1.0-2`); delivery is tag-gated (ADR 0013)
 
 Work follows the spec pyramid ([`docs/core.md`](docs/core.md)) and the agent
 development loop ([`docs/engineering/agent-loop-and-gitflow.md`](docs/engineering/agent-loop-and-gitflow.md)).
