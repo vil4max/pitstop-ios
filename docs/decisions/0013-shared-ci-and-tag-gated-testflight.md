@@ -61,6 +61,39 @@ keeping manual uploads.
 - **An app-specific workflow.** The reason the shared pipeline exists: three
   apps had three pipelines, and fixes did not travel between them.
 
+## Setup record (2026-09-21)
+
+The runner steps above this record were superseded the same day by the public
+repository ([ADR 0014](0014-public-repository.md)): tests run on GitHub-hosted
+runners and no self-hosted runner exists.
+
+- **Xcode Cloud product "Pitstop"**, one workflow "TestFlight": Restrict
+  Editing and Clean on; start condition Branch Changes on `testflight` only (a
+  manual start on any branch stays available for rebuilds); one action,
+  Archive - iOS with distribution preparation "App Store Connect" (the web
+  editor's name for TestFlight and App Store); no test action; post-action
+  TestFlight Internal Testing to the group "Internal". Onboarding from Xcode
+  created a default workflow that built any branch; it was reconfigured into
+  this one before the first round.
+- **TestFlight group "Internal"**: internal testers from the team, automatic
+  distribution on.
+- **GitHub**: the Xcode Cloud GitHub app has access to `vil4max/pitstop-ios`;
+  rulesets from `Tooling/templates/github/rulesets/` are active.
+- **Moving a repository**: a GitHub App grant and the Xcode Cloud primary
+  repository are bound to the repository's ID, not its name. After the move to
+  the new public repository the product kept pointing at the deleted one, and a
+  `testflight` move started nothing, until Xcode Cloud → Settings →
+  Repositories → Change URL re-pointed it. A round whose branch move happened
+  before the fix is rebuilt with Start Build on `testflight`, not by retagging.
+
+## First round
+
+`tf-1.0.0-1` on the first public `main` moved `testflight`; after the
+repository fix above, Xcode Cloud built it (manual start, build 2) and
+TestFlight received 1.0.0 (2) for the "Internal" group. App Store Connect
+accepted build 2 although a hand-uploaded 1.0 (202609211) exists: it tracks
+`1.0.0` as a separate version, so the risk recorded below did not occur.
+
 ## Owner setup (outside the repository)
 
 Until these are done, a push runs nothing and a `tf-` tag cannot pass the gate.

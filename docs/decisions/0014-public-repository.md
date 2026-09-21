@@ -19,8 +19,8 @@ can delete those refs.
 
 ## Decision
 
-- The old repository was renamed `pitstop-ios-archive`, kept private, and is
-  to be deleted once the move is verified. A full-history bundle is kept in
+- The old repository was renamed `pitstop-ios-archive`, kept private until the
+  move was verified, then deleted at the owner's request. A full-history bundle is kept in
   the owner's local technical bank.
 - A new public `vil4max/pitstop-ios` was created from a rewritten history
   (`git filter-repo`), with only `main` and tags pushed. The rewrite:
