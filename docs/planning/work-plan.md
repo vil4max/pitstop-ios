@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** MNT-INT-001 (DOM-004 implemented, ADR 0020; CAP-005 needs a physical device for the Foundation Models spike)  
+**Next task:** ENG-002 (MNT-INT-001 investigated; CAP-005 needs a physical device for the Foundation Models spike)  
 **Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
 **Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -155,7 +155,7 @@ See `../engineering/quality-and-ci.md`.
 
 | ID | Title | Est | Deps | Status | GitHub |
 |---|---|---:|---|---|---|
-| MNT-INT-001 | Maintenance intelligence investigations | 5d+ | M4 | tracked | #36 |
+| MNT-INT-001 | Maintenance intelligence investigations | 5d+ | M4 | investigated (see [`investigations/mnt-int-001-maintenance-intelligence.md`](investigations/mnt-int-001-maintenance-intelligence.md)); owner decisions pending | #36 |
 
 ## Legacy
 

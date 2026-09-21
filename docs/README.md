@@ -94,6 +94,7 @@ highest affected layer; evidence from operations flows back up.
 - `planning/roadmap.md`
 - `planning/work-plan.md`
 - `planning/investigations.md`
+- `planning/investigations/mnt-int-001-maintenance-intelligence.md` — manufacturer data, presets, richer Road milestones: sources, licences, recommendation
 - `tasks/template.md`
 - `engineering/agent-loop-and-gitflow.md`
 - `engineering/product-review-process.md` — gate before feature implementation

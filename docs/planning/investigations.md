@@ -178,6 +178,10 @@ Investigate:
 - source revision;
 - correction workflow.
 
+Investigated 2026-09-21 in MNT-INT-001
+([`investigations/mnt-int-001-maintenance-intelligence.md`](investigations/mnt-int-001-maintenance-intelligence.md)):
+no app-supplied manufacturer data for now; owner decision pending.
+
 ### INV-VEH-003 Progressive vehicle discovery
 
 Question: Which vehicle facts unlock immediate product value?
@@ -196,6 +200,10 @@ Region may reorder options. It must not become vehicle truth.
 
 Can official sources reliably identify required components of procedures?
 
+Partly addressed by MNT-INT-001: procedure composition shares the source,
+licence, and verification problem of INV-VEH-002; a fictional fixture test is
+proposed (MNT-INT-002).
+
 ### INV-MNT-002 Service grouping
 
 What grouping window matches real owner behaviour?
@@ -203,6 +211,15 @@ What grouping window matches real owner behaviour?
 ### INV-MNT-003 User interval overrides
 
 Validate how users express simple anchor philosophies such as 5/7.5/10/15 thousand km.
+
+### MNT-INT-001 Maintenance intelligence (Phase 7)
+
+Question: Which manufacturer data, presets, and richer Road milestones are
+viable after core product validation, and under which gates?
+
+Record: [`investigations/mnt-int-001-maintenance-intelligence.md`](investigations/mnt-int-001-maintenance-intelligence.md)
+(investigated 2026-09-21; owner decisions pending). The full record lives in
+its own file because it cites external sources and proposes follow-up tasks.
 
 ## System investigations
 
