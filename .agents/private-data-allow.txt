@@ -1,0 +1,6 @@
+# Reviewed false positives for the kit private-data scan (one regex per line,
+# matched against "path:line"). Each entry states why it is not private data.
+
+# Fictional PostHog key used only to test the request payload (ADR 0022); no
+# real project key is ever committed.
+^PitstopTests/Analytics/PostHogAnalyticsClientTests\.swift:private let apiKey[ ]=[ ]"phc[_]fictional[_]test[_]key"$
