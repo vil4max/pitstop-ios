@@ -168,7 +168,7 @@ WIP limit: **1** active implementation issue (solo).
 
 Legacy tab-bar spike: branch `legacy/spike`. Current product: `main`.
 
-**GitHub Project:** [PitStop board #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36. One task **In progress** at a time (solo).
+**Backlog:** [`../planning/work-plan.md`](../planning/work-plan.md) and the delivery brief; the GitHub board was deleted on 2026-09-21. One task **In progress** at a time (solo).
 
 **Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. Implementation PRs must pass the local Runtime gate and review. Documentation-only changes use proportional checks; CI runs on GitHub-hosted runners (ADR 0014).
 

@@ -2,7 +2,7 @@
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
 **Next task:** CAP-007 (CAP-001…004 and CAP-006 implemented; CAP-005 needs a physical device for the Foundation Models spike)  
-**Board:** retired. [Project #2](https://github.com/users/vil4max/projects/2) lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
+**Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
 **Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
 **Estimates:** ideal focused dev days  
