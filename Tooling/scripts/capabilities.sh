@@ -45,9 +45,11 @@ simulator_cap() {
     cap_json_obj false false false
     return 0
   fi
-  local name
+  local name udid
   name="$(sim_name)"
-  if xcrun simctl list devices available 2>/dev/null | grep -q "$name"; then
+  udid="$(sim_udid_configured)"
+  # A reserved device must exist by UDID; a name match would report another project's simulator as healthy.
+  if xcrun simctl list devices available 2>/dev/null | grep -q -- "${udid:-$name}"; then
     cap_json_obj true true true
   else
     cap_json_obj true true false

@@ -17,7 +17,10 @@ if [[ "${RUNTIME_XCODEBUILD_BUILD_FOR_TESTING:-false}" == true ]]; then
   ACTION=build-for-testing
 fi
 
-ARGS=(-scheme "$SCHEME" -destination "$DEST" -configuration Debug "$ACTION")
+ARGS=(-scheme "$SCHEME" -destination "$DEST" -configuration Debug)
+while IFS= read -r flag; do ARGS+=("$flag"); done < <(xcodebuild_validation_flags)
+while IFS= read -r flag; do ARGS+=("$flag"); done < <(xcodebuild_ci_flags)
+ARGS+=("$ACTION")
 if [[ -n "$WS" ]]; then
   ARGS=(-workspace "$WS" "${ARGS[@]}")
 elif [[ -n "$PROJ" ]]; then

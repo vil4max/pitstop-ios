@@ -194,3 +194,14 @@ See [brewfile.md](brewfile.md): `swiftlint` and `swiftformat` are required when 
 [ ] If template changed: version bump + this doc updated + --reset-style only where intended
 [ ] Friction log updated if the same tightening is needed in a second app
 ```
+
+## Paths in `excluded` / `--exclude`
+
+Both tools resolve exclusion paths against the directory of the config file.
+The configs live in `Tooling/`, so an entry must start with `../` to reach the
+repository root: `../DerivedData`, `../.claude`. Unprefixed entries only work
+for a config placed at the root. Apps installed before 2026-09-21 carry
+unprefixed entries that never matched; add the `../` lines by hand —
+`harness-update` does not rewrite app-owned style files. The template also
+aligns two SwiftLint rules with SwiftFormat's output (`trailing_comma`,
+`opening_brace`); copy those blocks if the linter warns about formatted code.

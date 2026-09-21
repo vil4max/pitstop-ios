@@ -19,4 +19,10 @@ ROOT="$(project_root)"
 CONF="$TOOLING_ROOT/.swiftformat"
 [[ -f "$CONF" ]] || CONF="$ROOT/.swiftformat"
 [[ -f "$CONF" ]] || CONF="$RUNTIME_ROOT/templates/swiftformat"
-swiftformat "$ROOT" --config "$CONF"
+# CI checks and never rewrites: a rewrite on a runner would pass a commit whose
+# committed files are still unformatted.
+if [[ "${CI:-}" == true ]]; then
+  swiftformat "$ROOT" --config "$CONF" --lint
+else
+  swiftformat "$ROOT" --config "$CONF"
+fi

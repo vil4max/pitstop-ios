@@ -2,23 +2,78 @@
   "product": "iOS Agent Runtime",
   "layout": "Tooling/",
   "commands": [
-    { "name": "doctor", "availability": "ready" },
-    { "name": "env", "availability": "ready" },
-    { "name": "diagnose", "availability": "ready" },
-    { "name": "format", "availability": "ready" },
-    { "name": "lint", "availability": "ready" },
-    { "name": "build", "availability": "ready" },
-    { "name": "test", "availability": "ready" },
-    { "name": "verify", "availability": "ready" },
-    { "name": "ci", "availability": "ready" },
-    { "name": "run-sim", "availability": "ready" },
-    { "name": "clean", "availability": "ready" },
-    { "name": "reset", "availability": "ready" },
-    { "name": "release", "availability": "stub" },
-    { "name": "profile", "availability": "stub" },
-    { "name": "harness-update", "availability": "ready" }
+    {
+      "name": "doctor",
+      "availability": "ready"
+    },
+    {
+      "name": "env",
+      "availability": "ready"
+    },
+    {
+      "name": "diagnose",
+      "availability": "ready"
+    },
+    {
+      "name": "format",
+      "availability": "ready"
+    },
+    {
+      "name": "lint",
+      "availability": "ready"
+    },
+    {
+      "name": "build",
+      "availability": "ready"
+    },
+    {
+      "name": "test",
+      "availability": "ready"
+    },
+    {
+      "name": "verify",
+      "availability": "ready"
+    },
+    {
+      "name": "ci",
+      "availability": "ready"
+    },
+    {
+      "name": "run-sim",
+      "availability": "ready"
+    },
+    {
+      "name": "clean",
+      "availability": "ready"
+    },
+    {
+      "name": "reset",
+      "availability": "ready"
+    },
+    {
+      "name": "build-slot",
+      "availability": "ready"
+    },
+    {
+      "name": "tf-check",
+      "availability": "ready"
+    },
+    {
+      "name": "release",
+      "availability": "stub"
+    },
+    {
+      "name": "profile",
+      "availability": "stub"
+    },
+    {
+      "name": "harness-update",
+      "availability": "ready"
+    }
   ],
-  "profiles": ["minimal"],
+  "profiles": [
+    "minimal"
+  ],
   "capabilities_declared": [
     "xcodebuild",
     "swift",

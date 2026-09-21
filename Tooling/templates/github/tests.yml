@@ -1,0 +1,96 @@
+name: Tests
+
+# Installed by ios-agent-toolchain (docs/ci.md). Copy to .github/workflows/tests.yml
+# unchanged: the file is identical in every app. Per-app settings are repository
+# variables, and per-app CI work is the app's own `just ci` recipe.
+#
+#   IOS_RUNNER         runner label (default xcode-27, GitHub-hosted); a private
+#                      repository uses "self-hosted" to avoid billed macOS minutes
+#   IOS_DEVELOPER_DIR  Xcode to use (default the image's versioned Xcode_27.0)
+#   SONAR_ENABLED      "true" adds the Sonar job; the app's `just ci` writes
+#                      build/ci/sonar/coverage.xml and the repo has SONAR_TOKEN
+#
+# Actions are pinned by commit SHA (the versions regional-check and OneCart
+# already trusted), so a moved tag cannot change what runs. Tools installed by
+# brew are not pinned: a hosted image gets the current formula on each run.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+# Every push to main runs to completion in its own group: a tf- or v tag needs a
+# finished run for that exact commit (docs/testflight.md). Only superseded
+# pull-request runs are cancelled.
+concurrency:
+  group: tests-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ci:
+    name: just ci
+    runs-on: ${{ vars.IOS_RUNNER || 'xcode-27' }}
+    timeout-minutes: 45
+    env:
+      # The versioned path fails loudly if the image changes its default Xcode,
+      # instead of silently testing against another SDK.
+      DEVELOPER_DIR: ${{ vars.IOS_DEVELOPER_DIR || '/Applications/Xcode_27.0.app/Contents/Developer' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Show Xcode
+        run: xcodebuild -version
+
+      # Hosted images lack some of these; a self-hosted Mac already has them.
+      - name: Install Runtime tools
+        run: |
+          for tool in just yq swiftlint swiftformat xcbeautify; do
+            command -v "$tool" >/dev/null || brew install "$tool"
+          done
+
+      - name: just ci
+        run: just ci
+
+      - name: Test summary
+        if: always()
+        run: |
+          bundle=build/ci/results/tests.xcresult
+          [ -d "$bundle" ] || exit 0
+          {
+            echo '## Coverage'
+            echo '```'
+            xcrun xccov view --report --only-targets "$bundle" || echo 'no coverage in this run'
+            echo '```'
+          } >>"$GITHUB_STEP_SUMMARY"
+
+      - name: Upload CI output
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ci-output
+          path: build/ci
+          if-no-files-found: ignore
+          retention-days: 7
+
+  sonar:
+    name: SonarQube Cloud scan
+    needs: ci
+    if: vars.SONAR_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # new-code detection and blame need history
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ci-output
+          path: build/ci
+
+      - uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

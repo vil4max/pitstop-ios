@@ -19,15 +19,15 @@ echo "test backend: $BACKEND"
 
 case "$BACKEND" in
   xcode_tools)
-    exec "$BACKEND_ROOT/build/xcode_tools/test.sh"
+    exec "$BACKEND_ROOT/build/xcode_tools/test.sh" "$@"
     ;;
   xcodebuild_mcp)
-    exec "$BACKEND_ROOT/build/mcp/test.sh"
+    exec "$BACKEND_ROOT/build/mcp/test.sh" "$@"
     ;;
   swiftpm)
-    exec "$BACKEND_ROOT/build/swiftpm/test.sh"
+    exec "$BACKEND_ROOT/build/swiftpm/test.sh" "$@"
     ;;
   xcodebuild|*)
-    exec "$BACKEND_ROOT/build/xcodebuild/test.sh"
+    exec "$BACKEND_ROOT/build/xcodebuild/test.sh" "$@"
     ;;
 esac

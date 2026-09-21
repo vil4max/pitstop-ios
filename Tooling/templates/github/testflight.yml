@@ -1,0 +1,44 @@
+name: TestFlight
+
+# Installed by ios-agent-toolchain (docs/testflight.md). Copy to
+# .github/workflows/testflight.yml.
+#
+# A tf-MAJOR.MINOR.PATCH-BUILD tag moves the testflight branch, which Xcode Cloud
+# archives for internal TestFlight. Pushing to main requests nothing: every build
+# spends Xcode Cloud compute and an App Store Connect upload slot. A
+# vMAJOR.MINOR.PATCH tag moves nothing; it is checked to mark a commit whose own
+# TestFlight build was submitted.
+on:
+  push:
+    tags: ["tf-*", "v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to process, for example tf-1.3.0-1 or v1.3.0
+        required: true
+
+permissions:
+  actions: read # tf-promote.sh reads the tests run of the tagged commit
+  contents: write # moves the testflight branch
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Process release tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Promote tf tag or check v marker
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+          # Name of the workflow file that runs the tests on pushes to main.
+          TF_TESTS_WORKFLOW: tests.yml
+        run: Tooling/scripts/tf-promote.sh "$TAG"

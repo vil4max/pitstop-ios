@@ -49,7 +49,9 @@ DERIVED="$(mktemp -d "${TMPDIR:-/tmp}/harness-run-sim.XXXXXX")"
 cleanup() { rm -rf "$DERIVED"; }
 trap cleanup EXIT
 
-XB_ARGS=(-scheme "$SCHEME" -destination "$DEST" -configuration Debug -derivedDataPath "$DERIVED" build)
+XB_ARGS=(-scheme "$SCHEME" -destination "$DEST" -configuration Debug -derivedDataPath "$DERIVED")
+while IFS= read -r flag; do XB_ARGS+=("$flag"); done < <(xcodebuild_validation_flags)
+XB_ARGS+=(build)
 if [[ -n "$WS" ]]; then
   XB_ARGS=(-workspace "$WS" "${XB_ARGS[@]}")
 elif [[ -n "$PROJ" ]]; then
@@ -102,19 +104,7 @@ BUNDLE_ID="$(
 )"
 [[ -n "$BUNDLE_ID" ]] || { echo "could not read CFBundleIdentifier from $APP_PATH/Info.plist" >&2; exit 1; }
 
-UDID="$(
-  xcrun simctl list devices available -j 2>/dev/null \
-    | /usr/bin/python3 -c "
-import json, sys
-name = sys.argv[1]
-data = json.load(sys.stdin)
-for devices in data.get('devices', {}).values():
-    for d in devices:
-        if d.get('name') == name and d.get('isAvailable', True):
-            print(d['udid'])
-            raise SystemExit(0)
-" "$SIM" 2>/dev/null || true
-)"
+UDID="$(sim_udid)"
 
 echo "run-sim: boot simulator $SIM"
 if [[ -n "$UDID" ]]; then
