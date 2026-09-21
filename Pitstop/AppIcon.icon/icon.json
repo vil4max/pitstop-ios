@@ -1,0 +1,62 @@
+{
+  "fill-specializations" : [
+    {
+      "value" : {
+        "linear-gradient" : [
+          "srgb:0.29020,0.56078,0.89020,1.00000",
+          "srgb:0.10196,0.36863,0.70196,1.00000"
+        ]
+      }
+    },
+    {
+      "appearance" : "dark",
+      "value" : {
+        "linear-gradient" : [
+          "srgb:0.09000,0.16000,0.29000,1.00000",
+          "srgb:0.03000,0.06000,0.13000,1.00000"
+        ]
+      }
+    }
+  ],
+  "groups" : [
+    {
+      "name" : "2-highlights",
+      "layers" : [
+        {
+          "image-name" : "2-highlights.svg",
+          "name" : "2-highlights",
+          "glass" : false
+        }
+      ],
+      "shadow" : {
+        "kind" : "none",
+        "opacity" : 0.5
+      },
+      "specular" : false
+    },
+    {
+      "name" : "1-eyes",
+      "layers" : [
+        {
+          "image-name" : "1-eyes.svg",
+          "name" : "1-eyes",
+          "glass" : true
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.15
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : [
+      "iOS"
+    ]
+  }
+}

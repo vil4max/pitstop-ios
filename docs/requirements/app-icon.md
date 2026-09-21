@@ -1,136 +1,116 @@
-# App Icon Strategy
+# App Icon
 
-**Status:** immediate product identity task
+**Status:** Primary icon delivered (ICON-001, 2026-09-22); requirements below
+are `proposed` except the owner-decided concept\
+**Decision record:** [`../decisions/0029-app-icon-pit-eyes.md`](../decisions/0029-app-icon-pit-eyes.md)
 
-## Problem
+Core: P5
 
-The current blue `A` icon is inherited from the Arteon/Volkswagen
-experiment.
+## Purpose
 
-It does not communicate PitStop and does not create ownership
-recognition for the developer/user.
+The owner sees the icon on the Home Screen and recognises PitStop at once.
+The icon is the product's face outside the app, so it uses the same face as
+inside the app: Pit's two eyes (ADR 0009, ADR 0028).
 
-## Immediate decision
+## Current icon
 
-Create a PitStop primary icon now.
+- Source: one Icon Composer document, `Pitstop/AppIcon.icon`, picked up by the
+  synchronized `Pitstop/` folder. The target's
+  `ASSETCATALOG_COMPILER_APPICON_NAME` is `AppIcon`. There is no
+  `AppIcon.appiconset`.
+- Foreground: Pit's resting eyes (white, Liquid Glass) and their upper
+  specular highlights (cloud blue), both vector layers.
+- Background: an Icon Composer gradient fill, cloud blue in the default
+  appearance and deep navy in the dark appearance.
+- The system renders the clear and tinted appearances from the same document.
 
-Objective:
+## Constraints
 
-> Max sees the icon on the Home Screen and immediately recognizes: this
-> is my PitStop app.
+- No text, wordmark, letter or tagline.
+- No car silhouette, wrench, racing flag, speedometer, or any manufacturer
+  mark, geometry or signature colour.
+- No baked effects in the layer artwork: no shadows, blurs, glows, specular
+  highlights, bevels or background gradients in the SVGs. Liquid Glass effects
+  and the background come from Icon Composer.
+- No pre-masked layers: the system applies the icon shape.
 
-The icon should not use Volkswagen branding or a Volkswagen blue as its
-identity.
+## Requirements
 
-## Icon concept
+Status `proposed` means derived from the text above and awaiting owner
+approval.
 
-Primary direction:
+### REQ-ICON-001 — The icon is Pit's eyes
+Status: approved (owner decision 2026-09-21)
+Core: P5
+Source: [Purpose](#purpose), ADR 0029
+Given the primary app icon
+When it is shown in any appearance
+Then its only foreground motif is Pit's two eyes, with no text or letter
 
-``` text
-simple rounded route/service mark
-+
-subtle P / pit-stop association
-+
-calm cloud-blue field
-+
-warm maintenance accent
-```
+### REQ-ICON-002 — Eye geometry matches the in-app glyph
+Status: proposed
+Core: P5
+Source: [Purpose](#purpose), ADR 0028
+Given the eye outline and highlight position of `PitEyesGlyph` in the resting state
+When the icon layers are drawn
+Then each eye uses the `PitEyeShape` outline at resting openness, the pair keeps the glyph's eye size to spacing ratio, and the highlight keeps its offset from the eye centre, uniformly scaled
 
-Avoid: - car silhouette clip art; - wrench + car cliché; - racing
-flag; - speedometer; - VW-like geometry; - letter `A`; - text; - fine
-mechanical detail.
+### REQ-ICON-003 — One app icon source
+Status: proposed
+Core: P5
+Source: [Current icon](#current-icon)
+Given the Pitstop target
+When the app is built with the default Xcode used by CI
+Then the only app icon source is `Pitstop/AppIcon.icon`, and the built `Assets.car` contains `AppIcon` renditions for the any, dark and tintable appearances
 
-Apple's app-icon guidance favors simplicity and recognition; fine detail
-becomes hard to read at small sizes.
+### REQ-ICON-004 — Every appearance is legible
+Status: proposed
+Core: P5
+Source: [Current icon](#current-icon), ADR 0029 "Appearances"
+Given the default, dark, clear light, clear dark, tinted light and tinted dark appearances
+When the icon is rendered in each of them
+Then both eyes read as separate shapes against the background, and the dark appearance uses its own dark fill rather than the default fill
 
-## P0 icon variants to design
+### REQ-ICON-005 — Small sizes stay legible
+Status: proposed
+Core: P5
+Source: [Constraints](#constraints)
+Given the icon rendered at 40, 60 and 120 pixels in every appearance
+When it is viewed on light and dark grounds
+Then the two eyes remain distinct and no detail is required to recognise them
 
-1.  **Primary --- Calm Blue**
-2.  **Soft Graphite**
-3.  **Warm Garage**
+### REQ-ICON-006 — No text, marks or baked effects
+Status: proposed
+Core: P5
+Source: [Constraints](#constraints)
+Given the layer artwork in `Pitstop/AppIcon.icon/Assets`
+When it is inspected
+Then it contains only filled vector shapes with no text, no manufacturer marks, no effects and no background
 
-The primary icon is selected before the next dogfood build.
+### REQ-ICON-007 — Colours come from the design system
+Status: proposed
+Core: P5
+Source: ADR 0009, ADR 0029 "Design"
+Given the icon's fill and layer colours
+When they are compared with `PitColor`
+Then the default fill ends on the light `accentPrimary` value and the highlights use it, and the eyes are white as `contentPrimary` is in dark mode
 
-## Alternate app icons
+## Acceptance (ICON-001)
 
-iOS supports alternate app icon sets and runtime switching through
-`setAlternateIconName`.
+- Six appearances rendered with `ictool` (design generation 27) and inspected.
+- 120, 60 and 40 px renders inspected on light and dark grounds.
+- Built app: `CFBundleIcons.CFBundlePrimaryIcon.CFBundleIconName` is
+  `AppIcon`; `xcrun assetutil --info` lists `AppIcon` icon images for the any,
+  dark and tintable appearances.
+- Home Screen screenshot on the simulator.
+- `just verify` passes with the default Xcode.
 
-P1 product capability:
+## Deferred
 
-``` text
-Settings
-→ App Icon
-→ Default
-→ Graphite
-→ Warm
-```
-
-Do not auto-switch icon by vehicle make.
-
-## Vehicle-make icon hypothesis
-
-Interesting, but risky.
-
-Problems: - trademark/brand usage; - false implication of manufacturer
-affiliation; - exploding asset matrix; - the app identity disappears; -
-multi-car future conflicts.
-
-Rejected for P1:
-
-``` text
-Volkswagen icon
-BMW icon
-Audi icon
-...
-```
-
-## Better future hypothesis
-
-Vehicle-inspired accent icons:
-
-``` text
-Ocean
-Graphite
-Forest
-Warm
-```
-
-The user selects a mood/accent, potentially suggested from their
-car/photo later.
-
-No manufacturer logos.
-
-## Metrics
-
-Track only if icon selection ships:
-
-``` text
-app_icon_picker_opened
-app_icon_changed
-```
-
-Parameters:
-
-``` text
-icon_variant = default | graphite | warm
-```
-
-No vehicle make in event.
-
-## Acceptance criteria
-
--   no Volkswagen mark/color dependency;
--   recognizable at Home Screen size;
--   works with current iOS icon rendering/treatments;
--   no text/fine detail;
--   primary icon visible in next dogfood build;
--   alternate icon architecture is documented but not required to block
-    core product work.
-
-## Task
-
-`ICON-001 — Replace Arteon A icon with PitStop primary icon`
-
-This is a small product-identity task and should not wait for the full
-design-system migration.
+- **Alternate app icons** (for example Graphite and Warm, chosen in Settings).
+  iOS supports them through `setAlternateIconName`; each alternate needs its
+  own dark, clear and tinted variants. Not scheduled. If it ships, the
+  analytics events are `app_icon_picker_opened` and `app_icon_changed` with
+  `icon_variant` only, and no vehicle make in any event.
+- **Vehicle-make icons.** Rejected: trademark use, implied manufacturer
+  affiliation, an asset matrix per make, and the app's own identity disappears.

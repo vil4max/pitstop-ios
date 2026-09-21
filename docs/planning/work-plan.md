@@ -83,6 +83,8 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
 - Progressive discovery: DISC-001…004 (ADR 0012, 0016–0019).
 - Pit motion: PIT-MOTION-001, livelier eyes and the full motion language
   (owner request 2026-09-21, ADR 0028).
+- App icon: ICON-001, Pit's eyes as a Liquid Glass Icon Composer icon
+  (owner decision 2026-09-21, ADR 0029).
 - System capture: SYS-001…006 (ADR 0023–0026).
 - Analytics: ENG-002, ANL-001 (ADR 0021, 0022); maintenance intelligence
   investigation MNT-INT-001.

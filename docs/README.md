@@ -33,6 +33,7 @@ highest affected layer; evidence from operations flows back up.
 - `requirements/product-design.md`
 - `engineering/design-system-module.md`
 - `requirements/app-icon.md`
+- `decisions/0029-app-icon-pit-eyes.md` — ICON-001: Liquid Glass app icon from Pit's resting eyes in one Icon Composer document (`Pitstop/AppIcon.icon`), appiconset removed, dark fill specialization key shape, six appearances, how to edit
 - `requirements/car-board-screen.md`
 - `requirements/road-domain-and-ui.md`
 - `requirements/pit-behavior-and-motion.md`
