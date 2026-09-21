@@ -30,8 +30,9 @@ the installed `Tooling/` slice from `ios-agent-toolchain`.
 - Simulator and gate settings: `Tooling/runtime.yml`.
 - Environment: `just doctor --json`.
 - Local implementation gate: `just verify`.
-- CI: shared Runtime pipeline (ADR 0013). A push to `main` runs tests on the
-  self-hosted runner and builds nothing; local `just verify` stays the gate.
+- CI: shared Runtime pipeline (ADR 0013). Once the owner enables Actions and
+  registers the self-hosted runner, a push to `main` runs tests and builds
+  nothing; until then a push runs nothing. Local `just verify` is the gate.
 - TestFlight: an agent may create and push a `tf-` tag only after
   `just tf-check` prints `Ready` for a commit on `origin/main`. `v` tags and
   App Review submission are owner-only. Procedure: `Tooling/docs/testflight.md`.

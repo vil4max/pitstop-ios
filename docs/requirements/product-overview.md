@@ -170,7 +170,7 @@ Legacy tab-bar spike: branch `legacy/spike`. Current product: `main`.
 
 **GitHub Project:** [PitStop board #2](https://github.com/users/vil4max/projects/2) — full backlog as issues #1–#36. One task **In progress** at a time (solo).
 
-**Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. Implementation PRs must pass the local Runtime gate and review. Documentation-only changes use proportional checks; CI runs on a self-hosted runner (ADR 0013).
+**Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. Implementation PRs must pass the local Runtime gate and review. Documentation-only changes use proportional checks; CI runs on a self-hosted runner once set up (ADR 0013).
 
 **Branch protection:** the ruleset proposal may require a PR where supported;
 do not require hosted status checks until the self-hosted runner is reliable. Local review and

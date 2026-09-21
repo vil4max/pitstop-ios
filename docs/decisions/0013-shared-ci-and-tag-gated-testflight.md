@@ -62,12 +62,14 @@ keeping manual uploads.
 
 ## Owner setup (outside the repository)
 
-Until these are done, a push runs nothing and a `tf-` tag cannot pass the gate:
+Until these are done, a push runs nothing and a `tf-` tag cannot pass the gate.
+The order matters: with Actions enabled and `IOS_RUNNER` unset, a push runs on
+the default GitHub-hosted macOS image, which is billed.
 
-1. Enable GitHub Actions for the repository.
-2. Register the self-hosted runner and set `IOS_RUNNER=self-hosted`,
+1. Register the self-hosted runner and set `IOS_RUNNER=self-hosted`,
    `IOS_DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`
    (`Tooling/docs/ci.md`, "Self-hosted runner on this Mac").
+2. Enable GitHub Actions for the repository.
 3. In App Store Connect, create one Xcode Cloud workflow started by the
    `testflight` branch, with archive distribution **TestFlight and App Store**.
 

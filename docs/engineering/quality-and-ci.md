@@ -187,7 +187,8 @@ a completed gate on unchanged contents solely for another workflow stage.
 
 The local Runtime gate is the implementation gate. GitHub Actions runs the
 shared Runtime pipeline on a self-hosted runner on the owner's Mac (no hosted
-macOS minutes); a push to `main` only runs tests
+macOS minutes) once the owner has completed the setup in ADR 0013; a push to
+`main` then only runs tests
 ([ADR 0013](../decisions/0013-shared-ci-and-tag-gated-testflight.md)). A green
 hosted run is additional evidence, not a substitute. Use `just verify` for app implementation and record the command, result, and
 reviewed revision in the PR. Use proportional diff/link/config checks for

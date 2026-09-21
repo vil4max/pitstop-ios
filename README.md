@@ -52,8 +52,9 @@ The installed Runtime and shell executors are included in this repository;
 verification does not need access to the private Kit repository. Host setup
 instructions and project facts are in [`AGENTS.md`](AGENTS.md).
 
-`just verify` is the local gate; GitHub Actions runs the shared Runtime tests
-workflow on a self-hosted runner, and TestFlight builds are tag-gated
+`just verify` is the local gate. The shared Runtime tests workflow runs on a
+self-hosted runner once the owner has set it up, and TestFlight builds are
+tag-gated
 ([ADR 0013](docs/decisions/0013-shared-ci-and-tag-gated-testflight.md)).
 Record the command and result in the PR. The ruleset JSON remains a proposal
 until applied in GitHub and does not require a hosted check. Documentation-only

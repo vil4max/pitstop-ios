@@ -21,8 +21,9 @@
 Calendar solo multiplier: ×1.4–1.6 → M4 ≈ 12–16 weeks.
 
 M0/M1 completion records are historical. ENG-003 is reopened for the current
-agent-loop setup. Hosted CI was retired by owner decision; branch protection
-remains a proposal, not an active guarantee.
+agent-loop setup. Hosted CI was retired and later replaced by the shared Runtime pipeline on a
+self-hosted runner (ADR 0013); branch protection remains a proposal, not an
+active guarantee.
 
 ## Feature readiness vs milestone completion
 
@@ -67,7 +68,8 @@ in M4; raw preservation is both a normal Remember mode and the safe fallback.
 | WIP | Max 1 issue **In progress** on board |
 
 Implementation verification: local `just verify` (formatting, lint, build, tests).
-Hosted checks are disabled. See `../engineering/quality-and-ci.md`.
+GitHub Actions adds a tests run on a self-hosted runner once set up (ADR 0013).
+See `../engineering/quality-and-ci.md`.
 
 ## Phase 0 — Product contracts
 
@@ -91,7 +93,7 @@ Hosted checks are disabled. See `../engineering/quality-and-ci.md`.
 |---|---|---:|---|---|---|
 | BOOT-001 | App scaffold + folder tree | 2d | — | done | — |
 | ENG-001 | Logging facade | 1d | BOOT-001 | done | — |
-| ENG-003 | Local quality gates (hosted CI retired) | 2d | BOOT-001 | tracked | — |
+| ENG-003 | Local quality gates (shared CI: ADR 0013) | 2d | BOOT-001 | tracked | — |
 | ENG-004 | Persistence + provisional car | 3d | DOM-003 | implemented on branch, unmerged | #5 |
 | ENG-002 | Analytics boundary | 2d | CB-002 | tracked | #6 |
 | ANL-001 | Analytics spike | 2d | ENG-002 | tracked | #7 |
