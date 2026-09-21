@@ -112,6 +112,26 @@ context=car_wash
 
 Thresholds and decision rules live in `analytics-questions.md`.
 
+Implementation state: the provider-neutral boundary and the first wired events
+are recorded in `../decisions/0021-analytics-boundary.md` (ENG-002). Nothing is
+sent until a provider adapter (`ANL-001`) and user consent exist.
+
+`draft_saved` and `draft_cancelled` count only drafts the user was shown
+(confirmation or clarification). An auto-accepted interpreted proposal is not
+a draft event; its fact event (`note_created`, `odometer_updated`) still fires.
+
+## Proposed events (`REVIEW`, not collected)
+
+Shipped features without an event in the taxonomy. Each is a proposal from
+ENG-002 (ADR 0021) and stays uncollected until it has an `AQ-*` owner or an
+approved investigation and passes the telemetry change gate.
+
+| Event | Parameters | Motivation | Status |
+| --- | --- | --- | --- |
+| `pit_question_asked` | `question = current_mileage`, `context = car_board \| notes \| service \| history \| road` | ADR 0017 and 0018 ask how often a question is asked and where | `REVIEW` (proposed) |
+| `pit_question_resolved` | `question`, `resolution = answered \| deferred \| dismissed`, `is_return = true \| false` | ADR 0018: how often a returned deferral is answered versus deferred again | `REVIEW` (proposed) |
+| `car_board_tile_opened` | `tile = notes \| history \| service \| road` | Car Board navigation value; could support `AQ-001` and `AQ-005` | `REVIEW` (proposed) |
+
 ## P0 event taxonomy
 
 ### car_context_first_enriched

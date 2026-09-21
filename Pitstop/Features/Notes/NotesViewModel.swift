@@ -39,12 +39,19 @@ final class NotesViewModel {
 
     private let store: any CarMemoryStore
     private let pipeline: RememberPipeline
+    private let analytics: any AnalyticsTracking<NotesAnalyticsEvent>
     private let now: @Sendable () -> Date
 
-    init(store: any CarMemoryStore, now: @escaping @Sendable () -> Date = { Date() }) {
+    init(
+        store: any CarMemoryStore,
+        analytics: any AnalyticsTracking<NotesAnalyticsEvent> = NoAnalyticsTracker(),
+        captureObserver: any CaptureStageObserving = CaptureStageLogger(),
+        now: @escaping @Sendable () -> Date = { Date() }
+    ) {
         self.store = store
+        self.analytics = analytics
         self.now = now
-        pipeline = RememberPipeline(store: store, observer: CaptureStageLogger(), now: now)
+        pipeline = RememberPipeline(store: store, observer: captureObserver, now: now)
     }
 
     func load() async {
@@ -74,7 +81,15 @@ final class NotesViewModel {
     }
 
     func select(context: NoteContext?) {
+        // `note_context_opened` is about recall of active notes (AQ-001); browsing the archive is not.
+        let isOpening = state.scope == .active && context != nil && context != state.contextFilter
         state.contextFilter = context
+        guard isOpening, let context else { return }
+        let active = state.notes.count(where: { $0.status == .active && $0.canonicalContexts.contains(context) })
+        analytics.track(.noteContextOpened(
+            context: AnalyticsNoteContext(context),
+            activeNoteCount: CountBucket(active)
+        ))
     }
 
     /// Direct app capture is a capture source like any other, so it goes through the pipeline
@@ -97,9 +112,15 @@ final class NotesViewModel {
     }
 
     func setStatus(_ status: NoteStatus, for note: Note) async -> Bool {
+        // Read before `finish()` reloads: the filter resets when its last note leaves the list.
+        let sourceContext = NoteSourceContext(state.contextFilter)
         guard await update(UpdateNoteCommand(noteID: note.id, status: status)) else {
             state.listFailure = .notSaved
             return false
+        }
+        if status == .archived, note.status != .archived {
+            let age = AgeBucket(now().timeIntervalSince(note.createdAt))
+            analytics.track(.noteArchived(sourceContext: sourceContext, age: age))
         }
         return await finish()
     }

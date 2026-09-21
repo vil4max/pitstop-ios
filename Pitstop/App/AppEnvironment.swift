@@ -9,26 +9,31 @@ struct AppEnvironment: Sendable {
     }
 
     static let inMemoryArgument = "-pitstop-in-memory"
+    /// DEBUG only: product events go to the local log instead of nowhere, as if the user had opted in.
+    static let analyticsLogArgument = "-pitstop-analytics-log"
 
     let store: any CarMemoryStore
     /// Shares the car memory's container, so both live in one file under one migration plan (ADR 0016).
     let questions: any PitQuestionStateStore
     let registry: PitQuestionRegistry
     let persistence: Persistence
+    /// Already consent-gated; the only analytics client feature trackers are built from (ADR 0021).
+    let analytics: any AnalyticsClient
     /// Runs once before the first load. Only the DEBUG demo launch uses it.
     var prepare: (@Sendable () async -> Void)?
 
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppEnvironment {
         let log = AppLog.logger(category: "app.persistence")
         let registry = productRegistry()
+        let analytics = analyticsClient(arguments: arguments)
         #if DEBUG
             if arguments.contains(DemoData.argument) {
                 // Demo facts never reach the user's store, even when the in-memory store cannot be built.
                 guard let stores = makeStores(url: nil, registry: registry) else {
-                    return .unavailable(registry: registry)
+                    return .unavailable(registry: registry, analytics: analytics)
                 }
                 let staleMileage = arguments.contains(DemoData.staleMileageArgument)
-                return AppEnvironment(stores, registry: registry, persistence: .temporary) {
+                return AppEnvironment(stores, registry: registry, persistence: .temporary, analytics: analytics) {
                     await DemoData.seed(stores.car, staleMileage: staleMileage)
                 }
             }
@@ -36,19 +41,36 @@ struct AppEnvironment: Sendable {
         if arguments.contains(inMemoryArgument) {
             // Never fall through to the user's real store from a test or preview launch.
             guard let stores = makeStores(url: nil, registry: registry) else {
-                return .unavailable(registry: registry)
+                return .unavailable(registry: registry, analytics: analytics)
             }
-            return AppEnvironment(stores, registry: registry, persistence: .temporary)
+            return AppEnvironment(stores, registry: registry, persistence: .temporary, analytics: analytics)
         }
         if let stores = makeStores(url: PersistenceContainer.defaultStoreURL, registry: registry) {
-            return AppEnvironment(stores, registry: registry, persistence: .durable)
+            return AppEnvironment(stores, registry: registry, persistence: .durable, analytics: analytics)
         }
         // Core P2: the app must still open. The user is told that nothing will be kept.
         log.error("Persistent store unavailable; falling back to memory")
         guard let fallback = makeStores(url: nil, registry: registry) else {
-            return .unavailable(registry: registry)
+            return .unavailable(registry: registry, analytics: analytics)
         }
-        return AppEnvironment(fallback, registry: registry, persistence: .temporary)
+        return AppEnvironment(fallback, registry: registry, persistence: .temporary, analytics: analytics)
+    }
+
+    /// No provider is approved yet (ANL-001) and no consent has been asked for, so the production
+    /// client sends nothing. The gate stays in place for the adapter that replaces the no-op.
+    private static func analyticsClient(arguments: [String]) -> any AnalyticsClient {
+        #if DEBUG
+            if arguments.contains(analyticsLogArgument) {
+                return ConsentGatedAnalyticsClient(
+                    client: LoggingAnalyticsClient(),
+                    consent: FixedAnalyticsConsent(consent: .granted)
+                )
+            }
+        #endif
+        return ConsentGatedAnalyticsClient(
+            client: NoAnalyticsClient(),
+            consent: FixedAnalyticsConsent(consent: .notAsked)
+        )
     }
 
     private typealias Stores = (car: SwiftDataCarMemoryStore, questions: SwiftDataPitQuestionStore)
@@ -57,6 +79,7 @@ struct AppEnvironment: Sendable {
         _ stores: Stores,
         registry: PitQuestionRegistry,
         persistence: Persistence,
+        analytics: any AnalyticsClient,
         prepare: (@Sendable () async -> Void)? = nil
     ) {
         self.init(
@@ -64,6 +87,7 @@ struct AppEnvironment: Sendable {
             questions: stores.questions,
             registry: registry,
             persistence: persistence,
+            analytics: analytics,
             prepare: prepare
         )
     }
@@ -73,21 +97,24 @@ struct AppEnvironment: Sendable {
         questions: any PitQuestionStateStore,
         registry: PitQuestionRegistry,
         persistence: Persistence,
+        analytics: any AnalyticsClient = NoAnalyticsClient(),
         prepare: (@Sendable () async -> Void)? = nil
     ) {
         self.store = store
         self.questions = questions
         self.registry = registry
         self.persistence = persistence
+        self.analytics = analytics
         self.prepare = prepare
     }
 
-    private static func unavailable(registry: PitQuestionRegistry) -> AppEnvironment {
+    private static func unavailable(registry: PitQuestionRegistry, analytics: any AnalyticsClient) -> AppEnvironment {
         AppEnvironment(
             store: UnavailableCarMemoryStore(),
             questions: UnavailablePitQuestionStore(),
             registry: registry,
-            persistence: .temporary
+            persistence: .temporary,
+            analytics: analytics
         )
     }
 

@@ -28,6 +28,7 @@ final class CarBoardViewModel {
     private(set) var state: CarBoardViewState
 
     private let store: any CarMemoryStore
+    private let analytics: any AnalyticsTracking<OdometerAnalyticsEvent>
     private let now: @Sendable () -> Date
     private var vehicleID: VehicleID?
     /// Whether the shown mileage is recent enough to count; a stale one is re-recorded even unchanged.
@@ -36,9 +37,11 @@ final class CarBoardViewModel {
     init(
         store: any CarMemoryStore,
         persistence: AppEnvironment.Persistence = .durable,
+        analytics: any AnalyticsTracking<OdometerAnalyticsEvent> = NoAnalyticsTracker(),
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.store = store
+        self.analytics = analytics
         self.now = now
         state = CarBoardViewState(isStorageTemporary: persistence == .temporary)
     }
@@ -103,6 +106,7 @@ final class CarBoardViewModel {
             if case let .value(value) = kilometers, value != state.car.odometerKm || !isMileageCurrent {
                 let reading = OdometerReading(vehicleID: vehicleID, value: Double(value), recordedAt: now())
                 try await store.execute(.recordOdometerReading(.init(reading: reading)), now: now())
+                analytics.track(.odometerUpdated(source: .explicit, anomalyConfirmation: .noAnomaly))
             }
         } catch {
             await load()

@@ -39,6 +39,7 @@ final class PitQuestionViewModel {
     private let store: any CarMemoryStore
     private let registry: PitQuestionRegistry
     private let policy: PitAttentionPolicy
+    private let analytics: any AnalyticsTracking<OdometerAnalyticsEvent>
     private let now: @Sendable () -> Date
     private var isEvaluating = false
 
@@ -47,12 +48,14 @@ final class PitQuestionViewModel {
         store: any CarMemoryStore,
         registry: PitQuestionRegistry,
         policy: PitAttentionPolicy = PitAttentionPolicy(),
+        analytics: any AnalyticsTracking<OdometerAnalyticsEvent> = NoAnalyticsTracker(),
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.questions = questions
         self.store = store
         self.registry = registry
         self.policy = policy
+        self.analytics = analytics
         self.now = now
     }
 
@@ -151,6 +154,7 @@ final class PitQuestionViewModel {
             }
             return false
         }
+        analytics.track(.odometerUpdated(source: .explicit, anomalyConfirmation: .noAnomaly))
         // The reading is the fact; the resolution is bookkeeping. If it is lost, the mileage is now current,
         // so relevance keeps the question from returning anyway.
         _ = try? await questions.execute(.answered(questionID: question.id), now: moment)

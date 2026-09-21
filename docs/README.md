@@ -86,6 +86,7 @@ highest affected layer; evidence from operations flows back up.
 - `operations/analytics.md`
 - `operations/release-and-beta.md`
 - `decisions/0002-analytics-service.md`
+- `decisions/0021-analytics-boundary.md` — provider-neutral analytics boundary, closed event values, consent off by default, first wired events
 - `operations/analytics-questions.md`
 - `operations/ai-product-analytics.md`
 

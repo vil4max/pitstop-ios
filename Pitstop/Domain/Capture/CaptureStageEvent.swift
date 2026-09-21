@@ -51,3 +51,19 @@ public struct NoCaptureStageObserver: CaptureStageObserving {
 
     public func record(_: CaptureStageEvent) {}
 }
+
+/// Passes every stage to each observer in order, so DEBUG logging and product analytics can watch
+/// the same pipeline without knowing about each other.
+public struct CaptureStageObservers: CaptureStageObserving {
+    private let observers: [any CaptureStageObserving]
+
+    public init(_ observers: [any CaptureStageObserving]) {
+        self.observers = observers
+    }
+
+    public func record(_ event: CaptureStageEvent) {
+        for observer in observers {
+            observer.record(event)
+        }
+    }
+}

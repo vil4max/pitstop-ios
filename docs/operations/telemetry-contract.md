@@ -42,6 +42,11 @@ Source of truth for event taxonomy: `analytics.md`
 
 Source of truth for product questions: `analytics-questions.md`
 
+Boundary implementation, consent default (off until explicit opt-in), and
+wired events: `../decisions/0021-analytics-boundary.md`. Proposed events for
+shipped features are listed in `analytics.md` as `REVIEW` and are not
+collected.
+
 Do not describe Firebase Analytics as a telemetry channel.
 
 Firebase Analytics is an evaluated alternative only. See
