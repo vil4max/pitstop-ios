@@ -31,6 +31,11 @@ public struct PitActivitySources: Hashable, Sendable {
         reports.isEmpty
     }
 
+    /// The union of every report except `source`'s.
+    public func activity(excluding source: PitActivitySource) -> PitActivity {
+        reports.filter { $0.key != source }.values.reduce(into: PitActivity.idle) { $0.formUnion($1) }
+    }
+
     public mutating func report(_ activity: PitActivity, from source: PitActivitySource) {
         reports[source] = activity.isEmpty ? nil : activity
     }

@@ -43,7 +43,7 @@ struct ServiceView: View {
         .alert("service.failure.notSaved", isPresented: listFailureBinding) {
             Button("common.ok") { viewModel.dismissFailure() }
         }
-        .pitActivity(.modalTask, while: sheet != nil || undoCandidate != nil)
+        .pitActivity(.modalTask, while: sheet != nil || undoCandidate != nil || listFailureBinding.wrappedValue)
         // Undo deletes a recorded fact, so it asks first and names what will be removed.
         .confirmationDialog(
             "service.undoDone.title",

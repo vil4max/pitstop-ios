@@ -26,6 +26,13 @@ final class PitPresenceModel {
         interface.isEmpty
     }
 
+    /// A screen below the root has an editor or other modal task open. The root view cannot present its
+    /// own sheet while a descendant presents one, so a Pit request waits for this to clear (ADR 0024).
+    /// The root's own utility sheet does not count: the root can switch it to Pit itself.
+    var isFeatureTaskPresented: Bool {
+        interface.activity(excluding: .utilitySheet).contains(.modalTask)
+    }
+
     private let scheduler: PitIdleScheduler
     private let sleep: @Sendable (TimeInterval) async throws -> Void
     /// Sees every state as it is shown, so a sequence such as startle-then-knock is observable.

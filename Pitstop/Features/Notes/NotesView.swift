@@ -47,7 +47,7 @@ struct NotesView: View {
         .alert("notes.failure.status", isPresented: listFailureBinding) {
             Button("common.ok") { viewModel.dismissFailure() }
         }
-        .pitActivity(.modalTask, while: editor != nil)
+        .pitActivity(.modalTask, while: editor != nil || listFailureBinding.wrappedValue)
         .sheet(item: $editor) { target in
             NoteEditorView(target: target) { text in
                 switch target {

@@ -12,8 +12,10 @@ final class AppCoordinator {
     private let pitCapture: PitCaptureViewModel
     private let pitQuestion: PitQuestionViewModel
     private let analyticsSharing: AnalyticsSharing
+    private let captureRequests: CaptureSurfaceRequests
 
-    init(environment: AppEnvironment = .live()) {
+    init(environment: AppEnvironment = .live(), captureRequests: CaptureSurfaceRequests = CaptureSurfaceRequests()) {
+        self.captureRequests = captureRequests
         let client = environment.analytics
         analyticsSharing = environment.analyticsSharing
         let notesAnalytics = AnalyticsTracker<NotesAnalyticsEvent>(client: client)
@@ -75,6 +77,7 @@ final class AppCoordinator {
             pitCapture: pitCapture,
             pitQuestion: pitQuestion,
             analyticsSharing: analyticsSharing,
+            captureRequests: captureRequests,
             prepare: prepare
         )
     }

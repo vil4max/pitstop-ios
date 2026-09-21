@@ -11,6 +11,7 @@ struct RootView: View {
     let pitCapture: PitCaptureViewModel
     let pitQuestion: PitQuestionViewModel
     let analyticsSharing: AnalyticsSharing
+    let captureRequests: CaptureSurfaceRequests
     /// DEBUG demo seeding; it must finish before any surface loads, or a surface opened first reads an empty store.
     var prepare: (@Sendable () async -> Void)?
 
@@ -161,6 +162,14 @@ struct RootView: View {
                 break
             }
         }
+        // "Open Pit" from Siri, Shortcuts, or Spotlight opens capture over the current surface, as a tap
+        // on Pit would (REQ-PIT-013, REQ-CAPTURE-023). `initial` covers a request made during a cold launch;
+        // an open feature editor defers the request until it closes (ADR 0024).
+        .onChange(of: openPitGate, initial: true) { _, gate in
+            if captureRequests.take(isPresentationBlocked: gate.isBlocked) {
+                sheet = .pit
+            }
+        }
         .task {
             guard let text = Self.initialCapture() else { return }
             pitCapture.text = text
@@ -177,6 +186,15 @@ struct RootView: View {
                 }
             }
         }
+    }
+
+    private struct OpenPitGate: Equatable {
+        let isPending: Bool
+        let isBlocked: Bool
+    }
+
+    private var openPitGate: OpenPitGate {
+        OpenPitGate(isPending: captureRequests.isPending, isBlocked: pit.isFeatureTaskPresented)
     }
 
     private var askTrigger: PitAskTrigger {

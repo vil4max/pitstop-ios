@@ -12,13 +12,15 @@ struct PitstopApp: App {
         let log = AppLog.logger(category: "app.lifecycle")
         log.info("PitStop launched")
         let environment = AppEnvironment.live()
-        _coordinator = State(initialValue: AppCoordinator(environment: environment))
+        let captureRequests = CaptureSurfaceRequests()
+        _coordinator = State(initialValue: AppCoordinator(environment: environment, captureRequests: captureRequests))
         let handler = RememberIntentHandler(
             pipeline: AppCoordinator.interpretedPipeline(environment),
             persistence: environment.persistence,
             analytics: environment.analyticsSharing.pipeline
         )
         AppDependencyManager.shared.add(dependency: handler)
+        AppDependencyManager.shared.add(dependency: captureRequests)
     }
 
     var body: some Scene {
