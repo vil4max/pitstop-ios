@@ -78,7 +78,7 @@ final class ServiceViewModel {
 
     /// Called only after the user confirmed the work was actually performed (core C5).
     func confirmDone(_ operation: MaintenanceOperationID, on date: Date, odometerText: String) async -> Bool {
-        let odometer = CarBoardViewModel.kilometers(from: odometerText)
+        let odometer = InputParsing.kilometers(from: odometerText)
         if case .invalid = odometer {
             return fail(.invalidOdometer)
         }

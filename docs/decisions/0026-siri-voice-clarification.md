@@ -42,8 +42,8 @@ through the validator, `ConfirmationPolicy`, mapper, and store (C4).
 
 | Missing field | Siri prompt | Answer mapping |
 |---|---|---|
-| `odometerKm` | `$text.requestValue(_:)` with "What was the mileage, in kilometres?" | spoken text → `CarBoardViewModel.kilometers(from:)` (Pit's parser) → `.odometerKm` |
-| `amount` | `$text.requestValue(_:)` with "How much did it cost?" | spoken text → `HistoryViewModel.amount(from:)` (Pit's parser), then a grouped whole number → `.amount` |
+| `odometerKm` | `$text.requestValue(_:)` with "What was the mileage, in kilometres?" | spoken text → `InputParsing.kilometers(from:)` (Pit's parser) → `.odometerKm` |
+| `amount` | `$text.requestValue(_:)` with "How much did it cost?" | spoken text → `InputParsing.amount(from:)` (Pit's parser), then a grouped whole number → `.amount` |
 | `operationID` | `requestChoice` over `MaintenanceOperationID.catalog`, "I don't know", Cancel | option position → `.operation` |
 | `eventKind` | `requestChoice` over `HistoryEventKind.userSelectable`, "I don't know", Cancel | option position → `.eventKind` |
 | `vehicleFact`, `policyInterval` | `requestChoice`: "Save the words only" or Cancel (as in ADR 0023) | Pit cannot ask these in one step either |

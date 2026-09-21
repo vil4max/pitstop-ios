@@ -66,11 +66,11 @@ final class HistoryViewModel {
     /// The user enters the event directly, so it is already user-confirmed; the command still
     /// checks its own invariants. Returns `true` only after persistence.
     func save(_ draft: HistoryEventDraft, replacing existing: HistoryEvent? = nil) async -> Bool {
-        let odometer = CarBoardViewModel.kilometers(from: draft.odometerText)
+        let odometer = InputParsing.kilometers(from: draft.odometerText)
         if case .invalid = odometer {
             return fail(.invalidOdometer)
         }
-        let amountInput = Self.amount(from: draft.amountText)
+        let amountInput = InputParsing.amount(from: draft.amountText)
         if case .invalid = amountInput {
             return fail(.invalidAmount)
         }
@@ -115,25 +115,5 @@ final class HistoryViewModel {
     private func fail(_ failure: HistoryFailure) -> Bool {
         state.failure = failure
         return false
-    }
-
-    enum AmountInput: Equatable {
-        /// No amount given: the cost stays unknown rather than zero.
-        case absent
-        case value(Decimal)
-        case invalid
-    }
-
-    /// Digits with an optional fraction of one or two digits; comma or point as the decimal separator.
-    /// Three digits after a separator are rejected: "1,200" is far more likely twelve hundred than 1.2.
-    nonisolated static func amount(from text: String) -> AmountInput {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return .absent }
-        let normalized = trimmed.replacingOccurrences(of: ",", with: ".").filter { !$0.isWhitespace }
-        guard normalized.wholeMatch(of: /[0-9]+(\.[0-9]{1,2})?/) != nil,
-              let value = Decimal(string: normalized, locale: Locale(identifier: "en_US_POSIX")),
-              value > 0
-        else { return .invalid }
-        return .value(value)
     }
 }

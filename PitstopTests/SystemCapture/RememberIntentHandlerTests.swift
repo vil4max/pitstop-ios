@@ -106,7 +106,7 @@ private struct Harness {
     let handler: RememberIntentHandler
 
     init(
-        persistence: AppEnvironment.Persistence = .durable,
+        persistence: PersistenceMode = .durable,
         store: (any CarMemoryStore)? = nil,
         interpreter: RecordingInterpreter = RecordingInterpreter()
     ) throws {

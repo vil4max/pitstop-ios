@@ -49,6 +49,13 @@ Infrastructure adapters
 Domain does not import: - SwiftUI; - SwiftData; - PostHog; - OSLog; -
 Foundation Models; - Firebase; - UIKit.
 
+In today's single target, a feature never reads an App-layer type or another
+feature's view model. A type that several features need, such as
+`PersistenceMode` or the `InputParsing` readers, lives in `Features/Shared`
+until a package split gives it a module (ARCH-001). `Features/Shared` holds
+only what at least two features use, so it does not become a `Core` dumping
+ground.
+
 ## Proposed local package structure
 
 ``` text

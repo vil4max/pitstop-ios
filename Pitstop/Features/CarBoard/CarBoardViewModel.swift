@@ -36,7 +36,7 @@ final class CarBoardViewModel {
 
     init(
         store: any CarMemoryStore,
-        persistence: AppEnvironment.Persistence = .durable,
+        persistence: PersistenceMode = .durable,
         analytics: any AnalyticsTracking<OdometerAnalyticsEvent> = NoAnalyticsTracker(),
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
@@ -84,7 +84,7 @@ final class CarBoardViewModel {
     /// a placeholder must never be written back as a user-supplied fact (core C2).
     func saveCar(name: String, odometerText: String) async -> Bool {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let kilometers = Self.kilometers(from: odometerText)
+        let kilometers = InputParsing.kilometers(from: odometerText)
         if case .invalid = kilometers {
             return fail(.invalidOdometer)
         }
@@ -125,11 +125,5 @@ final class CarBoardViewModel {
     private func fail(_ failure: CarBoardFailure) -> Bool {
         state.failure = failure
         return false
-    }
-
-    typealias OdometerInput = WholeNumberInput
-
-    nonisolated static func kilometers(from text: String) -> OdometerInput {
-        WholeNumberInput.parse(text, upTo: Int(DomainCommandLimits.maximumOdometerKm))
     }
 }

@@ -89,11 +89,11 @@ final class PitCaptureViewModel {
         guard case let .clarifying(request) = phase else { return }
         switch request.question {
         case .odometerKm:
-            guard let kilometers = CarBoardViewModel.kilometers(from: text).intValue
+            guard let kilometers = InputParsing.kilometers(from: text).intValue
             else { return fail(.invalidMileage) }
             await answer(.odometerKm(Double(kilometers)))
         case .amount:
-            guard case let .value(amount) = HistoryViewModel.amount(from: text) else { return fail(.invalidAmount) }
+            guard case let .value(amount) = InputParsing.amount(from: text) else { return fail(.invalidAmount) }
             await answer(.amount(amount))
         case .operationID, .vehicleFact, .policyInterval, .eventKind:
             // These are answered by choosing, not typing; the surface offers the choices.

@@ -134,7 +134,7 @@ final class PitQuestionViewModel {
     @discardableResult
     func answer() async -> Bool {
         guard case let .asking(question) = phase else { return false }
-        guard case let .value(kilometers) = CarBoardViewModel.kilometers(from: answerText) else {
+        guard case let .value(kilometers) = InputParsing.kilometers(from: answerText) else {
             failure = .invalidMileage
             return false
         }

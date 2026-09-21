@@ -90,4 +90,7 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
 - System capture: SYS-001…006 (ADR 0023–0026).
 - Analytics: ENG-002, ANL-001 (ADR 0021, 0022); maintenance intelligence
   investigation MNT-INT-001.
+- Architecture: ARCH-001, the inward dependency rule restored: the persistence
+  mode and the mileage and amount parsers moved to `Features/Shared`, so no
+  feature reads `AppEnvironment` or another feature's view model.
 - TestFlight: 1.0.0 and 1.1.0 rounds (tags `tf-1.0.0-1`, `tf-1.1.0-1`).

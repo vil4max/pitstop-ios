@@ -20,7 +20,7 @@ private final class TestClock: @unchecked Sendable {
 @MainActor
 @Suite("Car Board view model")
 struct CarBoardViewModelTests {
-    private func makeModel(_ store: FakeCarMemoryStore, persistence: AppEnvironment.Persistence = .durable)
+    private func makeModel(_ store: FakeCarMemoryStore, persistence: PersistenceMode = .durable)
         -> CarBoardViewModel
     {
         CarBoardViewModel(store: store, persistence: persistence, now: { now })
@@ -132,7 +132,7 @@ struct CarBoardViewModelTests {
     @Test(
         "REQ-BOARD-004: mileage text is parsed without inventing a value",
         arguments: [
-            ("", CarBoardViewModel.OdometerInput.absent),
+            ("", WholeNumberInput.absent),
             ("   ", .absent),
             ("84 200", .value(84200)),
             ("84,200", .value(84200)),
@@ -155,8 +155,8 @@ struct CarBoardViewModelTests {
             ("99999999999999999999", .invalid)
         ]
     )
-    func mileageParsing(text: String, expected: CarBoardViewModel.OdometerInput) {
-        #expect(CarBoardViewModel.kilometers(from: text) == expected)
+    func mileageParsing(text: String, expected: WholeNumberInput) {
+        #expect(InputParsing.kilometers(from: text) == expected)
     }
 
     @Test("REQ-CAPTURE-009: a failed save is reported and the editor result is false")

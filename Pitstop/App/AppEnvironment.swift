@@ -2,12 +2,6 @@ import Foundation
 
 /// Composition root: the only place that knows which concrete store backs the app.
 struct AppEnvironment: Sendable {
-    enum Persistence: Equatable, Sendable {
-        case durable
-        /// The on-disk store could not be opened; this session keeps data in memory only.
-        case temporary
-    }
-
     static let inMemoryArgument = "-pitstop-in-memory"
     /// DEBUG only: product events go to the local log instead of nowhere, as if the user had opted in.
     static let analyticsLogArgument = "-pitstop-analytics-log"
@@ -19,7 +13,7 @@ struct AppEnvironment: Sendable {
     /// Shares the car memory's container, so both live in one file under one migration plan (ADR 0016).
     let questions: any PitQuestionStateStore
     let registry: PitQuestionRegistry
-    let persistence: Persistence
+    let persistence: PersistenceMode
     /// Already consent-gated; the only analytics client feature trackers are built from (ADR 0021).
     let analytics: any AnalyticsClient
     /// The Settings switch for that gate, and the flush on leaving the app (ADR 0022).
@@ -119,7 +113,7 @@ struct AppEnvironment: Sendable {
     private init(
         _ stores: Stores,
         registry: PitQuestionRegistry,
-        persistence: Persistence,
+        persistence: PersistenceMode,
         analytics: Analytics,
         prepare: (@Sendable () async -> Void)? = nil
     ) {
@@ -138,7 +132,7 @@ struct AppEnvironment: Sendable {
         store: any CarMemoryStore,
         questions: any PitQuestionStateStore,
         registry: PitQuestionRegistry,
-        persistence: Persistence,
+        persistence: PersistenceMode,
         analytics: any AnalyticsClient = NoAnalyticsClient(),
         analyticsSharing: AnalyticsSharing = .inMemory(),
         prepare: (@Sendable () async -> Void)? = nil

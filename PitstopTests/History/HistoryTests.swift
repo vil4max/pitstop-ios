@@ -107,7 +107,7 @@ struct HistoryViewModelTests {
     @Test(
         "ADR-0007: cost accepts a decimal comma or point and never guesses",
         arguments: [
-            ("", HistoryViewModel.AmountInput.absent),
+            ("", AmountInput.absent),
             ("1200", .value(1200)),
             ("1 200,50", .value(Decimal(string: "1200.5")!)),
             ("12.5", .value(Decimal(string: "12.5")!)),
@@ -120,8 +120,8 @@ struct HistoryViewModelTests {
             ("abc", .invalid)
         ]
     )
-    func amountParsing(text: String, expected: HistoryViewModel.AmountInput) {
-        #expect(HistoryViewModel.amount(from: text) == expected)
+    func amountParsing(text: String, expected: AmountInput) {
+        #expect(InputParsing.amount(from: text) == expected)
     }
 
     @Test("REQ-CAPTURE-009: a failed save is reported and nothing appears in the timeline")

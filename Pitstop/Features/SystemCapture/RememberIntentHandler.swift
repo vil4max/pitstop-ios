@@ -55,13 +55,13 @@ enum RememberReply: Equatable, Sendable {
 /// pipeline as Pit (core C4). Every decision about meaning and writing stays in the pipeline.
 struct RememberIntentHandler: Sendable {
     private let pipeline: RememberPipeline
-    private let persistence: AppEnvironment.Persistence
+    private let persistence: PersistenceMode
     private let analytics: any AnalyticsPipelineControlling
     private let now: @Sendable () -> Date
 
     init(
         pipeline: RememberPipeline,
-        persistence: AppEnvironment.Persistence,
+        persistence: PersistenceMode,
         analytics: any AnalyticsPipelineControlling = NoAnalyticsPipeline(),
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
@@ -204,13 +204,13 @@ struct RememberIntentHandler: Sendable {
         let number = String(text[first ... last])
         switch field {
         case .odometerKm:
-            guard let kilometers = CarBoardViewModel.kilometers(from: number).intValue,
+            guard let kilometers = InputParsing.kilometers(from: number).intValue,
                   kilometers >= 1,
                   DomainCommandLimits.isPlausibleOdometer(Double(kilometers))
             else { return nil }
             return .odometerKm(Double(kilometers))
         case .amount:
-            if case let .value(amount) = HistoryViewModel.amount(from: number) {
+            if case let .value(amount) = InputParsing.amount(from: number) {
                 return .amount(amount)
             }
             return WholeNumberInput.parsePositive(number, upTo: Int(Int32.max)).intValue.map { .amount(Decimal($0)) }

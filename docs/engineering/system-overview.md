@@ -119,7 +119,7 @@ flowchart TB
         fPit["Pit"]
         fSet["Settings"]
         fSys["SystemCapture"]
-        fShared["Shared: FeatureScaffold, WholeNumberInput, OdometerAnalytics"]
+        fShared["Shared: FeatureScaffold, PersistenceMode, InputParsing, WholeNumberInput, OdometerAnalytics"]
     end
 
     subgraph ds["DesignSystem"]
@@ -162,8 +162,6 @@ flowchart TB
     ds --> domL
     infL --> domL
     wid --> sharedL
-    fSys -. "AppEnvironment.Persistence" .-> env
-    fCar -. "AppEnvironment.Persistence" .-> env
 ```
 
 The app is one Xcode target whose folders act as layers; there are no Swift
@@ -174,10 +172,11 @@ stay out of it. Infrastructure implements Domain protocols
 (`CarMemoryStore`, `PitQuestionStateStore`, `SemanticInterpreting`,
 `CaptureStageObserving`) and depends on nothing above it. Features depend on
 Domain, the DesignSystem, and the analytics protocols; the DesignSystem depends
-on Domain only for `PitState` and `PitActivity`. Two dotted edges are the
-exceptions found while writing this page: `CarBoardViewModel` and
-`RememberIntentHandler` read `AppEnvironment.Persistence` from the App layer
-(see [Mismatches](#mismatches-found-while-writing-this-page)). `Shared/` is a
+on Domain only for `PitState` and `PitActivity`. No feature reads an App-layer
+type: the persistence mode and the mileage and amount parsers live in
+`Features/Shared` (ARCH-001). A few features still name another feature's
+non-view-model types (see [Mismatches](#mismatches-found-while-writing-this-page)).
+`Shared/` is a
 folder compiled into both the app and the widget extension
 (`Pitstop.xcodeproj/project.xcproj`), which is how the control reaches
 `OpenPitIntent`. Folder roots: [`Pitstop/Domain`](../../Pitstop/Domain),
@@ -613,7 +612,7 @@ rejects a repeated record ID as `duplicateRecord`
 ([`CarMemoryStore.swift`](../../Pitstop/Domain/Store/CarMemoryStore.swift),
 [`DomainCommands.swift`](../../Pitstop/Domain/Capture/DomainCommands.swift)).
 When the on-disk store cannot open, the session falls back to memory and the
-UI says nothing will be kept (`AppEnvironment.Persistence.temporary`).
+UI says nothing will be kept (`PersistenceMode.temporary`).
 
 ---
 
@@ -780,12 +779,14 @@ record.
 Recorded here instead of silently corrected; each needs a code or document
 change by its owner.
 
-- **Features read an App-layer type.** `CarBoardViewModel` and
-  `RememberIntentHandler` depend on `AppEnvironment.Persistence`, and
-  `RememberIntentHandler` reuses `CarBoardViewModel.kilometers(from:)` and
-  `HistoryViewModel.amount(from:)`. This contradicts the inward dependency rule
-  in [`modular-architecture.md`](modular-architecture.md) and would block a
-  package split.
+- **Features name other features' types.** No feature depends on App or on
+  another feature's view model since ARCH-001, but these references would still
+  need a shared home before a package split: Pit's `PitAskTrigger` holds
+  CarBoard's `CarBoardRoute`; Pit's `CaptureAnalytics` sends Notes'
+  `NotesAnalyticsEvent` and `NoteInputSource`; SystemCapture's
+  `RememberIntentHandler` replies with Pit's `PitDestination`; CarBoard's tile
+  embeds Road's `RoadLaneView`; `Features/Shared/FeatureScaffold` takes CarBoard's
+  `CarBoardTileKind`.
 - **Pit capture locale.** `CaptureInput.localeIdentifier` defaults to `ru_RU`,
   and `PitCaptureViewModel` does not pass the request locale. This is the
   planned CAP-LOC-001, not an undocumented defect.
