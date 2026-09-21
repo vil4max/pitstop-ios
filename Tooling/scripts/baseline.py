@@ -30,6 +30,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from project_versions import marketing_versions  # noqa: E402
+
 BASE_SIMULATOR = {"device_type": "iPhone 17", "os": "27.0"}
 
 
@@ -109,9 +112,9 @@ def main() -> int:
 
     versions: set[str] = set()
     for project in projects:
-        pbxproj = project / "project.pbxproj"
-        if pbxproj.is_file():
-            versions |= set(re.findall(r"MARKETING_VERSION = ([^;]+);", pbxproj.read_text()))
+        for name in ("project.pbxproj", "project.xcproj"):
+            if (project / name).is_file():
+                versions |= marketing_versions((project / name).read_text())
     bad = sorted(v for v in versions if not re.fullmatch(r"\d+\.\d+\.\d+", v))
     if bad:
         errors.append("MARKETING_VERSION is not MAJOR.MINOR.PATCH: " + ", ".join(bad))

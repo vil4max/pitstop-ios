@@ -58,6 +58,33 @@ resets `PATCH` to 0; a fix-only release raises `PATCH`; `MAJOR` changes only whe
 the owner asks. Tags repeat the version (`tf-1.0.0-1`, `v1.0.0`), and
 `just tf-check` blocks any other form, because the workflow would reject the tag.
 
+## Project format
+
+Xcode 27.2 can store a project as JSON in `project.xcproj` instead of the
+property list `project.pbxproj` ([Xcode 27.2 release
+notes](https://developer.apple.com/documentation/xcode-release-notes/xcode-27_2-release-notes),
+"Project Format"; earlier Xcode 27 versions open it). tf-check, tf-promote, the
+baseline and `ci_post_clone.sh` read either format through
+`scripts/project_versions.py`; in JSON a per-configuration value is a key with a
+condition suffix (`"MARKETING_VERSION[config=Release]"`). The file is not
+strict JSON: Xcode writes a comma after every last element, so read it with the
+Runtime helper, not a strict JSON parser. Convert an app only after its
+`Tooling/` has this Runtime; an older Runtime finds no project file and blocks
+every tag.
+
+Convert with Xcode 27.2 (the file inspector's Project Format pop-up, or from the
+command line):
+
+```bash
+DEVELOPER_DIR=<Xcode 27.2>/Contents/Developer xcodebuild -project App.xcodeproj -convert-project "Xcode Project"
+```
+
+`json` is not an accepted format name; "Xcode Project" is the JSON format, and
+an Xcode version name ("Xcode 27.0") writes a property list. Checked on pitstop
+in a scratch copy (2026-09-21): Xcode 27.0's `xcodebuild` lists and builds the
+converted project, and `ci_post_clone.sh` sets its build number, which 27.0
+then reports.
+
 ## Build numbers
 
 For an Xcode Cloud build, Xcode Cloud's number wins: the app's
@@ -80,7 +107,8 @@ The TestFlight workflow is one part of the shared pipeline; adopt both together:
    `Tooling/templates/github/testflight.yml`.
 2. Copy the template to `.github/workflows/testflight.yml`; set
    `TF_TESTS_WORKFLOW` if the tests workflow file is not `tests.yml`. With more
-   than one tracked `.xcodeproj`, set `TF_PBXPROJ`.
+   than one tracked `.xcodeproj`, set `TF_PBXPROJ` (the path of its
+   `project.pbxproj` or `project.xcproj`).
 3. Remove any job that moves `testflight` on a push to `main`, and any workflow
    that moves a `release` branch on a `v` tag — one Xcode Cloud workflow, started
    by `testflight`, builds for TestFlight and for App Review.

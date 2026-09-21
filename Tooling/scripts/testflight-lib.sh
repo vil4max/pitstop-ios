@@ -25,9 +25,12 @@ fail() {
   exit 1
 }
 
-# Prints the project.pbxproj path at commit $1: TF_PBXPROJ when set, otherwise the
-# single tracked one outside dependency directories. Two projects are ambiguous,
-# and guessing would check the wrong app's version.
+TESTFLIGHT_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Prints the project file path at commit $1 — `project.pbxproj`, or `project.xcproj`
+# in Xcode 27.2's JSON format: TF_PBXPROJ when set, otherwise the single tracked one
+# outside dependency directories. Two projects are ambiguous, and guessing would
+# check the wrong app's version.
 pbxproj_at() {
   local sha="$1" found
   if [[ -n "${TF_PBXPROJ:-}" ]]; then
@@ -35,9 +38,9 @@ pbxproj_at() {
     return 0
   fi
   found="$(git ls-tree -r --name-only "$sha" \
-    | grep -E '(^|/)[^/]+\.xcodeproj/project\.pbxproj$' \
+    | grep -E '(^|/)[^/]+\.xcodeproj/project\.(pbxproj|xcproj)$' \
     | grep -vE '(^|/)(Pods|Carthage|\.build|DerivedData|Tooling)/' || true)"
-  [[ -n "$found" ]] || fail "no .xcodeproj/project.pbxproj tracked at ${sha:0:7}; set TF_PBXPROJ"
+  [[ -n "$found" ]] || fail "no .xcodeproj/project.pbxproj or project.xcproj tracked at ${sha:0:7}; set TF_PBXPROJ"
   [[ "$(wc -l <<<"$found")" -eq 1 ]] \
     || fail "several projects at ${sha:0:7}: $(tr '\n' ' ' <<<"$found")— set TF_PBXPROJ"
   echo "$found"
@@ -46,7 +49,7 @@ pbxproj_at() {
 # Prints the distinct MARKETING_VERSION values at commit $1, one per line.
 marketing_versions() {
   local sha="$1"
-  git show "${sha}:$(pbxproj_at "$sha")" | grep -o 'MARKETING_VERSION = [^;]*' | sed 's/.*= //' | sort -u
+  git show "${sha}:$(pbxproj_at "$sha")" | python3 "$TESTFLIGHT_LIB_DIR/project_versions.py"
 }
 
 # Prints the commit of annotated tag $1. A lightweight tag is rejected: the
