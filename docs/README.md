@@ -79,6 +79,7 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0019-pit-activity-reporting.md` — surfaces report scrolling, editing, and editor sheets to Pit as a union of per-source reports; motion audit of `PitState` against accepted behaviour
 - `decisions/0011-interpreted-capture-without-a-model.md` — interpreter protocol, rule-based stand-in, confirmation and clarification flow
 - `decisions/0006-capture-confirmation-policy.md` — confirmation outcome table and mutation permit
+- `decisions/0023-remember-intent.md` — `RememberInPitStopIntent`: app-target background intent, in-place `requestChoice` confirmation, unlocked phone only, source `.siri`, temporary storage refused, no retry draft
 - `decisions/0005-toolchain-and-project-format.md` — Swift 6, iOS 27, file-system-synchronized project
 
 ## Analytics and beta

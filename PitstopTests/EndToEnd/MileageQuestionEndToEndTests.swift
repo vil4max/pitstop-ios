@@ -159,6 +159,27 @@ struct MileageQuestionEndToEndTests {
         #expect(try await app.store.odometerReadings().count == 1)
     }
 
+    @Test("REQ-PIT-009, ADR-0023: a mileage saved through Siri silences the pending question on return")
+    func siriMileageSilencesQuestion() async throws {
+        let app = try App()
+        try await app.seedStaleMileage()
+        #expect(await app.pit.evaluate(context: .service, activity: .idle))
+        let siri = RememberIntentHandler(
+            pipeline: RememberPipeline(store: app.store, interpreter: RuleBasedInterpreter(), now: { now }),
+            persistence: .durable,
+            now: { now }
+        )
+
+        let reply = try await siri.remember("пробег 84200", locale: Locale(identifier: "ru_RU"), prompter: NoPrompter())
+        // What RootView does when the app comes back from the background.
+        await app.pit.revalidate()
+
+        #expect(reply == .saved(.carBoard, preservedRaw: false))
+        #expect(app.pit.phase == .silent)
+        let state = try #require(await app.questionState())
+        #expect(state.resolution == .unresolved && state.resolvedAt == nil)
+    }
+
     @Test("ADR-0017: while the mileage is still stale, re-checking keeps the question pending")
     func revalidateKeepsRelevantQuestion() async throws {
         let app = try App()
@@ -219,5 +240,13 @@ struct MileageQuestionEndToEndTests {
         #expect(try await !asks(at: yearLater))
         let state = try #require(await launch(at: yearLater).questionState())
         #expect(state.resolution == .dismissed && state.lastDismissedAt == dismissedAt)
+    }
+}
+
+/// An ordinary reading is auto-accepted, so Siri asks nothing.
+private struct NoPrompter: RememberPrompting {
+    func choose(_: RememberQuestion) async throws -> RememberChoice {
+        Issue.record("an ordinary reading must not ask")
+        return .cancel
     }
 }

@@ -1,6 +1,7 @@
 # SYS-001 App Intent investigation
 
-**Status:** Investigated (agent, 2026-09-21); owner decisions pending\
+**Status:** Investigated (agent, 2026-09-21); owner decisions recorded in
+[ADR 0023](../../decisions/0023-remember-intent.md) (2026-09-21)\
 **Task:** SYS-001 (Phase 6, `work-plan.md`); informs SYS-002, SYS-003, SYS-006\
 **Register:** [`../investigations.md`](../investigations.md) (also answers part of
 INV-SYS-001, INV-CAP-003 and INV-ARCH-001)\

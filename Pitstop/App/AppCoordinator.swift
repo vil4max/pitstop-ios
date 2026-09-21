@@ -18,17 +18,6 @@ final class AppCoordinator {
         analyticsSharing = environment.analyticsSharing
         let notesAnalytics = AnalyticsTracker<NotesAnalyticsEvent>(client: client)
         let odometerAnalytics = AnalyticsTracker<OdometerAnalyticsEvent>(client: client)
-        func captureObserver(_ interpreter: InterpreterVersion) -> any CaptureStageObserving {
-            CaptureStageObservers([
-                CaptureStageLogger(),
-                CaptureAnalyticsObserver(
-                    capture: AnalyticsTracker<CaptureAnalyticsEvent>(client: client),
-                    notes: notesAnalytics,
-                    odometer: odometerAnalytics,
-                    interpreter: interpreter
-                ),
-            ])
-        }
         carBoard = CarBoardViewModel(
             store: environment.store,
             persistence: environment.persistence,
@@ -38,22 +27,42 @@ final class AppCoordinator {
         notes = NotesViewModel(
             store: environment.store,
             analytics: notesAnalytics,
-            captureObserver: captureObserver(.noInterpreter)
+            captureObserver: Self.captureObserver(client: client, interpreter: .noInterpreter)
         )
         history = HistoryViewModel(store: environment.store)
         service = ServiceViewModel(store: environment.store)
         road = RoadViewModel(store: environment.store)
-        pitCapture = PitCaptureViewModel(pipeline: RememberPipeline(
-            store: environment.store,
-            interpreter: RuleBasedInterpreter(),
-            observer: captureObserver(.ruleBasedV1)
-        ))
+        pitCapture = PitCaptureViewModel(pipeline: Self.interpretedPipeline(environment))
         pitQuestion = PitQuestionViewModel(
             questions: environment.questions,
             store: environment.store,
             registry: environment.registry,
             analytics: odometerAnalytics
         )
+    }
+
+    /// The one interpreted capture path, shared by Pit and `RememberInPitStopIntent` (core C4).
+    static func interpretedPipeline(_ environment: AppEnvironment) -> RememberPipeline {
+        RememberPipeline(
+            store: environment.store,
+            interpreter: RuleBasedInterpreter(),
+            observer: captureObserver(client: environment.analytics, interpreter: .ruleBasedV1)
+        )
+    }
+
+    private static func captureObserver(
+        client: any AnalyticsClient,
+        interpreter: InterpreterVersion
+    ) -> any CaptureStageObserving {
+        CaptureStageObservers([
+            CaptureStageLogger(),
+            CaptureAnalyticsObserver(
+                capture: AnalyticsTracker<CaptureAnalyticsEvent>(client: client),
+                notes: AnalyticsTracker<NotesAnalyticsEvent>(client: client),
+                odometer: AnalyticsTracker<OdometerAnalyticsEvent>(client: client),
+                interpreter: interpreter
+            ),
+        ])
     }
 
     var rootView: some View {

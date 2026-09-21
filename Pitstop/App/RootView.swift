@@ -21,6 +21,7 @@ struct RootView: View {
     @State private var path: [CarBoardRoute] = RootView.initialPath()
     @State private var sheet: UtilitySheet?
     @State private var isPrepared = false
+    @State private var wasInBackground = false
 
     /// DEBUG only: `-pitstop-pit "text"` opens Pit and submits the text, for smoke checks without taps.
     private static func initialCapture(arguments: [String] = ProcessInfo.processInfo.arguments) -> String? {
@@ -147,8 +148,17 @@ struct RootView: View {
         .onDisappear { pit.stop() }
         // Queued analytics live only in memory; leaving the app is the last good moment to send them (ADR 0022).
         .onChange(of: scenePhase) { _, phase in
-            if phase == .background {
+            switch phase {
+            case .background:
+                wasInBackground = true
                 Task.detached(priority: .utility) { [analyticsSharing] in await analyticsSharing.flush() }
+            case .active where wasInBackground:
+                // Siri may have saved while the app was suspended (ADR 0023); show it on return. Only a
+                // return from the background: launch and Control Center or alert dismissals load nothing.
+                wasInBackground = false
+                Task { await refreshAfterReturn() }
+            default:
+                break
             }
         }
         .task {
@@ -201,6 +211,12 @@ struct RootView: View {
         case .service: path = [.tile(.service)]
         case .carBoard: path = []
         }
+    }
+
+    /// A mileage saved through Siri may have made the pending question pointless (REQ-PIT-009).
+    private func refreshAfterReturn() async {
+        await pitQuestion.revalidate()
+        await refreshVisibleSurface()
     }
 
     private func refreshVisibleSurface() async {
