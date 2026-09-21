@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** CAP-007 (CAP-001…004 and CAP-006 implemented; CAP-005 needs a physical device for the Foundation Models spike)  
+**Next task:** DISC-001 (CAP-001…004, CAP-006 and CAP-007 implemented; CAP-005 needs a physical device for the Foundation Models spike)  
 **Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
 **Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -129,7 +129,7 @@ See `../engineering/quality-and-ci.md`.
 | CAP-004 | Pit Capture Surface | 3d | CAP-001, CAP-003 | done on main | #22 |
 | CAP-005 | FM interpreter spike (RU) | 5d | CAP-002 | tracked | #23 |
 | CAP-006 | Raw-preservation fallback | 2d | CAP-002 | implemented (ADR 0015) | #24 |
-| CAP-007 | End-to-end Remember | 4d | CAP-004–006 | tracked | #25 |
+| CAP-007 | End-to-end Remember | 4d | CAP-004–006 | implemented (`RememberEndToEndTests`) | #25 |
 
 ## Phase 5 — Progressive discovery
 
