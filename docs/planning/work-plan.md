@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** SYS-004 (SYS-003 implemented, see [`../decisions/0024-app-shortcuts.md`](../decisions/0024-app-shortcuts.md); the ru and uk phrases await owner review; a PostHog project and key are owner actions; CAP-005 needs a physical device for the Foundation Models spike)  
+**Next task:** SYS-005 (SYS-004 investigated, see [`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md); five owner questions there, bundle ID first; the ru and uk App Shortcut phrases await owner review; a PostHog project and key are owner actions; CAP-005 needs a physical device for the Foundation Models spike)  
 **Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
 **Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -147,7 +147,7 @@ See `../engineering/quality-and-ci.md`.
 | SYS-001 | App Intent investigation | 1d | CAP-007 | investigated (see [`investigations/sys-001-app-intents.md`](investigations/sys-001-app-intents.md)); owner decisions recorded in ADR 0023 | #30 |
 | SYS-002 | RememberInPitStopIntent | 2d | SYS-001 | implemented (ADR 0023) | #31 |
 | SYS-003 | App Shortcut | 1d | CAP-007 | implemented (ADR 0024) | #32 |
-| SYS-004 | Widget investigation | 1d | CAP-007 | tracked | #33 |
+| SYS-004 | Widget investigation | 1d | CAP-007 | investigated (see [`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)); owner decisions pending | #33 |
 | SYS-005 | Widget capture slice | 3d | SYS-004 | tracked | #34 |
 | SYS-006 | Siri capture slice | 3d | SYS-002 | tracked | #35 |
 

@@ -123,10 +123,18 @@ Question: Can system capture feel materially faster than opening the app?
 
 Siri part scoped by SYS-001: measure cold background launch to reply time on
 a device in SYS-006.
+Widget part scoped by SYS-004
+([`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)):
+widgets and controls open the app on the Pit sheet; they cannot capture text
+themselves.
 
 ### INV-CAP-004 Microphone activation constraints
 
 Investigate widget/deep-link-to-capture platform constraints.
+
+Deep-link part answered by SYS-004
+([`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md));
+microphone start stays open because Pit has no voice capture yet.
 
 ### INV-CAP-005 Foundation Models language quality
 
@@ -244,9 +252,30 @@ Record: [`investigations/sys-001-app-intents.md`](investigations/sys-001-app-int
 (investigated 2026-09-21; owner decisions pending). The full record lives in
 its own file because it cites Apple documentation and specifies SYS-002.
 
+### SYS-004 Widget investigation
+
+Question: Which widget and control surfaces can open the Pit capture surface
+on iOS 27, how does the intent reach the widget extension, and does the first
+slice need shared data?
+
+Record: [`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)
+(investigated 2026-09-21; owner decisions pending). Recommends a data-free
+SYS-005: an "Open Pit" control and a static widget, no App Group.
+
 ### INV-SYS-002 Action Button applicability
 
+Addressed by SYS-004
+([`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)):
+the Action button runs an App Shortcut (both ADR 0024 shortcuts qualify) or a
+control; an "Open Pit" control adds one more assignable entry.
+
 ### INV-SYS-003 Lock Screen / Control Center applicability
+
+Addressed by SYS-004
+([`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)):
+a control whose action is an `OpenIntent` opens the app from Control Center
+and the Lock Screen; the intent must be compiled into the app and the widget
+extension.
 
 ### INV-SYS-004 Spotlight applicability
 
