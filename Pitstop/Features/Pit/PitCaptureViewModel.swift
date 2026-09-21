@@ -46,14 +46,21 @@ final class PitCaptureViewModel {
 
     private let pipeline: RememberPipeline
     private let now: @Sendable () -> Date
+    /// Read per capture, so a language or region change made while the app runs applies (ADR 0030).
+    private let locale: @Sendable () -> Locale
     private var input: CaptureInput?
     /// Identifies the capture on screen. A step that finishes after the surface was reset or closed
     /// belongs to a capture that is gone, and must not write its result into the new one.
     private var session = UUID()
 
-    init(pipeline: RememberPipeline, now: @escaping @Sendable () -> Date = { Date() }) {
+    init(
+        pipeline: RememberPipeline,
+        now: @escaping @Sendable () -> Date = { Date() },
+        locale: @escaping @Sendable () -> Locale = { Locale.current }
+    ) {
         self.pipeline = pipeline
         self.now = now
+        self.locale = locale
     }
 
     var canSubmit: Bool {
@@ -63,7 +70,13 @@ final class PitCaptureViewModel {
     /// `visible` is the surface the user came from; it is a prior only (REQ-CAPTURE-022).
     func submit(from visible: VisibleFeature?) async {
         guard canSubmit else { return }
-        let capture = CaptureInput(payload: .text(text), source: .pitText, capturedAt: now(), visibleFeature: visible)
+        let capture = CaptureInput(
+            payload: .text(text),
+            source: .pitText,
+            capturedAt: now(),
+            localeIdentifier: locale().identifier,
+            visibleFeature: visible
+        )
         input = capture
         await run { [pipeline, mode] in try await pipeline.remember(capture, mode: mode) }
     }

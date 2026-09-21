@@ -3,11 +3,13 @@ import Foundation
 import Synchronization
 import Testing
 
-/// Stands in for the language model: answers with a fixed draft and counts the requests.
+/// Stands in for the language model: answers with a fixed draft and records what it was asked.
 final class FakeDrafter: CaptureDrafting {
     private let readinessValue: ModelReadiness
     private let result: Result<ModelDraft, FoundationModelsInterpreterError>
     private let calls = Mutex(0)
+    private let locales = Mutex<[String]>([])
+    private let languages = Mutex<[Locale.Language]>([])
 
     init(
         _ draft: ModelDraft = ModelDraft(kind: .other),
@@ -22,12 +24,24 @@ final class FakeDrafter: CaptureDrafting {
         calls.withLock { $0 }
     }
 
-    func readiness(for _: Locale.Language) -> ModelReadiness {
-        readinessValue
+    /// The locale identifier each draft request named in its instructions.
+    var draftLocales: [String] {
+        locales.withLock { $0 }
     }
 
-    func draft(_: String, localeIdentifier _: String) async throws -> ModelDraft {
+    /// The languages readiness was asked about: the detected language of the text, never the locale.
+    var askedLanguages: [Locale.Language] {
+        languages.withLock { $0 }
+    }
+
+    func readiness(for language: Locale.Language) -> ModelReadiness {
+        languages.withLock { $0.append(language) }
+        return readinessValue
+    }
+
+    func draft(_: String, localeIdentifier: String) async throws -> ModelDraft {
         calls.withLock { $0 += 1 }
+        locales.withLock { $0.append(localeIdentifier) }
         return try result.get()
     }
 }
@@ -249,6 +263,39 @@ struct FoundationModelsInterpreterTests {
         #expect(await store.storedNotes.map(\.rawText) == ["помыл машину за 700"])
     }
 
+    @Test("REQ-CAPTURE-026, ADR-0030: the capture locale reaches the model as its locale hint")
+    func localeReachesTheModel() async throws {
+        let drafter = FakeDrafter(ModelDraft(kind: .carWash))
+        let input = CaptureInput(
+            payload: .text("took the car through the car wash today"),
+            source: .pitText,
+            capturedAt: DomainFixtures.Odometers.baseDate,
+            localeIdentifier: "en_GB"
+        )
+
+        _ = try await FoundationModelsInterpreter(drafter: drafter).interpret(input)
+
+        #expect(drafter.draftLocales == ["en_GB"])
+        #expect(drafter.askedLanguages.map(\.languageCode) == [.english])
+    }
+
+    @Test("REQ-CAPTURE-026, ADR-0030: the locale is a hint only; the written language decides the gate")
+    func localeDoesNotOpenTheGate() async {
+        let drafter = FakeDrafter(ModelDraft(kind: .carWash))
+        let input = CaptureInput(
+            payload: .text("помыл машину сегодня на мойке у дома"),
+            source: .pitText,
+            capturedAt: DomainFixtures.Odometers.baseDate,
+            localeIdentifier: "en_US"
+        )
+
+        await #expect(throws: FoundationModelsInterpreterError.unsupportedLanguage) {
+            try await FoundationModelsInterpreter(drafter: drafter).interpret(input)
+        }
+        #expect(drafter.callCount == 0)
+        #expect(drafter.askedLanguages.isEmpty)
+    }
+
     @Test("ADR-0027: the instructions name a non-US locale with Apple's exact phrase")
     func instructionsNameTheLocale() {
         #expect(SystemModelDrafter.instructions("ru_RU").hasPrefix("The person's locale is ru_RU."))
@@ -280,6 +327,23 @@ struct InterpreterChainTests {
         #expect(proposal.kind == .vehicleEvent)
         #expect(proposal.extractedAmount == 600)
         #expect(drafter.callCount == 1)
+    }
+
+    @Test("REQ-CAPTURE-026, ADR-0030: every member of the chain receives the capture's locale")
+    func everyMemberReceivesTheLocale() async throws {
+        let first = InputRecordingInterpreter()
+        let second = InputRecordingInterpreter()
+        let input = CaptureInput(
+            payload: .text("a thought"),
+            source: .pitText,
+            capturedAt: DomainFixtures.Odometers.baseDate,
+            localeIdentifier: "uk_UA"
+        )
+
+        _ = try await InterpreterChain([first, second]).interpret(input)
+
+        #expect(await first.inputs.map(\.localeIdentifier) == ["uk_UA"])
+        #expect(await second.inputs.map(\.localeIdentifier) == ["uk_UA"])
     }
 
     @Test("ADR-0011: an unavailable last member is reported as unavailable")

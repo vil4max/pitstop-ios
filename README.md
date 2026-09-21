@@ -3,7 +3,7 @@
 Smart driver's journal and contextual car memory for your vehicle.
 
 **Project state:** Active — see [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
-**Next task:** CAP-LOC-001 — pass the request locale into Pit's capture input ([work plan](docs/planning/work-plan.md)).
+**Next task:** MNT-POL-001 — stop tracking an operation (remove the owner's policy) ([work plan](docs/planning/work-plan.md)).
 
 ## Intended product
 

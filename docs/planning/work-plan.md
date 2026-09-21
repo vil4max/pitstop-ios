@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** CAP-LOC-001 — pass the request locale into Pit's `CaptureInput`  
+**Next task:** MNT-POL-001 — stop tracking an operation (remove the owner's policy)  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -15,8 +15,7 @@ store that TestFlight testers already hold.
 
 | ID | Title | Est | Depends on | Status | Source | Owner decision needed |
 |---|---|---:|---|---|---|---|
-| CAP-LOC-001 | Pass the request locale into Pit's `CaptureInput` | 0.5d | — | next | [SYS-001 record](investigations/sys-001-app-intents.md), ADR 0023 | — |
-| MNT-POL-001 | Stop tracking an operation (remove the owner's policy) | 1d | — | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 2 | — |
+| MNT-POL-001 | Stop tracking an operation (remove the owner's policy) | 1d | — | next | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 2 | — |
 | ROAD-EVT-001 | Planned dated events: storage, commands, entry; insurance expiry first | 3d | owner decision | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 3 | Where the user enters a dated event; user label on `other`; whether insurance expiry also shows on Car Board |
 | MNT-PRE-001 | "Track several" starter with owner intervals | 2d | MNT-POL-001, product review gate | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 2 | Build now or after beta evidence; allowed cadence chip values; whether car-class questions may become vehicle facts |
 | MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only) | 1d | owner decision | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 1 | Stop at owner cadence or run it now; target market |
@@ -39,7 +38,7 @@ external entry; needs a voice capture path in Pit).
 
 ## Owner decisions pending
 
-- Requirements: 136 REQ IDs are `Status: proposed`; only REQ-BOARD-026 is
+- Requirements: 142 REQ IDs are `Status: proposed`; only REQ-BOARD-026 is
   approved. Approval is an owner action.
 - ADR 0020: questions A–D (promote ADR 0001, recommendation data source,
   Service Plan vs multi-operation visit order, legacy data import) and the
@@ -52,7 +51,7 @@ external entry; needs a voice capture path in Pit).
   under ADR 0021).
 - ADR 0024, ADR 0026: review of the ru and uk App Shortcut and Siri phrases.
 - Owner review of the agent decisions that say so in their status: ADR 0024,
-  ADR 0026, ADR 0027.
+  ADR 0026, ADR 0027, ADR 0030.
 - Product scope without a task yet: multi-operation visit recording and
   accepted Service Plans (ADR 0020 C), procedure components with provenance,
   the "Consider" list, engine-hours rules; undo reaches only the newest
@@ -88,6 +87,8 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
 - Launch screen: the old "P" artwork replaced by Car Board's plain grouped
   background, per HIG "Launching" (ADR 0029, "Launch screen").
 - System capture: SYS-001…006 (ADR 0023–0026).
+- Capture locale: CAP-LOC-001, Pit and the Notes editor pass the app's
+  current locale into `CaptureInput`; the `ru_RU` default is gone (ADR 0030).
 - Analytics: ENG-002, ANL-001 (ADR 0021, 0022); maintenance intelligence
   investigation MNT-INT-001.
 - Architecture: ARCH-001, the inward dependency rule restored: the persistence

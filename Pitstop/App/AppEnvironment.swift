@@ -22,6 +22,10 @@ struct AppEnvironment: Sendable {
     var prepare: (@Sendable () async -> Void)?
     /// Which interpreters Remember asks (ADR 0027).
     var interpretation = InterpreterComposition.ruleBased
+    /// The locale of an in-app capture (ADR 0030). `Locale.current` already resolves the person's
+    /// language against the app's localizations and any per-app language chosen in Settings; the
+    /// keyboard's input language is not readable reliably from a SwiftUI text field.
+    var locale: @Sendable () -> Locale = { Locale.current }
 
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppEnvironment {
         var environment = liveStores(arguments: arguments)

@@ -36,6 +36,8 @@ public struct CaptureInput: Identifiable, Hashable, Codable, Sendable {
     public let payload: CapturePayload
     public let source: CaptureSource
     public let capturedAt: Date
+    /// The locale of the request that produced the capture: Siri's request locale, or the app's current
+    /// locale for a typed capture (ADR 0030). A hint for interpreters, never the capture's language.
     public let localeIdentifier: String
     public let selectedVehicleID: VehicleID?
     public let visibleFeature: VisibleFeature?
@@ -46,7 +48,7 @@ public struct CaptureInput: Identifiable, Hashable, Codable, Sendable {
         payload: CapturePayload,
         source: CaptureSource,
         capturedAt: Date = Date(),
-        localeIdentifier: String = "ru_RU",
+        localeIdentifier: String,
         selectedVehicleID: VehicleID? = nil,
         visibleFeature: VisibleFeature? = nil,
         visibleEntityID: UUID? = nil

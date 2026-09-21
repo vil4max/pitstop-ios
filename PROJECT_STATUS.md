@@ -1,7 +1,7 @@
 # PitStop — Project Status
 
 **Project State:** Active — product baseline delivered; open work in the work plan  
-**Next task:** CAP-LOC-001 — pass the request locale into Pit's `CaptureInput` ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
+**Next task:** MNT-POL-001 — stop tracking an operation (remove the owner's policy) ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
 **TestFlight:** version 1.1.0 (tag `tf-1.1.0-2`); delivery is tag-gated (ADR 0013)
 
@@ -27,10 +27,10 @@ project marker is gitignored.
   through SYS-006, ANL, MNT-INT-001) is delivered on `main`. The GitHub board
   was deleted; the work plan lists only open work, and ADRs plus `git log`
   record what was delivered.
-- Remaining work: eight planned tasks (CAP-LOC-001 through SYS-007),
+- Remaining work: seven planned tasks (MNT-POL-001 through SYS-007),
   owner-only device checks, and owner decisions. All are in
   [`docs/planning/work-plan.md`](docs/planning/work-plan.md).
-- Requirements: 136 REQ IDs are `Status: proposed`; only REQ-BOARD-026 is
+- Requirements: 142 REQ IDs are `Status: proposed`; only REQ-BOARD-026 is
   approved. Tests cite the proposed IDs.
 
 ## Current implementation status

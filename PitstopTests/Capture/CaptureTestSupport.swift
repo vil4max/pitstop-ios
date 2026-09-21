@@ -56,3 +56,40 @@ extension HistoryEvent {
         )
     }
 }
+
+extension CaptureInput {
+    /// The locale of the Russian wording most fixtures use. Production sources must name their locale
+    /// (ADR 0030); only tests that do not care about it build an input without one.
+    static let fixtureLocaleIdentifier = "ru_RU"
+
+    init(
+        id: UUID = UUID(),
+        payload: CapturePayload,
+        source: CaptureSource,
+        capturedAt: Date = Date(),
+        selectedVehicleID: VehicleID? = nil,
+        visibleFeature: VisibleFeature? = nil,
+        visibleEntityID: UUID? = nil
+    ) {
+        self.init(
+            id: id,
+            payload: payload,
+            source: source,
+            capturedAt: capturedAt,
+            localeIdentifier: Self.fixtureLocaleIdentifier,
+            selectedVehicleID: selectedVehicleID,
+            visibleFeature: visibleFeature,
+            visibleEntityID: visibleEntityID
+        )
+    }
+}
+
+/// Records every input it is asked about and finds no meaning, so the wording is kept raw.
+actor InputRecordingInterpreter: SemanticInterpreting {
+    private(set) var inputs: [CaptureInput] = []
+
+    func interpret(_ input: CaptureInput) async throws -> MemoryProposal? {
+        inputs.append(input)
+        return nil
+    }
+}

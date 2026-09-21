@@ -1,5 +1,6 @@
 import Foundation
 @testable import Pitstop
+import Synchronization
 import Testing
 
 private let now = DomainFixtures.Odometers.baseDate
@@ -12,6 +13,42 @@ struct PitCaptureViewModelTests {
             pipeline: RememberPipeline(store: store, interpreter: RuleBasedInterpreter(), now: { now }),
             now: { now }
         )
+    }
+
+    @Test("REQ-CAPTURE-026, ADR-0030: a typed Pit capture carries the injected locale to the interpreter")
+    func captureCarriesInjectedLocale() async {
+        let interpreter = InputRecordingInterpreter()
+        let model = PitCaptureViewModel(
+            pipeline: RememberPipeline(store: FakeCarMemoryStore(), interpreter: interpreter, now: { now }),
+            now: { now },
+            locale: { Locale(identifier: "uk_UA") }
+        )
+        model.text = "перевірити тиск у шинах"
+
+        await model.submit(from: .carBoard)
+
+        let inputs = await interpreter.inputs
+        #expect(inputs.map(\.localeIdentifier) == ["uk_UA"])
+        #expect(inputs.first?.source == .pitText)
+    }
+
+    @Test("REQ-CAPTURE-026, ADR-0030: the locale is read when the capture is submitted, not when Pit is built")
+    func localeIsReadPerCapture() async {
+        let interpreter = InputRecordingInterpreter()
+        let current = SettableLocale(Locale(identifier: "ru_RU"))
+        let model = PitCaptureViewModel(
+            pipeline: RememberPipeline(store: FakeCarMemoryStore(), interpreter: interpreter, now: { now }),
+            now: { now },
+            locale: { current.value }
+        )
+        model.text = "мысль"
+        await model.submit(from: .carBoard)
+        model.reset()
+        current.value = Locale(identifier: "en_GB")
+        model.text = "a thought"
+        await model.submit(from: .carBoard)
+
+        #expect(await interpreter.inputs.map(\.localeIdentifier) == ["ru_RU", "en_GB"])
     }
 
     @Test("REQ-CAPTURE-010: a raw thought is saved and the surface names where it went")
@@ -210,5 +247,19 @@ private struct FixedInterpreter: SemanticInterpreting {
 
     func interpret(_ input: CaptureInput) async throws -> MemoryProposal? {
         MemoryProposal(sourceInputID: input.id, kind: proposal.kind, rawText: input.payload.rawContent)
+    }
+}
+
+/// A locale the person changes in Settings while the app keeps running.
+private final class SettableLocale: Sendable {
+    private let storage: Mutex<Locale>
+
+    init(_ locale: Locale) {
+        storage = Mutex(locale)
+    }
+
+    var value: Locale {
+        get { storage.withLock { $0 } }
+        set { storage.withLock { $0 = newValue } }
     }
 }

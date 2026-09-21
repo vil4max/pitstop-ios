@@ -84,6 +84,18 @@ struct NotesViewModelTests {
         NotesViewModel(store: store, now: { now })
     }
 
+    @Test("REQ-CAPTURE-026, ADR-0030: a note typed in the editor carries the injected locale")
+    func editorCaptureCarriesInjectedLocale() {
+        let model = NotesViewModel(store: FakeCarMemoryStore(), now: { now }, locale: { Locale(identifier: "en_GB") })
+
+        let input = model.captureInput(text: "check the tyre pressure")
+
+        #expect(input.localeIdentifier == "en_GB")
+        #expect(input.source == .directApp)
+        #expect(input.visibleFeature == .notes)
+        #expect(input.capturedAt == now)
+    }
+
     @Test("REQ-CAPTURE-012: a saved note can be found, corrected, and keeps its identity")
     func noteCanBeCorrected() async throws {
         let store = FakeCarMemoryStore()

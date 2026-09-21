@@ -787,6 +787,3 @@ change by its owner.
   `RememberIntentHandler` replies with Pit's `PitDestination`; CarBoard's tile
   embeds Road's `RoadLaneView`; `Features/Shared/FeatureScaffold` takes CarBoard's
   `CarBoardTileKind`.
-- **Pit capture locale.** `CaptureInput.localeIdentifier` defaults to `ru_RU`,
-  and `PitCaptureViewModel` does not pass the request locale. This is the
-  planned CAP-LOC-001, not an undocumented defect.

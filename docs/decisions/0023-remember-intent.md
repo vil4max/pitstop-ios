@@ -91,7 +91,7 @@ localeIdentifier: systemContext.locale.identifier)`. `.text` because the
 intent receives a string and cannot tell whether it was spoken or typed.
 `systemContext.locale` (iOS 27) is the request's locale, which can differ from
 the app's. `visibleFeature` is nil: no surface is visible to lend a prior.
-Pit still passes no locale (proposed CAP-LOC-001).
+Pit and the Notes editor pass the app's current locale ([ADR 0030](0030-capture-locale.md), CAP-LOC-001).
 
 ### Temporary storage
 

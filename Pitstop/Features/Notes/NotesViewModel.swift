@@ -41,16 +41,20 @@ final class NotesViewModel {
     private let pipeline: RememberPipeline
     private let analytics: any AnalyticsTracking<NotesAnalyticsEvent>
     private let now: @Sendable () -> Date
+    /// Read per capture, so a language or region change made while the app runs applies (ADR 0030).
+    private let locale: @Sendable () -> Locale
 
     init(
         store: any CarMemoryStore,
         analytics: any AnalyticsTracking<NotesAnalyticsEvent> = NoAnalyticsTracker(),
         captureObserver: any CaptureStageObserving = CaptureStageLogger(),
-        now: @escaping @Sendable () -> Date = { Date() }
+        now: @escaping @Sendable () -> Date = { Date() },
+        locale: @escaping @Sendable () -> Locale = { Locale.current }
     ) {
         self.store = store
         self.analytics = analytics
         self.now = now
+        self.locale = locale
         pipeline = RememberPipeline(store: store, observer: captureObserver, now: now)
     }
 
@@ -95,13 +99,23 @@ final class NotesViewModel {
     /// Direct app capture is a capture source like any other, so it goes through the pipeline
     /// rather than building a note itself (core C4). Returns `true` only after persistence.
     func add(text: String) async -> Bool {
-        let input = CaptureInput(payload: .text(text), source: .directApp, capturedAt: now(), visibleFeature: .notes)
+        let input = captureInput(text: text)
         do {
             guard case .saved = try await pipeline.rememberRaw(input) else { return failEditor(.emptyText) }
         } catch {
             return failEditor(.notSaved)
         }
         return await finish()
+    }
+
+    func captureInput(text: String) -> CaptureInput {
+        CaptureInput(
+            payload: .text(text),
+            source: .directApp,
+            capturedAt: now(),
+            localeIdentifier: locale().identifier,
+            visibleFeature: .notes
+        )
     }
 
     func correct(_ note: Note, text: String) async -> Bool {

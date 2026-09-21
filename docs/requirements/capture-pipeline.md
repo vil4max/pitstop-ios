@@ -515,3 +515,11 @@ Source: [Observability](#observability); [Test-first scenarios](#test-first-scen
 Given a CaptureInput with text, transcript, or recognized document payload
 When pipeline stages are logged
 Then no log or telemetry event contains the raw content
+
+### REQ-CAPTURE-026 — Every capture carries its source's locale
+Status: proposed
+Core: C4
+Source: [CaptureInput](#captureinput); [ADR 0030](../decisions/0030-capture-locale.md)
+Given a capture from Siri, Pit, or the Notes editor
+When the source builds its CaptureInput
+Then the input carries the locale of that request (Siri: the request locale; in-app: the app's current locale at the moment of capture), every interpreter receives that same locale, and a model uses it only as a hint, never to decide which language the capture is written in

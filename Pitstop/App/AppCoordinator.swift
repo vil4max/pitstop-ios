@@ -29,12 +29,13 @@ final class AppCoordinator {
         notes = NotesViewModel(
             store: environment.store,
             analytics: notesAnalytics,
-            captureObserver: Self.captureObserver(client: client, interpreter: .noInterpreter)
+            captureObserver: Self.captureObserver(client: client, interpreter: .noInterpreter),
+            locale: environment.locale
         )
         history = HistoryViewModel(store: environment.store)
         service = ServiceViewModel(store: environment.store)
         road = RoadViewModel(store: environment.store)
-        pitCapture = PitCaptureViewModel(pipeline: Self.interpretedPipeline(environment))
+        pitCapture = PitCaptureViewModel(pipeline: Self.interpretedPipeline(environment), locale: environment.locale)
         pitQuestion = PitQuestionViewModel(
             questions: environment.questions,
             store: environment.store,
