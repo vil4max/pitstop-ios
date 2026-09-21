@@ -1,9 +1,9 @@
 # Local overrides (gitignored). Example:
 # simulator:
-#   name: iPhone 17
-#   os: "26.5"
-#   # Reserve a device so another project's tests cannot take it over:
-#   #   xcrun simctl create "MyApp iPhone 17" "iPhone 17"   # prints the UDID
-#   udid: 00000000-0000-0000-0000-000000000000
+#   os: "27.0"
+#   # The app's own devices ("<scheme> iPhone 17", "<scheme> iPhone 17 Tests")
+#   # are created on demand; reserve an existing device instead by UDID:
+#   udid: 00000000-0000-0000-0000-000000000000        # runs, screenshots
+#   test_udid: 00000000-0000-0000-0000-000000000000   # tests
 # backend:
 #   prefer: xcodebuild

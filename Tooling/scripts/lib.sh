@@ -144,68 +144,108 @@ scheme_name() {
   echo ""
 }
 
+# Each app runs on its own simulators, never on a bare device name such as
+# "iPhone 17" that every project on the Mac shares: one project's test run shut
+# down or took over another's device and detached the owner's live panel. Devices
+# are "<Scheme> <device type>" for runs and "<that> Tests" for tests, created on
+# demand by sim-device.py. A configured name that is itself a device type is
+# treated as the device type.
+is_device_type() {
+  xcrun simctl list devicetypes 2>/dev/null | sed -n 's/^\(.*\) (com\.apple\..*)$/\1/p' | grep -qxF -- "$1"
+}
+
+sim_device_type() {
+  local type name
+  type="$(cfg_get "simulator.device_type" "")"
+  if [[ -z "$type" ]]; then
+    name="$(cfg_get "simulator.name" "")"
+    if [[ -n "$name" ]] && is_device_type "$name"; then type="$name"; else type="iPhone 17"; fi
+  fi
+  echo "$type"
+}
+
+sim_app_label() {
+  local label
+  label="$(scheme_name)"
+  [[ -n "$label" ]] || label="$(basename "$(project_root)")"
+  echo "$label"
+}
+
 sim_name() {
-  cfg_get "simulator.name" "iPhone 17"
+  local name type
+  name="$(cfg_get "simulator.name" "")"
+  type="$(sim_device_type)"
+  if [[ -z "$name" || "$name" == "$type" ]] || is_device_type "$name"; then
+    name="$(sim_app_label) $type"
+  fi
+  echo "$name"
+}
+
+# Worktrees of one app test in parallel (two build slots), so a linked worktree
+# gets its own test device: "<name> Tests · <worktree directory>"; CI jobs use
+# "<name> Tests · CI". `just sim-clean`
+# deletes the devices of worktrees that no longer exist.
+sim_worktree_suffix() {
+  local root git_dir common
+  # A self-hosted runner's checkout is an ordinary clone on the owner's Mac; it
+  # must not test on the device the owner's own checkout uses.
+  if [[ "${GITHUB_ACTIONS:-}" == true ]]; then
+    echo " · CI"
+    return 0
+  fi
+  root="$(project_root)"
+  git_dir="$(git -C "$root" rev-parse --absolute-git-dir 2>/dev/null)" || return 0
+  common="$(git -C "$root" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" || return 0
+  [[ "$git_dir" == "$common" ]] || echo " · $(basename "$root")"
+}
+
+sim_test_base_name() {
+  cfg_get "simulator.test_name" "$(sim_name) Tests"
+}
+
+sim_test_name() {
+  echo "$(sim_test_base_name)$(sim_worktree_suffix)"
 }
 
 sim_os() {
   cfg_get "simulator.os" ""
 }
 
-# A UDID reserves one device for this project. Device names are shared
-# machine-wide: two projects on "iPhone 17" run their tests on the same
-# simulator, and one session's xcodebuild shuts down or takes over the other's.
-# UDIDs are machine-specific, so the key belongs in Tooling/runtime.local.yml.
+# A UDID reserves a specific device (runs: simulator.udid; tests:
+# simulator.test_udid). UDIDs are machine-specific, so both keys belong in
+# Tooling/runtime.local.yml.
 sim_udid_configured() {
   cfg_get "simulator.udid" ""
 }
 
-# Prints the UDID to use: the configured one, else the first available device
-# with the configured name, else nothing. A configured UDID that does not exist
-# is an error: falling back to the shared name would restore the collision.
+# Prints the UDID for role "run" (default) or "test", creating the app's device
+# when it does not exist. A reserved UDID that does not exist is an error: falling
+# back to another device would restore the collision.
 sim_udid() {
-  local wanted name
-  wanted="$(sim_udid_configured)"
-  name="$(sim_name)"
-  xcrun simctl list devices available -j 2>/dev/null \
-    | /usr/bin/python3 -c "
-import json, sys
-wanted, name, os_version = sys.argv[1], sys.argv[2], sys.argv[3]
-try:
-    listing = json.load(sys.stdin)
-except ValueError:
-    # No simctl, or no JSON from it: no device is known, which only matters for a reservation.
-    listing = {}
-# A runner image can carry the same device name on several iOS runtimes; with
-# simulator.os set, only that runtime qualifies (key ends in iOS-27-0 for 27.0).
-suffix = 'iOS-' + os_version.replace('.', '-') if os_version else ''
-devices = [d for runtime, group in listing.get('devices', {}).items() for d in group
-           if d.get('isAvailable', True) and (not suffix or d.get('udid') == wanted or runtime.endswith(suffix))]
-if wanted:
-    if any(d['udid'] == wanted for d in devices):
-        print(wanted)
-        raise SystemExit(0)
-    sys.stderr.write('simulator.udid %s is not an available device; create it or fix Tooling/runtime.local.yml\\n' % wanted)
-    raise SystemExit(3)
-for d in devices:
-    if d.get('name') == name:
-        print(d['udid'])
-        break
-" "$wanted" "$name" "$(sim_os)"
+  local role="${1:-run}" name reserved
+  if [[ "$role" == test ]]; then
+    name="$(sim_test_name)"
+    reserved="$(cfg_get "simulator.test_udid" "")"
+  else
+    name="$(sim_name)"
+    reserved="$(sim_udid_configured)"
+  fi
+  /usr/bin/python3 "$SCRIPT_HOME/sim-device.py" resolve "$name" "$(sim_device_type)" "$(sim_os)" "$reserved"
 }
 
 destination_spec() {
-  local name os id
-  name="$(sim_name)"
-  os="$(sim_os)"
-  id="$(sim_udid)" || return $?
-  if [[ -n "$id" ]]; then
+  local role="${1:-run}" id name status=0
+  id="$(sim_udid "$role")" || status=$?
+  if ((status == 0)) && [[ -n "$id" ]]; then
     echo "platform=iOS Simulator,id=${id}"
-  elif [[ -n "$os" ]]; then
-    echo "platform=iOS Simulator,name=${name},OS=${os}"
-  else
-    echo "platform=iOS Simulator,name=${name}"
+    return 0
   fi
+  # Only a missing simctl may fall back; a missing runtime or reservation is an error.
+  ((status == 2)) || return "${status/#0/1}"
+  # No simctl to resolve or create a device (a stubbed or non-macOS environment):
+  # name the device and let xcodebuild report it.
+  [[ "$role" == test ]] && name="$(sim_test_name)" || name="$(sim_name)"
+  echo "platform=iOS Simulator,name=${name}"
 }
 
 # Xcode asks once per package plugin or macro to "Trust & Enable" it. Agent

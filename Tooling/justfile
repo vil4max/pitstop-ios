@@ -180,3 +180,13 @@ build-slot *args:
     echo "build-slot.sh not found under $root" >&2
     exit 1
 
+# Deletes this app's leftover test clones (shut-down "Clone N of <device>"); other apps are untouched.
+sim-clean:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root="{{ justfile_directory() }}"
+    for d in "$root/Tooling/scripts" "$root/scripts"; do
+      if [[ -x "$d/sim-clean.sh" ]]; then exec "$d/sim-clean.sh"; fi
+    done
+    echo "sim-clean.sh not found under $root" >&2
+    exit 1

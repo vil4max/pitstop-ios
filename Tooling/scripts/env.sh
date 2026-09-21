@@ -19,6 +19,6 @@ if have xcodebuild; then
   xcodebuild -version 2>/dev/null || true
 fi
 echo "scheme: $(scheme_name)"
-echo "simulator: $(sim_name)"
+echo "simulator: $(sim_name) (tests: $(sim_test_name))"
 echo "xcodeproj: $(find_xcodeproj)"
 echo "prefer: $(cfg_get backend.prefer auto)"

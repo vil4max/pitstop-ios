@@ -39,9 +39,11 @@ ci:
 Anything the Sonar job should read goes under `build/ci/`; it expects
 `build/ci/sonar/coverage.xml` and an app-owned `sonar-project.properties`.
 
-Set `simulator.os` in `Tooling/runtime.yml` (for example `"27.0"`) when the app
-needs a specific iOS: a runner image carries the same device name on several
-runtimes, and only that runtime then qualifies.
+Every app runs on its own simulators, on CI and on this Mac: `<scheme> iPhone 17`
+for runs and screenshots and `<scheme> iPhone 17 Tests` for tests, created on
+demand (`simulator.*` keys in [api.md](api.md)); `just sim-clean` removes the
+app's own leftover test clones. Set `simulator.os` (for example `"27.0"`) when the
+app needs a specific iOS; unset means the newest installed runtime.
 
 ## Repository variables
 

@@ -10,7 +10,7 @@ SCHEME="$(scheme_name)"
 
 PROJ="$(find_xcodeproj)"
 WS="$(find_xcworkspace)"
-DEST="$(destination_spec)"
+DEST="$(destination_spec test)"
 
 ACTION=test
 if [[ "${RUNTIME_XCODEBUILD_WITHOUT_BUILDING:-false}" == true ]]; then
