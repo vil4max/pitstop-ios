@@ -16,7 +16,7 @@
 | Persistence | `CarMemoryStore`, `SwiftDataCarMemoryStore`, `PitstopSchemaV1`, `PitstopSchemaV2` | Command-only store behind a domain protocol (ENG-004, ADR 0007); V2 adds persisted Pit question state with a lightweight migration from V1 (ADR 0016) |
 | Notes | `Note`, `NotesSummary`, `UpdateNoteCommand`, `RememberPipeline` (raw), `NotesViewModel`, `NotesView` | Save, find, correct, archive, and restore without AI; Notes tile summarizes real notes (CB-003) |
 | History | `HistoryEvent`, `HistoryTimeline`, `CorrectVehicleEventCommand`, `HistoryViewModel`, `HistoryView` | Record and correct events by hand; timeline projects events and confirmed completions; tile shows the latest (CB-004) |
-| Service | `MaintenanceEngine`, `MaintenanceContext`, `MaintenanceOperationState`, `ServicePlanner`, `RevokeMaintenanceCompletionCommand`, `ServiceViewModel`, `ServiceView` | Deterministic status from the owner's intervals and confirmed completions, suggested visit scope, track / mark done / change interval / undo (CB-005, ADR 0010) |
+| Service | `MaintenanceEngine`, `MaintenanceContext`, `MaintenanceOperationState`, `ServicePlanner`, `RevokeMaintenanceCompletionCommand`, `StopTrackingOperationCommand`, `ServiceViewModel`, `ServiceView` | Deterministic status from the owner's intervals and confirmed completions, suggested visit scope, track / mark done / change interval / undo / stop tracking (CB-005, MNT-POL-001, ADR 0010, 0031) |
 | Pit | `PitPresenceModel`, `PitCaptureViewModel`, `PitQuestionRegistry`, `PitQuestionViewModel`, `PitActivitySources` | Capture surface, proposal confirmation, current-mileage question with cooldown and return, activity reporting (CAP-003/004, DISC-001…004, ADR 0012, 0016–0019) |
 | Interpretation | `RuleBasedInterpreter`, `InterpreterChain`, `FoundationModelsInterpreter` | Rules by default; the Foundation Models adapter runs only behind a DEBUG launch argument (CAP-005, ADR 0011, 0027) |
 | System capture | `RememberInPitStopIntent`, `RememberIntentHandler`, `PitStopShortcuts`, `OpenPitIntent`, `CaptureSurfaceRequests`, `PitstopWidgets` | Siri and App Shortcuts, voice clarification, Open Pit control and data-free widget (SYS-002…006, ADR 0023–0026) |
@@ -64,6 +64,7 @@ facts; the header shows the newest mileage observation (REQ-BOARD-026).
 | RecordVehicleFact | Domain command | Yes | `RecordVehicleFactCommand` |
 | ConfirmMaintenanceCompletion | Domain command | Yes | `ConfirmMaintenanceCompletionCommand` |
 | SetMaintenancePolicy | Domain command | Yes | `SetMaintenancePolicyCommand` |
+| StopTrackingOperation | Domain command, user-only (no proposal maps to it) | Yes | `StopTrackingOperationCommand` (ADR 0031) |
 | RecordVehicleEvent | Domain command | Yes | `RecordVehicleEventCommand` |
 | RecordExpense | Domain command | Yes | `RecordExpenseCommand` |
 | Raw preservation | Model-free mode and fallback | Via CreateNote after validation/policy | `RawProposalFactory` |

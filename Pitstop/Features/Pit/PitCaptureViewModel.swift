@@ -12,7 +12,7 @@ enum PitDestination: Equatable {
         switch result {
         case .noteCreated, .noteUpdated: self = .notes
         case .eventRecorded, .eventCorrected: self = .history
-        case .completionConfirmed, .completionRevoked, .policySet: self = .service
+        case .completionConfirmed, .completionRevoked, .policySet, .trackingStopped: self = .service
         case .readingRecorded, .vehicleUpdated: self = .carBoard
         }
     }

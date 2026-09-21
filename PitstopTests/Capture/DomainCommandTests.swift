@@ -39,6 +39,10 @@ struct DomainCommandTests {
             vehicleID: DomainFixtures.Vehicles.defaultID,
             policy: MaintenancePolicy(operationID: .brakeFluid, timeIntervalMonths: 0)
         )), .nonPositiveInterval),
+        (.stopTrackingOperation(StopTrackingOperationCommand(
+            vehicleID: DomainFixtures.Vehicles.defaultID,
+            operationID: MaintenanceOperationID(rawValue: " ")
+        )), .emptyOperationID),
         (.recordExpense(RecordExpenseCommand(event: HistoryEvent(
             vehicleID: DomainFixtures.Vehicles.defaultID,
             kind: .other,
@@ -90,6 +94,7 @@ struct DomainCommandTests {
                 vehicleID: vehicleID,
                 policy: DomainFixtures.Maintenance.brakeFluidPolicy
             )),
+            .stopTrackingOperation(StopTrackingOperationCommand(vehicleID: vehicleID, operationID: .brakeFluid)),
             .recordVehicleEvent(RecordVehicleEventCommand(event: DomainFixtures.History.carWashEvent
                     .dated(captureTestNow))),
             .recordExpense(RecordExpenseCommand(event: DomainFixtures.History.serviceVisit)),

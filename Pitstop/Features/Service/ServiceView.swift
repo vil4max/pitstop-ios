@@ -43,7 +43,11 @@ struct ServiceView: View {
         .alert("service.failure.notSaved", isPresented: listFailureBinding) {
             Button("common.ok") { viewModel.dismissFailure() }
         }
-        .pitActivity(.modalTask, while: sheet != nil || undoCandidate != nil || listFailureBinding.wrappedValue)
+        .pitActivity(
+            .modalTask,
+            while: sheet != nil || undoCandidate != nil || viewModel.state.stopTrackingCandidate != nil
+                || listFailureBinding.wrappedValue
+        )
         // Undo deletes a recorded fact, so it asks first and names what will be removed.
         .confirmationDialog(
             "service.undoDone.title",
@@ -60,6 +64,7 @@ struct ServiceView: View {
                 Text("service.undoDone.message \(completion.performedAt.formatted(date: .long, time: .omitted))")
             }
         }
+        .stopTrackingConfirmation(viewModel)
         .sheet(item: $sheet) { sheet in
             Group {
                 switch sheet {
@@ -142,6 +147,8 @@ struct ServiceView: View {
                     sheet = .interval(operation.id)
                 } onUndo: {
                     undoCandidate = operation
+                } onStopTracking: {
+                    viewModel.requestStopTracking(operation)
                 }
             }
         }
@@ -216,6 +223,7 @@ private struct OperationRow: View {
     let onMarkDone: () -> Void
     let onChangeInterval: () -> Void
     let onUndo: () -> Void
+    let onStopTracking: () -> Void
 
     var body: some View {
         TileCard(minHeight: 0) {
@@ -234,7 +242,8 @@ private struct OperationRow: View {
                         .buttonStyle(.bordered)
                         .accessibilityIdentifier("service.markDone.\(operation.id.rawValue)")
                     Spacer()
-                    // Stored facts stay correctable: the interval, and a confirmation made by mistake.
+                    // Stored facts stay correctable: the interval, a confirmation made by mistake, and the tracking
+                    // itself.
                     Menu("service.more", systemImage: "ellipsis.circle") {
                         Button("service.changeInterval", systemImage: "slider.horizontal.3", action: onChangeInterval)
                         if operation.lastCompletion != nil {
@@ -244,6 +253,15 @@ private struct OperationRow: View {
                                 role: .destructive,
                                 action: onUndo
                             )
+                        }
+                        if operation.policy.source == .userCustom {
+                            Button(
+                                "service.stopTracking",
+                                systemImage: "eye.slash",
+                                role: .destructive,
+                                action: onStopTracking
+                            )
+                            .accessibilityIdentifier("service.stopTracking.\(operation.id.rawValue)")
                         }
                     }
                     .labelStyle(.iconOnly)

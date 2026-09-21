@@ -126,6 +126,9 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             try requireVehicle(set.vehicleID)
             try upsert(set.policy, vehicleID: set.vehicleID)
             return .policySet(set.policy)
+        case let .stopTrackingOperation(stop):
+            try requireVehicle(stop.vehicleID)
+            return try .trackingStopped(removeOwnerPolicy(stop.operationID, vehicleID: stop.vehicleID))
         case let .recordVehicleEvent(record):
             return try insert(record.event)
         case let .correctVehicleEvent(correct):
@@ -167,6 +170,22 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
         ))
         existing.forEach(modelContext.delete)
         modelContext.insert(Schema1.MaintenancePolicyRecord(policy, vehicleID: vehicleID))
+    }
+
+    /// Deletes only the `userCustom` row: a recommendation stays (REQ-DOMAIN-006), and completion and
+    /// History records are never touched, so re-tracking resumes from the same facts (ADR 0031).
+    private func removeOwnerPolicy(_ operationID: MaintenanceOperationID, vehicleID: VehicleID) throws
+        -> MaintenancePolicy
+    {
+        let vehicle = vehicleID.rawValue
+        let operation = operationID.rawValue
+        let source = PolicySource.userCustom.rawValue
+        let matches = try modelContext.fetch(FetchDescriptor<Schema1.MaintenancePolicyRecord>(
+            predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation && $0.source == source }
+        ))
+        guard let removed = matches.first?.domain else { throw CarMemoryStoreError.unknownPolicy }
+        matches.forEach(modelContext.delete)
+        return removed
     }
 
     /// First launch has no record yet; the provisional car is created on demand so the app

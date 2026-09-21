@@ -14,6 +14,7 @@ public enum DomainCommandError: Error, Hashable, Sendable {
     case nonPositiveInterval
     case nonPositiveAmount
     case emptyNoteUpdate
+    case emptyOperationID
 }
 
 public enum DomainCommandLimits {
@@ -117,6 +118,18 @@ public struct SetMaintenancePolicyCommand: Hashable, Sendable {
     }
 }
 
+/// The owner stops tracking an operation: only the owner's own policy for it is removed. Completions
+/// and History are performed facts and stay (ADR 0031). Only the user can issue it; no proposal maps to it.
+public struct StopTrackingOperationCommand: Hashable, Sendable {
+    public let vehicleID: VehicleID
+    public let operationID: MaintenanceOperationID
+
+    public init(vehicleID: VehicleID, operationID: MaintenanceOperationID) {
+        self.vehicleID = vehicleID
+        self.operationID = operationID
+    }
+}
+
 public struct RecordVehicleEventCommand: Hashable, Sendable {
     public let event: HistoryEvent
 
@@ -153,6 +166,7 @@ public enum DomainCommand: Hashable, Sendable {
     case confirmMaintenanceCompletion(ConfirmMaintenanceCompletionCommand)
     case revokeMaintenanceCompletion(RevokeMaintenanceCompletionCommand)
     case setMaintenancePolicy(SetMaintenancePolicyCommand)
+    case stopTrackingOperation(StopTrackingOperationCommand)
     case recordVehicleEvent(RecordVehicleEventCommand)
     case correctVehicleEvent(CorrectVehicleEventCommand)
     case recordExpense(RecordExpenseCommand)
@@ -178,6 +192,8 @@ public enum DomainCommand: Hashable, Sendable {
             break
         case let .setMaintenancePolicy(command):
             try Self.check(command.policy)
+        case let .stopTrackingOperation(command):
+            guard !command.operationID.rawValue.isBlank else { throw .emptyOperationID }
         case let .recordVehicleEvent(command):
             try Self.check(command.event, now: now, requiresAmount: false)
         case let .correctVehicleEvent(command):

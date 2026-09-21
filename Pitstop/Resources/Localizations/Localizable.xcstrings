@@ -4645,6 +4645,94 @@
         }
       }
     },
+    "service.stopTracking" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop tracking"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не отслеживать"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не відстежувати"
+          }
+        }
+      }
+    },
+    "service.stopTracking.message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Its interval will be removed. History and “done” records stay, and you can track it again at any time."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Интервал будет удалён. История и записи «выполнено» останутся, отслеживание можно включить снова в любой момент."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Інтервал буде видалено. Історія та записи «виконано» залишаться, відстеження можна знову ввімкнути будь-коли."
+          }
+        }
+      }
+    },
+    "service.stopTracking.message.fallback" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your interval will be removed and the recommended interval will apply instead. History and “done” records stay."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваш интервал будет удалён, вместо него будет действовать рекомендованный. История и записи «выполнено» останутся."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваш інтервал буде видалено, замість нього діятиме рекомендований. Історія та записи «виконано» залишаться."
+          }
+        }
+      }
+    },
+    "service.stopTracking.title %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop tracking %@?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перестать отслеживать «%@»?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Припинити відстежувати «%@»?"
+          }
+        }
+      }
+    },
     "service.track" : {
       "localizations" : {
         "en" : {

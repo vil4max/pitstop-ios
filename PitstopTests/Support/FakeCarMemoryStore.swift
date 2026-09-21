@@ -136,6 +136,14 @@ actor FakeCarMemoryStore: CarMemoryStore {
             policies.removeAll { $0.operationID == set.policy.operationID && $0.source == set.policy.source }
             policies.append(set.policy)
             return .policySet(set.policy)
+        case let .stopTrackingOperation(stop):
+            guard stop.vehicleID == vehicle.id else { throw .unknownVehicle }
+            let isOwned = { (policy: MaintenancePolicy) in
+                policy.operationID == stop.operationID && policy.source == .userCustom
+            }
+            guard let removed = policies.first(where: isOwned) else { throw .unknownPolicy }
+            policies.removeAll(where: isOwned)
+            return .trackingStopped(removed)
         case let .recordVehicleEvent(record):
             return try insertEvent(record.event)
         case let .correctVehicleEvent(correct):

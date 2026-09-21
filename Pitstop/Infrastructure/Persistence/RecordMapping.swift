@@ -120,7 +120,9 @@ extension Schema1.MaintenancePolicyRecord {
             operationID: MaintenanceOperationID(rawValue: operationID),
             distanceIntervalKm: distanceIntervalKm,
             timeIntervalMonths: timeIntervalMonths,
-            source: PolicySource(rawValue: source) ?? .userCustom
+            // A rule this version cannot attribute is never treated as the owner's: it neither outranks the
+            // owner's own rule nor offers "Stop tracking", whose delete matches `userCustom` only (ADR 0031).
+            source: PolicySource(rawValue: source) ?? .defaultRecommendation
         )
     }
 }

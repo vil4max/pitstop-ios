@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** MNT-POL-001 — stop tracking an operation (remove the owner's policy)  
+**Next task:** ROAD-EVT-001 — planned dated events: storage, commands, entry; insurance expiry first  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -15,9 +15,8 @@ store that TestFlight testers already hold.
 
 | ID | Title | Est | Depends on | Status | Source | Owner decision needed |
 |---|---|---:|---|---|---|---|
-| MNT-POL-001 | Stop tracking an operation (remove the owner's policy) | 1d | — | next | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 2 | — |
-| ROAD-EVT-001 | Planned dated events: storage, commands, entry; insurance expiry first | 3d | owner decision | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 3 | Where the user enters a dated event; user label on `other`; whether insurance expiry also shows on Car Board |
-| MNT-PRE-001 | "Track several" starter with owner intervals | 2d | MNT-POL-001, product review gate | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 2 | Build now or after beta evidence; allowed cadence chip values; whether car-class questions may become vehicle facts |
+| ROAD-EVT-001 | Planned dated events: storage, commands, entry; insurance expiry first | 3d | owner decision | next | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 3 | Where the user enters a dated event; user label on `other`; whether insurance expiry also shows on Car Board |
+| MNT-PRE-001 | "Track several" starter with owner intervals | 2d | product review gate | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 2 | Build now or after beta evidence; allowed cadence chip values; whether car-class questions may become vehicle facts |
 | MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only) | 1d | owner decision | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 1 | Stop at owner cadence or run it now; target market |
 | ROAD-EST-001 | Mileage-rate estimate for distance milestones (investigation) | 1d | ROAD-EVT-001 | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), R5 | Whether estimates are wanted at all; requires a REQ-ROAD-007 change |
 | MNT-VR-001 | Vehicle-reported remaining value as a rule (investigation) | 1d | — | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), R6 | — |
@@ -38,8 +37,8 @@ external entry; needs a voice capture path in Pit).
 
 ## Owner decisions pending
 
-- Requirements: 142 REQ IDs are `Status: proposed`; only REQ-BOARD-026 is
-  approved. Approval is an owner action.
+- Requirements: 145 REQ IDs are `Status: proposed`; REQ-BOARD-026 and REQ-ICON-001
+  are approved. Approval is an owner action.
 - ADR 0020: questions A–D (promote ADR 0001, recommendation data source,
   Service Plan vs multi-operation visit order, legacy data import) and the
   proposed maintenance-engine success-criterion change. The legacy spike source
@@ -63,8 +62,8 @@ external entry; needs a voice capture path in Pit).
 
 Covered by tests but not exercised in the simulator or on a device: Road lane
 scrolling, "Back to now", clusters and Reduce Motion; the Service actions
-(track, mark done, change interval, undo); adding and correcting History
-events; correcting, archiving and restoring notes; VoiceOver order, AX5 text
+(track, mark done, change interval, undo, stop tracking); adding and
+correcting History events; correcting, archiving and restoring notes; VoiceOver order, AX5 text
 size, Reduce Transparency and ru/uk strings on screen; question returns that
 need days of clock time.
 
@@ -89,6 +88,9 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
 - System capture: SYS-001…006 (ADR 0023–0026).
 - Capture locale: CAP-LOC-001, Pit and the Notes editor pass the app's
   current locale into `CaptureInput`; the `ru_RU` default is gone (ADR 0030).
+- Stop tracking: MNT-POL-001, the owner removes their own policy for an
+  operation behind a confirmation; completions and History stay, and the
+  operation returns to Track (ADR 0031).
 - Analytics: ENG-002, ANL-001 (ADR 0021, 0022); maintenance intelligence
   investigation MNT-INT-001.
 - Architecture: ARCH-001, the inward dependency rule restored: the persistence

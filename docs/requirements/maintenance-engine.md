@@ -469,3 +469,19 @@ Source: [Success criteria for engine v1](#success-criteria-for-engine-v1)
 Given the same policies and confirmed completion facts
 When the engine calculates status repeatedly with no AI available
 Then the status is identical each time
+
+### REQ-MAINT-023 — Stopping tracking removes only the owner's policy
+Status: proposed
+Core: P1, C5
+Source: [Simple owner cadence first](#simple-owner-cadence-first), [ADR 0031](../decisions/0031-stop-tracking-an-operation.md)
+Given an operation the owner tracks with their own interval, with confirmed completions and History events
+When the owner stops tracking it
+Then only the owner's policy is removed and completions, History events and any recommendation or vehicle-condition record stay; with no other policy left, the operation leaves Service and Road and is offered again under Track, where tracking it again resumes from the kept completions; with another policy left, that policy applies instead and the operation stays on Service
+
+### REQ-MAINT-024 — Stopping tracking needs a confirmation that names the operation
+Status: proposed
+Core: P1
+Source: [ADR 0010](../decisions/0010-maintenance-engine-rules.md) (undo confirmation pattern), [ADR 0031](../decisions/0031-stop-tracking-an-operation.md)
+Given a tracked operation on Service
+When the owner chooses to stop tracking it
+Then nothing is removed until the owner confirms a dialog that names the operation, says that history stays and, when another policy remains, says that it applies instead; cancelling changes nothing

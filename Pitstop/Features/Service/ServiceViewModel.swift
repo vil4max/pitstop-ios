@@ -10,11 +10,22 @@ struct ServiceViewState: Equatable {
     var failure: ServiceFailure?
     /// Shown on the list: undo happens with no sheet open.
     var listFailure: ServiceFailure?
+    /// Stopping tracking waits for an explicit confirmation that names the operation, as undo does
+    /// (core P1, ADR 0010, ADR 0031).
+    var stopTrackingCandidate: StopTrackingRequest?
+    /// Operations that keep a rule the owner did not set; stopping the owner's rule falls back to it.
+    var operationsWithOtherPolicy: Set<MaintenanceOperationID> = []
 
     var untrackedOperations: [MaintenanceOperationID] {
         let tracked = Set(operations.map(\.id))
         return MaintenanceOperationID.catalog.filter { !tracked.contains($0) }
     }
+}
+
+/// What the confirmation must say: with another rule left, the operation stays on Service under that rule.
+struct StopTrackingRequest: Equatable {
+    let operation: MaintenanceOperationID
+    let fallsBackToOtherPolicy: Bool
 }
 
 enum ServiceFailure: Equatable {
@@ -45,11 +56,9 @@ final class ServiceViewModel {
                 latestReading: store.odometerReadings().latest,
                 completions: completions
             )
-            let states = try await MaintenanceEngine().states(
-                policies: store.maintenancePolicies(),
-                completions: completions,
-                context: context
-            )
+            let policies = try await store.maintenancePolicies()
+            let states = MaintenanceEngine().states(policies: policies, completions: completions, context: context)
+            state.operationsWithOtherPolicy = Set(policies.filter { $0.source != .userCustom }.map(\.operationID))
             state.operations = states.byUrgency
             state.scope = ServicePlanner().suggestedScope(for: states, context: context)
             state.mileage = context.mileage
@@ -104,6 +113,35 @@ final class ServiceViewModel {
             state.listFailure = .notSaved
         }
         return undone
+    }
+
+    /// Only the owner's own policy can be removed; a recommendation-backed operation has no such action.
+    func requestStopTracking(_ operation: MaintenanceOperationState) {
+        guard operation.policy.source == .userCustom else { return }
+        state.stopTrackingCandidate = StopTrackingRequest(
+            operation: operation.id,
+            fallsBackToOtherPolicy: state.operationsWithOtherPolicy.contains(operation.id)
+        )
+    }
+
+    func cancelStopTracking() {
+        state.stopTrackingCandidate = nil
+    }
+
+    /// The dialog's destructive action. It takes the operation the dialog presented rather than reading the
+    /// pending request, because dismissing the dialog can clear that request before this task runs.
+    /// History stays; the operation returns to the Track list unless another rule still applies.
+    func confirmStopTracking(_ operation: MaintenanceOperationID) async -> Bool {
+        state.stopTrackingCandidate = nil
+        let stopped = await execute { vehicleID in
+            .stopTrackingOperation(.init(vehicleID: vehicleID, operationID: operation))
+        }
+        if !stopped {
+            // Like undo, this action has no sheet, so the failure belongs on the list.
+            state.failure = nil
+            state.listFailure = .notSaved
+        }
+        return stopped
     }
 
     func dismissFailure() {

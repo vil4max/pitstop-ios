@@ -8,6 +8,8 @@ public enum CommandResult: Hashable, Sendable {
     case completionConfirmed(MaintenanceCompletion)
     case completionRevoked(MaintenanceCompletion)
     case policySet(MaintenancePolicy)
+    /// The owner's policy that was removed; the operation's completions are untouched.
+    case trackingStopped(MaintenancePolicy)
     case eventRecorded(HistoryEvent)
     case eventCorrected(HistoryEvent)
 }
@@ -18,6 +20,8 @@ public enum CarMemoryStoreError: Error, Hashable, Sendable {
     case unknownNote
     case unknownEvent
     case unknownCompletion
+    /// The vehicle has no owner-set policy for the operation, so there is nothing to stop tracking.
+    case unknownPolicy
     /// A record with this ID already exists; history is never rewritten by a repeated command.
     case duplicateRecord
     case storageFailure
