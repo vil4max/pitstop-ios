@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** SYS-006 (SYS-005 implemented, see ADR 0025; Lock Screen, Action button and locked-phone checks of the control and widget join the SYS-006 device checks; the ru and uk App Shortcut phrases await owner review; a PostHog project and key are owner actions; CAP-005 needs a physical device for the Foundation Models spike)  
+**Next task:** CAP-005 (SYS-006 implemented, see ADR 0026; the owner device check list in ADR 0026 covers Siri in ru and uk, reply language, the locked phone, prompt time limits, the Lock Screen control, the Action button and the Shortcuts listing; voice clarification is reachable once an interpreter leaves a field open; the ru and uk App Shortcut phrases await owner review; a PostHog project and key are owner actions; CAP-005 needs a physical device for the Foundation Models spike)  
 **Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
 **Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -149,7 +149,7 @@ See `../engineering/quality-and-ci.md`.
 | SYS-003 | App Shortcut | 1d | CAP-007 | implemented (ADR 0024) | #32 |
 | SYS-004 | Widget investigation | 1d | CAP-007 | investigated (see [`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)); owner decisions recorded in ADR 0025 | #33 |
 | SYS-005 | Widget capture slice | 3d | SYS-004 | implemented (ADR 0025); gallery and Shortcuts-listing checks pending | #34 |
-| SYS-006 | Siri capture slice | 3d | SYS-002 | tracked | #35 |
+| SYS-006 | Siri capture slice | 3d | SYS-002 | implemented (ADR 0026); device checks pending | #35 |
 | SYS-007 | Widget with car data (App Group + store move) | 3d+ | SYS-005 | planned (proposal, owner approval needed; scope in [`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md), "Cost of a data widget") | — |
 
 ## Phase 7 — Maintenance intelligence

@@ -18,7 +18,7 @@ struct RememberInPitStopIntent: AppIntent {
     @Dependency private var handler: RememberIntentHandler
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let speech = RememberSpeech(locale: systemContext.locale)
+        let speech = RememberSpeech(locale: systemContext.locale, isVoiceOnly: systemContext.isVoiceOnly)
         defer { handler.flushAnalytics() }
         let reply = try await handler.remember(text, locale: speech.locale, prompter: SiriPrompter(
             intent: self,
@@ -34,7 +34,7 @@ struct RememberInPitStopIntent: AppIntent {
     }
 }
 
-/// Maps a question to Siri's choice prompt. `requestChoice` throws when the person picks Cancel or
+/// Maps a question to Siri's prompts. `requestChoice` throws when the person picks Cancel or
 /// dismisses the prompt, so a returned Cancel option is only a fallback.
 private struct SiriPrompter: RememberPrompting {
     let intent: RememberInPitStopIntent
@@ -46,7 +46,10 @@ private struct SiriPrompter: RememberPrompting {
         let offered: [(option: IntentChoiceOption, choice: RememberChoice)] = switch question {
         case .confirm: [(record, .record), (wordsOnly, .wordsOnly), (.cancel, .cancel)]
         case .clarify: [(wordsOnly, .wordsOnly), (.cancel, .cancel)]
+        // Answered with `answer`; reaching here is a programming error, and cancelling writes nothing.
+        case .value, .pick: []
         }
+        guard !offered.isEmpty else { return .cancel }
         let options = offered.map(\.option)
         let chosen = try await intent.requestChoice(between: options, dialog: IntentDialog(speech.question(question)))
         // Mapped by the position of the returned option among those offered. Whether the system returns
@@ -57,5 +60,32 @@ private struct SiriPrompter: RememberPrompting {
             return .cancel
         }
         return offered[index].choice
+    }
+
+    func answer(_ question: RememberQuestion) async throws -> RememberAnswer {
+        let dialog = IntentDialog(speech.question(question))
+        switch question {
+        case .value:
+            // App Intents asks for a value only through a declared parameter. The words were already
+            // captured, so re-asking `text` adds no second parameter to the Shortcuts editor (ADR 0026).
+            let spoken = try await intent.$text.requestValue(dialog)
+            return speech.isUnknown(spoken) ? .unknown : .spoken(spoken)
+        case let .pick(_, answers):
+            let offered = (answers + [.unknown]).compactMap { answer in
+                speech.option(answer).map { (option: IntentChoiceOption(title: $0), answer: answer) }
+            }
+            let options = offered.map(\.option) + [.cancel]
+            let chosen = try await intent.requestChoice(between: options, dialog: dialog)
+            guard let index = offered.firstIndex(where: { $0.option == chosen }) else {
+                if chosen != .cancel {
+                    AppLog.logger(category: "intent.remember").error("Unmatched choice option; treated as cancel")
+                }
+                return .cancel
+            }
+            return offered[index].answer == .unknown ? .unknown : .picked(offered[index].answer)
+        case .confirm, .clarify:
+            // Answered with `choose`; reaching here is a programming error, and cancelling writes nothing.
+            return .cancel
+        }
     }
 }

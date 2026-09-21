@@ -126,7 +126,7 @@ final class HistoryViewModel {
 
     /// Digits with an optional fraction of one or two digits; comma or point as the decimal separator.
     /// Three digits after a separator are rejected: "1,200" is far more likely twelve hundred than 1.2.
-    static func amount(from text: String) -> AmountInput {
+    nonisolated static func amount(from text: String) -> AmountInput {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return .absent }
         let normalized = trimmed.replacingOccurrences(of: ",", with: ".").filter { !$0.isWhitespace }

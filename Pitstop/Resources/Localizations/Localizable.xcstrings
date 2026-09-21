@@ -1613,6 +1613,292 @@
         }
       }
     },
+    "intent.remember.answer.unknown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I don't know|don't know|I do not know|no idea|not sure|dunno|I'm not sure"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не знаю|я не знаю|без понятия|понятия не имею|не помню|не уверен|не уверена"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не знаю|я не знаю|гадки не маю|не пам'ятаю|не впевнений|не впевнена"
+          }
+        }
+      }
+    },
+    "intent.remember.ask.amount" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How much did it cost?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько это стоило?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скільки це коштувало?"
+          }
+        }
+      }
+    },
+    "intent.remember.ask.amount.again" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I didn't catch the amount. How much did it cost?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось разобрать сумму. Сколько это стоило?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося розібрати суму. Скільки це коштувало?"
+          }
+        }
+      }
+    },
+    "intent.remember.ask.eventKind" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What kind of event was it?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что это было за событие?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Що це була за подія?"
+          }
+        }
+      }
+    },
+    "intent.remember.ask.odometerKm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What was the mileage, in kilometres?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Какой был пробег в километрах?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Який був пробіг у кілометрах?"
+          }
+        }
+      }
+    },
+    "intent.remember.ask.odometerKm.again" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I didn't catch the mileage. What was it, in kilometres?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось разобрать пробег. Какой он в километрах?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося розібрати пробіг. Який він у кілометрах?"
+          }
+        }
+      }
+    },
+    "intent.remember.ask.operationID" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What was done?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что было сделано?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Що було зроблено?"
+          }
+        }
+      }
+    },
+    "intent.remember.ask.voiceHint %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Say a number, or say “I don't know”."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Назовите число или скажите «не знаю»."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Назвіть число або скажіть «не знаю»."
+          }
+        }
+      }
+    },
+    "intent.remember.reply.voice.savedAsSaid" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved in PitStop Notes, as you said it."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранено в заметки PitStop как есть."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Збережено в нотатки PitStop як є."
+          }
+        }
+      }
+    },
+    "intent.remember.reply.voice.savedToCarBoard" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated on your car's board in PitStop."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновлено на странице машины в PitStop."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оновлено на сторінці машини в PitStop."
+          }
+        }
+      }
+    },
+    "intent.remember.reply.voice.savedToHistory" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recorded in PitStop, in History."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записано в историю в PitStop."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записано в історію в PitStop."
+          }
+        }
+      }
+    },
+    "intent.remember.reply.voice.savedToNotes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved in PitStop Notes."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранено в заметки PitStop."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Збережено в нотатки PitStop."
+          }
+        }
+      }
+    },
+    "intent.remember.reply.voice.savedToService" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recorded in PitStop, in Service."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записано в сервис в PitStop."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записано в сервіс у PitStop."
+          }
+        }
+      }
+    },
     "intent.remember.choice.record" : {
       "localizations" : {
         "en" : {

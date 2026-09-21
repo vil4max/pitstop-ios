@@ -59,7 +59,8 @@ SYS-001 record, on 2026-09-21.
    discarded and rethrows, so nothing is written (REQ-CAPTURE-005).
 2. **Clarification is not asked by voice yet.** `needsClarification` offers
    "Save the words only" or Cancel, and says the detail can be added in the
-   app. Asking the missing field by voice waits for SYS-006.
+   app. Asking the missing field by voice waits for SYS-006 (done in
+   [ADR 0026](0026-siri-voice-clarification.md)).
 3. **Only an unlocked phone.** `authenticationPolicy =
    .requiresLocalDeviceAuthentication`: Apple documents it as requiring the
    person to unlock the device that runs the intent, even when the request

@@ -163,12 +163,20 @@ public struct RememberPipeline: Sendable {
     }
 
     /// Answers the one question that was asked, then continues on the same path.
+    /// `confirmBeforeWriting` turns an auto-accepted result into a confirmation, for an answer the
+    /// surface could not show back before it was read (a spoken number, ADR 0026). It never relaxes
+    /// the policy.
     public func answer(
         _ request: ClarificationRequest,
-        with answer: ClarificationAnswer
+        with answer: ClarificationAnswer,
+        confirmBeforeWriting: Bool = false
     ) async throws(RememberError) -> RememberOutcome {
         guard answer != .unknown else { return try await preserveRaw(request.input, kind: request.kind) }
-        return try await route(request.proposal.answering(answer), input: request.input)
+        return try await route(
+            request.proposal.answering(answer),
+            input: request.input,
+            confirmBeforeWriting: confirmBeforeWriting
+        )
     }
 
     /// Cancelling performs no mutation at all (REQ-CAPTURE-005).
@@ -185,7 +193,8 @@ public struct RememberPipeline: Sendable {
     private func route(
         _ proposal: MemoryProposal,
         input: CaptureInput,
-        degraded: Bool = false
+        degraded: Bool = false,
+        confirmBeforeWriting: Bool = false
     ) async throws(RememberError) -> RememberOutcome {
         let vehicle: Vehicle
         let latestKm: Double?
@@ -207,7 +216,7 @@ public struct RememberPipeline: Sendable {
         switch validation {
         case let .valid(validated):
             let pending = PendingCapture(input: input, validated: validated)
-            guard let permit = policy.permit(for: validated, userConfirmed: false) else {
+            guard !confirmBeforeWriting, let permit = policy.permit(for: validated, userConfirmed: false) else {
                 report(.confirmationRequired, input, kind: proposal.kind, outcome: outcome)
                 return .needsConfirmation(pending)
             }

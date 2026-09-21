@@ -129,7 +129,7 @@ final class CarBoardViewModel {
 
     typealias OdometerInput = WholeNumberInput
 
-    static func kilometers(from text: String) -> OdometerInput {
+    nonisolated static func kilometers(from text: String) -> OdometerInput {
         WholeNumberInput.parse(text, upTo: Int(DomainCommandLimits.maximumOdometerKm))
     }
 }

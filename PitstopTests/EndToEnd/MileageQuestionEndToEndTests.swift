@@ -249,4 +249,9 @@ private struct NoPrompter: RememberPrompting {
         Issue.record("an ordinary reading must not ask")
         return .cancel
     }
+
+    func answer(_: RememberQuestion) async throws -> RememberAnswer {
+        Issue.record("an ordinary reading must not ask")
+        return .cancel
+    }
 }
