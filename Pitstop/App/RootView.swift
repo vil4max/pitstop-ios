@@ -10,11 +10,13 @@ struct RootView: View {
     let road: RoadViewModel
     let pitCapture: PitCaptureViewModel
     let pitQuestion: PitQuestionViewModel
+    let analyticsSharing: AnalyticsSharing
     /// DEBUG demo seeding; it must finish before any surface loads, or a surface opened first reads an empty store.
     var prepare: (@Sendable () async -> Void)?
 
     @State private var pit = PitPresenceModel()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var path: [CarBoardRoute] = RootView.initialPath()
     @State private var sheet: UtilitySheet?
@@ -143,6 +145,12 @@ struct RootView: View {
             }
         }
         .onDisappear { pit.stop() }
+        // Queued analytics live only in memory; leaving the app is the last good moment to send them (ADR 0022).
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .background {
+                Task.detached(priority: .utility) { [analyticsSharing] in await analyticsSharing.flush() }
+            }
+        }
         .task {
             guard let text = Self.initialCapture() else { return }
             pitCapture.text = text
@@ -151,7 +159,8 @@ struct RootView: View {
         }
         .sheet(item: $sheet) { sheet in
             switch sheet {
-            case .settings: SettingsView(isStorageTemporary: carBoard.state.isStorageTemporary)
+            case .settings:
+                SettingsView(isStorageTemporary: carBoard.state.isStorageTemporary, analytics: analyticsSharing)
             case .pit:
                 PitCaptureView(viewModel: pitCapture, question: pitQuestion, visible: visibleFeature) { destination in
                     open(destination)

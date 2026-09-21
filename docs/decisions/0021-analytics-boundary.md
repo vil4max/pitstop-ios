@@ -190,7 +190,9 @@ The test spy is `RecordingAnalyticsClient` in `PitstopTests/Support/`.
    launch, Settings, both), or does the TestFlight tester agreement count as
    consent for invited testers? Recommended: an explicit toggle in Settings,
    off by default, plus a one-time ask during the beta; no collection before
-   an answer.
+   an answer. **Update (ANL-001):** the Settings toggle is implemented, off by
+   default, without the one-time ask; see
+   [`0022-posthog-http-adapter.md`](0022-posthog-http-adapter.md).
 2. **Proposed events.** `analytics.md` now lists `REVIEW` proposals for shipped
    features (Pit question lifecycle, Car Board tile opens). Each needs an
    `AQ-*` owner or an approved investigation before it is collected.

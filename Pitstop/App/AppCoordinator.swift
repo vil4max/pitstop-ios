@@ -11,9 +11,11 @@ final class AppCoordinator {
     private let road: RoadViewModel
     private let pitCapture: PitCaptureViewModel
     private let pitQuestion: PitQuestionViewModel
+    private let analyticsSharing: AnalyticsSharing
 
     init(environment: AppEnvironment = .live()) {
         let client = environment.analytics
+        analyticsSharing = environment.analyticsSharing
         let notesAnalytics = AnalyticsTracker<NotesAnalyticsEvent>(client: client)
         let odometerAnalytics = AnalyticsTracker<OdometerAnalyticsEvent>(client: client)
         func captureObserver(_ interpreter: InterpreterVersion) -> any CaptureStageObserving {
@@ -63,6 +65,7 @@ final class AppCoordinator {
             road: road,
             pitCapture: pitCapture,
             pitQuestion: pitQuestion,
+            analyticsSharing: analyticsSharing,
             prepare: prepare
         )
     }

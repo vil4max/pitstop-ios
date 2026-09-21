@@ -87,6 +87,7 @@ highest affected layer; evidence from operations flows back up.
 - `operations/release-and-beta.md`
 - `decisions/0002-analytics-service.md`
 - `decisions/0021-analytics-boundary.md` — provider-neutral analytics boundary, closed event values, consent off by default, first wired events
+- `decisions/0022-posthog-http-adapter.md` — PostHog adapter over HTTP without the SDK, in-memory batching and retry, anonymous consent-scoped ID, Settings opt-in, key supplied outside the repository
 - `operations/analytics-questions.md`
 - `operations/ai-product-analytics.md`
 

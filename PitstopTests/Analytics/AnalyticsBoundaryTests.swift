@@ -4,7 +4,7 @@ import Testing
 
 /// One instance of every typed event case, so the catalog checks below cannot skip a case silently:
 /// `catalogCoversEveryEventName` fails when a new event name has no sample here.
-private let catalog: [any AnalyticsEncodable] = [
+let analyticsEventCatalog: [any AnalyticsEncodable] = [
     CaptureAnalyticsEvent.inputInterpretationCompleted(
         intent: .odometerReading, availability: .available, result: .draft, latency: .under1s,
         interpreter: .ruleBasedV1
@@ -24,7 +24,7 @@ private let catalog: [any AnalyticsEncodable] = [
 
 /// Parameters per event, copied from `docs/operations/analytics.md`. An event may omit a parameter
 /// it cannot know, but it may never send one the taxonomy does not list.
-private let taxonomy: [AnalyticsEventName: Set<String>] = [
+let analyticsTaxonomy: [AnalyticsEventName: Set<String>] = [
     .inputInterpretationCompleted: ["intent", "availability", "result", "latency_bucket", "interpreter_version"],
     .draftSaved: ["intent", "edited"],
     .draftCancelled: ["intent", "stage"],
@@ -38,7 +38,7 @@ private let taxonomy: [AnalyticsEventName: Set<String>] = [
 struct AnalyticsBoundaryTests {
     @Test("ADR-0021: every typed event carries only closed categories and booleans")
     func typedEventsHoldNoRawContentTypes() {
-        for event in catalog {
+        for event in analyticsEventCatalog {
             // An enum case's payload reflects as one child holding the associated values.
             for payload in Mirror(reflecting: event).children {
                 let fields = Mirror(reflecting: payload.value).children.map(\.value)
@@ -67,7 +67,7 @@ struct AnalyticsBoundaryTests {
         for category in categories {
             declared.formUnion(category.allRawValues)
         }
-        for event in catalog {
+        for event in analyticsEventCatalog {
             for value in event.analyticsEvent.properties.values {
                 #expect(declared.contains(value.encoded), "undeclared value \(value.encoded)")
             }
@@ -76,8 +76,8 @@ struct AnalyticsBoundaryTests {
 
     @Test("ADR-0002: event and parameter names are the taxonomy's, in snake_case")
     func namesMatchTaxonomy() {
-        for event in catalog.map(\.analyticsEvent) {
-            let allowed = taxonomy[event.name] ?? []
+        for event in analyticsEventCatalog.map(\.analyticsEvent) {
+            let allowed = analyticsTaxonomy[event.name] ?? []
             let sent = Set(event.properties.keys.map(\.rawValue))
             #expect(sent.isSubset(of: allowed), "\(event.name.rawValue) sends \(sent.subtracting(allowed))")
         }
@@ -89,8 +89,8 @@ struct AnalyticsBoundaryTests {
 
     @Test("ADR-0021: the catalog samples every event name")
     func catalogCoversEveryEventName() {
-        #expect(Set(catalog.map(\.analyticsEvent.name)) == Set(AnalyticsEventName.allCases))
-        #expect(Set(taxonomy.keys) == Set(AnalyticsEventName.allCases))
+        #expect(Set(analyticsEventCatalog.map(\.analyticsEvent.name)) == Set(AnalyticsEventName.allCases))
+        #expect(Set(analyticsTaxonomy.keys) == Set(AnalyticsEventName.allCases))
     }
 
     @Test(

@@ -7606,6 +7606,52 @@
         }
       }
     },
+    "settings.analytics.footer" : {
+      "comment" : "Settings — footer under the analytics consent toggle: what is sent",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only which features you use, as categories and counts under a random ID. Never your notes, car details or mileage."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только какие функции вы используете — категории и счётчики под случайным ID. Никаких заметок, данных об автомобиле и пробега."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лише які функції ви використовуєте — категорії та лічильники під випадковим ID. Жодних нотаток, даних про авто та пробігу."
+          }
+        }
+      }
+    },
+    "settings.analytics.share" : {
+      "comment" : "Settings — analytics consent toggle, off by default",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share anonymous usage data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Делиться анонимной статистикой"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ділитися анонімною статистикою"
+          }
+        }
+      }
+    },
     "settings.appearance" : {
       "localizations" : {
         "en" : {

@@ -19,13 +19,19 @@ struct AppEnvironment: Sendable {
     let persistence: Persistence
     /// Already consent-gated; the only analytics client feature trackers are built from (ADR 0021).
     let analytics: any AnalyticsClient
+    /// The Settings switch for that gate, and the flush on leaving the app (ADR 0022).
+    let analyticsSharing: AnalyticsSharing
     /// Runs once before the first load. Only the DEBUG demo launch uses it.
     var prepare: (@Sendable () async -> Void)?
 
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppEnvironment {
         let log = AppLog.logger(category: "app.persistence")
         let registry = productRegistry()
-        let analytics = analyticsClient(arguments: arguments)
+        let analytics = makeAnalytics(
+            arguments: arguments,
+            info: Bundle.main.infoDictionary,
+            preferences: UserDefaultsAnalyticsPreferences(defaults: .standard)
+        )
         #if DEBUG
             if arguments.contains(DemoData.argument) {
                 // Demo facts never reach the user's store, even when the in-memory store cannot be built.
@@ -56,20 +62,44 @@ struct AppEnvironment: Sendable {
         return AppEnvironment(fallback, registry: registry, persistence: .temporary, analytics: analytics)
     }
 
-    /// No provider is approved yet (ANL-001) and no consent has been asked for, so the production
-    /// client sends nothing. The gate stays in place for the adapter that replaces the no-op.
-    private static func analyticsClient(arguments: [String]) -> any AnalyticsClient {
+    struct Analytics: Sendable {
+        let client: any AnalyticsClient
+        let sharing: AnalyticsSharing
+    }
+
+    /// The PostHog adapter exists only when the build carries a project key and host (ADR 0022); otherwise
+    /// the gated no-op stays and nothing can leave the device. Either way the stored consent gates events.
+    static func makeAnalytics(
+        arguments: [String],
+        info: [String: Any]?,
+        preferences: any AnalyticsPreferenceStorage
+    ) -> Analytics {
+        let consent = AnalyticsConsentStore(storage: preferences)
         #if DEBUG
             if arguments.contains(analyticsLogArgument) {
-                return ConsentGatedAnalyticsClient(
-                    client: LoggingAnalyticsClient(),
-                    consent: FixedAnalyticsConsent(consent: .granted)
+                return Analytics(
+                    client: ConsentGatedAnalyticsClient(
+                        client: LoggingAnalyticsClient(),
+                        consent: FixedAnalyticsConsent(consent: .granted)
+                    ),
+                    sharing: AnalyticsSharing(consent: consent, pipeline: NoAnalyticsPipeline())
                 )
             }
         #endif
-        return ConsentGatedAnalyticsClient(
-            client: NoAnalyticsClient(),
-            consent: FixedAnalyticsConsent(consent: .notAsked)
+        guard let configuration = PostHogConfiguration(info: info) else {
+            return Analytics(
+                client: ConsentGatedAnalyticsClient(client: NoAnalyticsClient(), consent: consent),
+                sharing: AnalyticsSharing(consent: consent, pipeline: NoAnalyticsPipeline())
+            )
+        }
+        let posthog = PostHogAnalyticsClient(
+            configuration: configuration,
+            transport: URLSessionAnalyticsTransport(),
+            identity: consent
+        )
+        return Analytics(
+            client: ConsentGatedAnalyticsClient(client: posthog, consent: consent),
+            sharing: AnalyticsSharing(consent: consent, pipeline: posthog)
         )
     }
 
@@ -79,7 +109,7 @@ struct AppEnvironment: Sendable {
         _ stores: Stores,
         registry: PitQuestionRegistry,
         persistence: Persistence,
-        analytics: any AnalyticsClient,
+        analytics: Analytics,
         prepare: (@Sendable () async -> Void)? = nil
     ) {
         self.init(
@@ -87,7 +117,8 @@ struct AppEnvironment: Sendable {
             questions: stores.questions,
             registry: registry,
             persistence: persistence,
-            analytics: analytics,
+            analytics: analytics.client,
+            analyticsSharing: analytics.sharing,
             prepare: prepare
         )
     }
@@ -98,6 +129,7 @@ struct AppEnvironment: Sendable {
         registry: PitQuestionRegistry,
         persistence: Persistence,
         analytics: any AnalyticsClient = NoAnalyticsClient(),
+        analyticsSharing: AnalyticsSharing = .inMemory(),
         prepare: (@Sendable () async -> Void)? = nil
     ) {
         self.store = store
@@ -105,16 +137,18 @@ struct AppEnvironment: Sendable {
         self.registry = registry
         self.persistence = persistence
         self.analytics = analytics
+        self.analyticsSharing = analyticsSharing
         self.prepare = prepare
     }
 
-    private static func unavailable(registry: PitQuestionRegistry, analytics: any AnalyticsClient) -> AppEnvironment {
+    private static func unavailable(registry: PitQuestionRegistry, analytics: Analytics) -> AppEnvironment {
         AppEnvironment(
             store: UnavailableCarMemoryStore(),
             questions: UnavailablePitQuestionStore(),
             registry: registry,
             persistence: .temporary,
-            analytics: analytics
+            analytics: analytics.client,
+            analyticsSharing: analytics.sharing
         )
     }
 

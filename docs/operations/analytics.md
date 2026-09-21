@@ -113,8 +113,11 @@ context=car_wash
 Thresholds and decision rules live in `analytics-questions.md`.
 
 Implementation state: the provider-neutral boundary and the first wired events
-are recorded in `../decisions/0021-analytics-boundary.md` (ENG-002). Nothing is
-sent until a provider adapter (`ANL-001`) and user consent exist.
+are recorded in `../decisions/0021-analytics-boundary.md` (ENG-002). The PostHog
+adapter over HTTP, the Settings opt-in, and the key configuration are recorded
+in `../decisions/0022-posthog-http-adapter.md` (`ANL-001`). Nothing is sent
+until a build carries a PostHog project key and the user turns the Settings
+switch on.
 
 `draft_saved` and `draft_cancelled` count only drafts the user was shown
 (confirmation or clarification). An auto-accepted interpreted proposal is not

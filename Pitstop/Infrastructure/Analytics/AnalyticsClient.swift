@@ -7,13 +7,14 @@ protocol AnalyticsClient: Sendable {
     func send(_ event: AnalyticsEvent)
 }
 
-/// The production default until a provider adapter is approved (ADR 0021).
+/// The production client when no PostHog project is configured (ADR 0021, ADR 0022).
 struct NoAnalyticsClient: AnalyticsClient {
     func send(_: AnalyticsEvent) {}
 }
 
-enum AnalyticsConsent: Sendable {
-    case notAsked
+/// Raw values are the stored form (`AnalyticsConsentStore`); do not rename them.
+enum AnalyticsConsent: String, Sendable {
+    case notAsked = "not_asked"
     case granted
     case declined
 }

@@ -1,8 +1,8 @@
 {
   "default-configuration": "Release",
   "configurations": [
-    "Debug",
-    "Release",
+    { "name": "Debug", "file": "Config/Analytics.xcconfig" },
+    { "name": "Release", "file": "Config/Analytics.xcconfig" },
   ],
   "localizations": {
     "development": "ru",
@@ -31,6 +31,14 @@
     { "kind": "folder", "path": "PitstopTests", "target-membership": [ "PitstopTests" ] },
     {
       "kind": "group",
+      "path": "Config",
+      "children": [
+        { "path": "Analytics.xcconfig" },
+        { "path": "Info.plist" },
+      ],
+    },
+    {
+      "kind": "group",
       "name": "Products",
       "children": [
         { "path": "<PRODUCTS>/Pitstop.app", "id": "A1000000000000000000010E", "type": "wrapper.application", "index": false },
@@ -57,6 +65,7 @@
         "CURRENT_PROJECT_VERSION": "1",
         "ENABLE_TESTABILITY[config=Debug]": "YES",
         "GENERATE_INFOPLIST_FILE": "YES",
+        "INFOPLIST_FILE": "Config/Info.plist",
         "INFOPLIST_KEY_CFBundleDevelopmentRegion": "ru",
         "INFOPLIST_KEY_CFBundleDisplayName": "PitStop",
         "INFOPLIST_KEY_ITSAppUsesNonExemptEncryption": "NO",

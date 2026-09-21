@@ -74,3 +74,5 @@ fastlane/test_output
 .cursor/project-context
 .cursor/project-context.yaml
 .cursor/plans/
+# PostHog project key and host (ADR 0022); never committed.
+Config/Analytics.local.xcconfig

@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** ANL-001 (ENG-002 implemented; the PostHog package needs owner approval; CAP-005 needs a physical device for the Foundation Models spike)  
+**Next task:** SYS-001 (ANL-001 implemented over HTTP without the SDK, ADR 0022; a PostHog project and key are owner actions; CAP-005 needs a physical device for the Foundation Models spike)  
 **Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
 **Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -96,7 +96,7 @@ See `../engineering/quality-and-ci.md`.
 | ENG-003 | Local quality gates (shared CI: ADR 0013) | 2d | BOOT-001 | tracked | — |
 | ENG-004 | Persistence + provisional car | 3d | DOM-003 | implemented on branch, unmerged | #5 |
 | ENG-002 | Analytics boundary | 2d | CB-002 | implemented (ADR 0021) | #6 |
-| ANL-001 | Analytics spike | 2d | ENG-002 | tracked | #7 |
+| ANL-001 | Analytics spike | 2d | ENG-002 | implemented (ADR 0022) | #7 |
 
 ## Road investigations
 
