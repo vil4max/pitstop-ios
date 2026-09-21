@@ -3,6 +3,9 @@ import SwiftData
 
 /// Records keep enums as raw strings and IDs as UUIDs so a later schema version can add
 /// cases without a custom migration. Domain types never leave this folder as records.
+///
+/// Frozen: stores on disk are identified by these classes' shape, and V2 reuses them. A change to a
+/// record needs a new schema version with its own copy of the class (ADR 0016, `PersistenceSchemaTests`).
 enum PitstopSchemaV1: VersionedSchema {
     static let versionIdentifier = Schema.Version(1, 0, 0)
 
@@ -141,32 +144,5 @@ enum PitstopSchemaV1: VersionedSchema {
             self.engineHours = engineHours
             self.sourceEventID = sourceEventID
         }
-    }
-}
-
-enum PitstopMigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] {
-        [PitstopSchemaV1.self]
-    }
-
-    static var stages: [MigrationStage] {
-        []
-    }
-}
-
-enum PersistenceContainer {
-    /// `storeURL == nil` builds an in-memory container for tests and previews.
-    static func make(storeURL: URL?) throws -> ModelContainer {
-        let schema = Schema(versionedSchema: PitstopSchemaV1.self)
-        let configuration = if let storeURL {
-            ModelConfiguration(schema: schema, url: storeURL)
-        } else {
-            ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-        }
-        return try ModelContainer(for: schema, migrationPlan: PitstopMigrationPlan.self, configurations: configuration)
-    }
-
-    static var defaultStoreURL: URL {
-        URL.applicationSupportDirectory.appending(path: "Pitstop.store")
     }
 }

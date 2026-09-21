@@ -72,6 +72,7 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0013-shared-ci-and-tag-gated-testflight.md` — shared CI, tag-gated TestFlight, tag authority
 - `decisions/0014-public-repository.md` — public visibility, hosted runners, history rewrite
 - `decisions/0015-interpretation-deadline-and-cancellation.md` — interpreter deadline, cancelled captures write nothing
+- `decisions/0016-question-registry.md` — Pit question registry, value and deferral declarations, persisted question state, schema V2
 - `decisions/0011-interpreted-capture-without-a-model.md` — interpreter protocol, rule-based stand-in, confirmation and clarification flow
 - `decisions/0006-capture-confirmation-policy.md` — confirmation outcome table and mutation permit
 - `decisions/0005-toolchain-and-project-format.md` — Swift 6, iOS 27, file-system-synchronized project
