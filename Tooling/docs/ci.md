@@ -13,15 +13,17 @@ checked, not copied by hand:
 
 - `pipeline: shared` in `Tooling/runtime.yml` makes every install and
   `just harness-update` rewrite `.github/workflows/tests.yml`, `testflight.yml`
-  and `ci_scripts/ci_post_clone.sh` from the Runtime templates. A template
+  and `ci_scripts/ci_post_clone.sh` from the Runtime templates, and
+  `Tooling/.swiftlint.yml` / `.swiftformat` from the style templates
+  ([style-config.md](style-config.md)). A template
   change reaches every app with its next update; hand edits are overwritten.
 - `just baseline` (and the start of `just verify`) fails when a managed file
   differs from its template, `simulator.name` is a machine-shared device,
   `simulator.device_type` / `simulator.os` are not `iPhone 17` / `27.0`, or
   `MARKETING_VERSION` is not one `MAJOR.MINOR.PATCH` in every configuration.
 - It warns — and `just baseline --strict` fails — when the app has not opted in,
-  its installed Runtime lags the Runtime checkout, its style files differ from the
-  Runtime templates, or other workflows sit next to the shared ones.
+  its installed Runtime lags the Runtime checkout, or other workflows sit next to
+  the shared ones. Before the opt-in, file drift is a warning too.
 
 Why a gate and not a checklist: within one day three apps had three pipelines,
 and a workflow copied by hand went stale the next time its template changed.

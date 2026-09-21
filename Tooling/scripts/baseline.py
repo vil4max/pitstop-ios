@@ -8,16 +8,17 @@ Every app on this Runtime shares one baseline so the apps cannot drift apart
 template fixed in one never reached the others, and a copied workflow went
 stale the next time its template changed.
 
-Errors (fail `just verify` in an app that set `pipeline: shared`):
+Errors (the file checks only in an app that set `pipeline: shared`; before
+that they are warnings):
   - .github/workflows/tests.yml and testflight.yml differ from the Runtime templates
   - ci_scripts/ci_post_clone.sh next to the project differs from its template
+  - Tooling/.swiftlint.yml and .swiftformat differ from the Runtime templates
   - Tooling/runtime.yml names a bare, machine-shared simulator or lacks the
     baseline simulator.device_type / simulator.os
   - MARKETING_VERSION is not MAJOR.MINOR.PATCH in every configuration
 Warnings (errors only with --strict):
   - the app has not opted in (`pipeline: shared`)
   - the installed Runtime is not the Runtime checkout's committed content
-  - Tooling/.swiftlint.yml or .swiftformat differ from the Runtime templates
   - other workflows exist next to the two shared ones
 """
 
@@ -124,13 +125,14 @@ def main() -> int:
             head = subprocess.run(["git", "-C", str(runtime), "log", "-1", "--format=%h %s"], capture_output=True, text=True).stdout.strip()
             warnings.append(f"installed Runtime {installed[:10] or 'unknown'} is not the Runtime checkout ({head}); run `just harness-update`")
 
-    # Style files are app-owned and not installed as templates, so they can only be
-    # compared where the Runtime checkout is available.
-    if runtime:
-        for app_name, template_name in ((".swiftlint.yml", "swiftlint.yml"), (".swiftformat", "swiftformat")):
-            copy, template = tooling / app_name, runtime / "templates" / template_name
-            if copy.is_file() and template.is_file() and not filecmp.cmp(copy, template, shallow=False):
-                warnings.append(f"Tooling/{app_name} differs from the Runtime template")
+    style_issues: list[str] = []
+    for app_name, template_name in ((".swiftlint.yml", "swiftlint.yml"), (".swiftformat", "swiftformat")):
+        copy, template = tooling / app_name, templates / template_name
+        if not template.is_file():
+            style_issues.append(f"Tooling/templates/{template_name} is not installed; run `just harness-update`")
+        elif not copy.is_file() or not filecmp.cmp(copy, template, shallow=False):
+            style_issues.append(f"Tooling/{app_name} differs from Tooling/templates/{template_name}")
+    (errors if shared else warnings).extend(style_issues)
 
     for line in errors:
         print(f"baseline error    {line}")

@@ -13,9 +13,19 @@ Runtime commands: `just lint` / `just format` / `just verify` (see [api.md](api.
 
 | File | Owner | `install --force` / `just harness-update` | Reset |
 |------|-------|------------------------------------------|-------|
-| `Tooling/.swiftlint.yml` | **App** | not overwritten | `install.sh … --reset-style` |
-| `Tooling/.swiftformat` | **App** | not overwritten | `install.sh … --reset-style` |
-| `templates/swiftlint.yml` / `templates/swiftformat` | Runtime (this repo) | source of defaults for **new** installs and `--reset-style` | edit here for fleet-wide defaults |
+| `Tooling/.swiftlint.yml` | **Runtime** with `pipeline: shared`, otherwise app | overwritten from the template on the shared pipeline; otherwise kept | `install.sh … --reset-style` |
+| `Tooling/.swiftformat` | **Runtime** with `pipeline: shared`, otherwise app | same | `install.sh … --reset-style` |
+| `templates/swiftlint.yml` / `templates/swiftformat` | Runtime (this repo) | the one style of every app on the shared pipeline | edit here; every app picks it up with its next update |
+
+Every app on the shared pipeline has the same style (owner decision,
+2026-09-21): an app-local rule change fails `just baseline` and is overwritten by
+the next update. Three apps had three configs — Swift 5.10 vs 6.0 parsing,
+trailing commas required in two apps and forbidden in the third, eight rules
+disabled in one — so a change reviewed in one app was formatted differently in
+the next. Change the template instead. The error thresholds were measured against all three
+apps when set: none failed except one 8-member tuple in a OneCart test fixture,
+which its sync turns into a struct rather than raising the limit for every app.
+Measure a template change against every app before it lands.
 
 Also related (not style engines, but gates):
 
@@ -26,7 +36,7 @@ Also related (not style engines, but gates):
 
 ## How to improve (manual)
 
-### A. Tighten for **one app** (recommended first)
+### A. Tighten for **one app** (only an app not on the shared pipeline)
 
 1. Edit the app files (committed with the app):
    - `Tooling/.swiftlint.yml`
@@ -84,6 +94,11 @@ SwiftLint enables its **built-in default rule set**, then applies the overrides 
 | `disabled_rules` → `trailing_whitespace` | disabled | Does **not** fail on trailing spaces at end of lines (SwiftFormat often owns whitespace) |
 | `opt_in_rules` | list | Extra rules enabled on top of defaults |
 | `opt_in_rules` → `empty_count` | enabled | Prefers `.isEmpty` over `.count == 0` (and similar empty checks) |
+| `opt_in_rules` → `force_unwrapping` | enabled (warning) | Flags `!` unwraps; the owner's Swift policy allows them only with a justification |
+| `cyclomatic_complexity.ignores_case_statements` | `true` | A `switch` over enum cases does not count as branching logic |
+| `function_body_length` | warning 80, error 120 | SwiftUI bodies run longer than the default 50/100 |
+| `type_body_length` | warning 300, error 500 | Errors fail verify, so the error sits above the largest type in any app (381 lines) |
+| `large_tuple` | warning 3, error 5 | Same reasoning; a 3+ member tuple still warns |
 | `excluded` | list of paths | Directories/files skipped by lint |
 | `excluded` → `Pods` | excluded | CocoaPods vendor tree |
 | `excluded` → `.build` | excluded | SwiftPM build products |
@@ -98,8 +113,8 @@ Examples of commonly customized keys that are **absent** today (defaults apply):
 
 - `included` — not set (SwiftLint decides from the working directory; Runtime runs `swiftlint` from the app root)
 - `reporter` — default reporter
-- `force_cast` / `force_try` / `force_unwrapping` — default severity
-- `type_body_length`, `file_length`, `function_body_length` — default limits
+- `force_cast` / `force_try` — default severity
+- `file_length` — default limits
 - `analyzer_rules` — not configured
 - custom `rules:` / `custom_rules:` — none
 
@@ -132,7 +147,7 @@ Tool versions on the reference Mac when this doc was written: SwiftFormat **0.62
 
 | Option | Value | Meaning |
 |--------|-------|---------|
-| `--swiftversion` | `5.10` | Language version SwiftFormat uses for parsing/formatting decisions |
+| `--swiftversion` | `6.0` | Compiler version SwiftFormat may assume; every app builds with Xcode 27 (Swift 6) |
 | `--indent` | `4` | Indent width: **4 spaces** (matches Brain `swift-formatting` preference) |
 | `--maxwidth` | `120` | Wrap / width guidance aligned with SwiftLint `line_length: 120` |
 | `--disable consecutiveBlankLines` | disabled | Do **not** enforce collapsing consecutive blank lines |
@@ -147,7 +162,8 @@ Examples absent today:
 
 - `--allman`, `--semicolons`, `--commas`, `--wraparguments`, `--trimwhitespace` — tool defaults
 - `--header` / file header insertion — not used
-- `--swiftversion` beyond `5.10` — not auto-synced to the Xcode project’s `SWIFT_VERSION`
+- `--swiftversion` — not auto-synced to the Xcode project’s `SWIFT_VERSION`
+- `--trailing-commas` — the default (added to multiline collections), which SwiftLint's `trailing_comma: mandatory_comma` agrees with
 - rule enable lists beyond the two `--disable` entries — all other SwiftFormat rules stay at defaults
 
 List rules for your CLI:
@@ -191,7 +207,7 @@ See [brewfile.md](brewfile.md): `swiftlint` and `swiftformat` are required when 
 [ ] just lint
 [ ] just format
 [ ] just verify
-[ ] If template changed: version bump + this doc updated + --reset-style only where intended
+[ ] If template changed: lint every app on the shared pipeline with it first (0 errors), update this doc
 [ ] Friction log updated if the same tightening is needed in a second app
 ```
 

@@ -95,6 +95,10 @@ The TestFlight workflow is one part of the shared pipeline; adopt both together:
    (Internal Testing Only)" no build of the model could be submitted to App
    Review ([Apple: Creating a workflow that builds your app for
    distribution](https://developer.apple.com/documentation/xcode/creating-a-workflow-that-builds-your-app-for-distribution)).
+   The App Store Connect web editor labels that option **App Store Connect**
+   ("Eligible for distribution to all testers and customers"); the other
+   choices are None and TestFlight (Internal Testing Only). Found while
+   configuring OneCart, 2026-09-21.
 6. Record the change as an ADR in the app and state the tag authority in its
    `AGENTS.md`.
 
