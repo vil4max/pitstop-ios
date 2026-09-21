@@ -25,6 +25,7 @@ struct NoteEditorView: View {
         NavigationStack {
             TextEditor(text: $text)
                 .focused($isFocused)
+                .pitActivity(.editing, while: isFocused)
                 .font(.body)
                 .padding(.horizontal, DesignTokens.screenPadding - 4)
                 .overlay(alignment: .topLeading) {

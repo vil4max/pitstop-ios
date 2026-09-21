@@ -15,6 +15,7 @@ struct FeatureScaffold<Content: View>: View {
             .padding(.horizontal, DesignTokens.screenPadding)
             .padding(.bottom, DesignTokens.tileSpacing)
         }
+        .pitReportsScrolling()
         .background(PitColor.surfacePrimary)
         .navigationBarTitleDisplayMode(.inline)
     }

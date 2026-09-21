@@ -85,11 +85,11 @@ With Reduce Motion it is the knock alone.
 
 ## Limits, and what is not done here
 
-- Nothing yet reports `.scrolling` or `.editing` from the surfaces, and the
-  editor sheets presented by Car Board and the feature screens are not reported
-  as modal tasks. Only the utility sheets and Reduce Motion drive the activity
-  today, so REQ-PIT-005 is modelled and tested but not fully wired. The wiring
-  belongs with the capture surface (CAP-004) and DISC-004.
+- Amended by ADR 0019 (DISC-004). This ADR shipped with only the utility
+  sheets and Reduce Motion driving the activity. Now scroll views, focused text
+  fields, and every editor sheet on Car Board and the feature screens report
+  through the environment, and the activity is the union of those reports.
+  `recentlyDismissed` is still not reported; see ADR 0019's open questions.
 - No question is defined yet, so the attention policy has no caller. DISC-001
   and DISC-002 own the registry and the first question.
 - The cooldown values and the weights are hypotheses. Evidence to collect:

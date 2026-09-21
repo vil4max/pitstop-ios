@@ -11,12 +11,19 @@ final class PitPresenceModel {
     /// Reduce Motion and what the interface is doing are tracked apart, because a sheet that opens
     /// and closes must not clear the accessibility setting underneath it.
     private var accessibility: PitActivity = []
-    private var interface: PitActivity = []
+    /// Every surface reports on its own; Pit yields to the union (ADR 0019).
+    private var interface = PitActivitySources()
     /// Kept apart from `interface` too: opening and closing a sheet must not cancel a pending question.
     private var isAsking = false
 
     var activity: PitActivity {
-        accessibility.union(interface).union(isAsking ? .askingQuestion : [])
+        accessibility.union(interface.activity).union(isAsking ? .askingQuestion : [])
+    }
+
+    /// No surface reports anything. Unlike `activity`, Reduce Motion and Pit's own pending question do not
+    /// count: this is what the root view waits for before it checks for a question (ADR 0019).
+    var isInterfaceIdle: Bool {
+        interface.isEmpty
     }
 
     private let scheduler: PitIdleScheduler
@@ -42,10 +49,10 @@ final class PitPresenceModel {
         refresh()
     }
 
-    /// What the interface is doing right now. Replaces the previous interface state, never the
-    /// accessibility one.
-    func setInterface(_ activity: PitActivity) {
-        interface = activity
+    /// What one surface is doing right now. Replaces that source's previous report, never another
+    /// source's or the accessibility state; an empty activity withdraws the source.
+    func report(_ activity: PitActivity, from source: PitActivitySource) {
+        interface.report(activity, from: source)
         refresh()
     }
 

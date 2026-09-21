@@ -57,6 +57,7 @@ struct HistoryView: View {
             }
         }
         .task { await viewModel.load() }
+        .pitActivity(.modalTask, while: editor != nil)
         .sheet(item: $editor) { target in
             HistoryEventEditorView(
                 draft: target.event.map(viewModel.draft(for:)) ?? viewModel.newDraft(),

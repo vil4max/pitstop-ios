@@ -84,6 +84,7 @@ struct RootView: View {
                 }
         }
         .tint(PitColor.accentPrimary)
+        .environment(\.pitActivityReporter, .forwarding(to: pit))
         // Car Board is a projection: refresh it whenever the user comes back from an owned surface.
         .onChange(of: path) { _, newPath in
             if newPath.isEmpty {
@@ -97,11 +98,11 @@ struct RootView: View {
         }
         // Text input lives in sheets, which cover the layer; it never rides up over a keyboard.
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        // Pit waits nearby. Only Reduce Motion and the utility sheets drive this today; the feature
-        // editors do not report yet, which CAP-004 and DISC-004 finish.
+        // Pit waits nearby and yields to whatever the user is doing: the utility sheets report here, and
+        // every screen, editor, and scroll view below reports through the environment (ADR 0019).
         .task(id: reduceMotion) { pit.setReduceMotion(reduceMotion) }
         .onChange(of: sheet) { _, newSheet in
-            pit.setInterface(newSheet == nil ? [] : newSheet == .pit ? .capturing : .modalTask)
+            pit.report(newSheet == nil ? [] : newSheet == .pit ? .capturing : .modalTask, from: .utilitySheet)
             // Whatever Pit saved shows on the board and on the surface the user is on.
             if newSheet == nil {
                 Task { await refreshVisibleSurface() }
@@ -116,14 +117,13 @@ struct RootView: View {
             }
         }
         // Pit may interrupt only where the question belongs and only once the user has settled there
-        // (REQ-PIT-006, 007); the policy and the question's relevance decide the rest (ADR 0017).
-        .task(id: path) {
-            do {
-                try await Task.sleep(for: Self.questionSettleDelay)
-            } catch {
-                return
-            }
-            await askIfUseful()
+        // (REQ-PIT-006, 007); the policy and the question's relevance decide the rest (ADR 0017). Settling
+        // restarts after every navigation and every return to an idle interface (ADR 0019).
+        .task(id: askTrigger) {
+            await askTrigger.run(
+                settle: { try await Task.sleep(for: Self.questionSettleDelay) },
+                ask: { await askIfUseful() }
+            )
         }
         .onChange(of: pitQuestion.isAsking) { wasAsking, isAsking in
             if wasAsking, !isAsking {
@@ -158,6 +158,10 @@ struct RootView: View {
                 }
             }
         }
+    }
+
+    private var askTrigger: PitAskTrigger {
+        PitAskTrigger(path: path, isInterfaceIdle: pit.isInterfaceIdle)
     }
 
     /// The surface under the sheet, passed to capture as a prior only (REQ-CAPTURE-022).

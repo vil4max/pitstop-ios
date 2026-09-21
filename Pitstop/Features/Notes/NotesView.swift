@@ -47,6 +47,7 @@ struct NotesView: View {
         .alert("notes.failure.status", isPresented: listFailureBinding) {
             Button("common.ok") { viewModel.dismissFailure() }
         }
+        .pitActivity(.modalTask, while: editor != nil)
         .sheet(item: $editor) { target in
             NoteEditorView(target: target) { text in
                 switch target {
@@ -75,6 +76,7 @@ struct NotesView: View {
                         ForEach(viewModel.state.availableContexts, id: \.self) { contextChip($0) }
                     }
                 }
+                .pitReportsScrolling()
             }
         }
     }

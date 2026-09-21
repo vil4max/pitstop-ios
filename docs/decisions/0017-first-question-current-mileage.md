@@ -67,9 +67,10 @@ persisted state (REQ-PIT-010).
 policy. It records `asked` before it shows anything; if that write fails, Pit
 stays silent rather than ask without a cooldown. The root view evaluates two
 seconds after each navigation, so arriving is not treated as idleness. The
-activity comes from `PitPresenceModel`, which today knows only about the Pit
-and Settings sheets and Reduce Motion (the ADR 0012 limit): an editor sheet
-opened from a feature screen is not reported, so Pit can ask while one is open.
+activity comes from `PitPresenceModel`. When this ADR shipped it knew only
+about the Pit and Settings sheets and Reduce Motion (the ADR 0012 limit), so Pit
+could ask while an editor sheet was open; amended by ADR 0019, which reports
+editor sheets, scrolling, and focused fields.
 The activity is read live, once for the policy and again right before `asked`
 is recorded, because the reads in between suspend; if the interface stopped
 being idle meanwhile, nothing is recorded or shown.
@@ -193,8 +194,9 @@ DEBUG launch arguments for tap-free smoke checks: `-pitstop-demo-stale-mileage`
   deferred mileage question returns after 14 days, an answered one after
   90 days, and either only while the mileage is stale or unknown. A dismissal
   stays final. The REQ-PIT-008 wording this relies on is proposed there.
-- **Editor sheets are not reported as activity.** See above; DISC-004 and the
-  feature editors finish the activity reporting that ADR 0012 left open.
+- **Editor sheets are not reported as activity.** Resolved by ADR 0019
+  (DISC-004): editor sheets are reported as modal tasks, and scrolling and
+  focused fields as activity, so Pit no longer asks while one is open.
 - **Pit keeps knocking after the user leaves Service.** The question is asked
   on Service, but the pending knock stays on every screen until it is settled,
   and the card can be answered from anywhere. In-memory only: after a relaunch

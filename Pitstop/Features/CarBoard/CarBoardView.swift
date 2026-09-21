@@ -29,8 +29,10 @@ struct CarBoardView: View {
             .padding(.horizontal, DesignTokens.screenPadding)
             .padding(.bottom, DesignTokens.tileSpacing)
         }
+        .pitReportsScrolling()
         .background(PitColor.surfacePrimary)
         .task { await viewModel.load() }
+        .pitActivity(.modalTask, while: isEditingCar)
         .sheet(isPresented: $isEditingCar) {
             CarEditorView(car: viewModel.state.car) { name, odometer in
                 await viewModel.saveCar(name: name, odometerText: odometer)

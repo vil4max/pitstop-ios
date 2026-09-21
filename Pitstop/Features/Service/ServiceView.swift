@@ -43,6 +43,7 @@ struct ServiceView: View {
         .alert("service.failure.notSaved", isPresented: listFailureBinding) {
             Button("common.ok") { viewModel.dismissFailure() }
         }
+        .pitActivity(.modalTask, while: sheet != nil || undoCandidate != nil)
         // Undo deletes a recorded fact, so it asks first and names what will be removed.
         .confirmationDialog(
             "service.undoDone.title",
@@ -278,9 +279,11 @@ struct TrackOperationView: View {
                 Section {
                     TextField("service.track.km", text: $kilometers)
                         .keyboardType(.numberPad)
+                        .pitReportsEditing()
                         .accessibilityIdentifier("service.track.km")
                     TextField("service.track.months", text: $months)
                         .keyboardType(.numberPad)
+                        .pitReportsEditing()
                         .accessibilityIdentifier("service.track.months")
                 } header: {
                     Text("service.track.interval")
@@ -338,6 +341,7 @@ struct MarkDoneView: View {
                     DatePicker("service.done.date", selection: $date, in: ...Date(), displayedComponents: .date)
                     TextField("carEditor.odometer.placeholder", text: $odometer)
                         .keyboardType(.numberPad)
+                        .pitReportsEditing()
                         .accessibilityIdentifier("service.done.odometer")
                 } header: {
                     operation.titleText

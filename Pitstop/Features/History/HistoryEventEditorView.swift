@@ -35,9 +35,11 @@ struct HistoryEventEditorView: View {
                 Section {
                     TextField("carEditor.odometer.placeholder", text: $draft.odometerText)
                         .keyboardType(.numberPad)
+                        .pitReportsEditing()
                         .accessibilityIdentifier("history.editor.odometer")
                     TextField("history.editor.amount.placeholder", text: $draft.amountText)
                         .keyboardType(.decimalPad)
+                        .pitReportsEditing()
                         .accessibilityIdentifier("history.editor.amount")
                 } header: {
                     Text("history.editor.facts")
@@ -47,6 +49,7 @@ struct HistoryEventEditorView: View {
                 Section("history.editor.note") {
                     TextField("history.editor.note.placeholder", text: $draft.note, axis: .vertical)
                         .lineLimit(2 ... 6)
+                        .pitReportsEditing()
                         .accessibilityIdentifier("history.editor.note")
                 }
             }

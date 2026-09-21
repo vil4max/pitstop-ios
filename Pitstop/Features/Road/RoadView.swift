@@ -76,6 +76,7 @@ struct RoadView: View {
                         .padding(.vertical, 4)
                 }
                 .scrollPosition(id: $position, anchor: .leading)
+                .pitReportsScrolling()
                 // The drawing is decoration for VoiceOver; the summary and the list carry the meaning.
                 .accessibilityHidden(true)
 

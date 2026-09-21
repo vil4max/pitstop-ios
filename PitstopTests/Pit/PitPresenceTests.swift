@@ -207,7 +207,7 @@ struct PitPresenceModelTests {
         let model = PitPresenceModel(scheduler: scheduler([0.0]), sleep: { _ in })
         model.show(.lookLeft)
 
-        model.setInterface(.scrolling)
+        model.report(.scrolling, from: .unique())
 
         #expect(model.state == .resting && model.activity == .scrolling)
     }
@@ -217,8 +217,8 @@ struct PitPresenceModelTests {
         let model = PitPresenceModel(scheduler: scheduler([0.0]), sleep: { _ in })
         model.setReduceMotion(true)
 
-        model.setInterface(.modalTask)
-        model.setInterface([])
+        model.report(.modalTask, from: .utilitySheet)
+        model.report([], from: .utilitySheet)
 
         #expect(model.activity == .reduceMotion)
     }
@@ -250,8 +250,8 @@ struct PitPresenceModelTests {
         let model = PitPresenceModel(scheduler: scheduler([0.0]), sleep: { _ in })
         await model.askPermissionToInterrupt()
 
-        model.setInterface(.modalTask)
-        model.setInterface([])
+        model.report(.modalTask, from: .utilitySheet)
+        model.report([], from: .utilitySheet)
         for _ in 0 ..< 50 {
             await Task.yield()
         }
@@ -264,7 +264,7 @@ struct PitPresenceModelTests {
     func idleMotionDoesNotEraseTheKnock() async {
         // Sleeps return immediately, so the idle loop runs as fast as it can while the knock stands.
         let model = PitPresenceModel(scheduler: scheduler([0.0]), sleep: { _ in })
-        model.setInterface([])
+        model.report([], from: .utilitySheet)
 
         await model.askPermissionToInterrupt()
         for _ in 0 ..< 50 {

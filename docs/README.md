@@ -75,6 +75,7 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0016-question-registry.md` — Pit question registry, value and deferral declarations, persisted question state, schema V2
 - `decisions/0017-first-question-current-mileage.md` — first Pit question: current mileage when stale or unknown, relevance gate, answer through `recordOdometerReading`
 - `decisions/0018-attention-cooldown-and-return.md` — declared return after answer, deferral, and dismissal; answers hold for their interval, relevance decides after it; asking reopens a question
+- `decisions/0019-pit-activity-reporting.md` — surfaces report scrolling, editing, and editor sheets to Pit as a union of per-source reports; motion audit of `PitState` against accepted behaviour
 - `decisions/0011-interpreted-capture-without-a-model.md` — interpreter protocol, rule-based stand-in, confirmation and clarification flow
 - `decisions/0006-capture-confirmation-policy.md` — confirmation outcome table and mutation permit
 - `decisions/0005-toolchain-and-project-format.md` — Swift 6, iOS 27, file-system-synchronized project

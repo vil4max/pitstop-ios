@@ -23,11 +23,13 @@ struct CarEditorView: View {
                 Section("carEditor.name.section") {
                     TextField("carEditor.name.placeholder", text: $name)
                         .textInputAutocapitalization(.words)
+                        .pitReportsEditing()
                         .accessibilityIdentifier("carEditor.name")
                 }
                 Section {
                     TextField("carEditor.odometer.placeholder", text: $odometer)
                         .keyboardType(.numberPad)
+                        .pitReportsEditing()
                         .accessibilityIdentifier("carEditor.odometer")
                 } header: {
                     Text("carEditor.odometer.section")
