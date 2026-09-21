@@ -47,8 +47,8 @@ final class AppCoordinator {
     static func interpretedPipeline(_ environment: AppEnvironment) -> RememberPipeline {
         RememberPipeline(
             store: environment.store,
-            interpreter: RuleBasedInterpreter(),
-            observer: captureObserver(client: environment.analytics, interpreter: .ruleBasedV1)
+            interpreter: environment.interpretation.interpreter,
+            observer: captureObserver(client: environment.analytics, interpreter: environment.interpretation.version)
         )
     }
 

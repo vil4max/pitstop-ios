@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** CAP-005 (SYS-006 implemented, see ADR 0026; the owner device check list in ADR 0026 covers Siri in ru and uk, reply language, the locked phone, prompt time limits, the Lock Screen control, the Action button and the Shortcuts listing; voice clarification is reachable once an interpreter leaves a field open; the ru and uk App Shortcut phrases await owner review; a PostHog project and key are owner actions; CAP-005 needs a physical device for the Foundation Models spike)  
+**Next task:** Backlog cards implemented; owner decisions and device checks pending — see docs/tasks/full-backlog-delivery.md  
 **Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
 **Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -127,7 +127,7 @@ See `../engineering/quality-and-ci.md`.
 | CAP-002 | Proposal + confirmation | 3d | CAP-001 | done on main | #20 |
 | CAP-003 | Pit Eyes affordance | 2d | CB-002 | done on main | #21 |
 | CAP-004 | Pit Capture Surface | 3d | CAP-001, CAP-003 | done on main | #22 |
-| CAP-005 | FM interpreter spike (RU) | 5d | CAP-002 | tracked | #23 |
+| CAP-005 | FM interpreter spike (RU) | 5d | CAP-002 | implemented (ADR 0027); off by default; ru/uk unsupported by Apple Intelligence on iOS 27; model quality not measured (simulator generation failed), device evaluation pending | #23 |
 | CAP-006 | Raw-preservation fallback | 2d | CAP-002 | implemented (ADR 0015) | #24 |
 | CAP-007 | End-to-end Remember | 4d | CAP-004–006 | implemented (`RememberEndToEndTests`) | #25 |
 

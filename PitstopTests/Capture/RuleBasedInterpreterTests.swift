@@ -159,4 +159,45 @@ struct RuleBasedInterpreterTests {
         #expect(try await proposal("купил мыло") == nil)
         #expect(try await proposal("смыл грязь с фар") == nil)
     }
+
+    @Test(
+        "ADR-0027: planning words in a report of done work do not hide it from the rules",
+        arguments: [
+            DoneWork("Did the scheduled brake fluid change at 60000", .maintenanceCompletion, .brakeFluid, 60000),
+            DoneWork("Did the planned oil change", .maintenanceCompletion, .engineOilService),
+            DoneWork(
+                "Changed the oil at 84200, will check level later",
+                .maintenanceCompletion,
+                .engineOilService,
+                84200
+            ),
+            DoneWork("Replaced the cabin filter, noted it in the service book", .maintenanceCompletion, .cabinFilter),
+            DoneWork("Changed oil, next time use 5W-30", .maintenanceCompletion, .engineOilService),
+            DoneWork("Odometer 84200 km, service soon", .odometerReading, nil, 84200),
+        ]
+    )
+    func planningWordsDoNotHideDoneWork(_ expected: DoneWork) async throws {
+        let result = try #require(await proposal(expected.text))
+        #expect(result.kind == expected.kind)
+        #expect(result.extractedOperationID == expected.operation)
+        #expect(result.extractedOdometerKm == expected.kilometers)
+    }
+}
+
+struct DoneWork: Sendable, CustomTestStringConvertible {
+    let text: String
+    let kind: ProposalKind
+    let operation: MaintenanceOperationID?
+    let kilometers: Double?
+
+    init(_ text: String, _ kind: ProposalKind, _ operation: MaintenanceOperationID?, _ kilometers: Double? = nil) {
+        self.text = text
+        self.kind = kind
+        self.operation = operation
+        self.kilometers = kilometers
+    }
+
+    var testDescription: String {
+        text
+    }
 }

@@ -83,6 +83,7 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0024-app-shortcuts.md` — App Shortcuts: Remember (Siri asks for the words) and Open Pit (foreground intent routed to the Pit sheet through an injected request object); en, ru and uk phrases pending owner review
 - `decisions/0025-widgets-and-controls.md` — `PitstopWidgets` extension: Open Pit control and data-free small/circular widget, `OpenPitIntent` as `OpenIntent` in a `Shared/` folder, `pitstop://pit` as the only URL, no App Group
 - `decisions/0026-siri-voice-clarification.md` — Siri asks the one missing field by voice (number prompt or catalog choice, one repeat, "I don't know" keeps the words), voice-only replies name PitStop, no `LongRunningIntent`, owner device check list
+- `decisions/0027-foundation-models-interpreter.md` — CAP-005 spike: Foundation Models adapter behind `SemanticInterpreting` with deterministic post-model guards, rules-first `InterpreterChain`, off by default (DEBUG launch argument only), golden set and evaluation lane; Russian and Ukrainian unsupported by Apple Intelligence on iOS 27, model quality not measured
 - `decisions/0005-toolchain-and-project-format.md` — Swift 6, iOS 27, file-system-synchronized project
 
 ## Analytics and beta

@@ -152,7 +152,7 @@ The product must survive:
 - generation failure;
 - schema failure.
 
-Fallback order is a product/architecture decision to validate. The safe terminal fallback is preserving the raw capture.
+Fallback order is a product/architecture decision to validate. The safe terminal fallback is preserving the raw capture. CAP-005 spike: rules first, then Foundation Models, off by default; Russian and Ukrainian are not supported by Apple Intelligence on iOS 27 ([`../decisions/0027-foundation-models-interpreter.md`](../decisions/0027-foundation-models-interpreter.md)).
 
 ## Pit and AI
 

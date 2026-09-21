@@ -11,6 +11,9 @@ struct AppEnvironment: Sendable {
     static let inMemoryArgument = "-pitstop-in-memory"
     /// DEBUG only: product events go to the local log instead of nowhere, as if the user had opted in.
     static let analyticsLogArgument = "-pitstop-analytics-log"
+    /// DEBUG only: asks Foundation Models after the rules find nothing (ADR 0027). Off by default in
+    /// every build until the owner accepts an on-device evaluation.
+    static let foundationModelsArgument = "-pitstop-foundation-models"
 
     let store: any CarMemoryStore
     /// Shares the car memory's container, so both live in one file under one migration plan (ADR 0016).
@@ -23,8 +26,16 @@ struct AppEnvironment: Sendable {
     let analyticsSharing: AnalyticsSharing
     /// Runs once before the first load. Only the DEBUG demo launch uses it.
     var prepare: (@Sendable () async -> Void)?
+    /// Which interpreters Remember asks (ADR 0027).
+    var interpretation = InterpreterComposition.ruleBased
 
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppEnvironment {
+        var environment = liveStores(arguments: arguments)
+        environment.interpretation = InterpreterComposition(arguments: arguments)
+        return environment
+    }
+
+    private static func liveStores(arguments: [String]) -> AppEnvironment {
         let log = AppLog.logger(category: "app.persistence")
         let registry = productRegistry()
         let analytics = makeAnalytics(

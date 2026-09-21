@@ -44,6 +44,12 @@ public struct RuleBasedInterpreter: SemanticInterpreting {
         }
         return nil
     }
+
+    /// The hedge rule on its own, so a model-backed interpreter applies exactly the same words
+    /// (REQ-CAPTURE-014) instead of trusting a model to recognise an intention.
+    public static func isHedged(_ text: String) -> Bool {
+        Reading(text).isHedged
+    }
 }
 
 /// One pass over the words of a capture. Matching is by whole word or by a stem inside a word, never
