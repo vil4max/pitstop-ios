@@ -10,7 +10,7 @@ struct PitPendingView: View {
                 Label {
                     Text("pit.pending.title")
                 } icon: {
-                    PitEyesGlyph().scaleEffect(2.2).padding(.bottom, 12)
+                    PitEyesGlyph(state: .fixedGaze).scaleEffect(2.2).padding(.bottom, 12)
                 }
             } description: {
                 Text("pit.pending.detail")

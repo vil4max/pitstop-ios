@@ -5,6 +5,9 @@ import SwiftUI
 struct UtilityLayer: View {
     let onSettings: () -> Void
     let onPit: () -> Void
+    var pitState: PitState = .resting
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         GlassEffectContainer {
@@ -24,7 +27,8 @@ struct UtilityLayer: View {
                 Spacer()
 
                 Button(action: onPit) {
-                    PitEyesGlyph()
+                    PitEyesGlyph(state: pitState)
+                        .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: pitState)
                         .frame(width: DesignTokens.utilityButtonSize, height: DesignTokens.utilityButtonSize)
                         .contentShape(.circle)
                 }

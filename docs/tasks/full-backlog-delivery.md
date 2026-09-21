@@ -66,6 +66,7 @@ nothing lands on `main` without owner authorization.
 | CAP-001 | `CAP-001/capture-boundary` | committed | `just verify` passed; independent review: 6 findings repaired (repairs not re-reviewed) |
 | — | `main` | merged | 13 commits fast-forwarded onto `main`; `just verify` passed on `main` (one earlier run failed when the shared simulator was shut down by another session) |
 | CAP-002 | `CAP-002/proposal-confirmation` | committed | `just verify` passed; independent review: 7 + 4 + 1 findings repaired over three rounds (two of them crashes); ADR 0011 |
+| CAP-003 | `CAP-003/pit-eyes` | committed | `just verify` passed; simulator: 40 sampled frames of the Pit control, 39 identical and 1 transient (rare idle motion, as designed); independent review: 2 high + 4 medium + 3 low, then 3 medium + 2 low, then 1 low, all repaired; ADR 0012 |
 
 ## Open for owner
 

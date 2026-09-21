@@ -11,6 +11,9 @@ struct RootView: View {
     /// DEBUG demo seeding; it must finish before any surface loads, or a surface opened first reads an empty store.
     var prepare: (@Sendable () async -> Void)?
 
+    @State private var pit = PitPresenceModel()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @State private var path: [CarBoardRoute] = RootView.initialPath()
     @State private var sheet: UtilitySheet?
     @State private var isPrepared = false
@@ -66,10 +69,15 @@ struct RootView: View {
         // A safe-area inset, not an overlay: scroll content is inset by the layer's height, so the
         // last tile always scrolls clear of the controls (REQ-UTILITY-008).
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            UtilityLayer(onSettings: { sheet = .settings }, onPit: { sheet = .pit })
+            UtilityLayer(onSettings: { sheet = .settings }, onPit: { sheet = .pit }, pitState: pit.state)
         }
         // Text input lives in sheets, which cover the layer; it never rides up over a keyboard.
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        // Pit waits nearby. Only Reduce Motion and the utility sheets drive this today; the feature
+        // editors do not report yet, which CAP-004 and DISC-004 finish.
+        .task(id: reduceMotion) { pit.setReduceMotion(reduceMotion) }
+        .onChange(of: sheet) { _, newSheet in pit.setInterface(newSheet == nil ? [] : .modalTask) }
+        .onDisappear { pit.stop() }
         .sheet(item: $sheet) { sheet in
             switch sheet {
             case .settings: SettingsView(isStorageTemporary: carBoard.state.isStorageTemporary)
