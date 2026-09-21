@@ -49,6 +49,15 @@ against one tag.
 A tag on a commit `testflight` already contains starts nothing; rebuild with
 Start Build on `testflight` in App Store Connect instead.
 
+## Versions
+
+One format in every app (owner rule): `MARKETING_VERSION` is always
+`MAJOR.MINOR.PATCH` — three integers, not decimals (`2.9.0` → `2.10.0`), the
+same in every target and configuration. A feature release raises `MINOR` and
+resets `PATCH` to 0; a fix-only release raises `PATCH`; `MAJOR` changes only when
+the owner asks. Tags repeat the version (`tf-1.0.0-1`, `v1.0.0`), and
+`just tf-check` blocks any other form, because the workflow would reject the tag.
+
 ## Build numbers
 
 For an Xcode Cloud build, Xcode Cloud's number wins: the app's

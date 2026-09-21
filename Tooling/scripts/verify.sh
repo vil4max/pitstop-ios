@@ -12,6 +12,16 @@ fi
 
 receipt() { python3 "$SCRIPT_DIR/verification-state.py" "$@"; }
 receipt invalidate
+# The shared baseline first: drifted pipeline files or simulator settings fail
+# before any build. The Runtime checkout, when present, adds lag and style warnings.
+runtime_checkout="${IOS_AGENT_RUNTIME_ROOT:-$HOME/Developer/Personal/agent-tools/ios-agent-toolchain}"
+if [[ -f "$SCRIPT_DIR/baseline.py" ]]; then
+  if [[ -d "$runtime_checkout/scripts" && "${CI:-}" != true ]]; then
+    python3 "$SCRIPT_DIR/baseline.py" "$(project_root)" --runtime "$runtime_checkout"
+  else
+    python3 "$SCRIPT_DIR/baseline.py" "$(project_root)"
+  fi
+fi
 "$SCRIPT_DIR/format.sh"
 verified_state="$(receipt fingerprint)"
 "$SCRIPT_DIR/lint.sh"

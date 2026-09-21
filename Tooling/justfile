@@ -190,3 +190,19 @@ sim-clean:
     done
     echo "sim-clean.sh not found under $root" >&2
     exit 1
+
+# Checks the app against the shared iOS baseline; `--strict` also fails on warnings (docs/ci.md, "Baseline").
+[positional-arguments]
+baseline *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root="{{ justfile_directory() }}"
+    runtime="${IOS_AGENT_RUNTIME_ROOT:-$HOME/Developer/Personal/agent-tools/ios-agent-toolchain}"
+    for d in "$root/Tooling/scripts" "$root/scripts"; do
+      if [[ -f "$d/baseline.py" ]]; then
+        if [[ -d "$runtime/scripts" ]]; then exec python3 "$d/baseline.py" "$root" --runtime "$runtime" "$@"; fi
+        exec python3 "$d/baseline.py" "$root" "$@"
+      fi
+    done
+    echo "baseline.py not found under $root" >&2
+    exit 1

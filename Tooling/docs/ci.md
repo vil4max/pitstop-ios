@@ -6,6 +6,26 @@ variable or the app's own `ci` recipe, never the workflow text. Why: three apps
 had three pipelines (three jobs with Sonar, one job, none), so a fix found in one
 never reached the others and nobody could tell which behavior was intended.
 
+## Baseline
+
+The apps must not drift apart (owner decision, 2026-09-21), so the shared part is
+checked, not copied by hand:
+
+- `pipeline: shared` in `Tooling/runtime.yml` makes every install and
+  `just harness-update` rewrite `.github/workflows/tests.yml`, `testflight.yml`
+  and `ci_scripts/ci_post_clone.sh` from the Runtime templates. A template
+  change reaches every app with its next update; hand edits are overwritten.
+- `just baseline` (and the start of `just verify`) fails when a managed file
+  differs from its template, `simulator.name` is a machine-shared device,
+  `simulator.device_type` / `simulator.os` are not `iPhone 17` / `27.0`, or
+  `MARKETING_VERSION` is not one `MAJOR.MINOR.PATCH` in every configuration.
+- It warns — and `just baseline --strict` fails — when the app has not opted in,
+  its installed Runtime lags the Runtime checkout, its style files differ from the
+  Runtime templates, or other workflows sit next to the shared ones.
+
+Why a gate and not a checklist: within one day three apps had three pipelines,
+and a workflow copied by hand went stale the next time its template changed.
+
 ## Pieces
 
 | Piece | Source | Role |
