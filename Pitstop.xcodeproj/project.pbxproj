@@ -313,7 +313,6 @@
 				INFOPLIST_KEY_CFBundleDevelopmentRegion = ru;
 				INFOPLIST_KEY_CFBundleDisplayName = PitStop;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
@@ -340,7 +339,6 @@
 				INFOPLIST_KEY_CFBundleDevelopmentRegion = ru;
 				INFOPLIST_KEY_CFBundleDisplayName = PitStop;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
