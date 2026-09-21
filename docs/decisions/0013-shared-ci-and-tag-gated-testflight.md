@@ -90,9 +90,14 @@ runners and no self-hosted runner exists.
 
 `tf-1.0.0-1` on the first public `main` moved `testflight`; after the
 repository fix above, Xcode Cloud built it (manual start, build 2) and
-TestFlight received 1.0.0 (2) for the "Internal" group. App Store Connect
-accepted build 2 although a hand-uploaded 1.0 (202609211) exists: it tracks
-`1.0.0` as a separate version, so the risk recorded below did not occur.
+TestFlight received 1.0.0 (2) for the "Internal" group.
+
+The risk recorded below did occur. App Store Connect files `1.0.0` under the
+same version as the hand-uploaded `1.0`: both builds appear under
+"Version 1.0", and TestFlight kept offering 1.0 (202609211) as the current
+build because its number is higher than 2. The owner decided to expire
+1.0 (202609211) and to ship the next round as `1.1.0`, a version with no
+hand-uploaded build, so Xcode Cloud's own numbering starts clean.
 
 ## Owner setup (outside the repository)
 
