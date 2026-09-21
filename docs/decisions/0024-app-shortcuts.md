@@ -202,7 +202,10 @@ app, PitStop, Open Pit: app warm, app terminated, and a note editor open).
 - **`OpenIntent` or a URL scheme.** `OpenIntent` needs a target entity, and
   PitStop has no entity for "the capture surface"; a custom URL scheme would
   add a public entry point that any app or web page can trigger, for the same
-  result.
+  result. Revisited in [ADR 0025](0025-widgets-and-controls.md): controls
+  need an `OpenIntent`, so `OpenPitIntent` adopts it with a one-case
+  `CaptureSurface` target, and the widget uses `pitstop://pit`, the only URL
+  the app accepts (owner decisions, 2026-09-21).
 - **Dismissing a feature editor to open Pit.** See "A feature editor defers
   the request": it would discard an unsaved draft and needs a channel into
   every feature's editor state.

@@ -1591,52 +1591,6 @@
         }
       }
     },
-    "intent.openPit.description" : {
-      "comment" : "App Intent description for Open Pit",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opens PitStop straight to Pit, ready to remember something about your car."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сразу открывает запись в PitStop, чтобы запомнить что-то о машине."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Одразу відкриває запис у PitStop, щоб запам'ятати щось про машину."
-          }
-        }
-      }
-    },
-    "intent.openPit.title" : {
-      "comment" : "App Intent title: opens the Pit capture sheet",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open Pit"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Открыть запись"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Відкрити запис"
-          }
-        }
-      }
-    },
     "intent.remember.ask" : {
       "localizations" : {
         "en" : {

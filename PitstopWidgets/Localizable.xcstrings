@@ -1,0 +1,144 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "control.openPit.description" : {
+      "comment" : "Control gallery description for Open Pit",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens PitStop straight to Pit, ready to remember something about your car."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сразу открывает запись в PitStop, чтобы запомнить что-то о машине."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одразу відкриває запис у PitStop, щоб запам'ятати щось про машину."
+          }
+        }
+      }
+    },
+    "control.openPit.title" : {
+      "comment" : "Control title (Control Center, Lock Screen, Action button): opens the Pit capture sheet",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Pit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть запись"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкрити запис"
+          }
+        }
+      }
+    },
+    "widget.capture.action" : {
+      "comment" : "Capture widget label and accessibility label: the action a tap starts",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remember"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запомнить"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запам'ятати"
+          }
+        }
+      }
+    },
+    "widget.capture.description" : {
+      "comment" : "Widget gallery description of the capture widget",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens Pit to remember something about your car."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открывает запись, чтобы запомнить что-то о машине."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкриває запис, щоб запам'ятати щось про машину."
+          }
+        }
+      }
+    },
+    "widget.capture.hint" : {
+      "comment" : "Capture widget second line under the action",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About your car"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "О машине"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Про машину"
+          }
+        }
+      }
+    },
+    "widget.capture.title" : {
+      "comment" : "Widget gallery name of the capture widget",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remember"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запомнить"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запам'ятати"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

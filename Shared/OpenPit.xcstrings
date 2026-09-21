@@ -1,0 +1,121 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "intent.captureSurface.pit" : {
+      "comment" : "The only place Open Pit opens: the Pit capture sheet (the capture noun, as in the Open Pit title)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запись"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запис"
+          }
+        }
+      }
+    },
+    "intent.captureSurface.type" : {
+      "comment" : "App Intents type name for the places Open Pit can open",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Place"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Место"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Місце"
+          }
+        }
+      }
+    },
+    "intent.openPit.description" : {
+      "comment" : "App Intent description for Open Pit",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens PitStop straight to Pit, ready to remember something about your car."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сразу открывает запись в PitStop, чтобы запомнить что-то о машине."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одразу відкриває запис у PitStop, щоб запам'ятати щось про машину."
+          }
+        }
+      }
+    },
+    "intent.openPit.target" : {
+      "comment" : "Open Pit parameter title: the place to open; it has one value and is never asked for",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Place"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Место"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Місце"
+          }
+        }
+      }
+    },
+    "intent.openPit.title" : {
+      "comment" : "App Intent title: opens the Pit capture sheet",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Pit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть запись"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкрити запис"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

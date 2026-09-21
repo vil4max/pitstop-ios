@@ -104,6 +104,23 @@ struct AppShortcutsTests {
         #expect(OpenPitIntent.allowedExecutionTargets == .main)
         #expect(OpenPitIntent.authenticationPolicy == .requiresLocalDeviceAuthentication)
     }
+
+    @Test("ADR-0025: as an OpenIntent, Open Pit's target defaults to Pit, its only value, so nothing asks for it")
+    func openPitTargetsOnlyPit() throws {
+        #expect(CaptureSurface.allCases == [.pit])
+        let url = try #require(
+            Bundle.main.url(forResource: "extract", withExtension: "actionsdata", subdirectory: "Metadata.appintents")
+        )
+        let root = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+        let actions = try #require(root["actions"] as? [String: [String: Any]])
+        let parameters = try #require(actions["OpenPitIntent"]?["parameters"] as? [[String: Any]])
+        #expect(parameters.count == 1)
+        let target = try #require(parameters.first)
+        #expect(target["name"] as? String == "target")
+        // The default is stored as `[marker, {"string": {"wrapper": "pit"}}]` (undocumented format).
+        let metadata = String(describing: target["typeSpecificMetadata"] ?? "")
+        #expect(metadata.contains("DefaultValue") && metadata.contains("pit"), "No default target (format changed?)")
+    }
 }
 
 @Suite("Capture surface requests")

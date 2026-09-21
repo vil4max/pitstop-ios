@@ -51,5 +51,9 @@ data-race problems as warnings that nobody is forced to read.
 
 - Anything placed under `Pitstop/` ships in the app. Templates, notes, and
   scratch files belong elsewhere or in the exception set.
+- A second shipping target exists since SYS-005 (ADR 0025): `PitstopWidgets/`
+  belongs to the widget extension only, and `Shared/` belongs to both the app
+  and the extension. Code needed by the extension goes in `Shared/`, never by
+  adding `Pitstop/` files to the extension.
 - Xcode 16 or later is required to open the project; the documented floor is
   Xcode 27.
