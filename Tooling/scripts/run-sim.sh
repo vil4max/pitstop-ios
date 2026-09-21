@@ -105,17 +105,17 @@ BUNDLE_ID="$(
 [[ -n "$BUNDLE_ID" ]] || { echo "could not read CFBundleIdentifier from $APP_PATH/Info.plist" >&2; exit 1; }
 
 UDID="$(sim_udid)"
+# Never fall back to "booted": with several apps' sessions on one Mac that is
+# whichever device booted first, often another app's. No GUI is opened either;
+# the host's simulator panel or DeviceHub shows the device (Xcode 27 has no
+# Simulator.app, and opening one would pull focus from every session).
+[[ -n "$UDID" ]] || { echo "run-sim: could not resolve the app's own simulator ($SIM)" >&2; exit 1; }
 
 echo "run-sim: boot simulator $SIM"
-if [[ -n "$UDID" ]]; then
-  xcrun simctl boot "$UDID" 2>/dev/null || true
-  xcrun simctl bootstatus "$UDID" -b
-else
-  xcrun simctl boot "$SIM" 2>/dev/null || true
-fi
-open -a Simulator 2>/dev/null || true
+xcrun simctl boot "$UDID" 2>/dev/null || true
+xcrun simctl bootstatus "$UDID" -b
 
-TARGET="${UDID:-booted}"
+TARGET="$UDID"
 echo "run-sim: install $APP_PATH ($BUNDLE_ID)"
 xcrun simctl install "$TARGET" "$APP_PATH"
 

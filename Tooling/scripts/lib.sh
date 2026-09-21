@@ -171,8 +171,35 @@ sim_app_label() {
   echo "$label"
 }
 
+# One simulator per agent session per app (owner rule, 2026-09-21): sessions of
+# different apps and hosts kept attaching to one another's devices and waiting on
+# them. A session gets "<host>-<App>-<session id, 8 chars>", used for runs and
+# tests alike, and nothing else; the Runtime creates it when missing. The host
+# and id come from AGENT_HOST/AGENT_SESSION_ID, else from the Claude desktop
+# app's session id (CLAUDE_CODE_HOST_SESSION_ID, "local_<uuid>"), which the app
+# lists next to the session's sidebar title so a device maps back to its session,
+# else from Claude Code's CLAUDE_CODE_SESSION_ID. Without a session (a person's
+# shell, CI) the app-level names below apply.
+sim_session_name() {
+  local host="${AGENT_HOST:-}" id="${AGENT_SESSION_ID:-}" suffix
+  if [[ -z "$id" && -n "${CLAUDE_CODE_HOST_SESSION_ID:-}" ]]; then
+    id="${CLAUDE_CODE_HOST_SESSION_ID#local_}"
+    host="${host:-claude}"
+  elif [[ -z "$id" && -n "${CLAUDE_CODE_SESSION_ID:-}" ]]; then
+    id="$CLAUDE_CODE_SESSION_ID"
+    host="${host:-claude}"
+  fi
+  [[ -n "$id" && "${GITHUB_ACTIONS:-}" != true ]] || return 1
+  # Subagents of one session test in parallel in linked worktrees; each worktree
+  # keeps its own device so two runs never share one.
+  suffix="$(sim_worktree_suffix)"
+  suffix="${suffix# · }"
+  echo "${host:-agent}-$(sim_app_label)-${id:0:8}${suffix:+-$suffix}"
+}
+
 sim_name() {
   local name type
+  if sim_session_name >/dev/null; then sim_session_name; return 0; fi
   name="$(cfg_get "simulator.name" "")"
   type="$(sim_device_type)"
   if [[ -z "$name" || "$name" == "$type" ]] || is_device_type "$name"; then
@@ -204,6 +231,7 @@ sim_test_base_name() {
 }
 
 sim_test_name() {
+  if sim_session_name >/dev/null; then sim_session_name; return 0; fi
   echo "$(sim_test_base_name)$(sim_worktree_suffix)"
 }
 

@@ -4,12 +4,13 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 # Prefer Tooling/scripts when this justfile is imported from the app root.
 # Fall back to ./scripts when invoked as `just -f Tooling/justfile`.
 
+[positional-arguments]
 doctor *args:
     #!/usr/bin/env bash
     set -euo pipefail
     root="{{ justfile_directory() }}"
     for d in "$root/Tooling/scripts" "$root/scripts"; do
-      if [[ -x "$d/doctor.sh" ]]; then exec "$d/doctor.sh" {{args}}; fi
+      if [[ -x "$d/doctor.sh" ]]; then exec "$d/doctor.sh" "$@"; fi
     done
     echo "doctor.sh not found under $root" >&2
     exit 1
@@ -95,12 +96,15 @@ ci:
     echo "ci.sh not found under $root" >&2
     exit 1
 
+# Arguments pass through as "$@": interpolating them into the script re-splits a
+# quoted launch argument, and -note "changed the oil" reached the app as "changed".
+[positional-arguments]
 run-sim *args:
     #!/usr/bin/env bash
     set -euo pipefail
     root="{{ justfile_directory() }}"
     for d in "$root/Tooling/scripts" "$root/scripts"; do
-      if [[ -x "$d/run-sim.sh" ]]; then exec "$d/build-slot.sh" run "$d/run-sim.sh" {{args}}; fi
+      if [[ -x "$d/run-sim.sh" ]]; then exec "$d/build-slot.sh" run "$d/run-sim.sh" "$@"; fi
     done
     echo "run-sim.sh not found under $root" >&2
     exit 1
@@ -125,12 +129,13 @@ reset:
     echo "reset.sh not found under $root" >&2
     exit 1
 
+[positional-arguments]
 release *args:
     #!/usr/bin/env bash
     set -euo pipefail
     root="{{ justfile_directory() }}"
     for d in "$root/Tooling/scripts" "$root/scripts"; do
-      if [[ -x "$d/release.sh" ]]; then exec "$d/release.sh" {{args}}; fi
+      if [[ -x "$d/release.sh" ]]; then exec "$d/release.sh" "$@"; fi
     done
     echo "release.sh not found under $root" >&2
     exit 1

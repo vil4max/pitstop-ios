@@ -61,10 +61,19 @@ ci:
 Anything the Sonar job should read goes under `build/ci/`; it expects
 `build/ci/sonar/coverage.xml` and an app-owned `sonar-project.properties`.
 
-Every app runs on its own simulators, on CI and on this Mac: `<scheme> iPhone 17`
-for runs and screenshots and `<scheme> iPhone 17 Tests` for tests, created on
-demand (`simulator.*` keys in [api.md](api.md)); `just sim-clean` removes the
-app's own leftover test clones. Set `simulator.os` (for example `"27.0"`) when the
+An agent session uses exactly one simulator of its own, for runs and tests:
+`<host>-<App>-<session id, 8 chars>` (`claude-Pitstop-0a1b2c3d`; a linked
+worktree adds `-<worktree>`), created on demand from the Claude desktop session
+id (`CLAUDE_CODE_HOST_SESSION_ID`, listed with the sidebar title, so a device
+maps to its session), `CLAUDE_CODE_SESSION_ID` in the CLI, or
+`AGENT_HOST`/`AGENT_SESSION_ID` for other hosts (owner rule, 2026-09-21:
+sessions kept attaching to one another's devices and waiting on them). Without a
+session — a person's shell, CI — an app has `<scheme> iPhone 17` for runs and
+`<scheme> iPhone 17 Tests` for tests (`simulator.*` keys in [api.md](api.md));
+`just sim-clean` removes the app's own leftover test clones. The coordinating
+session prunes the Mac with `scripts/sim-fleet.py prune` (dry run; `--apply`
+deletes): it keeps booted devices, session devices used in the last 3 days and
+`--keep` names, and deletes every other shut-down device. Set `simulator.os` (for example `"27.0"`) when the
 app needs a specific iOS; unset means the newest installed runtime.
 
 Never launch the app by hand on the test device. An app with a Live Activity or
@@ -96,7 +105,8 @@ Every iOS app repository is set up the same way (owner decision, 2026-09-21):
   full-history private-data scan (kit `features/policy/private-data-scan.py
   --history`). When the old history holds private data, move to a new repository
   with rewritten history instead of force-pushing: GitHub keeps every pull
-  request's original commits, and only GitHub Support can remove them.
+  request's original commits, and only GitHub Support can remove them. The
+  procedure and its Xcode Cloud checklist: [repository-move.md](repository-move.md).
   `AGENTS.md` declares `Repository visibility: **PUBLIC**.`, which turns on the
   pre-push private-data scan.
 - **Rulesets:** create the three templates, active and without bypass actors:

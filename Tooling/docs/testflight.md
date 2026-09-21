@@ -49,6 +49,10 @@ against one tag.
 A tag on a commit `testflight` already contains starts nothing; rebuild with
 Start Build on `testflight` in App Store Connect instead.
 
+Tag the next round only after the previous Xcode Cloud build has uploaded: a new
+`testflight` move can make the workflow cancel a build still running (OneCart
+waited for 1.5.0 (113) before tagging `tf-1.5.0-2`).
+
 ## Versions
 
 One format in every app (owner rule): `MARKETING_VERSION` is always
@@ -57,6 +61,15 @@ same in every target and configuration. A feature release raises `MINOR` and
 resets `PATCH` to 0; a fix-only release raises `PATCH`; `MAJOR` changes only when
 the owner asks. Tags repeat the version (`tf-1.0.0-1`, `v1.0.0`), and
 `just tf-check` blocks any other form, because the workflow would reject the tag.
+
+App Store Connect normalizes versions: `1.0` and `1.0.0` are one version, listed
+under "Version 1.0", and TestFlight offers the highest build number within it.
+An app moving from a two-part to a three-part version therefore does not start a
+new version by padding it: pitstop's first Xcode Cloud build 1.0.0 (2) sat below
+a hand-uploaded 1.0 (202609211), and testers kept getting the old build; OneCart
+saw an old 1.4 (82) above 1.3.0. When earlier uploads exist, raise the version
+past them (pitstop: next round 1.1.0, OneCart went to 1.5.0), or expire the old
+build and keep Xcode Cloud's numbers above its build number.
 
 ## Project format
 
