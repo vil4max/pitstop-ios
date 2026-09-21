@@ -3,6 +3,7 @@ project: "Pitstop.xcodeproj"
 workspace: ""
 simulator:
   name: iPhone 17
+  os: "27.0"
 backend:
   prefer: xcodebuild
 lint: true

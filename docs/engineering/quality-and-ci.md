@@ -185,9 +185,11 @@ a completed gate on unchanged contents solely for another workflow stage.
 
 ## Local verification
 
-GitHub Actions is disabled for this private repository. Hosted CI duplicated
-the owner-operated local Runtime gate and added runner cost and setup maintenance.
-Use `just verify` for app implementation and record the command, result, and
+The local Runtime gate is the implementation gate. GitHub Actions runs the
+shared Runtime pipeline on a self-hosted runner on the owner's Mac (no hosted
+macOS minutes); a push to `main` only runs tests
+([ADR 0013](../decisions/0013-shared-ci-and-tag-gated-testflight.md)). A green
+hosted run is additional evidence, not a substitute. Use `just verify` for app implementation and record the command, result, and
 reviewed revision in the PR. Use proportional diff/link/config checks for
 non-behavioral documentation changes, without an app build.
 
@@ -198,8 +200,8 @@ imply independent review or product acceptance.
 
 Do not schedule Periphery, dependency reports, or performance lanes without a
 specific investigation or measured regression risk. Run them on demand when
-relevant. TestFlight delivery is a separate owner-approved setup; this repository
-does not inherit the production delivery flows of OneCart or DriveCheckUA.
+relevant. TestFlight delivery is tag-gated through the shared Runtime pipeline
+(`Tooling/docs/testflight.md`), the same model as the other apps on the Runtime.
 
 ## Verification metrics
 
@@ -230,7 +232,8 @@ fixture; - sample method.
 
 The ruleset JSON is a proposal, not evidence of active GitHub protection.
 It may protect history and require a PR where the account supports rulesets,
-but must not require a hosted check while Actions is disabled. A solo project
+but must not require a hosted check until the self-hosted runner is registered
+and reliable. A solo project
 does not need an extra approval ritual without a concrete review benefit.
 
 ## Quality Definition of Done addition

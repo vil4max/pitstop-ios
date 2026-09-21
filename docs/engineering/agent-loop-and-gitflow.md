@@ -272,7 +272,7 @@ verification policy. Review findings are proposals to validate against code.
 
 For app implementation, the normal command is `just verify`. Diagnose setup
 with `just doctor --json` when needed and resolve configuration from
-`Tooling/runtime.yml`. GitHub Actions is disabled for this private repository;
+`Tooling/runtime.yml`. GitHub Actions runs the shared tests workflow on a self-hosted runner (ADR 0013);
 record local verification evidence without requiring a hosted status check.
 Documentation/config-only changes use proportional checks without an app build.
 `Tooling/.runtime-lock` identifies the installed Runtime content. Runtime
