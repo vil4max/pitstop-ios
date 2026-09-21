@@ -31,8 +31,8 @@ actor FakePitQuestionStore: PitQuestionStateStore {
     @discardableResult
     func execute(_ command: PitQuestionCommand, now: Date) throws(PitQuestionStoreError) -> PitQuestionState {
         guard !fails, !failsCommands else { throw .storageFailure }
-        guard registry.definition(for: command.questionID) != nil else { throw .unknownQuestion }
-        let next = try command.applied(to: states[command.questionID], now: now)
+        guard let definition = registry.definition(for: command.questionID) else { throw .unknownQuestion }
+        let next = try command.applied(to: states[command.questionID], path: definition.deferral, now: now)
         states[command.questionID] = next
         executed.append(command)
         return next

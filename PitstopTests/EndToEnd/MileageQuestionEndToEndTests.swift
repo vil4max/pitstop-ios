@@ -5,6 +5,8 @@ import Testing
 /// DISC-002: Pit's mileage question through the real SwiftData stores, sharing one container as the app
 /// does, to what Service and Road show. Nothing here is faked except the clock.
 private let now = MaintenanceFixture.date(120)
+private let day: TimeInterval = 86400
+private let hour: TimeInterval = 60 * 60
 
 @MainActor
 private struct App {
@@ -15,8 +17,9 @@ private struct App {
     let service: ServiceViewModel
     let road: RoadViewModel
 
-    init() throws {
-        let container = try PersistenceContainer.make(storeURL: nil)
+    /// `storeURL` on disk and a later `now` stand for a relaunch of the app.
+    init(storeURL: URL? = nil, now: Date = MaintenanceFixture.date(120)) throws {
+        let container = try PersistenceContainer.make(storeURL: storeURL)
         let registry = try PitQuestionRegistry.product()
         store = SwiftDataCarMemoryStore(modelContainer: container)
         questions = SwiftDataPitQuestionStore(modelContainer: container, registry: registry)
@@ -76,7 +79,7 @@ struct MileageQuestionEndToEndTests {
         #expect(milestone.mileageDependency == nil && milestone.remainingKm == 2000)
     }
 
-    @Test("ADR-0016, REQ-PIT-008: the answer and the reading are both persisted, so the question never returns")
+    @Test("ADR-0016, REQ-PIT-008: the answer and the reading are both persisted; the question stays quiet")
     func answerIsPersisted() async throws {
         let app = try App()
         try await app.seedStaleMileage()
@@ -165,5 +168,56 @@ struct MileageQuestionEndToEndTests {
         await app.pit.revalidate()
 
         #expect(app.pit.isAsking)
+    }
+
+    @Test("ADR-0018, REQ-PIT-012: after relaunches a deferral returns at 14 d, an answer once stale, a dismissal never")
+    func returnsFollowPersistedState() async throws {
+        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
+        defer {
+            for suffix in ["", "-shm", "-wal"] {
+                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
+            }
+        }
+        func launch(at moment: Date) throws -> App {
+            try App(storeURL: url, now: moment)
+        }
+        func asks(at moment: Date) async throws -> Bool {
+            try await launch(at: moment).pit.evaluate(context: .service, activity: .idle)
+        }
+
+        do {
+            let first = try launch(at: now)
+            try await first.seedStaleMileage()
+            #expect(await first.pit.evaluate(context: .service, activity: .idle))
+            await first.pit.deferAnswer()
+        }
+        #expect(try await !asks(at: now + 14 * day - hour))
+
+        let answeredAt = now + 14 * day
+        do {
+            let returned = try launch(at: answeredAt)
+            #expect(await returned.pit.evaluate(context: .service, activity: .idle))
+            returned.pit.answerText = "58000"
+            #expect(await returned.pit.answer())
+        }
+        // At 90 days the reading is still current, so relevance keeps Pit quiet; the answer's own 90-day
+        // interval ends at the same moment, so this step does not separate the two rules.
+        #expect(try await !asks(at: answeredAt + 90 * day))
+        let staleAgain = answeredAt + 91 * day
+        #expect(try await asks(at: staleAgain))
+        // Left unanswered, that ask still blocks a repeat for 12 hours after a relaunch.
+        #expect(try await !asks(at: staleAgain + 11 * hour))
+
+        let dismissedAt = staleAgain + 12 * hour
+        do {
+            let asked = try launch(at: dismissedAt)
+            #expect(await asked.pit.evaluate(context: .service, activity: .idle))
+            await asked.pit.dismiss()
+        }
+        // "Don't ask" is final for this question, a year later and with the mileage still stale.
+        let yearLater = dismissedAt + 365 * day
+        #expect(try await !asks(at: yearLater))
+        let state = try #require(await launch(at: yearLater).questionState())
+        #expect(state.resolution == .dismissed && state.lastDismissedAt == dismissedAt)
     }
 }

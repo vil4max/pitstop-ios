@@ -29,7 +29,8 @@ public struct PitQuestionState: Hashable, Sendable {
 
 /// The only way question state changes. Each case names a registered question.
 public enum PitQuestionCommand: Hashable, Sendable {
-    /// Pit interrupted with the question; this starts the interruption cooldown.
+    /// Pit interrupted with the question; this starts the interruption cooldown and opens the question
+    /// again if it had returned after a resolution (ADR 0018).
     case asked(questionID: String)
     case answered(questionID: String)
     case deferred(questionID: String)
@@ -42,12 +43,24 @@ public enum PitQuestionCommand: Hashable, Sendable {
         }
     }
 
-    /// Applies the command to the current state; `nil` means the question has no stored row yet.
-    public func applied(to state: PitQuestionState?, now: Date) throws(PitQuestionStoreError) -> PitQuestionState {
+    /// Applies the command to the current state; `nil` means the question has no stored row yet. `path` is
+    /// the question's declared return, which decides whether a resolved question may be asked again.
+    public func applied(
+        to state: PitQuestionState?,
+        path: PitDeferralPath,
+        now: Date
+    ) throws(PitQuestionStoreError) -> PitQuestionState {
         var next = state ?? PitQuestionState(questionID: questionID)
         switch self {
         case .asked:
+            // The store enforces the declared return itself, so an answer cannot be turned back into a
+            // question by a caller that skipped the attention policy (ADR 0018).
+            guard next.resolution == .unresolved || path.hasReturned(next, now: now) else { throw .notReturned }
             next.lastAskedAt = now
+            // The resolution is the outcome of the latest ask. Without this, a returned answered question
+            // could not be declined again, and a returned deferral would still read as the old one.
+            next.resolution = .unresolved
+            next.resolvedAt = nil
         case .answered:
             next.resolution = .answered
             next.resolvedAt = now
@@ -79,6 +92,8 @@ public enum PitQuestionStoreError: Error, Hashable, Sendable {
     /// The command names a question the registry does not declare.
     case unknownQuestion
     case alreadyAnswered
+    /// An ask for a resolved question whose declared return has not come.
+    case notReturned
     case storageFailure
 }
 

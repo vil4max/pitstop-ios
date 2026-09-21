@@ -128,7 +128,9 @@ the card is replaced by "Mileage saved: N km" above the composer.
 - **Without an answer:** Service keeps the distance rule blocked and names the
   reason; a time rule still decides a partial status. The user can record
   mileage in the car editor at any time.
-- **Return:** `notBefore(14 days)` after a deferral, `never` after a dismissal.
+- **Return:** `notBefore(14 days)` after a deferral, `never` after a dismissal,
+  and `notBefore(90 days)` after an answer, the time a reading counts as
+  current (ADR 0018). The question also has to be relevant again.
 
 ### How the value is measured
 
@@ -187,15 +189,10 @@ DEBUG launch arguments for tap-free smoke checks: `-pitstop-demo-stale-mileage`
 
 ## Open questions for owner review
 
-- **Deferral return is still not enforced.** The policy treats a deferred
-  question as final (ADR 0012), stricter than the declared 14 days. DISC-003
-  decides whether a deferred mileage question returns and wires the declared
-  interval. Until then, "I don't know yet" silences this question on the device
-  for good, which may be too strong for a fact that goes stale every 90 days.
-- **One answer is final.** The policy also treats `answered` as final
-  (ADR 0012, REQ-PIT-008), so once answered the question never returns on that
-  device, even when the mileage goes stale again 90 days later. DISC-003
-  decides the return rules for answered and deferred questions.
+- **Deferral return and final answers.** Resolved by ADR 0018 (DISC-003): a
+  deferred mileage question returns after 14 days, an answered one after
+  90 days, and either only while the mileage is stale or unknown. A dismissal
+  stays final. The REQ-PIT-008 wording this relies on is proposed there.
 - **Editor sheets are not reported as activity.** See above; DISC-004 and the
   feature editors finish the activity reporting that ADR 0012 left open.
 - **Pit keeps knocking after the user leaves Service.** The question is asked

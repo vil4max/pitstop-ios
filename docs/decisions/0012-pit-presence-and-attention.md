@@ -57,7 +57,8 @@ value." `PitAttentionPolicy` answers with at most one question, and only when
   it only changes how Pit asks (amended by ADR 0017),
 - the question belongs to the surface the user is on (REQ-PIT-007),
 - it is unresolved — answered, deferred, and dismissed are all final for this
-  purpose (REQ-PIT-008),
+  purpose (REQ-PIT-008); amended by ADR 0018: each resolution returns after
+  the interval its question declares,
 - at least 12 hours have passed since the last interruption, and
 - at least 7 days have passed since the last dismissal.
 

@@ -18,6 +18,9 @@ public enum CurrentMileageQuestion {
             """
         ),
         deferral: PitDeferralPath(
+            // A reading holds exactly as long as the engine counts it as current; after that the question
+            // is relevant again only if no newer mileage arrived meanwhile (ADR 0018).
+            afterAnswer: .notBefore(MaintenanceRules.mileageStaleAfter),
             afterDeferral: .notBefore(14 * 24 * 60 * 60),
             afterDismissal: .never,
             withoutAnswer: """
@@ -61,7 +64,7 @@ public extension PitAttentionPolicy {
     ) -> PitQuestion? {
         let budget = PitAttentionBudget(states)
         return question(
-            from: registry.questions(with: states).filter { relevant.contains($0.id) },
+            from: registry.questions(with: states, now: now).filter { relevant.contains($0.id) },
             activity: activity,
             context: context,
             sinceLastInterruption: budget.sinceLastInterruption(now: now),

@@ -12,7 +12,9 @@ enum PitQuestionFixtures {
         priority: Int = 5,
         claim: String = "Service status uses the user's own oil interval",
         withoutAnswer: String = "Service keeps the interval unknown and shows no oil due date",
-        afterDeferral: PitDeferralPath.Return = .notBefore(30 * 24 * 60 * 60)
+        afterAnswer: PitDeferralPath.Return = .never,
+        afterDeferral: PitDeferralPath.Return = .notBefore(30 * 24 * 60 * 60),
+        afterDismissal: PitDeferralPath.Return = .never
     ) -> PitQuestionDefinition {
         PitQuestionDefinition(
             id: id,
@@ -20,8 +22,9 @@ enum PitQuestionFixtures {
             priority: priority,
             value: PitQuestionValue(unlocks: .serviceStatus, claim: claim),
             deferral: PitDeferralPath(
+                afterAnswer: afterAnswer,
                 afterDeferral: afterDeferral,
-                afterDismissal: .never,
+                afterDismissal: afterDismissal,
                 withoutAnswer: withoutAnswer
             )
         )

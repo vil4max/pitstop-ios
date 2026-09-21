@@ -27,10 +27,10 @@ actor SwiftDataPitQuestionStore: PitQuestionStateStore, ModelActor {
 
     @discardableResult
     func execute(_ command: PitQuestionCommand, now: Date) throws(PitQuestionStoreError) -> PitQuestionState {
-        guard registry.definition(for: command.questionID) != nil else { throw .unknownQuestion }
+        guard let definition = registry.definition(for: command.questionID) else { throw .unknownQuestion }
         do {
             let record = try existingRecord(for: command.questionID)
-            let next = try command.applied(to: record?.domain, now: now)
+            let next = try command.applied(to: record?.domain, path: definition.deferral, now: now)
             if let record {
                 record.update(from: next)
             } else {
@@ -63,8 +63,9 @@ extension PitstopSchemaV2.PitQuestionStateRecord {
     var domain: PitQuestionState {
         PitQuestionState(
             questionID: questionID,
-            // An unreadable resolution must not make Pit ask again, so it reads as deferred (core C3).
-            resolution: PitQuestion.Resolution(rawValue: resolution) ?? .deferred,
+            // An unreadable resolution must not make Pit ask again, so it reads as closed, which never
+            // returns (core C3, ADR 0018).
+            resolution: PitQuestion.Resolution(rawValue: resolution) ?? .closed,
             lastAskedAt: lastAskedAt,
             lastDismissedAt: lastDismissedAt,
             resolvedAt: resolvedAt

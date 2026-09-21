@@ -13,24 +13,47 @@ public struct PitQuestionValue: Hashable, Sendable {
     }
 }
 
-/// What happens when the user does not answer: when the question may return, and what the app does
-/// without the answer in the meantime.
+/// When a resolved question may return, and what the app does without the answer in the meantime
+/// (ADR 0018).
 public struct PitDeferralPath: Hashable, Sendable {
     public enum Return: Hashable, Sendable {
         case never
-        /// Measured from the moment the question was deferred or dismissed.
+        /// Measured from the moment the question was resolved (`PitQuestionState.resolvedAt`).
         case notBefore(TimeInterval)
     }
 
+    /// How long an answer holds. Relevance still gates the return: an answer that still unlocks its
+    /// value keeps the question quiet after this interval too.
+    public let afterAnswer: Return
     public let afterDeferral: Return
     public let afterDismissal: Return
     /// The app's behaviour while the answer is missing; the fact itself stays unknown (core C2).
     public let withoutAnswer: String
 
-    public init(afterDeferral: Return, afterDismissal: Return, withoutAnswer: String) {
+    public init(afterAnswer: Return, afterDeferral: Return, afterDismissal: Return, withoutAnswer: String) {
+        self.afterAnswer = afterAnswer
         self.afterDeferral = afterDeferral
         self.afterDismissal = afterDismissal
         self.withoutAnswer = withoutAnswer
+    }
+
+    public func returnRule(after resolution: PitQuestion.Resolution) -> Return? {
+        switch resolution {
+        case .unresolved, .closed: nil
+        case .answered: afterAnswer
+        case .deferred: afterDeferral
+        case .dismissed: afterDismissal
+        }
+    }
+
+    /// A resolved question is open again once its declared interval has passed since the resolution.
+    /// Without a resolution time nothing can be measured, so the question stays closed: silence is the
+    /// safe default (core C3).
+    public func hasReturned(_ state: PitQuestionState, now: Date) -> Bool {
+        guard case let .notBefore(interval) = returnRule(after: state.resolution),
+              let resolvedAt = state.resolvedAt
+        else { return false }
+        return now.timeIntervalSince(resolvedAt) >= interval
     }
 }
 
@@ -94,17 +117,20 @@ public struct PitQuestionRegistry: Sendable {
         definitions.first { $0.id == id }
     }
 
-    /// Joins the declarations with persisted state. A question without a stored row is unresolved;
-    /// a stored row whose question is no longer registered is ignored.
-    public func questions(with states: some Sequence<PitQuestionState>) -> [PitQuestion] {
-        let resolutions = Dictionary(states.map { ($0.questionID, $0.resolution) }) { first, _ in first }
+    /// Joins the declarations with persisted state as of `now`. A question without a stored row is
+    /// unresolved, and so is one whose declared return interval has passed (ADR 0018); a stored row whose
+    /// question is no longer registered is ignored.
+    public func questions(with states: some Sequence<PitQuestionState>, now: Date) -> [PitQuestion] {
+        let stored = Dictionary(states.map { ($0.questionID, $0) }) { first, _ in first }
         return definitions.map { definition in
-            PitQuestion(
+            let state = stored[definition.id]
+            let hasReturned = state.map { definition.deferral.hasReturned($0, now: now) } ?? false
+            return PitQuestion(
                 id: definition.id,
                 priority: definition.priority,
                 context: definition.context,
                 unlocks: definition.value.unlocks,
-                resolution: resolutions[definition.id] ?? .unresolved
+                resolution: hasReturned ? .unresolved : state?.resolution ?? .unresolved
             )
         }
     }
@@ -113,7 +139,8 @@ public struct PitQuestionRegistry: Sendable {
         guard !definition.id.isBlank else { throw .blankID }
         guard !definition.value.claim.isBlank else { throw .blankValueClaim(definition.id) }
         guard !definition.deferral.withoutAnswer.isBlank else { throw .blankFallback(definition.id) }
-        for rule in [definition.deferral.afterDeferral, definition.deferral.afterDismissal] {
+        let deferral = definition.deferral
+        for rule in [deferral.afterAnswer, deferral.afterDeferral, deferral.afterDismissal] {
             if case let .notBefore(interval) = rule, !(interval > 0) {
                 throw .nonPositiveReturn(definition.id)
             }
@@ -132,7 +159,7 @@ public extension PitAttentionPolicy {
     ) -> PitQuestion? {
         let budget = PitAttentionBudget(states)
         return question(
-            from: registry.questions(with: states),
+            from: registry.questions(with: states, now: now),
             activity: activity,
             context: context,
             sinceLastInterruption: budget.sinceLastInterruption(now: now),

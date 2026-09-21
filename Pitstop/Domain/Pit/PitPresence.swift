@@ -90,13 +90,16 @@ public enum PitValueUnlock: String, Hashable, Sendable {
 
 /// One thing Pit may ask about. Identity, priority, resolution, and the value its answer unlocks are
 /// modelled so a deferred question is not asked again (pit-behavior-and-motion.md, "Interruption
-/// budget").
+/// budget") before its declared return (ADR 0018).
 public struct PitQuestion: Identifiable, Hashable, Sendable {
     public enum Resolution: String, Hashable, Sendable {
         case unresolved
         case answered
         case deferred
         case dismissed
+        /// A stored resolution this build cannot read. No command produces it and it never returns: the
+        /// safe default for a question is silence (core C3).
+        case closed
     }
 
     public let id: String
@@ -105,6 +108,7 @@ public struct PitQuestion: Identifiable, Hashable, Sendable {
     public let context: VisibleFeature
     /// `nil` means nothing was declared, so the question may not be asked at all.
     public let unlocks: PitValueUnlock?
+    /// As the policy sees it: a resolved question whose declared return has come joins as unresolved.
     public var resolution: Resolution
 
     public init(

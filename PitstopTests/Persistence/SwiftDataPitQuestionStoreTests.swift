@@ -42,7 +42,7 @@ struct SwiftDataPitQuestionStoreTests {
         let states = try await reopened.questionStates()
         let expected = PitQuestionState(questionID: oil, resolution: .deferred, lastAskedAt: now, resolvedAt: now + 5)
         #expect(states == [expected])
-        let questions = try PitQuestionFixtures.registry().questions(with: states)
+        let questions = try PitQuestionFixtures.registry().questions(with: states, now: now + 5)
         #expect(questions.first { $0.id == oil }?.resolution == .deferred)
     }
 
@@ -93,6 +93,39 @@ struct SwiftDataPitQuestionStoreTests {
             try await store.execute(.dismissed(questionID: oil), now: now + 60)
         }
         #expect(try await store.questionStates() == [answered])
+    }
+
+    @Test("ADR-0018: an ask for an answered question that never returns is rejected and nothing is saved")
+    func askBeforeReturnChangesNothing() async throws {
+        let store = try makeStore()
+        let answered = try await store.execute(.answered(questionID: oil), now: now)
+
+        await #expect(throws: PitQuestionStoreError.notReturned) {
+            try await store.execute(.asked(questionID: oil), now: now + 3650 * 24 * hour)
+        }
+        #expect(try await store.questionStates() == [answered])
+    }
+
+    @Test("ADR-0018: an unreadable stored resolution reads as closed and never returns")
+    func unreadableResolutionStaysClosed() async throws {
+        let container = try PersistenceContainer.make(storeURL: nil)
+        let context = ModelContext(container)
+        context.insert(PitstopSchemaV2.PitQuestionStateRecord(
+            questionID: oil, resolution: "retired-resolution", lastAskedAt: now, lastDismissedAt: nil,
+            resolvedAt: now
+        ))
+        try context.save()
+        let store = try SwiftDataPitQuestionStore(modelContainer: container, registry: PitQuestionFixtures.registry())
+        let later = now + 3650 * 24 * hour
+
+        let states = try await store.questionStates()
+        #expect(states.map(\.resolution) == [.closed])
+        #expect(try PitAttentionPolicy().question(
+            registry: PitQuestionFixtures.registry(), states: states, activity: .idle, context: .service, now: later
+        ) == nil)
+        await #expect(throws: PitQuestionStoreError.notReturned) {
+            try await store.execute(.asked(questionID: oil), now: later)
+        }
     }
 
     @Test("ADR-0007: a version 1 store opens under version 2 with car memory intact")

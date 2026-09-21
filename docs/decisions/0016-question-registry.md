@@ -32,7 +32,7 @@ Both are non-optional, so a question without them does not compile.
   Road/Service value?").
 - `PitDeferralPath` says when the question may return after a deferral and
   after a dismissal (`never` or `notBefore(interval)`, measured from the
-  resolution time), and `withoutAnswer`: what the app does while the answer is
+  resolution time; ADR 0018 adds `afterAnswer`), and `withoutAnswer`: what the app does while the answer is
   missing. Core C2 applies, so the fact stays unknown rather than defaulted.
 
 `PitQuestionRegistry` is the only source of questions. Its initializer rejects
@@ -101,7 +101,8 @@ notice, because it builds "V1" from the edited class. So:
   optionality, and uniqueness as literals captured on 2026-09-21, and checks
   that V2 is exactly V1 plus the question state entity. Any V1 change fails
   `just verify`. The
-resolution is a raw string; an unreadable value reads as `deferred`, because
+resolution is a raw string; an unreadable value reads as `closed` (originally
+`deferred`; changed by ADR 0018, under which a deferral returns), because
 the safe default for a question is silence (core C3), not asking again. A test
 opens a store written by a V1-only container under V2 and reads the car and
 its notes back.
@@ -126,10 +127,10 @@ its notes back.
 
 ## Open questions for owner review
 
-- **Deferral return is declared, not yet enforced.** The policy still treats a
-  deferred question as final (ADR 0012), which is stricter than any
-  `notBefore` value. DISC-003 decides whether and when a deferred question may
-  return and wires `PitDeferralPath` into the policy.
+- **Deferral return is declared, not yet enforced.** Resolved by ADR 0018
+  (DISC-003): the policy enforces `afterDeferral`, `afterDismissal`, and the
+  new `afterAnswer`, measured from `resolvedAt`, and an `asked` command opens
+  a returned question again.
 - **App wiring.** The app migrates to V2 on the next launch, but nothing
   creates `SwiftDataPitQuestionStore` or calls the policy yet. DISC-002 wires
   both with the first question; the in-memory fallback in `AppEnvironment`

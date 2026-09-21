@@ -27,6 +27,9 @@ struct CurrentMileageQuestionTests {
         #expect(definition.context == .service)
         #expect(definition.value.unlocks == .serviceStatus)
         #expect(definition.deferral.afterDismissal == .never)
+        #expect(definition.deferral.afterDeferral == .notBefore(14 * day))
+        // The answer holds exactly as long as the engine counts a reading as current (ADR 0018).
+        #expect(definition.deferral.afterAnswer == .notBefore(MaintenanceRules.mileageStaleAfter))
     }
 
     @Test(
@@ -103,11 +106,14 @@ struct CurrentMileageQuestionTests {
     }
 
     @Test(
-        "REQ-PIT-008, REQ-PIT-012: an answered, deferred, or dismissed mileage question is not asked again",
+        "REQ-PIT-008, REQ-PIT-012: an answered, deferred, or dismissed mileage question is not asked again early",
         arguments: [PitQuestion.Resolution.answered, .deferred, .dismissed]
     )
     func resolvedIsNotAskedAgain(resolution: PitQuestion.Resolution) throws {
-        let state = PitQuestionState(questionID: questionID, resolution: resolution, lastAskedAt: now - 30 * day)
+        // Past every cooldown, inside every declared return interval (14 days is the shortest).
+        let state = PitQuestionState(questionID: questionID, resolution: resolution, lastAskedAt: now - 13 * day,
+                                     lastDismissedAt: resolution == .dismissed ? now - 13 * day : nil,
+                                     resolvedAt: now - 13 * day)
         #expect(try policy.question(
             registry: PitQuestionRegistry.product(), states: [state], relevant: [questionID],
             activity: .idle, context: .service, now: now
@@ -118,10 +124,10 @@ struct CurrentMileageQuestionTests {
 @MainActor
 @Suite("Pit question view model")
 struct PitQuestionViewModelTests {
-    private let now = MaintenanceFixture.date(120)
+    let now = MaintenanceFixture.date(120)
 
     /// Oil every 10,000 km, done at 50,000 km on day 0. With `readingDay` 0 the mileage is stale at day 120.
-    private func makeStores(readingDay: Double = 0) async throws -> (FakeCarMemoryStore, FakePitQuestionStore) {
+    func makeStores(readingDay: Double = 0) async throws -> (FakeCarMemoryStore, FakePitQuestionStore) {
         let store = FakeCarMemoryStore()
         let vehicleID = await store.vehicle.id
         let past = MaintenanceFixture.date(readingDay)
@@ -146,7 +152,7 @@ struct PitQuestionViewModelTests {
         )
     }
 
-    private func askedModel() async throws -> (PitQuestionViewModel, FakeCarMemoryStore, FakePitQuestionStore) {
+    func askedModel() async throws -> (PitQuestionViewModel, FakeCarMemoryStore, FakePitQuestionStore) {
         let (store, questions) = try await makeStores()
         let model = try makeModel(store, questions)
         #expect(await model.evaluate(context: .service, activity: .idle))
