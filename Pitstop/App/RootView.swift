@@ -8,6 +8,7 @@ struct RootView: View {
     let history: HistoryViewModel
     let service: ServiceViewModel
     let road: RoadViewModel
+    let pitCapture: PitCaptureViewModel
     /// DEBUG demo seeding; it must finish before any surface loads, or a surface opened first reads an empty store.
     var prepare: (@Sendable () async -> Void)?
 
@@ -17,6 +18,16 @@ struct RootView: View {
     @State private var path: [CarBoardRoute] = RootView.initialPath()
     @State private var sheet: UtilitySheet?
     @State private var isPrepared = false
+
+    /// DEBUG only: `-pitstop-pit "text"` opens Pit and submits the text, for smoke checks without taps.
+    private static func initialCapture(arguments: [String] = ProcessInfo.processInfo.arguments) -> String? {
+        #if DEBUG
+            if let index = arguments.firstIndex(of: "-pitstop-pit"), arguments.indices.contains(index + 1) {
+                return arguments[index + 1]
+            }
+        #endif
+        return nil
+    }
 
     /// DEBUG only: `-pitstop-open road` opens a surface directly, for smoke checks without taps.
     private static func initialPath(arguments: [String] = ProcessInfo.processInfo.arguments) -> [CarBoardRoute] {
@@ -76,13 +87,65 @@ struct RootView: View {
         // Pit waits nearby. Only Reduce Motion and the utility sheets drive this today; the feature
         // editors do not report yet, which CAP-004 and DISC-004 finish.
         .task(id: reduceMotion) { pit.setReduceMotion(reduceMotion) }
-        .onChange(of: sheet) { _, newSheet in pit.setInterface(newSheet == nil ? [] : .modalTask) }
+        .onChange(of: sheet) { _, newSheet in
+            pit.setInterface(newSheet == nil ? [] : newSheet == .pit ? .capturing : .modalTask)
+            // Whatever Pit saved shows on the board and on the surface the user is on.
+            if newSheet == nil {
+                Task { await refreshVisibleSurface() }
+            }
+        }
+        // However Pit was closed — Close or a swipe — a pending capture is cancelled, never left half-done.
+        .onChange(of: sheet == .pit) { wasPit, isPit in
+            if wasPit, !isPit {
+                pitCapture.cancel()
+            }
+        }
         .onDisappear { pit.stop() }
+        .task {
+            guard let text = Self.initialCapture() else { return }
+            pitCapture.text = text
+            sheet = .pit
+            await pitCapture.submit(from: visibleFeature)
+        }
         .sheet(item: $sheet) { sheet in
             switch sheet {
             case .settings: SettingsView(isStorageTemporary: carBoard.state.isStorageTemporary)
-            case .pit: PitPendingView()
+            case .pit:
+                PitCaptureView(viewModel: pitCapture, visible: visibleFeature) { destination in
+                    open(destination)
+                }
             }
+        }
+    }
+
+    /// The surface under the sheet, passed to capture as a prior only (REQ-CAPTURE-022).
+    private var visibleFeature: VisibleFeature {
+        switch path.last {
+        case .tile(.notes): .notes
+        case .tile(.service): .service
+        case .tile(.history): .history
+        case .tile(.road): .road
+        case .none: .carBoard
+        }
+    }
+
+    private func open(_ destination: PitDestination) {
+        switch destination {
+        case .notes: path = [.tile(.notes)]
+        case .history: path = [.tile(.history)]
+        case .service: path = [.tile(.service)]
+        case .carBoard: path = []
+        }
+    }
+
+    private func refreshVisibleSurface() async {
+        await carBoard.load()
+        switch path.last {
+        case .tile(.notes): await notes.load()
+        case .tile(.history): await history.load()
+        case .tile(.service): await service.load()
+        case .tile(.road): await road.load()
+        case .none: break
         }
     }
 

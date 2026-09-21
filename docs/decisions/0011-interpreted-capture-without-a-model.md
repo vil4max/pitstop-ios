@@ -105,5 +105,5 @@ saving something else.
 - The rule set covers Russian and English only, and no synonyms beyond the
   lists in the source. A user writing "менял масло вчера" is understood;
   "обслужил двигатель" is not, and is saved raw.
-- Whether interpreted mode should be the default for Pit capture, or offered
-  as a choice, is a CAP-004 question.
+- Pit capture (CAP-004) defaults to interpreted mode and always shows "Save as
+  written" next to it, so raw saving is one tap and never hidden.

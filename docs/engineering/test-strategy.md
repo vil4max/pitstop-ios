@@ -123,10 +123,11 @@ driving the UI, which matters when the simulator is shared between sessions:
 ``` text
 -pitstop-demo-data      in-memory store seeded with fictional facts through domain commands
 -pitstop-open <tile>    open road | notes | service | history directly
+-pitstop-pit "<text>"   open Pit and submit the text, to see confirmation or the saved result
 -pitstop-in-memory      empty in-memory store
 ```
 
-The first two are compiled out of Release. `-pitstop-in-memory` also exists in
+The first three are compiled out of Release. `-pitstop-in-memory` also exists in
 Release, where it can only open an empty in-memory store. None of them can open
 the on-disk store.
 
