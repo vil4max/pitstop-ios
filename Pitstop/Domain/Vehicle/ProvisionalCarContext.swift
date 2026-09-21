@@ -32,11 +32,12 @@ struct ProvisionalCarContext: Equatable {
         self.isProvisional = isProvisional
     }
 
-    /// Mileage comes only from a recorded reading, so a car without one stays unknown (REQ-BOARD-004).
-    init(vehicle: Vehicle, latestReading: OdometerReading?) {
+    /// Mileage is the newest observation: a reading, or a completion saved with its mileage
+    /// (REQ-BOARD-026). Nothing is estimated, so a car with neither stays unknown (REQ-BOARD-004).
+    init(vehicle: Vehicle, observedKm: Double?) {
         self.init(
             name: vehicle.name,
-            odometerKm: latestReading.map { Int($0.valueInKilometers.rounded()) },
+            odometerKm: observedKm.map { Int($0.rounded()) },
             make: vehicle.make,
             model: vehicle.model,
             year: vehicle.year,

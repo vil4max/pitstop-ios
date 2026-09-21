@@ -31,7 +31,7 @@ Render immediately with a provisional car context:
 
 ```text
 displayName: My New Car
-odometer: unknown until a valid reading exists
+odometer: unknown until a mileage observation exists (a reading, or a completion saved with its mileage)
 vehicle facts: unknown
 ```
 
@@ -263,7 +263,7 @@ Then the context is marked provisional and accepts user edits
 Status: proposed
 Core: C2
 Source: [First-launch state](#first-launch-state), [charter](product-charter.md#first-launch-contract)
-Given no valid odometer reading exists
+Given no mileage observation exists: no valid odometer reading and no completion saved with its mileage
 When Car Board renders
 Then numeric mileage is omitted or shown with an explicit unknown label, never as 0 km
 
@@ -434,3 +434,11 @@ Source: [Accessibility](#accessibility), [Test-first scenarios](#test-first-scen
 Given the largest Dynamic Type size
 When Car Board renders
 Then tile summary meaning stays visible and Settings and Pit remain reachable
+
+### REQ-BOARD-026 — Header mileage is the newest mileage observation
+Status: approved (owner, 2026-09-21)
+Core: C2
+Source: [First-launch state](#first-launch-state); [`../decisions/0010-maintenance-engine-rules.md`](../decisions/0010-maintenance-engine-rules.md)
+Given a completion saved with its mileage is newer than any odometer reading
+When Car Board renders
+Then the header shows that mileage, the same value Service counts from, and saving the same number in the car editor while that mileage is stale records a fresh reading

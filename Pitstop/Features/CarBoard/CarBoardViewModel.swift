@@ -30,6 +30,8 @@ final class CarBoardViewModel {
     private let store: any CarMemoryStore
     private let now: @Sendable () -> Date
     private var vehicleID: VehicleID?
+    /// Whether the shown mileage is recent enough to count; a stale one is re-recorded even unchanged.
+    private var isMileageCurrent = false
 
     init(
         store: any CarMemoryStore,
@@ -47,19 +49,20 @@ final class CarBoardViewModel {
         do {
             let vehicle = try await store.currentVehicle()
             let latest = try await store.odometerReadings().latest
+            let completions = try await store.maintenanceCompletions()
+            // The header and Service read mileage from one context, so they cannot disagree
+            // (REQ-BOARD-026, ADR 0010).
+            let context = MaintenanceContext(now: moment, latestReading: latest, completions: completions)
             vehicleID = vehicle.id
-            state.car = ProvisionalCarContext(vehicle: vehicle, latestReading: latest)
+            isMileageCurrent = context.mileage == .known
+            state.car = ProvisionalCarContext(vehicle: vehicle, observedKm: context.observedKm)
             state.mileage = CarBoardMileage(odometerKm: state.car.odometerKm)
             state.notes = try await NotesSummary(notes: store.notes())
-            state.history = try await HistoryTimeline(
-                events: store.historyEvents(),
-                completions: store.maintenanceCompletions()
-            )
-            let completions = try await store.maintenanceCompletions()
+            state.history = try await HistoryTimeline(events: store.historyEvents(), completions: completions)
             state.service = try await MaintenanceEngine().states(
                 policies: store.maintenancePolicies(),
                 completions: completions,
-                context: MaintenanceContext(now: moment, latestReading: latest, completions: completions)
+                context: context
             ).byUrgency
             state.road = RoadProjector().project(RoadContext(
                 now: moment,
@@ -95,7 +98,9 @@ final class CarBoardViewModel {
                 try await store.execute(.recordVehicleFact(.init(vehicleID: vehicleID, fact: fact)), now: now())
                 nameWasSaved = true
             }
-            if case let .value(value) = kilometers, value != state.car.odometerKm {
+            // The same number is still worth recording when the shown mileage is stale: it tells the
+            // engine where the car is today (REQ-BOARD-026).
+            if case let .value(value) = kilometers, value != state.car.odometerKm || !isMileageCurrent {
                 let reading = OdometerReading(vehicleID: vehicleID, value: Double(value), recordedAt: now())
                 try await store.execute(.recordOdometerReading(.init(reading: reading)), now: now())
             }

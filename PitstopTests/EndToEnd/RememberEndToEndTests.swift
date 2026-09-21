@@ -79,9 +79,8 @@ struct RememberEndToEndTests {
         #expect(completion.operationID == .engineOilService)
         #expect(completion.odometerKm == 84200)
         #expect(app.board.state.notes.activeCount == 0)
-        // REQ-BOARD-004: the header shows mileage only from a reading; a completion does not set it.
-        // ADR 0010 counts completion mileage for Service; the owner decides whether the header follows.
-        #expect(app.board.state.mileage == .unknown)
+        // Marking oil done at 84 200 km says the car has reached it; header and Service agree (REQ-BOARD-026).
+        #expect(app.board.state.mileage == .kilometers(84200))
     }
 
     @Test("REQ-CAPTURE-019: a car wash with a price reaches the History tile")

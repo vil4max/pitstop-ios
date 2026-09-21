@@ -78,6 +78,47 @@ struct CarBoardViewModelTests {
         #expect(model.state.car.isProvisional)
     }
 
+    @Test("REQ-BOARD-026: a completion saved with its mileage, newer than any reading, is the header mileage")
+    func completionMileageDrivesHeader() async throws {
+        let store = FakeCarMemoryStore()
+        let vehicleID = try await store.currentVehicle().id
+        let reading = OdometerReading(
+            vehicleID: vehicleID,
+            value: 80000,
+            recordedAt: now.addingTimeInterval(-20 * 86400)
+        )
+        _ = try await store.execute(.recordOdometerReading(.init(reading: reading)), now: now)
+        let completion = MaintenanceCompletion(
+            vehicleID: vehicleID, operationID: .engineOilService,
+            performedAt: now.addingTimeInterval(-2 * 86400), odometerKm: 84200
+        )
+        _ = try await store.execute(.confirmMaintenanceCompletion(.init(completion: completion)), now: now)
+        let model = makeModel(store)
+
+        await model.load()
+
+        #expect(model.state.mileage == .kilometers(84200))
+        #expect(model.state.car.odometerKm == 84200)
+    }
+
+    @Test("REQ-BOARD-026: saving the same number over a stale mileage records a fresh reading")
+    func sameNumberOverStaleMileageIsRecorded() async throws {
+        let store = FakeCarMemoryStore()
+        let vehicleID = try await store.currentVehicle().id
+        let completion = MaintenanceCompletion(
+            vehicleID: vehicleID, operationID: .engineOilService,
+            performedAt: now.addingTimeInterval(-100 * 86400), odometerKm: 84200
+        )
+        _ = try await store.execute(.confirmMaintenanceCompletion(.init(completion: completion)), now: now)
+        let model = makeModel(store)
+        await model.load()
+        #expect(model.state.mileage == .kilometers(84200))
+
+        #expect(await model.saveCar(name: "", odometerText: "84200"))
+
+        #expect(await store.readings.map(\.valueInKilometers) == [84200])
+    }
+
     @Test("ADR-0007: an unchanged editor executes no command")
     func unchangedEditorSavesNothing() async {
         let store = FakeCarMemoryStore()
