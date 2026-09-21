@@ -55,7 +55,7 @@ instructions and project facts are in [`AGENTS.md`](AGENTS.md).
 `just verify` is the local gate. The shared Runtime tests workflow runs on
 GitHub-hosted runners, and TestFlight builds are tag-gated
 ([ADR 0013](docs/decisions/0013-shared-ci-and-tag-gated-testflight.md)).
-Record the command and result in the PR. The ruleset JSON remains a proposal
-until applied in GitHub and does not require a hosted check. Documentation-only
+Record the command and result in the PR. GitHub rulesets come from the Runtime
+templates in `Tooling/templates/github/rulesets/` and require no hosted check. Documentation-only
 edits do not require an app build. Local verification does not prove independent
 review, release, or production AI capability.

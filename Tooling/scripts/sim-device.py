@@ -15,6 +15,10 @@ session showed, and killed runs left clones of the shared device behind.
       deletes shut-down "Clone N of <name>" devices left by earlier test runs
   sim-device.py prune <base> [<live-worktree>...]
       deletes shut-down "<base> · <worktree>" devices whose worktree is gone
+  sim-device.py state <udid>
+      prints the device state (Booted, Shutdown, ...)
+  sim-device.py reset <udid>
+      shuts the device down and erases it
 """
 
 from __future__ import annotations
@@ -110,6 +114,22 @@ def prune(base: str, live: list[str]) -> None:
     print(f"sim-device: removed {removed} test device(s) of worktrees that no longer exist")
 
 
+def state(udid: str) -> None:
+    for group in listing("devices").get("devices", {}).values():
+        for device in group:
+            if device.get("udid") == udid:
+                print(device.get("state", "Unknown"))
+                return
+    sys.exit(f"simulator {udid} not found")
+
+
+def reset(udid: str) -> None:
+    # Shutdown fails on a device that is already shut down; erase then succeeds.
+    subprocess.run(["xcrun", "simctl", "shutdown", udid], capture_output=True)
+    simctl("erase", udid)
+    print(f"sim-device: erased {udid}", file=sys.stderr)
+
+
 def main() -> None:
     if len(sys.argv) >= 2 and sys.argv[1] == "resolve" and len(sys.argv) == 6:
         resolve(*sys.argv[2:6])
@@ -117,6 +137,10 @@ def main() -> None:
         clean(sys.argv[2:])
     elif len(sys.argv) >= 3 and sys.argv[1] == "prune":
         prune(sys.argv[2], sys.argv[3:])
+    elif len(sys.argv) == 3 and sys.argv[1] == "state":
+        state(sys.argv[2])
+    elif len(sys.argv) == 3 and sys.argv[1] == "reset":
+        reset(sys.argv[2])
     else:
         sys.exit(__doc__)
 

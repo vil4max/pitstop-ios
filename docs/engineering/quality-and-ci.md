@@ -230,10 +230,17 @@ fixture; - sample method.
 
 ## GitHub quality enforcement
 
-The ruleset JSON is a proposal, not evidence of active GitHub protection.
-It may protect history and require a PR where the account supports rulesets,
-but must not require a hosted check until the hosted tests run has proven reliable. A solo project
-does not need an extra approval ritual without a concrete review benefit.
+Three active rulesets, applied from the Runtime templates in
+`Tooling/templates/github/rulesets/` (`Tooling/docs/ci.md`, "Repository
+settings"):
+
+- `main` and `testflight` cannot be deleted or force-pushed;
+- `v*` tags cannot be deleted or moved;
+- `tf-*` tags cannot be moved, but a rejected one can be deleted before a retry.
+
+There is no pull-request rule and no required status check: both would block
+the direct pushes to `main` that the tag-gated TestFlight model relies on, and a
+solo project gains no review from an approval ritual.
 
 ## Quality Definition of Done addition
 

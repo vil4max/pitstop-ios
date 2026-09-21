@@ -67,6 +67,15 @@ demand (`simulator.*` keys in [api.md](api.md)); `just sim-clean` removes the
 app's own leftover test clones. Set `simulator.os` (for example `"27.0"`) when the
 app needs a specific iOS; unset means the newest installed runtime.
 
+Never launch the app by hand on the test device. An app with a Live Activity or
+widgets is relaunched by the system after one manual launch, and a running
+instance takes the test launch without XCTest: the run waits and fails with "The
+test runner hung before establishing connection", which reads like load or a code
+defect. The xcodebuild backend therefore stops a running instance before each
+run, and on that hang erases the app's own test device and retries once (the
+failure precedes every test, so the retry cannot hide a failing test). A reserved
+`simulator.test_udid` is never erased; the run reports it instead.
+
 ## Repository variables
 
 | Variable | Default | Set it when |
@@ -75,12 +84,54 @@ app needs a specific iOS; unset means the newest installed runtime.
 | `IOS_DEVELOPER_DIR` | `/Applications/Xcode_27.0.app/Contents/Developer` | The runner's Xcode lives elsewhere (self-hosted: `/Applications/Xcode.app/Contents/Developer`) |
 | `SONAR_ENABLED` | unset | The app reports to SonarQube Cloud (needs secret `SONAR_TOKEN`) |
 
+## Repository settings
+
+Every iOS app repository is set up the same way (owner decision, 2026-09-21):
+
+- **Name:** lowercase kebab-case ending in `-ios` (`pitstop-ios`, `onecart-ios`).
+  An App Store Support or Privacy Policy URL that points into the repository
+  changes with a rename; the Privacy Policy URL is app-level, the Support URL
+  changes only with the next version.
+- **Public, clean history.** A repository becomes public only after a clean
+  full-history private-data scan (kit `features/policy/private-data-scan.py
+  --history`). When the old history holds private data, move to a new repository
+  with rewritten history instead of force-pushing: GitHub keeps every pull
+  request's original commits, and only GitHub Support can remove them.
+  `AGENTS.md` declares `Repository visibility: **PUBLIC**.`, which turns on the
+  pre-push private-data scan.
+- **Rulesets:** create the three templates, active and without bypass actors:
+
+  ```bash
+  for r in delivery-branches release-tags testflight-tags; do
+    gh api -X POST repos/<owner>/<repo>/rulesets --input "Tooling/templates/github/rulesets/$r.json"
+  done
+  ```
+
+  `main` and `testflight` cannot be deleted or rewritten; a `v` tag cannot be
+  moved or deleted, since it records what was submitted. A `tf-` tag cannot be
+  moved but can be deleted: a tag the workflow rejected is deleted and a fixed
+  commit tagged with the next BUILD (`tf-check.sh`), and a deletion rule would
+  leave no one able to do that (found by OneCart). There is no required status check and no pull-request rule: both
+  would block the direct pushes to `main` that the tag model relies on, and
+  `tf-check` already requires the tagged commit's own green run.
+- **Xcode Cloud access:** the Xcode Cloud GitHub app is granted per repository,
+  not per name. A new repository, even under an old name, is added under
+  github.com/settings/installations → Xcode Cloud → Repository access before its
+  workflow can build. The Xcode Cloud product also stays bound to the old
+  repository's ID: in App Store Connect, Xcode Cloud → Settings → Repositories →
+  Change URL to the new repository, then Start Build on `testflight` if a branch
+  move happened before the change (pitstop's first `tf-` round started no build
+  until both were done).
+
 ## Self-hosted runner on this Mac
 
 A private app runs its tests here. The runner's jobs go through the same
 machine-wide build slots as every local session (`just build-slot status`), so a
 CI run cannot overload the Mac. Security: register it only to private
 repositories — a public repository would let fork pull requests run code on it.
+Before a repository goes public, uninstall the service and remove the runner
+registration (after a rename `config.sh remove` can fail; delete it through the
+API: `gh api -X DELETE repos/<owner>/<repo>/actions/runners/<id>`).
 
 The owner performs the registration because it needs a token from GitHub:
 

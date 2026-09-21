@@ -172,9 +172,10 @@ Legacy tab-bar spike: branch `legacy/spike`. Current product: `main`.
 
 **Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. Implementation PRs must pass the local Runtime gate and review. Documentation-only changes use proportional checks; CI runs on GitHub-hosted runners (ADR 0014).
 
-**Branch protection:** the ruleset proposal may require a PR where supported;
-do not require hosted status checks until the hosted tests run is reliable. Local review and
-verification evidence remain the merge contract.
+**Branch protection:** active rulesets block deleting or force-pushing `main`
+and `testflight` and moving release tags; no PR rule or required status check
+(`docs/engineering/quality-and-ci.md`). Local review and verification evidence
+remain the merge contract.
 
 ## Current explicit decisions
 
