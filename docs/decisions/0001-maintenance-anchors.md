@@ -97,7 +97,7 @@ They are not the same source of truth.
 ## Consequences
 
 Positive: - oil is no longer a permanent engine special case; -
-DSG/AWD/brake-fluid cycles are first-class; - practical combined ТО is
+DSG/AWD/brake-fluid cycles are first-class; - practical combined service visits are
 natural; - partial service is correct; - official and custom schedules
 can coexist.
 
@@ -105,6 +105,24 @@ Costs: - current seed-plan model needs adapters and eventual
 migration; - operation identity catalog is required; - procedure
 applicability/provenance becomes a data problem; - planner requires
 explicit grouping rules.
+
+## Closure (DOM-004, 2026-09-21)
+
+The open points of this ADR are closed in
+[`0020-maintenance-anchor-closure.md`](0020-maintenance-anchor-closure.md),
+with evidence from code and tests. Summary:
+
+| Open point | State |
+|---|---|
+| Decisions 1, 2, 4, 5, 7, 8 | Decided and implemented (ADR 0010, engine and planner tests) |
+| Decision 3: early completion reset | Implemented; fixed-grid policy type not added in the first slice (ADR 0020, Q3) |
+| Decision 6: official vs user policy | Separation implemented (ADR 0007, 0010); recommendation data is owner question B |
+| Decision 9: stable IDs, title adapter | IDs implemented and pinned by tests; no title adapter (ADR 0020, Q9) |
+| Decision 10: seeded visits, migration timing | No seeded visits on greenfield `main`; nothing to migrate unless owner question D says import |
+| Costs: grouping rules, identity catalog | Windows in ADR 0010; eligibility and catalog decided in ADR 0020 (Q5, Q11) |
+| Procedure composition | Owner question B (verified data source) |
+| Service Plan vs Service Visit | Separation implemented; plan and multi-operation visit scope are owner question C |
+| Status of this ADR | Owner question A: recommended `Accepted` |
 
 ## Rejected alternatives
 

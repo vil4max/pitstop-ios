@@ -392,6 +392,39 @@ struct SwiftDataCompletionRevokeTests {
 
         #expect(try await makeStore(url: url).maintenanceCompletions() == [kept])
     }
+
+    @Test("ADR-0020: an operation outside the catalog keeps its identity on disk and in the engine")
+    func uncataloguedOperationKeepsIdentity() async throws {
+        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
+        defer {
+            for suffix in ["", "-shm", "-wal"] {
+                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
+            }
+        }
+        let operation = MaintenanceOperationID(rawValue: "coolantService")
+        let store = try makeStore(url: url)
+        let vehicleID = try await store.currentVehicle().id
+        let policy = MaintenancePolicy(operationID: operation, timeIntervalMonths: 48, source: .userCustom)
+        let completion = MaintenanceCompletion(
+            vehicleID: vehicleID,
+            operationID: operation,
+            performedAt: DomainFixtures.Odometers.baseDate
+        )
+        try await store.execute(.setMaintenancePolicy(.init(vehicleID: vehicleID, policy: policy)), now: now)
+        try await store.execute(.confirmMaintenanceCompletion(.init(completion: completion)), now: now)
+
+        let reopened = try makeStore(url: url)
+        let states = try await MaintenanceEngine().states(
+            policies: reopened.maintenancePolicies(),
+            completions: reopened.maintenanceCompletions(),
+            context: MaintenanceContext(now: now, latestReading: nil)
+        )
+
+        #expect(!MaintenanceOperationID.catalog.contains(operation))
+        #expect(states.map(\.id) == [operation])
+        #expect(states.first?.lastCompletion == completion)
+        #expect(states.first?.status == .upToDate)
+    }
 }
 
 @Suite("SwiftData event correction")

@@ -87,6 +87,26 @@ struct MaintenanceEngineTests {
         #expect(anchors == [.engineOilService: 26400, .dsgService: 70000])
     }
 
+    @Test("ADR-0020: a late completion also rebaselines from the actual facts; there is no fixed grid")
+    func lateCompletionRebaselines() throws {
+        let policy = Fix.custom(.engineOilService, km: 10000, months: 12)
+        let done = [
+            Fix.completion(.engineOilService, km: 50000),
+            Fix.completion(.engineOilService, km: 62500, day: 400),
+        ]
+        let state = try #require(Fix.states([policy], done, currentKm: 63000, day: 410).first)
+        #expect(state.anchorKm == 72500)
+        #expect(state.anchorDate == Fix.utc.date(byAdding: .month, value: 12, to: Fix.date(400)))
+    }
+
+    @Test("ADR-0020: operation IDs are stored identity, so the catalog's raw values never change")
+    func operationIDsAreStable() {
+        #expect(MaintenanceOperationID.catalog.map(\.rawValue) == [
+            "engineOilService", "dsgService", "awdCouplingService", "brakeFluid", "cabinFilter", "airFilter",
+            "sparkPlugs",
+        ])
+    }
+
     @Test("REQ-MAINT-004: completing one operation never changes another operation's state")
     func cyclesAreIndependent() {
         let policies = [Fix.oil10k, Fix.custom(.dsgService, km: 60000)]

@@ -46,6 +46,7 @@ highest affected layer; evidence from operations flows back up.
 - `requirements/maintenance-engine.md`
 - `decisions/0001-maintenance-anchors.md`
 - `decisions/0010-maintenance-engine-rules.md` — status rule, unknown handling, planner window, Service surface scope
+- `decisions/0020-maintenance-anchor-closure.md` — ADR 0001 open questions: evidence, fixed grid deferred, stable IDs pinned, owner questions on data and plan scope
 - `planning/legacy-domain-audit.md`
 - `requirements/capture-pipeline.md`
 - `engineering/domain-inventory.md`

@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active (unfrozen 2026-09-16); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** DOM-004 (DISC-004 implemented; CAP-005 needs a physical device for the Foundation Models spike)  
+**Next task:** MNT-INT-001 (DOM-004 implemented, ADR 0020; CAP-005 needs a physical device for the Foundation Models spike)  
 **Board:** deleted 2026-09-21 at the owner's request. GitHub Project #2 had lost its cards when the pre-public repository and its issues were deleted (ADR 0014); the `#N` column below refers to those deleted issues  
 **Backlog:** this plan and `docs/tasks/full-backlog-delivery.md` are the source of truth; specs stay contracts  
 **WIP limit:** 1 implementation task in **In progress** (solo) — backlog visibility does not mean parallel work  
@@ -85,7 +85,7 @@ See `../engineering/quality-and-ci.md`.
 | DOM-001 | Domain inventory from specs | 1d | — | done | #1 |
 | DOM-002 | Spec-derived test fixtures | 1d | DOM-001 | done | #2 |
 | DOM-003 | Capture domain + policy tests | 4d | DOM-001 | implemented on branch, unmerged | #3 |
-| DOM-004 | ADR-001 closure | 1d | — | tracked | #4 |
+| DOM-004 | ADR-001 closure | 1d | — | implemented (ADR 0020) | #4 |
 
 ## Phase 2 — Engineering
 
