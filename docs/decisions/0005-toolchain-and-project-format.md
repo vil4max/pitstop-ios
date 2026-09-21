@@ -4,6 +4,14 @@
 **Decision:** build with the Swift 6 language mode, target iOS 27.0, and let
 Xcode derive target membership from the file system.
 
+**Update (owner directive, 2026-09-21):** the project file itself moved to the
+JSON format of Xcode 27.2 (`Pitstop.xcodeproj/project.xcproj` replaces
+`project.pbxproj`), shared by every app on the Runtime. Target membership still
+comes from the file system (`"kind": "folder"` entries). Open the project in
+Xcode 27.2 or later: an older Xcode may write a `project.pbxproj` back next to
+it. The Runtime reads versions and sets the Xcode Cloud build number in either
+format (`Tooling/docs/testflight.md`, "Project format").
+
 ## Context
 
 The backlog adds well over a hundred source files. The project listed every
