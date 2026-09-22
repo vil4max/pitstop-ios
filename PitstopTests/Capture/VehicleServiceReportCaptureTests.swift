@@ -123,6 +123,24 @@ struct VehicleServiceReportCaptureTests {
         #expect(proposal.kind == .odometerReading && proposal.extractedOdometerKm == 91500)
     }
 
+    @Test("REQ-MAINT-039: a dotted service abbreviation is the service, and its countdown never a mileage")
+    func dottedAbbreviationIsTheService() async throws {
+        for text in ["приборка: до Т.О. 3200 км", "приборка: до т.о. 3200 км"] {
+            let proposal = try #require(try await RuleBasedInterpreter().interpret(input(text)))
+            #expect(proposal.kind == .vehicleServiceReport)
+            #expect(proposal.extractedRemainingDistance == 3200 && proposal.extractedOdometerKm == nil)
+        }
+    }
+
+    @Test(
+        "REQ-MAINT-039: a number right after a mileage word is never marked overdue",
+        arguments: ["odometer 92000 km overdue for oil change", "пробег 92000 км просрочено масло"]
+    )
+    func mileageWordNumberIsNeverOverdue(text: String) async throws {
+        let proposal = try #require(try await RuleBasedInterpreter().interpret(input(text)))
+        #expect(proposal.kind == .odometerReading && proposal.extractedOdometerKm == 92000)
+    }
+
     @Test("REQ-MAINT-039: the particle \"то\" is not the service \"ТО\"")
     func particleIsNotAService() async throws {
         #expect(try await RuleBasedInterpreter().interpret(input("что-то просрочено на 300 км")) == nil)

@@ -87,7 +87,9 @@ private struct Reading {
     /// particle of "что-то" and "то есть", so only the uppercase spelling names a service.
     private let namesScheduledService: Bool
 
-    init(_ text: String) {
+    init(_ raw: String) {
+        // "Т.О." / "т.о." is the service "ТО"; split at the dots it would miss the marker "до ТО".
+        let text = raw.replacing(/\b[Тт]\.\s?[Оо]\.?/, with: "ТО")
         // Split keeping hyphens inside a token, so "что-ТО" is one token and never the service.
         namesScheduledService = text.split { !$0.isLetter && $0 != "-" }.contains("ТО")
         let lowered = text.lowercased()
@@ -211,6 +213,8 @@ private struct Reading {
     private func countdownSign(before index: Int, unitWord: String) -> Double? {
         let previous = index > 0 ? words[index - 1] : nil
         let beforePrevious = index > 1 ? words[index - 2] : nil
+        // "Odometer 92000 km overdue for oil": a number right after a mileage word is where the car is.
+        guard previous.map(Self.isMileageWord) != true else { return nil }
         let afterUnit = Self.isUnitOrDayWord(unitWord) ? word(after: unitWord, from: index) : nil
         if let previous, Self.overdueMarkers.contains(previous) || (previous == "by" && beforePrevious == "overdue")
             || (previous == "на" && beforePrevious.map(Self.overdueMarkers.contains) == true)
@@ -231,10 +235,12 @@ private struct Reading {
 
     /// The word right after the unit that follows the number at `index`.
     private func word(after unitWord: String, from index: Int) -> String? {
-        guard let unitIndex = words.firstIndex(of: unitWord, after: index), unitIndex + 1 < words.count else {
-            return nil
+        var cursor = index + 1
+        while cursor < words.count, Self.number(words[cursor]) != nil {
+            cursor += 1
         }
-        return words[unitIndex + 1]
+        guard cursor + 1 < words.count, words[cursor] == unitWord else { return nil }
+        return words[cursor + 1]
     }
 
     private static func isUnitOrDayWord(_ word: String) -> Bool {
@@ -385,16 +391,5 @@ private struct Reading {
     private static func number(_ word: String) -> Double? {
         guard !word.isEmpty, word.allSatisfy(\.isNumber) else { return nil }
         return Double(word)
-    }
-}
-
-private extension [String] {
-    /// The first index of `word` after `index`, skipping the digit groups of the number itself.
-    func firstIndex(of word: String, after index: Int) -> Int? {
-        var cursor = index + 1
-        while cursor < count, self[cursor].allSatisfy(\.isNumber) {
-            cursor += 1
-        }
-        return cursor < count && self[cursor] == word ? cursor : nil
     }
 }
