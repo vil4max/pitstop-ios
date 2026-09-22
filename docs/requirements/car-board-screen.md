@@ -48,7 +48,7 @@ Leading composition:
 
 ```text
 MY CAR
-Arteon / My New Car
+Kestrel / My New Car
 
 [            CAR HERO             ]
 
@@ -69,6 +69,10 @@ Exact visual spacing belongs to the design system.
 A tile is `summary + entrance`.
 
 A tile must expose meaningful state before tap.
+
+Tile anatomy: a title row with the surface symbol, name and a trailing
+chevron; a primary line; a status chip only where a state exists; a secondary
+line.
 
 The [charter feature map](product-charter.md#product-loop-and-feature-responsibilities)
 defines what the destination does. Tile implementation does not establish that
@@ -147,12 +151,31 @@ known supporting facts; an unconfirmed plan or archived Note is not an event.
 
 ## Car Hero
 
-Shows:
-- car visual;
-- display name;
-- only minimal supporting car context that has proven value.
+The display name is the screen title above the hero. The hero is a tinted
+stage (the stage tier in `product-design.md`) and shows:
+- the car: the owner's photo, lifted onto the stage, or the neutral
+  placeholder for the chosen body;
+- one mileage line: the newest mileage observation and its age ("47 560 km ·
+  updated 9 days ago"), or "Mileage unknown";
+- one edit affordance, which opens the car editor (photo, name, body,
+  mileage); while the car is provisional it reads "Name your car".
 
-Do not fill the hero with technical specifications.
+Do not fill the hero with technical specifications. Make, model and year stay
+vehicle facts and are not shown here.
+
+### Car profile
+
+The owner may add a photo of the car from the photo library (`PhotosPicker`,
+no permission needed). It is optional and never part of first launch. The
+photo is a file in the app container, referenced from the car context; it is
+never a database value, never sent to analytics, logs or any network, never
+in a widget timeline entry, and never committed to the repository. Deleting
+the photo removes the file.
+
+A small round avatar of the car (the photo, or the placeholder) appears where
+seeing the car helps: detail screen headers (28 pt), Road "Now", the Pit
+sheet's saved state and question card (44 pt), and the data widgets once
+SYS-007 exists.
 
 Fallback visual strategy is defined in `product-design.md`.
 
@@ -364,12 +387,12 @@ When Car Board renders
 Then the History tile shows no latest event
 
 ### REQ-BOARD-017 — Car Hero shows visual and name without specifications
-Status: proposed
+Status: proposed (wording changed by the owner on 2026-09-22: the name moved to the screen title)
 Core: P5
 Source: [Car Hero](#car-hero)
 Given any car context
 When Car Board renders
-Then Car Hero shows a car visual and display name and no technical specification list
+Then Car Board shows the car visual in the hero and the display name as the screen title, and no technical specification list
 
 ### REQ-BOARD-018 — Sparse data renders no placeholder metrics
 Status: proposed
@@ -442,3 +465,43 @@ Source: [First-launch state](#first-launch-state); [`../decisions/0010-maintenan
 Given a completion saved with its mileage is newer than any odometer reading
 When Car Board renders
 Then the header shows that mileage, the same value Service counts from, and saving the same number in the car editor while that mileage is stale records a fresh reading
+
+### REQ-BOARD-027 — Mileage recency is derived, not guessed
+Status: approved (owner, 2026-09-22)
+Core: C2
+Source: [Car Hero](#car-hero)
+Given a newest mileage observation with a date, a reading or a completion saved with its mileage
+When Car Board renders
+Then the hero shows that observation's age from its date only, and shows no age when no observation exists
+
+### REQ-BOARD-028 — Tile anatomy is shared
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Tile contract](#tile-contract)
+Given the four V1 tiles
+When they render
+Then each shows the title row with a chevron, a primary line and a secondary line, and a status chip only where a state exists
+
+### REQ-BOARD-029 — The owner's photo is optional and stays on device
+Status: approved (owner, 2026-09-22)
+Core: P1, P2
+Source: [Car profile](#car-profile)
+Given the owner picks a photo in the car editor
+When it is saved
+Then it is stored as a file in the app container, shown on the stage, and never sent to analytics, logs or any network; widgets read it only as a file in the App Group container after SYS-007, never inside a timeline entry
+
+### REQ-BOARD-030 — The body is the owner's choice
+Status: approved (owner, 2026-09-22)
+Core: C2
+Source: [Car Hero](#car-hero), [product-design Car image](product-design.md#car-image)
+Given no photo
+When the car is shown
+Then the placeholder is the body the owner chose, SUV or sedan, or SUV when none was chosen, and never one derived from other data
+
+### REQ-BOARD-031 — A failed subject lift still shows the car
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Car Hero](#car-hero)
+Given a photo whose subject cannot be lifted
+When the stage renders
+Then the whole photo is shown under the stage mask and no error is shown

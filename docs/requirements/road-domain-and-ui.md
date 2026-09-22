@@ -114,10 +114,11 @@ History remains the authoritative event browsing surface.
 
 After Road scrolling, provide an obvious deterministic return to the default/current position.
 
-INVESTIGATE exact interaction:
-- automatic snap after leaving/re-entering;
-- explicit current-position control;
-- native scroll-position behaviour.
+Resolved (INV-ROAD-004, delivered behaviour; owner-approved restyle
+2026-09-22): every visit starts at the car. After the lane scrolls away from
+the car, a labelled "Back to now" control appears under the lane, inside the
+lane card, and returns the lane to the car; with Reduce Motion it returns
+without animation. The control is a glass pill.
 
 Do not invent a custom gesture.
 
@@ -132,6 +133,34 @@ Road must distinguish:
 - unknown/stale dependency.
 
 Semantic colour follows the design system. Red remains reserved for genuine danger/error semantics.
+
+Each state keeps the status vocabulary shape from `product-design.md` (ring,
+half-filled, filled, filled with a ring, dashed), so no state depends on
+colour alone.
+
+## Lane drawing
+
+Decided by the owner on 2026-09-22.
+
+> The car drives along the road, and the milestones stand on the road ahead
+> of it.
+
+- **One road coordinate.** The dashed road line, the car and every milestone
+  are placed from the same vertical position: the car's wheels rest on the
+  line, each milestone's sign post stands on it, and all labels sit under
+  the road.
+- **The car** is the owner's photo or the neutral placeholder (see
+  `product-design.md`, "Car image"), facing right, small enough that the
+  milestones stay the focus (about 44 pt wide in the Car Board tile).
+- **Milestones are roadside information signs:** a small rounded plate on a
+  post, the plate outlined in the state colour and showing the state glyph.
+  Past due adds a soft halo. Plates are information signs, never warning
+  triangles and never red.
+- **Labels** under the road: the milestone name, its fact line, and the
+  estimate line when the projection carries one (ROAD-EST-002).
+- **The list mirrors the lane:** under the lane, the same milestones appear
+  as grouped rows under "Ahead", with "Waiting for mileage" as a second
+  group; the past stays one line that points to History.
 
 ## Overlap
 
@@ -415,3 +444,27 @@ Given a maintenance milestone whose deciding anchor came from the car's dashboar
 When the milestone is labelled on Road or the Road tile
 Then its fact reads "from dashboard" after the distance or days; a milestone decided by the owner's interval has no such suffix; placement, dimension, order and state are derived as for any other anchor, with no conversion
 
+
+### REQ-ROAD-027 — Milestone list mirrors the lane
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Lane drawing](#lane-drawing)
+Given a Road projection with slots
+When Road renders
+Then the same milestones appear as text rows in the same order under the lane, and no milestone is only in the lane or only in the list
+
+### REQ-ROAD-028 — Back to now is explicit and conditional
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Return to current position](#return-to-current-position)
+Given the lane scrolled away from the car
+When Road renders
+Then a labelled control returns the lane to the car, and the control is absent while the lane's leading item is the car
+
+### REQ-ROAD-029 — Car and milestones share one road line
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Lane drawing](#lane-drawing)
+Given a lane with the car and milestones, in a tile, on the Road screen or in a widget
+When it is drawn at any text size
+Then the car's wheels and every sign post meet the same road line, labels sit under it, and no sign uses a warning shape or the danger colour

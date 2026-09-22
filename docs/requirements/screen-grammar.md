@@ -32,20 +32,25 @@ Examples:
 
 ```text
 MY CAR
-Arteon
+Kestrel
 ```
 
 ```text
-ARTEON
+KESTREL
 Notes
 ```
 
 ```text
-ARTEON
+KESTREL
 Service
 ```
 
 Do not invent a different header composition for every feature.
+
+Trailing actions live in the navigation toolbar as glass buttons; related
+actions form one toolbar menu. On detail screens a 28 pt round avatar of the
+car (photo or placeholder) may precede the eyebrow; the large hero stays on
+Car Board.
 
 The large car hero belongs primarily to Car Board.
 
@@ -120,6 +125,22 @@ Use haptics for meaningful interaction moments:
 
 Do not add haptics to every tap.
 
+## List geometry
+
+Repeated records of one kind are rows in one inset-grouped container per
+section, with hairline separators and no separator after the last row. A
+26 pt card is reserved for entrances (Car Board tiles) and the stage tier.
+Fields inside forms use an 18 pt radius; nested radii are concentric.
+
+## Dynamic Type reflow
+
+- Half tiles become full-width rows at accessibility sizes, in the same order.
+- Chips wrap instead of scrolling horizontally.
+- Row actions move under the text.
+- Horizontally scrolling lanes grow in height and never clip labels.
+- Only the utility circles, Pit's head and toolbar glyphs keep a fixed size.
+- Every control keeps a 44 pt target.
+
 ## Empty and sparse states
 
 Unknown data is expected.
@@ -134,6 +155,9 @@ A sparse state should communicate:
 1. what is known;
 2. what the surface is for;
 3. one useful next action when appropriate.
+
+Composition: a tinted glyph disc, a headline, one sentence and at most two
+actions, placed in the top third of the content.
 
 ## Accessibility
 
@@ -157,3 +181,37 @@ Before accepting a new screen:
 - is sparse state intentional?
 - does it work with Reduce Motion?
 - does VoiceOver expose the primary meaning?
+
+## Requirements
+
+### REQ-GRAMMAR-001 — Rows live in grouped containers
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [List geometry](#list-geometry)
+Given a screen section listing records of one kind
+When it renders
+Then the records are rows in one grouped container, not one card per record
+
+### REQ-GRAMMAR-002 — Header and toolbar grammar
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Header](#header)
+Given a detail screen
+When it renders
+Then it shows eyebrow and large title, and its actions in the navigation toolbar as glass buttons or one menu
+
+### REQ-GRAMMAR-003 — Text never clips at accessibility sizes
+Status: approved (owner, 2026-09-22); verified manually on the simulator after each redesign card (no snapshot tests)
+Core: P5
+Source: [Dynamic Type reflow](#dynamic-type-reflow)
+Given the largest Dynamic Type size
+When any primary or detail screen renders
+Then no text is truncated below its meaning, chips wrap, and every control keeps a 44 pt target
+
+### REQ-GRAMMAR-004 — Sparse state composition
+Status: approved (owner, 2026-09-22)
+Core: P5, C2
+Source: [Empty and sparse states](#empty-and-sparse-states)
+Given an owned surface with no records
+When it renders
+Then it shows a glyph, a headline, at most one sentence and at most two actions, and no placeholder metric

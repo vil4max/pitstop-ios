@@ -131,12 +131,13 @@ body[data-text="ax"] .phone{--dt:1.45}
 
 /* stage (car hero) */
 .stage{background:linear-gradient(180deg,var(--p-tint2),var(--p-tint));border-radius:26px;padding:16px 18px 14px;position:relative;overflow:hidden}
-.stage .car{width:100%;max-height:110px;display:block;margin:2px auto 6px}
+.stage .car{width:auto;max-width:100%;height:110px;display:block;margin:2px auto 6px}
+.stage .carsvg{width:auto}
 .stage .horizon{position:absolute;left:18px;right:18px;top:118px;border-top:1.5px dashed var(--p-ter)}
 .stage .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .stage .km{font-size:calc(22px*var(--dt));font-weight:600;letter-spacing:-.01em}
 .stage .km small{font-size:calc(13px*var(--dt));font-weight:500;color:var(--p-sec);margin-left:6px}
-.carsvg{fill:var(--p-accent);fill-opacity:.5}
+.carsvg{fill:#8E8E93;fill-opacity:1;aspect-ratio:320/170;height:auto;overflow:visible;display:block}
 .carsvg .wheel{fill:var(--p-bg);fill-opacity:1;stroke:var(--p-sec);stroke-opacity:.6;stroke-width:4}
 
 /* tiles */
@@ -161,15 +162,16 @@ body[data-text="ax"] .tile{grid-column:1/-1}
 .chip.ahead{--c:var(--p-accent)}
 
 /* road lane */
-.lane{position:relative;display:flex;align-items:flex-start;gap:0;padding:6px 0 4px;overflow:hidden}
-.lane::before{content:"";position:absolute;left:0;right:0;top:34px;border-top:2px dashed var(--p-ter)}
-.lane.tall::before{top:40px}
-.lane .now{flex:0 0 78px;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
-.lane .now .car{width:60px}
-.lane.tall .now{flex-basis:96px}.lane.tall .now .car{width:72px}
+.lane{--road:34px;position:relative;display:flex;align-items:flex-start;gap:0;padding:0 0 4px;overflow:hidden}
+/* One road coordinate: the dashed line is centred on --road, markers are centred on it, the car's wheels rest on it. */
+.lane::before{content:"";position:absolute;left:0;right:0;top:calc(var(--road) - 1px);border-top:2px dashed var(--p-ter)}
+.lane.tall{--road:40px}
+.lane .now{flex:0 0 78px;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
+.lane .now .car{width:44px;height:auto}
+.lane.tall .now{flex-basis:96px}.lane.tall .now .car{width:56px;height:auto}
 .lane .now .l{font-size:calc(11px*var(--dt));font-weight:600;color:var(--p-sec)}
-.ms{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;padding-top:22px;position:relative}
-.lane.tall .ms{flex:0 0 128px;padding-top:26px}
+.ms{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;padding-top:calc(var(--road) - 13px);position:relative}
+.lane.tall .ms{flex:0 0 128px}
 .ms .m{width:26px;height:26px;border-radius:50%;background:var(--p-surface);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 .5px var(--p-sep)}
 .ms .m .d{width:12px;height:12px;border-radius:50%;border:2.5px solid var(--c)}
 .ms.ahead{--c:var(--p-accent)}.ms.appr{--c:var(--p-appr)}.ms.appr .d{background:linear-gradient(90deg,var(--c) 50%,transparent 50%)}
@@ -179,7 +181,7 @@ body[data-text="ax"] .tile{grid-column:1/-1}
 .ms .k{font-size:calc(11px*var(--dt));color:var(--p-sec);line-height:1.2}
 .ms .more{font-size:calc(11px*var(--dt));font-weight:600;color:var(--p-accent)}
 .lanecard{background:var(--p-surface);border-radius:26px;padding:14px 8px 12px;border:.5px solid color-mix(in srgb,var(--p-sep) 35%,transparent);position:relative}
-.lanecard .pill{position:absolute;right:14px;bottom:12px;height:34px;padding:0 12px;font-size:calc(13px*var(--dt))}
+.lanecard .pill{display:flex;width:max-content;margin:6px 10px 0 auto;height:34px;padding:0 12px;font-size:calc(13px*var(--dt))}
 
 /* grouped list */
 .list{background:var(--p-surface);border-radius:20px;overflow:hidden;border:.5px solid color-mix(in srgb,var(--p-sep) 35%,transparent)}
@@ -269,7 +271,7 @@ body[data-text="ax"] .two{flex-direction:column}
 .wgrid{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
 .wcard{display:flex;flex-direction:column;gap:8px;align-items:center}
 .wcard .cap{font-size:13px;color:var(--muted);text-align:center;max-width:170px}
-.widget{--w-bg:var(--p-surface);--w-l:var(--p-label);--w-s:var(--p-sec);width:158px;height:158px;border-radius:38px;background:var(--w-bg);color:var(--w-l);padding:16px;display:flex;flex-direction:column;gap:4px;box-shadow:0 8px 24px -12px rgba(0,0,0,.4);position:relative;font-family:-apple-system,system-ui,sans-serif}
+.widget{--dt:1;--w-bg:var(--p-surface);--w-l:var(--p-label);--w-s:var(--p-sec);width:158px;height:158px;border-radius:38px;background:var(--w-bg);color:var(--w-l);padding:16px;display:flex;flex-direction:column;gap:4px;box-shadow:0 8px 24px -12px rgba(0,0,0,.4);position:relative;font-family:-apple-system,system-ui,sans-serif}
 .widget.med{width:338px}
 .widget.dark{--w-bg:#1C1C1E;--w-l:#fff;--w-s:rgba(235,235,245,.6);--p-accent:#7DBAFA;--p-tint:rgba(125,186,250,.16);--p-ter:rgba(235,235,245,.3);--p-up:#6BCCB3;--p-surface:#2C2C2E;--p-sep:rgba(84,84,88,.6)}
 .widget .i{color:var(--p-accent);width:30px;height:30px}
@@ -306,12 +308,33 @@ body[data-text="ax"] .two{flex-direction:column}
 .bar .eyes{--eye-ink:var(--ink);--eye-hl:var(--ground)}
 .eyes.knock,.eyes.startle,.eyes.side,.eyes.look,.eyes.up{transform:none}
 .eyes.big.knock,.eyes.big.startle,.eyes.big.side,.eyes.big.look,.eyes.big.up,.eyes.big{transform:scale(1.7)}
+svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:visible}
+.stage.photo svg.car{width:100%;height:auto;max-height:none}
+.eyes.big,.eyes.big.knock,.eyes.big.startle,.eyes.big.side,.eyes.big.look,.eyes.big.up{transform:none;margin:0 6px 0 0}
+.util .gl.pitbtn{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:0 8px 20px -8px var(--p-shadow),0 2px 5px -2px var(--p-shadow)}
+.util .gl.pitbtn .eyes{display:block}
+.pithead-cell{display:inline-flex;align-items:center;justify-content:center;width:104px;height:104px;border-radius:24px;background:#E9ECF2}
+.pithead-cell.dark{background:#1C1C1E}
+.carimg{display:block;aspect-ratio:960/334;height:auto;max-width:100%}
+.stage .carimg{width:86%;height:auto;margin:22px auto 16px}
+.lane .now{padding-top:calc(var(--road) - 1px - 15.3px)}.lane .now .carimg{width:44px}
+.lane.tall .now{padding-top:calc(var(--road) - 1px - 19.5px)}.lane.tall .now .carimg{width:56px}
+
+/* Milestones as roadside signs (owner idea 2026-09-22): an information plate on a post whose foot stands on the road;
+   the labels sit under the road. Plates are rounded rectangles (information signs), never warning triangles, never red. */
+.lane{--plate:22px;--post:9px}
+.ms{padding-top:calc(var(--road) - var(--plate) - var(--post) - 1px)}
+.ms .m{width:var(--plate);height:var(--plate);border-radius:6px;background:var(--p-surface);box-shadow:0 0 0 1.5px var(--c),0 1px 2px rgba(0,0,0,.12);position:relative;margin-bottom:var(--post)}
+.ms .m::after{content:"";position:absolute;left:50%;top:100%;width:2px;height:var(--post);margin-left:-1px;background:var(--p-sec);opacity:.55;border-radius:1px}
+.ms .m .d{width:10px;height:10px;border-width:2px}
+.ms.over .m{box-shadow:0 0 0 1.5px var(--c),0 0 0 4px color-mix(in srgb,var(--c) 22%,transparent),0 1px 2px rgba(0,0,0,.12)}
+.ms .m + *{margin-top:8px}
 </style>
 
 <svg width="1" height="1" style="position:absolute;left:-9999px" aria-hidden="true">
  <defs>
   <linearGradient id="carg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1A5EB3" stop-opacity=".62"/><stop offset="1" stop-color="#1A5EB3" stop-opacity=".28"/></linearGradient>
-  <symbol id="car" viewBox="0 0 260 100"><path class="body" d="M8 76 L10 60 C21 52 52 47 78 44 C91 34 101 22 117 20 L164 20 C187 22 203 36 218 45 C237 47 250 52 252 60 L252 76 Z"/><circle class="wheel" cx="62" cy="76" r="17"/><circle class="wheel" cx="200" cy="76" r="17"/></symbol>
+  <symbol id="car" viewBox="0 0 320 170"><path class="body" d="M 20 126 C 16 114, 19 101, 29 93 C 37 87, 50 83, 66 80 L 96 75 C 98 71, 102 69, 106 69 L 110 69 C 124 55, 138 44, 158 38 C 184 32, 226 33, 250 38 C 264 41, 273 48, 279 58 C 286 71, 291 86, 293 101 C 295 114, 294 124, 290 131 C 286 140, 279 144, 272 144 C 264 144, 258 139, 256 131 L 232 133 C 230 146, 220 154, 207 154 C 194 154, 184 146, 182 136 L 124 141 C 122 156, 110 165, 95 165 C 80 165, 68 156, 66 144 L 40 141 C 30 139, 23 134, 20 126 Z"/></symbol>
   <symbol id="car-photo" viewBox="0 0 260 110"><ellipse cx="130" cy="94" rx="118" ry="9" fill="#000" opacity=".14"/><path d="M8 76 L10 60 C21 52 52 47 78 44 C91 34 101 22 117 20 L164 20 C187 22 203 36 218 45 C237 47 250 52 252 60 L252 76 Z" fill="#3A6B8C"/><path d="M84 44 C94 34 103 25 118 24 L160 24 C176 26 190 36 204 44 Z" fill="#B9D6E8"/><path d="M8 62 L252 62 L252 76 L8 76Z" fill="#2E5670"/><circle cx="62" cy="76" r="17" fill="#1E2A33"/><circle cx="62" cy="76" r="8" fill="#9AA6AE"/><circle cx="200" cy="76" r="17" fill="#1E2A33"/><circle cx="200" cy="76" r="8" fill="#9AA6AE"/><rect x="236" y="56" width="12" height="6" rx="2" fill="#F2C94C"/><rect x="12" y="56" width="12" height="6" rx="2" fill="#E8EEF2"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
@@ -344,7 +367,7 @@ body[data-text="ax"] .two{flex-direction:column}
   <div class="brand"><span class="eyes"><span class="eye"></span><span class="eye"></span></span> PitStop · iOS 27 redesign</div>
   <div class="seg" role="group" aria-label="Appearance"><button data-mode="light" aria-pressed="true">Light</button><button data-mode="dark" aria-pressed="false">Dark</button><button data-mode="both" aria-pressed="false">Side by side</button></div>
   <div class="seg" role="group" aria-label="Text size"><button data-text="default" aria-pressed="true">Default text</button><button data-text="ax" aria-pressed="false">AX large text</button></div>
-  <nav class="jump"><a href="#board">Car Board</a><a href="#road">Road</a><a href="#service">Service</a><a href="#several">Track several</a><a href="#history">History</a><a href="#notes">Notes</a><a href="#pit">Pit</a><a href="#empty">First minute</a><a href="#profile">Car profile</a><a href="#widgets">Widgets</a><a href="#system">System</a></nav>
+  <nav class="jump"><a href="#board">Car Board</a><a href="#road">Road</a><a href="#service">Service</a><a href="#several">Track several</a><a href="#history">History</a><a href="#notes">Notes</a><a href="#pitchar">Pit character</a><a href="#pit">Pit sheet</a><a href="#empty">First minute</a><a href="#profile">Car profile</a><a href="#widgets">Widgets</a><a href="#system">System</a></nav>
 </div>
 
 <div class="intro">
@@ -380,16 +403,16 @@ body[data-text="ax"] .two{flex-direction:column}
 
   <div class="shot"><div class="phone" data-util>
     <div class="screen"><div class="content top">
-      <div class="hd"><div class="eb">My car</div><div class="ti">Arteon</div></div>
+      <div class="hd"><div class="eb">My car</div><div class="ti">Kestrel</div></div>
       <div class="stage">
-        <svg class="car carsvg"><use href="#car"/></svg>
+        <img class="car carimg" src="assets/car-placeholder.png" alt="">
         <div class="row"><div class="km tn">47 560 km<small>updated 9 days ago</small></div><span class="gl icon" style="height:36px;min-width:36px;width:36px" aria-label="Edit"><svg class="i"><use href="#i-pencil"/></svg></span></div>
       </div>
       <div class="tiles">
         <div class="tile full">
           <div class="tt"><svg class="i"><use href="#i-road"/></svg>Road<svg class="i chev"><use href="#i-chev"/></svg></div>
           <div class="lane">
-            <div class="now"><svg class="car carsvg"><use href="#car"/></svg><span class="l">Now</span></div>
+            <div class="now"><img class="car carimg" src="assets/car-placeholder.png" alt=""><span class="l">Now</span></div>
             <div class="ms ahead"><span class="m"><span class="d"></span></span><span class="t">Engine oil service</span><span class="k">In 4 940 km</span></div>
             <div class="ms appr"><span class="m"><span class="d"></span></span><span class="t">Insurance ends</span><span class="k">Days left: 38</span></div>
             <div class="ms ahead"><span class="m"><span class="d"></span></span><span class="t">Cabin filter</span><span class="k">Days left: 121</span><span class="more">+1 more here</span></div>
@@ -408,13 +431,13 @@ body[data-text="ax"] .two{flex-direction:column}
     <div class="screen"><div class="content top">
       <div class="hd"><div class="eb">My car</div><div class="ti">My New Car</div></div>
       <div class="stage">
-        <svg class="car carsvg"><use href="#car"/></svg>
+        <img class="car carimg" src="assets/car-placeholder.png" alt="">
         <div class="row"><div class="km" style="font-size:calc(17px*var(--dt));font-weight:500;color:var(--p-sec)">Mileage unknown</div><span class="btn tint"><svg class="i"><use href="#i-pencil"/></svg>Name your car</span></div>
       </div>
       <div class="tiles">
         <div class="tile full">
           <div class="tt"><svg class="i"><use href="#i-road"/></svg>Road<svg class="i chev"><use href="#i-chev"/></svg></div>
-          <div class="lane"><div class="now"><svg class="car carsvg"><use href="#car"/></svg><span class="l">Now</span></div><div class="ms"></div></div>
+          <div class="lane"><div class="now"><img class="car carimg" src="assets/car-placeholder.png" alt=""><span class="l">Now</span></div><div class="ms"></div></div>
           <div class="h">No known milestones</div><div class="s">Service you record and plans you add will appear ahead of the car.</div>
         </div>
         <div class="tile"><div class="tt"><svg class="i"><use href="#i-note"/></svg>Notes<svg class="i chev"><use href="#i-chev"/></svg></div><div class="h">No notes yet</div><div class="s">Save a thought before it slips away.</div></div>
@@ -443,13 +466,13 @@ body[data-text="ax"] .two{flex-direction:column}
 
   <div class="shot"><div class="phone" data-util>
     <div class="screen">
-      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Arteon</span><span class="gl icon accent" aria-label="Add a date"><svg class="i"><use href="#i-cal"/></svg></span></div>
+      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Kestrel</span><span class="gl icon accent" aria-label="Add a date"><svg class="i"><use href="#i-cal"/></svg></span></div>
       <div class="content">
-      <div class="hd"><div class="eb">Arteon</div><div class="ti">Road</div></div>
+      <div class="hd"><div class="eb">Kestrel</div><div class="ti">Road</div></div>
       <div class="sum">Next: Engine oil service · Ahead · In 4 940 km · More ahead: 3</div>
       <div class="lanecard">
         <div class="lane tall">
-          <div class="now"><svg class="car carsvg"><use href="#car"/></svg><span class="l">Now</span></div>
+          <div class="now"><img class="car carimg" src="assets/car-placeholder.png" alt=""><span class="l">Now</span></div>
           <div class="ms ahead"><span class="m"><span class="d"></span></span><span class="t">Engine oil service</span><span class="k">In 4 940 km</span><span class="est">Estimate: Oct 12 – Nov 20</span></div>
           <div class="ms appr"><span class="m"><span class="d"></span></span><span class="t">Insurance ends</span><span class="k">Days left: 38</span></div>
           <div class="ms ahead" style="opacity:.55"><span class="m"><span class="d"></span></span><span class="t">Cabin filter</span><span class="k">Days left: 121</span><span class="more">+1 more here</span></div>
@@ -471,13 +494,13 @@ body[data-text="ax"] .two{flex-direction:column}
 
   <div class="shot"><div class="phone" data-util>
     <div class="screen">
-      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Arteon</span><span class="gl icon accent"><svg class="i"><use href="#i-cal"/></svg></span></div>
+      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Kestrel</span><span class="gl icon accent"><svg class="i"><use href="#i-cal"/></svg></span></div>
       <div class="content">
-      <div class="hd"><div class="eb">Arteon</div><div class="ti">Road</div></div>
+      <div class="hd"><div class="eb">Kestrel</div><div class="ti">Road</div></div>
       <div class="sum">Next: Brake fluid · Past due · Days past the planned date: 12 · More ahead: 1</div>
       <div class="lanecard">
         <div class="lane tall">
-          <div class="now"><svg class="car carsvg"><use href="#car"/></svg><span class="l">Now</span></div>
+          <div class="now"><img class="car carimg" src="assets/car-placeholder.png" alt=""><span class="l">Now</span></div>
           <div class="ms over"><span class="m"><span class="d"></span></span><span class="t">Brake fluid</span><span class="k">12 days past</span></div>
           <div class="ms due"><span class="m"><span class="d"></span></span><span class="t">Insurance ends</span><span class="k">Days left: 3</span></div>
         </div>
@@ -512,7 +535,7 @@ body[data-text="ax"] .two{flex-direction:column}
 
   </div>
   <div class="notes">
-    <div class="note"><h3>What changed</h3><ul><li>Lane markers get one shape per state: ring = ahead, half = approaching, filled = due, filled with ring = past due, dashed = waiting. Colour follows.</li><li>"Back to now" becomes a glass pill anchored inside the lane card, visible only when the lane has left the car (INV-ROAD-004 answer: explicit control plus reset on each visit).</li><li>Milestone rows move into one grouped list under an "Ahead" heading; the state word is coloured, the fact line is neutral.</li><li>The past summary stays one line and points to History (REQ-ROAD-010).</li></ul></div>
+    <div class="note"><h3>What changed</h3><ul><li>The car drives along the road and the milestones stand on it as roadside information signs: a small plate on a post, outlined in the state colour, with the state glyph (ring = ahead, half = approaching, filled = due, filled with a halo = past due, dashed = waiting). The car's wheels and every post meet one road line; labels sit under the road. Never warning triangles, never red.</li><li>"Back to now" becomes a glass pill anchored inside the lane card, visible only when the lane has left the car (INV-ROAD-004 answer: explicit control plus reset on each visit).</li><li>Milestone rows move into one grouped list under an "Ahead" heading; the state word is coloured, the fact line is neutral.</li><li>The past summary stays one line and points to History (REQ-ROAD-010).</li></ul></div>
     <div class="note"><h3>Dynamic Type</h3><ul><li>Lane slots widen with text; the lane is a horizontal scroll view, so nothing clips. At AX sizes the lane height grows and slot labels wrap to two lines.</li><li>Rows stack their three lines already; the more menu keeps a 44 pt target and moves under the text at AX sizes.</li><li>"Back to now" keeps its label; it never becomes icon-only.</li></ul></div>
     <div class="note"><h3>Dark</h3><ul><li>Lane card #1C1C1E, dashed road in tertiary label; markers keep a hairline so ahead rings read on the card.</li><li>The car silhouette gradient uses the light accent at 62–28 % in both modes; on black it reads as a lit shape rather than a hole.</li></ul></div>
     <div class="note"><h3>Contracts kept</h3><ul><li>The view adds, removes and reorders nothing the projection did not return (REQ-ROAD-004); the estimate line is shown only if the projection carries one.</li><li>No time-to-mileage conversion; "Placed by date only" wording remains (REQ-ROAD-007).</li><li>Semantic summary sentence stays above the lane for VoiceOver (REQ-ROAD-015).</li></ul></div>
@@ -527,9 +550,9 @@ body[data-text="ax"] .two{flex-direction:column}
 
   <div class="shot"><div class="phone" data-util>
     <div class="screen">
-      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Arteon</span><span class="gl accent" aria-label="Track"><svg class="i"><use href="#i-plus"/></svg>Track</span></div>
+      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Kestrel</span><span class="gl accent" aria-label="Track"><svg class="i"><use href="#i-plus"/></svg>Track</span></div>
       <div class="content">
-      <div class="hd"><div class="eb">Arteon</div><div class="ti">Service</div></div>
+      <div class="hd"><div class="eb">Kestrel</div><div class="ti">Service</div></div>
       <div class="sec" style="margin-top:4px">Next visit</div>
       <div class="list">
         <div class="row"><span class="ic"><span class="chip due" style="padding:0;background:none"><span class="d"></span></span></span><div class="b"><div class="t">Brake fluid</div><div class="f">Days past the planned date: 12</div></div></div>
@@ -546,7 +569,7 @@ body[data-text="ax"] .two{flex-direction:column}
       <div class="fade"></div>
       </div>
     </div>
-  </div><div class="cap"><b>Populated.</b> Next visit as a grouped suggestion with its footer; tracked rows with chip, fact line, share track and a visible "Mark as done". The second row shows the MNT-VR-002 dashboard line <span class="tag planned">planned</span>; "Not enough facts" draws no track.</div></div>
+  </div><div class="cap"><b>Populated.</b> Next visit as a grouped suggestion with its footer; tracked rows with chip, fact line, share track and a visible "Mark as done". The second row shows the MNT-VR-002 dashboard line <span class="tag delivered">delivered</span>; "Not enough facts" draws no track.</div></div>
 
   <div class="shot"><div class="phone sheetbg" data-util>
     <div class="screen">
@@ -666,9 +689,9 @@ body[data-text="ax"] .two{flex-direction:column}
 
   <div class="shot"><div class="phone" data-util>
     <div class="screen">
-      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Arteon</span><span class="gl icon accent" aria-label="Add event"><svg class="i"><use href="#i-plus"/></svg></span></div>
+      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Kestrel</span><span class="gl icon accent" aria-label="Add event"><svg class="i"><use href="#i-plus"/></svg></span></div>
       <div class="content">
-      <div class="hd"><div class="eb">Arteon</div><div class="ti">History</div></div>
+      <div class="hd"><div class="eb">Kestrel</div><div class="ti">History</div></div>
       <div class="grp" style="margin-top:0">September 2026</div>
       <div class="list timeline">
         <div class="row"><span class="ic dot"></span><div class="b"><div class="t">Car wash</div><div class="s">19 September 2026</div><div class="f tn">Mileage not recorded · 18</div><div class="f">Underbody wash before winter</div></div><span class="tr"><svg class="i"><use href="#i-chev"/></svg></span></div>
@@ -716,9 +739,9 @@ body[data-text="ax"] .two{flex-direction:column}
 
   <div class="shot"><div class="phone" data-util>
     <div class="screen">
-      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Arteon</span><span class="gl icon accent" aria-label="New note"><svg class="i"><use href="#i-write"/></svg></span></div>
+      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Kestrel</span><span class="gl icon accent" aria-label="New note"><svg class="i"><use href="#i-write"/></svg></span></div>
       <div class="content">
-      <div class="hd"><div class="eb">Arteon</div><div class="ti">Notes</div></div>
+      <div class="hd"><div class="eb">Kestrel</div><div class="ti">Notes</div></div>
       <div class="segp"><span class="on">Active</span><span>Archived</span></div>
       <div class="chips"><span class="on">All</span><span>Car wash</span><span>Service</span><span>Shopping</span></div>
       <div class="list">
@@ -746,6 +769,33 @@ body[data-text="ax"] .two{flex-direction:column}
     <div class="note"><h3>Contracts kept</h3><ul><li>Unclassified notes never disappear from the main list (car-board-screen.md, Notes).</li><li>Correcting keeps the original wording authoritative (REQ-CAPTURE-012, 013).</li></ul></div>
   </div>
 </section>
+<!-- ================= PIT CHARACTER ================= -->
+<section class="sect" id="pitchar">
+  <div class="eyebrow">pit-behavior-and-motion.md · product-design.md "Pit visual hypothesis" · owner request 2026-09-22</div>
+  <h2>Pit, the character</h2>
+  <p>The owner asked for a full image of Pit with a head, with EVE (WALL-E's friend) as the reference. Pit becomes a small companion who peeks from behind the interface: an original round head with a dark face screen, and the chosen lens eyes lit on that screen. From the reference it borrows mechanics only: lit eyes on a dark glass face, expression by eye shape, a slight tilt of the head. EVE's upright egg shape, arms, glow colour and proportions are not copied. Pit still has no body, no mouth and no hands: the face screen and the eyes do all the acting.</p>
+  <div class="gallery" style="align-items:center">
+    <div class="shot" style="align-items:center"><span class="pithead-cell" id="pithero" style="width:280px;height:250px"></span><div class="cap" style="text-align:center"><b>Pit at rest.</b> Pearl-white round head, navy face screen, lit lens eyes.</div></div>
+    <div class="notes" style="flex:1;min-width:280px;margin:0">
+      <div class="note"><h3>Anatomy</h3><ul><li><b>Head:</b> a sphere, pearl white with a soft top-left light and a hairline. In the utility layer the whole 56 pt circle is Pit's head: there is no glass disc behind it.</li><li><b>Face screen:</b> deep navy (the icon's dark fill), glossy highlight, faint blue glow behind the eyes.</li><li><b>Eyes:</b> the approved lens pair, lit in soft blue-white with a small highlight and a halo, no pupils; on a knock they turn cloud blue and the glow strengthens (REQ-PIT-023).</li><li><b>Face screen bezel:</b> a thin grey rim sets the screen into the shell, like a visor.</li></ul></div>
+      <div class="note"><h3>Motion</h3><ul><li>The eyes carry every state of the motion table (ADR 0028), unchanged.</li><li>The head adds only two moves: a tilt of up to 6° (thinking rolls aside, knock leans in) and a lift of up to 3 pt (startle, knock). No bobbing or idle sway: the head is still unless a state asks.</li><li>Reduce Motion: poses change without animation, knock is the lifted, lit pose.</li></ul></div>
+    </div>
+  </div>
+  <h3 style="margin-top:14px">States</h3>
+  <div class="gallery" style="gap:12px;margin-top:8px" id="pitstrip"></div>
+  <div class="tablewrap" style="margin-top:14px"><table class="spec">
+    <tr><th>Where</th><th>Size</th><th>Notes</th></tr>
+    <tr><td>Utility control</td><td>the 56 pt circle is the head</td><td>Balanced with Settings; label "Pit" unchanged; the head is decorative for VoiceOver.</td></tr>
+    <tr><td>Pit sheet header</td><td>44 pt beside the moment title</td><td>Listening, thinking, knock, closed eyes as the capture moves.</td></tr>
+    <tr><td>App icon (proposed)</td><td>the head, face-on, on the cloud-blue fill</td><td>Replaces eyes-only; needs REQ-ICON-001 re-approval and an Icon Composer rebuild (ADR 0029).</td></tr>
+    <tr><td>Widgets, control</td><td>unchanged</td><td>Keep the capture glyph (ADR 0025).</td></tr>
+  </table></div>
+  <div class="notes">
+    <div class="note"><h3>Spec conflicts to resolve</h3><ul><li>product-design.md "Avoid: robot" and "Pit does not require a body": the head is not a body, but it is a robot-like object. Proposed wording: "a small companion head with a face screen; no body, mouth or hands; not a mechanic".</li><li>REQ-ICON-001 (approved: the icon's only motif is the two eyes) changes only if the owner also wants the head on the icon.</li></ul></div>
+    <div class="note"><h3>Dark and Dynamic Type</h3><ul><li>Dark: the head stays pearl white (it is an object, not a surface); the hairline carries the edge on black.</li><li>The head keeps its size at every text size, like the utility circles.</li></ul></div>
+  </div>
+</section>
+
 <!-- ================= PIT ================= -->
 <section class="sect" id="pit">
   <div class="eyebrow">pit-behavior-and-motion.md · capture-pipeline.md · ADR 0006, 0017, 0028</div>
@@ -882,7 +932,7 @@ body[data-text="ax"] .two{flex-direction:column}
     <div class="note"><h3>Impact if approved</h3><ul><li>PitEyeShape geometry and a per-eye tilt input in PitEyeGeometry; the vocabulary test keeps one distinct geometry per state.</li><li>The app icon is regenerated from the new shape (REQ-ICON-002, ADR 0029 "Editing"); REQ-ICON-001 (two eyes, no text) still holds.</li><li>Widget and control keep the capture glyph (ADR 0025) unless the owner picks the eyes there too.</li><li>Card RD-011 in the work plan; ADR 0028 gets a follow-up ADR, not an edit.</li></ul></div>
   </div>
   <div class="notes">
-    <div class="note"><h3>What changed</h3><ul><li>Eyes at 2.2× next to the title; the title changes with the moment ("Remember", "Is this right?", "One thing", "Saved.") so the sheet never needs a chat transcript.</li><li>The composer is a single field with an 18 pt radius on the secondary surface; the primary action is a prominent capsule at the sheet bottom, not in the toolbar.</li><li>Confirmation card quotes the raw words first, in a quiet quote style.</li></ul></div>
+    <div class="note"><h3>What changed</h3><ul><li>Pit's round head (44 pt) next to the title; the title changes with the moment ("Remember", "Is this right?", "One thing", "Saved.") so the sheet never needs a chat transcript.</li><li>The composer is a single field with an 18 pt radius on the secondary surface; the primary action is a prominent capsule at the sheet bottom, not in the toolbar.</li><li>Confirmation card quotes the raw words first, in a quiet quote style.</li></ul></div>
     <div class="note"><h3>Dynamic Type</h3><ul><li>The sheet opens at the large detent when text size is accessibility-large, so the composer and its button stay on screen above the keyboard.</li><li>Decline buttons stack vertically (delivered ViewThatFits rule).</li><li>Choice lists stay full-width rows; nothing becomes icon-only.</li></ul></div>
     <div class="note"><h3>Motion and Reduce Motion</h3><ul><li>Unchanged from ADR 0028: fixed gaze → blink → side gaze → knock; glance → closed → resting after a save.</li><li>Reduce Motion drops blink, glance and bumps and keeps state changes without animation; the knock is the lifted pose.</li></ul></div>
     <div class="note"><h3>Contracts kept</h3><ul><li>Remember is primary; a pending question never replaces it (REQ-PIT-013, ADR 0017).</li><li>One question at a time; "I don't know" everywhere (REQ-PIT-003, C2).</li><li>Close cancels unsent words and waits for a write in flight (REQ-CAPTURE-005, 009).</li></ul></div>
@@ -930,13 +980,13 @@ body[data-text="ax"] .two{flex-direction:column}
 <section class="sect" id="profile">
   <div class="eyebrow">product-design.md "Car image" · car-board-screen.md "Car Hero" · owner answers 2026-09-22</div>
   <h2>Car profile</h2>
-  <p>The car is the home. The owner's own photo becomes the car on the stage: iOS lifts the subject out of the photo (Vision foreground mask, iOS 17+), so the car stands on the tinted stage exactly where the silhouette stood; when lifting fails, the whole photo is shown under a soft mask. Until there is a photo, one neutral placeholder stands in; nothing is asked. The same picture, cropped to a small round avatar, follows the car to the places where seeing it is meaningful. Profile scope stays photo, name and mileage; no make, model or specifications on the hero (REQ-BOARD-017).</p>
+  <p>The car is the home. The owner's own photo becomes the car on the stage: iOS lifts the subject out of the photo (Vision foreground mask, iOS 17+), so the car stands on the tinted stage exactly where the silhouette stood; when lifting fails, the whole photo is shown under a soft mask. Until there is a photo, a neutral placeholder for the chosen body stands in: SUV by default, or sedan. The same picture, cropped to a small round avatar, follows the car to the places where seeing it is meaningful. Profile scope stays photo, name, body and mileage; no make, model or specifications on the hero (REQ-BOARD-017).</p>
   <p class="fn" style="font-size:13px;color:var(--muted)">The car drawn below is a fictional illustration standing in for a photo. A real owner photo can show a plate, a VIN sticker or a location: it is a runtime image kept in app storage and is never committed to this public repository, the mockups or the Figma file.</p>
   <div class="gallery">
 
   <div class="shot"><div class="phone" data-util>
     <div class="screen"><div class="content top">
-      <div class="hd"><div class="eb">My car</div><div class="ti">Arteon</div></div>
+      <div class="hd"><div class="eb">My car</div><div class="ti">Kestrel</div></div>
       <div class="stage photo">
         <svg class="car"><use href="#car-photo"/></svg>
         <div class="row"><div class="km tn">47 560 km<small>updated 9 days ago</small></div><span class="gl icon" style="height:36px;min-width:36px;width:36px" aria-label="Edit"><svg class="i"><use href="#i-pencil"/></svg></span></div>
@@ -962,17 +1012,18 @@ body[data-text="ax"] .two{flex-direction:column}
       <div class="snav"><span class="a">Cancel</span><span class="stitle">Your car</span><span class="a b">Save</span></div>
       <div class="sbody"><div class="form">
         <div><div class="fh">Photo</div><div class="list"><div class="row" style="align-items:center"><span class="avatar lg"><svg><use href="#car-photo"/></svg></span><div class="b"><div class="t" style="font-weight:400">Choose photo</div><div class="f">Stays on this iPhone. Not shared, not in usage data.</div></div><span class="tr"><svg class="i"><use href="#i-chev"/></svg></span></div><div class="row"><div class="b"><div class="t" style="font-weight:400;color:var(--p-due)">Remove photo</div></div></div></div></div>
-        <div><div class="fh">Name</div><div class="list"><div class="row"><div class="b"><div class="t" style="font-weight:400">Arteon</div></div></div></div></div>
+        <div><div class="fh">Name</div><div class="list"><div class="row"><div class="b"><div class="t" style="font-weight:400">Kestrel</div></div></div></div></div>
+        <div><div class="fh">Body</div><div class="segp" style="margin:0"><span class="on">SUV</span><span>Sedan</span></div><div class="ff">Shown when there is no photo. Your choice; PitStop never guesses it.</div></div>
         <div><div class="fh">Mileage, km</div><div class="list"><div class="row"><div class="b"><div class="t" style="font-weight:400">47 560</div></div></div></div><div class="ff">Unknown mileage is fine. PitStop never guesses it.</div></div>
       </div></div>
     </div></div>
-  </div><div class="cap"><b>Car editor.</b> Photo from PhotosPicker (no permission needed), name and mileage. Every field may stay empty; without a photo the car is the neutral placeholder.</div></div>
+  </div><div class="cap"><b>Car editor.</b> Photo from PhotosPicker (no permission needed), name, body (SUV or sedan) and mileage. Every field may stay empty; without a photo the car is the placeholder for the chosen body, SUV by default.</div></div>
 
   <div class="shot"><div class="phone" data-util>
     <div class="screen">
       <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>My car</span><span class="gl accent"><svg class="i"><use href="#i-plus"/></svg>Track</span></div>
       <div class="content">
-      <div class="hd"><div class="eb" style="display:flex;align-items:center;gap:8px"><span class="avatar"><svg><use href="#car-photo"/></svg></span>Arteon</div><div class="ti">Service</div></div>
+      <div class="hd"><div class="eb" style="display:flex;align-items:center;gap:8px"><span class="avatar"><svg><use href="#car-photo"/></svg></span>Kestrel</div><div class="ti">Service</div></div>
       <div class="sec" style="margin-top:4px">Tracked</div>
       <div class="list">
         <div class="row"><div class="b"><div class="t">Engine oil service</div><span class="chip up"><span class="d"></span>Up to date</span><div class="f">In 4 940 km</div><div class="share"><i style="width:51%"></i></div><div class="acts"><span class="btn"><svg class="i"><use href="#i-check"/></svg>Mark as done</span><span class="tr" style="margin-left:auto"><svg class="i"><use href="#i-more"/></svg></span></div></div></div>
@@ -985,7 +1036,12 @@ body[data-text="ax"] .two{flex-direction:column}
 
   </div>
   <h3 style="margin-top:22px">The neutral placeholder</h3>
-  <p>One placeholder for every car without a photo, in the style of the owner's reference (2026-09-22): a three-quarter-view silhouette in one flat neutral grey, no wheels, lights or details, no make or model. It replaces today's abstract car and asks nothing. The six drawn body types were rejected. <b>The reference image itself is not embedded yet:</b> it arrived only in chat, and it ships only once its source and a permissive licence are recorded, or it is redrawn as original artwork in the same style.</p>
+  <p>Without a photo the car is a side-view silhouette in flat system grey, facing right, with no make, model or detail. The owner picks the body in the car editor: <b>SUV</b> (default) or <b>Sedan</b>. Nothing is guessed from a name, a make or a locale (C2).</p>
+  <div class="gallery" style="gap:14px;margin-top:10px">
+    <div class="shot"><div class="stage" style="width:260px;border-radius:20px;padding:14px 18px"><img class="carimg" src="assets/car-placeholder.png" alt="" style="width:100%"></div><div class="cap" style="text-align:center">SUV (default)</div></div>
+    <div class="shot"><div class="stage" style="width:260px;border-radius:20px;padding:14px 18px"><img class="carimg" src="assets/car-placeholder-sedan.png" alt="" style="width:100%;aspect-ratio:960/298"></div><div class="cap" style="text-align:center">Sedan</div></div>
+  </div>
+  <p class="fn" style="font-size:13px;color:var(--muted)">Generated with AI by the owner on 2026-09-22 (<code>docs/design/assets/</code>, provenance in its README).</p>
 <h3 style="margin-top:22px">Where the car appears</h3>
   <div class="wgrid">
     <div class="wcard"><div class="widget"><div style="display:flex;align-items:center;gap:8px"><span class="avatar"><svg><use href="#car-photo"/></svg></span><span class="eb">Next service</span></div><div class="h" style="margin-top:2px">Engine oil service</div><span class="chip up" style="font-size:12px"><span class="d"></span>Up to date</span><div class="c" style="margin-top:auto">In 4 940 km</div></div><div class="cap">SYS-007 widget: avatar beside the eyebrow. Needs the photo in the App Group container.</div></div>
@@ -993,7 +1049,7 @@ body[data-text="ax"] .two{flex-direction:column}
   </div>
   <div class="tablewrap" style="margin-top:14px"><table class="spec">
     <tr><th>Place</th><th>Form</th><th>Why</th></tr>
-    <tr><td>Car Board stage</td><td>Lifted photo, else the neutral placeholder</td><td>The hero: the car is home</td></tr>
+    <tr><td>Car Board stage</td><td>Lifted photo, else the placeholder for the chosen body</td><td>The hero: the car is home</td></tr>
     <tr><td>Road tile and Road "Now"</td><td>Same picture, small</td><td>"My car on the road": the marker is literally the car</td></tr>
     <tr><td>Detail screen headers</td><td>28 pt avatar in the eyebrow</td><td>Presence without repeating the hero</td></tr>
     <tr><td>Pit saved state and question card</td><td>44 pt avatar</td><td>Says which car the fact went to</td></tr>
@@ -1001,7 +1057,7 @@ body[data-text="ax"] .two{flex-direction:column}
     <tr><td>Not shown</td><td>Settings, forms, list rows, the data-free widget, the app switcher snapshot if the owner turns that off</td><td>No decoration where the car adds nothing; privacy in the switcher</td></tr>
   </table></div>
   <div class="notes">
-    <div class="note"><h3>Behaviour</h3><ul><li>Photo is optional; first launch still asks for nothing (P2). "Name your car" opens the same editor.</li><li>Subject lift runs on device (Vision foreground instance mask); the original and the cut-out are stored in the app container, referenced from the car context; the photo never enters analytics or a widget without the App Group.</li><li>Nothing about the car's shape is asked or stored; the placeholder is the same for every car (C2).</li><li>Dark mode: the stage tint deepens; the lifted photo keeps its colours; the placeholder stays neutral grey on the deeper stage.</li></ul></div>
+    <div class="note"><h3>Behaviour</h3><ul><li>Photo is optional; first launch still asks for nothing (P2). "Name your car" opens the same editor.</li><li>Subject lift runs on device (Vision foreground instance mask); the original and the cut-out are stored in the app container, referenced from the car context; the photo never enters analytics or a widget without the App Group.</li><li>The body is an optional owner choice in the editor; Pit never asks for it (C3: it unlocks a picture, not behaviour).</li><li>Dark mode: the stage tint deepens; the lifted photo keeps its colours; the placeholder stays neutral grey on the deeper stage.</li></ul></div>
     <div class="note"><h3>Dynamic Type</h3><ul><li>The avatar keeps 28 pt (44 pt in Pit) and sits before the eyebrow text, which wraps under it at AX sizes.</li></ul></div>
     <div class="note"><h3>Contracts</h3><ul><li>Never a random unrelated car as the user's vehicle (product-design.md); the placeholder carries no make or model.</li><li>Hero shows visual and name only (REQ-BOARD-017); the recency line stays (REQ-BOARD-027).</li><li>Public repository: no real photo is ever committed; designs use the neutral placeholder or a fictional illustration.</li></ul></div>
   </div>
@@ -1022,10 +1078,10 @@ body[data-text="ax"] .two{flex-direction:column}
     <div class="wcard"><div class="widget"><div class="eb">Next service</div><div class="h" style="margin-top:2px">Engine oil service</div><span class="chip up" style="font-size:12px"><span class="d"></span>Up to date</span><div class="c" style="margin-top:auto">In 4 940 km · updated 9 days ago</div></div><div class="cap">Small "Next service" <span class="tag planned">SYS-007</span>: the Service tile's summary subject, nothing more.</div></div>
     <div class="wcard"><div class="widget dark"><div class="eb">Next service</div><div class="h" style="margin-top:2px">Nothing tracked</div><div class="c" style="margin-top:auto">Track an operation in PitStop to see it here.</div></div><div class="cap">Small, sparse: no urgency invented; same words as the tile.</div></div>
     <div class="wcard"><div class="widget med"><div class="eb">Road</div>
-      <div class="lane" style="padding:2px 0 0"><div class="now" style="flex-basis:64px"><svg class="car carsvg" style="width:48px"><use href="#car"/></svg><span class="l">Now</span></div>
-        <div class="ms ahead" style="padding-top:18px"><span class="m"><span class="d"></span></span><span class="t">Engine oil</span><span class="k">In 4 940 km</span></div>
-        <div class="ms appr" style="padding-top:18px"><span class="m"><span class="d"></span></span><span class="t">Insurance</span><span class="k">38 days</span></div>
-        <div class="ms ahead" style="padding-top:18px"><span class="m"><span class="d"></span></span><span class="t">Cabin filter</span><span class="k">121 days</span></div></div>
+      <div class="lane" style="--road:30px;padding:0"><div class="now" style="flex-basis:64px;padding-top:calc(var(--road) - 1px - 13.2px)"><img class="car carimg" src="assets/car-placeholder.png" alt="" style="width:38px"><span class="l">Now</span></div>
+        <div class="ms ahead"><span class="m"><span class="d"></span></span><span class="t">Engine oil</span><span class="k">In 4 940 km</span></div>
+        <div class="ms appr"><span class="m"><span class="d"></span></span><span class="t">Insurance</span><span class="k">38 days</span></div>
+        <div class="ms ahead"><span class="m"><span class="d"></span></span><span class="t">Cabin filter</span><span class="k">121 days</span></div></div>
       <div class="c" style="margin-top:auto">Next: Engine oil service · Ahead · In 4 940 km</div></div><div class="cap">Medium "Road" <span class="tag planned">SYS-007</span>: initial slots and the semantic summary sentence, so the widget reads without the drawing.</div></div>
   </div>
   <div class="notes">
@@ -1051,8 +1107,8 @@ body[data-text="ax"] .two{flex-direction:column}
     </div></div></div><div class="cap"><b>Settings.</b> Unchanged content; consent off by default (ADR 0021).</div></div>
 
     <div class="shot"><div class="phone" data-util><div class="screen">
-      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Arteon</span><span class="gl icon accent"><svg class="i"><use href="#i-cal"/></svg></span></div>
-      <div class="content"><div class="hd"><div class="eb">Arteon</div><div class="ti">Road</div></div>
+      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Kestrel</span><span class="gl icon accent"><svg class="i"><use href="#i-cal"/></svg></span></div>
+      <div class="content"><div class="hd"><div class="eb">Kestrel</div><div class="ti">Road</div></div>
       <div class="lanecard" style="height:150px"></div>
       <div class="list" style="margin-top:14px"><div class="row"><div class="b"><div class="t">Winter tyres</div><div class="f">Days left: 124</div></div></div></div>
       <div style="position:absolute;left:20px;right:20px;bottom:92px;height:.5px;background:var(--p-due)"></div>
@@ -1074,7 +1130,7 @@ body[data-text="ax"] .two{flex-direction:column}
   var body=document.body, root=document.documentElement;
   function statusBar(){var s=document.createElement('div');s.className='status';s.innerHTML='<span>9:41</span><span class="r">●●●● <span class="bat"></span></span>';return s;}
   function island(){var d=document.createElement('div');d.className='island';return d;}
-  function util(){var u=document.createElement('div');u.className='util';u.innerHTML='<span class="gl icon" aria-label="Settings"><svg class="i"><use href="#i-gear"/></svg></span><span class="gl icon" aria-label="Pit"><span class="eyes"><span class="eye"></span><span class="eye"></span></span></span>';return u;}
+  function util(){var u=document.createElement('div');u.className='util';u.innerHTML='<span class="gl icon" aria-label="Settings"><svg class="i"><use href="#i-gear"/></svg></span><span class="gl icon pitbtn" aria-label="Pit"><span class="eyes"><span class="eye"></span><span class="eye"></span></span></span>';return u;}
   function home(){var h=document.createElement('div');h.className='homebar';return h;}
   if(body.dataset.built!=='1'){
     body.dataset.built='1';
@@ -1130,31 +1186,65 @@ body[data-text="ax"] .two{flex-direction:column}
   host.innerHTML='<div class="cap" style="width:100%;max-width:none"><b>Rows per state:</b> current capsule glyph · chosen lens glyph on neutral glass (option A; knock in the accent) · rejected icon-face variant (option B), kept for comparison.</div>'+html;
 })();
 
-/* Chosen eye geometry (owner decision 8, option A): every Pit mark on the page is the lens pair; a knock is drawn in the accent. */
-(function(){
-  function lens(x,tilt,sy,sx,arc,hl){
-    var cx=x+5, cy=8;
-    if(arc) return '<path d="M'+(x+0.6)+' 10.6 Q'+cx+' 3.2 '+(x+9.4)+' 10.6" fill="none" stroke="var(--eye-ink)" stroke-width="2.4" stroke-linecap="round"/>';
-    var g='<g transform="translate('+cx+' '+cy+') rotate('+tilt+') scale('+sx+' '+sy+') translate('+(-cx)+' '+(-cy)+')">';
-    g+='<path d="M'+cx+' 0 C'+(x+8.2)+' 0 '+(x+10)+' 3.4 '+(x+10)+' 8 C'+(x+10)+' 12.6 '+(x+8.2)+' 16 '+cx+' 16 C'+(x+1.8)+' 16 '+x+' 12.6 '+x+' 8 C'+x+' 3.4 '+(x+1.8)+' 0 '+cx+' 0Z" fill="var(--eye-ink)"/>';
-    if(hl) g+='<circle cx="'+(x+6.4)+'" cy="4.6" r="1.7" fill="var(--eye-hl)"/>';
+/* Pit character (owner request 2026-09-22): an original round head with a dark visor and the chosen lit lens eyes. */
+window.pitHead=function(state,opts){
+  /* Round head: the whole circle is Pit. Pearl shell, a navy face screen set in a bezel, two lit lens eyes. */
+  opts=opts||{};
+  var st=state||'resting', W=opts.w||44;
+  var knock=(st==='knock');
+  var eye=knock?'#7DBAFA':'#D9E9FF', glowOp=knock?1:0.45;
+  function lens(cx,cy,tilt,sy,sx,arc,hl){
+    var rx=4.1, ry=5.9;
+    if(arc) return '<path d="M'+(cx-3.4)+' '+(cy+1.4)+' Q'+cx+' '+(cy-2.8)+' '+(cx+3.4)+' '+(cy+1.4)+'" fill="none" stroke="'+eye+'" stroke-width="1.9" stroke-linecap="round"/>';
+    var g='<g transform="translate('+cx+' '+cy+') rotate('+tilt+') scale('+sx+' '+sy+')">';
+    g+='<ellipse cx="0" cy="0" rx="'+(rx+1.6)+'" ry="'+(ry+1.6)+'" fill="'+eye+'" opacity=".18"/><ellipse cx="0" cy="0" rx="'+rx+'" ry="'+ry+'" fill="'+eye+'"/>';
+    if(hl) g+='<ellipse cx="-1.1" cy="-2.3" rx="1.3" ry="1.7" fill="#FFFFFF" opacity=".9"/>';
     return g+'</g>';
   }
-  function pose(el){
-    var c=el.classList;
-    if(c.contains('closed')) return lens(0,0,1,1,1)+lens(14,0,1,1,1);
-    if(c.contains('knock')) return '<g transform="translate(0 -3)">'+lens(0,6,1,1,0,1)+lens(14,-6,1,1,0,1)+'</g>';
-    if(c.contains('startle')) return '<g transform="translate(0 -2)">'+lens(0,0,1.05,1.25,0,1)+lens(14,0,1.05,1.25,0,1)+'</g>';
-    if(c.contains('side')) return '<g transform="translate(1.4 -1)">'+lens(0,10,1,1,0,1)+lens(14,10,1,1,0,1)+'</g>';
-    if(c.contains('look')) return '<g transform="translate(1.4 0)">'+lens(0,-3,1,1,0,1)+lens(14,9,1,1,0,1)+'</g>';
-    if(c.contains('up')) return '<g transform="translate(0 -1)">'+lens(0,-6,1.04,1,0,1)+lens(14,6,1.04,1,0,1)+'</g>';
-    if(c.contains('listen')) return lens(0,0,1.06,1,0,1)+lens(14,0,1.06,1,0,1);
-    return lens(0,-6,1,1,0,1)+lens(14,6,1,1,0,1);
-  }
+  var ex=0,ey=0,tl=-6,tr=6,sy=1,sx=1,arc=0,rot=0,dy=0,hl=1;
+  if(st==='blink'){sy=.18;hl=0}
+  if(st==='closed'){arc=1}
+  if(st==='look'){ex=2.2;tl=-3;tr=9}
+  if(st==='up'){ey=-1.6;sy=1.04}
+  if(st==='listen'){tl=0;tr=0;sy=1.08}
+  if(st==='side'){ex=2;ey=-1.3;tl=10;tr=10;rot=-6}
+  if(st==='startle'){sx=1.16;sy=1.06;dy=-2}
+  if(st==='knock'){tl=6;tr=-6;dy=-2;rot=4}
+  var id='h'+Math.random().toString(36).slice(2,8);
+  var eyes=lens(22+ex,29.2+ey,tl,sy,sx,arc,hl)+lens(34+ex,29.2+ey,tr,sy,sx,arc,hl);
+  return '<svg viewBox="0 0 56 56" width="'+W+'" height="'+W+'" style="display:block;overflow:visible" aria-hidden="true">'+
+   '<defs>'+
+    '<radialGradient id="'+id+'s" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".62" stop-color="#EEF1F5"/><stop offset="1" stop-color="#CDD3DC"/></radialGradient>'+
+    '<linearGradient id="'+id+'f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1A2A42"/><stop offset="1" stop-color="#0B1626"/></linearGradient>'+
+    '<radialGradient id="'+id+'g" cx=".5" cy=".55" r=".55"><stop offset="0" stop-color="#6FB2FF" stop-opacity="'+glowOp+'"/><stop offset="1" stop-color="#6FB2FF" stop-opacity="0"/></radialGradient>'+
+   '</defs>'+
+   '<g transform="translate(0 '+dy+') rotate('+rot+' 28 30)">'+
+    '<circle cx="28" cy="28" r="27" fill="url(#'+id+'s)"/>'+
+    '<circle cx="28" cy="28" r="26.5" fill="none" stroke="rgba(20,32,52,.16)" stroke-width="1"/>'+
+    '<path d="M11 17 A20 20 0 0 1 30 8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/>'+
+    '<rect x="8" y="16.5" width="40" height="25.5" rx="12.75" fill="#B9C1CD" opacity=".55"/>'+
+    '<rect x="9" y="17.5" width="38" height="23.5" rx="11.75" fill="url(#'+id+'f)"/>'+
+    '<rect x="9" y="17.5" width="38" height="23.5" rx="11.75" fill="url(#'+id+'g)"/>'+
+    '<path d="M15 22.6 Q22 20 31 20.3" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.3" stroke-linecap="round"/>'+
+    eyes+
+   '</g></svg>';
+};
+(function(){
   document.querySelectorAll('.eyes').forEach(function(el){
     if(el.dataset.lens==='1') return;
     el.dataset.lens='1';
-    el.innerHTML='<svg width="27" height="22" viewBox="-2 -3 27 22" style="overflow:visible;display:block" aria-hidden="true">'+pose(el)+'</svg>';
+    var c=el.classList, st='resting';
+    ['closed','knock','startle','side','look','up','listen','blink'].forEach(function(k){ if(c.contains(k)) st=k; });
+    var inSheet=!!el.closest('.sheet'), inBar=!!el.closest('.bar');
+    var inUtil=!!el.closest('.util');
+    el.innerHTML=window.pitHead(st,{w: inUtil?56:(inSheet?44:(inBar?26:44))});
   });
+  var strip=document.getElementById('pitstrip');
+  if(strip&&!strip.children.length){
+    var states=[['resting','resting'],['blink','blink'],['look','look right'],['up','look up'],['listen','listening'],['side','thinking'],['startle','startle'],['knock','knock (asks)'],['closed','done / leaving']];
+    strip.innerHTML=states.map(function(x){return '<div class="shot" style="align-items:center;gap:6px"><span class="pithead-cell">'+window.pitHead(x[0],{w:72})+'</span><div class="cap" style="text-align:center">'+x[1]+'</div></div>';}).join('');
+  }
+  var hero=document.getElementById('pithero');
+  if(hero&&!hero.children.length){ hero.innerHTML=window.pitHead('resting',{w:200}); }
 })();
 </script>

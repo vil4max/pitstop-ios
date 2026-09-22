@@ -51,7 +51,12 @@ The utility layer must:
 - define keyboard behaviour;
 - define sheet/full-screen-cover behaviour.
 
-INVESTIGATE whether the layer is persistent above keyboard or yields to focused input.
+Resolved (delivered behaviour): text input lives in sheets, so the layer
+never rides up over the keyboard, and it is unchanged when the sheet closes.
+The app has no full-screen covers; if one is added, it covers the layer too.
+Pit's control is Pit's head: the whole 56 pt circle is the head (see
+`product-design.md`, "Pit visual identity"), with no glass disc behind it;
+Settings stays a glass circle with its glyph, and the two keep equal size.
 
 ## Accessibility
 
@@ -169,3 +174,11 @@ Source: [Accessibility](#accessibility), [Pit accessibility](pit-behavior-and-mo
 Given Pit animation is not running, for example with Reduce Motion enabled
 When the Pit control is displayed
 Then the control remains visible, discoverable, and keeps its semantic label
+
+### REQ-UTILITY-012 — Sheets cover the layer
+Status: proposed (pending the simulator check at the medium detent, RD-010)
+Core: P5
+Source: [Safe areas and scrolling](#safe-areas-and-scrolling)
+Given a sheet is presented
+When the keyboard or the sheet is shown
+Then the utility layer is neither visible above the sheet nor moved, and it is in its position when the sheet closes

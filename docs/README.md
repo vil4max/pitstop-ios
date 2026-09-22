@@ -31,6 +31,8 @@ highest affected layer; evidence from operations flows back up.
 
 - `requirements/product-charter.md`
 - `engineering/product-review-process.md` — mandatory Idea Validation & Product Review before new features
+- `design/ios27-mockups.html` — approved iOS 27 redesign mockups (open in a browser); assets in `design/assets/`
+- `planning/ios27-redesign-proposal.md` — redesign rationale and decisions; its deltas are applied to the requirement files
 - `requirements/product-design.md`
 - `engineering/design-system-module.md`
 - `requirements/app-icon.md`

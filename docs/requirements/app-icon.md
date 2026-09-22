@@ -23,6 +23,9 @@ inside the app: Pit's two eyes (ADR 0009, ADR 0028).
 - Background: an Icon Composer gradient fill, cloud blue in the default
   appearance and deep navy in the dark appearance.
 - The system renders the clear and tinted appearances from the same document.
+- Planned (RD-011, owner decision 2026-09-22): the eyes are regenerated from
+  the new lens geometry (`product-design.md`, "Pit visual identity"). The
+  icon stays eyes-only; Pit's head is not on the icon.
 
 ## Constraints
 

@@ -39,8 +39,11 @@ project marker is gitignored.
   registration), the iOS 27 redesign cards, owner-only device checks, and
   owner decisions. All are in
   [`docs/planning/work-plan.md`](docs/planning/work-plan.md).
-- Requirements: 166 REQ IDs are `Status: proposed`; REQ-BOARD-026 and REQ-ICON-001
-  are approved. Tests cite the proposed IDs.
+- Requirements: 167 REQ IDs are `Status: proposed` and 27 are approved:
+  REQ-BOARD-026, REQ-ICON-001, REQ-ROAD-007, 022, 023, and the iOS 27
+  redesign set approved in the design session on 2026-09-22 (REQ-DESIGN-001…005,
+  REQ-GRAMMAR-001…004, REQ-BOARD-027…031, REQ-ROAD-027…029, REQ-PIT-021…025).
+  Tests cite the proposed IDs; the redesign IDs have no tests until their RD cards land.
 
 ## Current implementation status
 

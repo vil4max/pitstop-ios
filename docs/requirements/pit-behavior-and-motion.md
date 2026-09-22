@@ -49,17 +49,39 @@ Avoid:
 
 Pit may use rare situational humour. Never joke about safety or serious failures.
 
-## Visual hypothesis
+## Visual identity
 
-**Pit Eyes / Behind the UI.**
+Pit is a small companion head with a face screen and two lit lens eyes
+(owner decision 2026-09-22). The look is owned by
+[`product-design.md`](product-design.md#pit-visual-identity); this contract
+owns how it acts.
 
-The eyes are the character.
-
-Pit has no required body, mouth, hands, or mechanic costume.
+Pit has no body, mouth, hands, or mechanic costume.
 
 Pit visually lives behind the interface.
 
 > Pit waits nearby.
+
+### Poses
+
+Every state of the motion language has one static pose, readable without
+animation. The eyes carry the state; the head only tilts or lifts where the
+table says so.
+
+| State | Eyes | Head |
+|---|---|---|
+| resting | lenses, tops leaning 6° outward, soft white | still |
+| blink | lenses flatten to 20 % height | still |
+| look left / right | shift toward the side; the leading eye tilts 3°, the other follows 25 ms later | still |
+| look up | shift up, a little taller | still |
+| glance at object | tilt down 8° and converge 2° toward the object | still |
+| fixed gaze (listening) | upright, 6 % taller | still |
+| side gaze (thinking) | up and aside, both roll 10° the same way | tilts up to 6° aside |
+| startle | round out, lift | lifts 2 pt |
+| knock | tops leaning 6° inward, eyes in `accentPrimary`, glow stronger | lifts 3 pt, leans in up to 4° |
+| close eyes | shallow upward arcs | still |
+
+Inward tilt is attention, never judgement, and never exceeds 6°.
 
 Behavioural metaphor:
 
@@ -180,6 +202,14 @@ Tapping Pit opens the Pit Capture Surface.
 
 Primary capability: Remember.
 
+Sheet layout: Pit's head beside a title that names the moment ("Remember",
+"Is this right?", "One thing", "Saved."); a composer with a mode picker and
+one prominent action; a pending Pit question above the composer;
+confirmation shows the raw words first, then every fact to be written; the
+saved state names the destination in words and offers one way to continue.
+The sheet opens at the medium detent, and at the large detent at
+accessibility text sizes.
+
 Voice may be prominent but cannot be mandatory.
 
 Pit may:
@@ -195,7 +225,9 @@ Pit must not trap the user in chat history.
 
 Reduce Motion:
 - remove idle wandering motion;
-- replace startle/knock with restrained state change;
+- replace startle/knock with restrained state change: the knock is the
+  lifted pose in the accent colour, with no bumps;
+- show every pose without animation;
 - preserve affordance and semantic labels.
 
 VoiceOver:
@@ -400,3 +432,43 @@ Source: [Accessibility](#accessibility)
 Given VoiceOver is running
 When Pit presents an interruption question with choices
 Then the question and each choice are exposed as normal accessible controls
+
+### REQ-PIT-021 — The capture sheet is not a transcript
+Status: approved (owner, 2026-09-22)
+Core: C3
+Source: [Capture](#capture)
+Given any sequence of captures in one sheet session
+When the sheet renders
+Then it shows only the current moment (composing, working, confirming, clarifying or saved) and never a history of earlier turns
+
+### REQ-PIT-022 — Every state has a distinct static pose
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Poses](#poses)
+Given each state of the motion language
+When Pit is drawn with animation disabled
+Then every state has a distinct static pose (eye outline, tilt or offset, or head tilt or lift), and the inward eye tilt never exceeds 6°
+
+### REQ-PIT-023 — A knock is also a colour change
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Poses](#poses), [Accessibility](#accessibility)
+Given Pit knocks, in the utility layer or in the capture sheet
+When the eyes are drawn, with or without Reduce Motion
+Then the eyes use `accentPrimary` for the knock and return to their resting colour when it ends, and no other state uses the accent
+
+### REQ-PIT-024 — The head never moves on its own
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Poses](#poses), [Idle policy](#idle-policy)
+Given Pit is resting or idle
+When no motion-language state that moves the head is active
+Then the head neither tilts nor lifts
+
+### REQ-PIT-025 — The sheet opens large at accessibility text sizes
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Capture](#capture)
+Given an accessibility Dynamic Type size
+When the Pit Capture Surface opens
+Then it opens at the large detent, so the composer and its action stay visible above the keyboard

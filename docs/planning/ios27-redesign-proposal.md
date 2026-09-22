@@ -1,6 +1,9 @@
 # iOS 27 redesign: proposal for owner approval
 
-**Status:** Approved by the owner in chat on 2026-09-22; requirement and ADR edits still happen card by card (spec
+**Status:** Approved by the owner on 2026-09-22. The requirement deltas are
+applied to the requirement files on 2026-09-22 (owner: "design decisions
+are made and approved in the design session"); ADRs are still written by the
+cards. Earlier text: requirement and ADR edits still happen card by card (spec
 pyramid: propose, then approve per file). No code changed yet\
 **Mockups:** [`../design/ios27-mockups.html`](../design/ios27-mockups.html),
 a self-contained HTML page kept in the repository until the redesign is fully
@@ -63,7 +66,11 @@ the mockups; this list is the checklist for the cards.
   ago", derived from the newest observation date), and a small glass pencil
   as the edit affordance. The Road tile draws the projection's initial slots
   as markers. Tiles get the chip and the chevron.
-- **Road.** Lane markers use the shape vocabulary; "Back to now" is a glass
+- **Road.** The car drives along the road and the milestones stand on the
+  road ahead of it as roadside information signs (owner idea 2026-09-22): a
+  small plate on a post with the state glyph, the car's wheels and every
+  post on one road line, labels under the road (REQ-ROAD-029). Markers use
+  the shape vocabulary; "Back to now" is a glass
   pill inside the lane card, shown only when the lane has left the car; the
   milestone list is one grouped list under "Ahead", with "Waiting for
   mileage" as a second group; the past summary stays one line. The
@@ -321,29 +328,33 @@ the design session:
   (Vision foreground instance mask) and stands on the tinted stage where the
   placeholder stood; if lifting fails, the whole photo is shown under a soft
   mask.
-- **Placeholder:** one neutral, modern placeholder for every car without a
-  photo, in the style of the reference the owner supplied on 2026-09-22: a
-  three-quarter-view car silhouette in a single flat neutral grey, no
-  wheels, lights or details, no make or model. It replaces the delivered
-  `AbstractCarView` as the neutral abstract car visual; there are no body
-  types and nothing is asked. The owner rejected the six drawn body-type
-  silhouettes the same day.
+- **Placeholder:** without a photo the car is a neutral side-view
+  silhouette in flat system grey (#8E8E93), facing right (the car drives left
+  to right, toward the road ahead), with no lights, badges, make or model.
+  The owner picks the body in the car editor, SUV (default) or sedan
+  (owner decision 2026-09-22):
+  [`../design/assets/car-placeholder.png`](../design/assets/car-placeholder.png)
+  and `car-placeholder-sedan.png`. It replaces the delivered
+  `AbstractCarView`. Earlier drafts (six drawn body types, a drawn
+  three-quarter view, a three-quarter image of a real model) were rejected
+  or deleted.
 - **Where the car appears:** where it matters and is pleasant to see: the
   Car Board stage, the Road tile and Road "Now", a 28 pt avatar in detail
   screen headers, a 44 pt avatar in Pit's saved state and question card, and
   the SYS-007 data widgets. Not in Settings, forms, list rows or the
   data-free widget.
-- **Profile scope:** photo, name and mileage. Make, model and year stay
+- **Profile scope:** photo, name, body (SUV or sedan) and mileage. Make, model and year stay
   vehicle facts from capture and are not shown on the hero.
 
-Asset rule (public repository): the placeholder ships only as original
-artwork or with a recorded permissive licence (for example MIT, Apache 2.0,
-CC0); the source and licence go into the car-profile ADR. The owner's
-reference image has no recorded source yet, so it is not committed until
-its origin and licence are known, or it is redrawn as original artwork in the
-same style. SF Symbols (`car.side.fill`) were considered: they may be used
-in the app's interface, but Apple's licence limits them to interfaces and
-mock-ups for Apple platforms and they are icon-weight at hero size.
+Asset rule (public repository): an image ships only as original artwork or
+with a recorded permissive licence (for example MIT, Apache 2.0, CC0), and
+the source goes into the car-profile ADR. The owner's SUV and sedan images
+were generated with AI by the owner on 2026-09-22 and supplied for PitStop;
+provenance is recorded in
+[`../design/assets/README.md`](../design/assets/README.md), and they may be
+committed. SF Symbols (`car.side.fill`) were
+considered: Apple's licence limits them to interfaces and mock-ups for Apple
+platforms, and they are icon-weight at hero size.
 
 Privacy constraint (history rewritten on 2026-09-21 to remove real-car
 data): a real owner photo can show a plate, a VIN sticker or a location. It
@@ -396,6 +407,44 @@ Deltas:
   store move first, and the photo file moves with it.
 - A new ADR records the fallback order, the placeholder's source and
   licence, the lift approach, storage, and the privacy rule.
+
+### 3.6d Pit as a character (owner request, 2026-09-22)
+
+The owner asked for a full image of Pit with a head, with EVE (WALL-E's
+friend) as the reference. The mockups' "Pit, the character" section shows
+the proposal:
+
+- **Head:** an original round head, pearl white with a soft top-left light
+  and a hairline; in the utility layer the whole 56 pt circle is the head
+  (owner direction 2026-09-22); no body, mouth or hands.
+- **Face screen:** a deep navy visor (the icon's dark fill) set in a thin
+  grey bezel, with a gloss and a faint glow behind the lit lens eyes.
+- **Eyes:** the approved lens pair (§3.6b), lit in soft white; on a knock
+  they turn cloud blue and the glow strengthens (REQ-PIT-023).
+- **Motion:** the eyes carry every state of the motion table unchanged
+  (ADR 0028). The head adds only a tilt up to 6° (thinking, knock) and a
+  lift up to 3 pt (startle, knock); it is otherwise still. Reduce Motion
+  shows the poses without animation.
+- **Borrowed from the reference:** lit eyes on a dark glass face and
+  expression by eye shape and tilt. **Not borrowed:** EVE's upright egg
+  shape, arms, glow colour and proportions.
+- **Where:** the utility control (the 56 pt circle is the head) and the Pit
+  sheet header (44 pt). The widget and control keep the capture
+  glyph (ADR 0025).
+
+Spec conflicts the owner decides:
+
+- `product-design.md` "Pit visual hypothesis" says the eyes are the
+  character, Pit does not require a body, and "Avoid: robot". Proposed
+  wording: "Pit is a small companion head with a face screen and lit eyes;
+  no body, mouth or hands; not a mechanic, not a mascot."
+- REQ-ICON-001 (approved) keeps the icon eyes-only. The head goes on the icon
+  only if the owner re-approves that requirement; the icon is then rebuilt in
+  Icon Composer (ADR 0029).
+- ADR 0028 stays; a follow-up ADR records the head and its two moves.
+- New requirement **REQ-PIT-024 — The head never moves on its own.** Given
+  Pit is resting or idle, When no motion-table state is active, Then the
+  head neither tilts nor lifts; only the states in the motion table move it.
 
 ### 3.7 `requirements/app-icon.md`
 
@@ -476,8 +525,8 @@ approved the proposal as a whole in chat the same day. No item is open.
    Figma. The mockup page in `docs/design/` is the design source until the
    redesign is implemented; the Figma file keeps tokens and components.
 10. **Answered 2026-09-22.** Car profile (§3.6c): lifted photo on the
-    stage, one neutral placeholder in the style of the owner's reference
-    (six body types rejected), avatar where it matters (headers, Road, Pit,
+    stage, the owner's AI-generated side-view placeholders facing right, SUV
+    (default) or sedan, avatar where it matters (headers, Road, Pit,
     SYS-007 widgets), scope photo + name + mileage. Card RD-012.
 
 ### Corrections accepted on 2026-09-22
