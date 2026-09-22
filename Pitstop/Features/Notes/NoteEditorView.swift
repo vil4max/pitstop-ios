@@ -6,9 +6,7 @@ struct NoteEditorView: View {
     let target: NoteEditorTarget
     let onSave: (String) async -> Bool
 
-    @Environment(\.dismiss) private var dismiss
     @State private var text: String
-    @State private var isSaving = false
     @FocusState private var isFocused: Bool
 
     init(target: NoteEditorTarget, onSave: @escaping (String) async -> Bool) {
@@ -22,7 +20,11 @@ struct NoteEditorView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        SaveSheetScaffold(
+            title: target == .new ? "notes.editor.new" : "notes.editor.edit",
+            saveIdentifier: "notes.editor.save",
+            canSave: !text.allSatisfy(\.isWhitespace)
+        ) {
             TextEditor(text: $text)
                 .focused($isFocused)
                 .pitActivity(.editing, while: isFocused)
@@ -38,28 +40,7 @@ struct NoteEditorView: View {
                     }
                 }
                 .accessibilityIdentifier("notes.editor.text")
-                .navigationTitle(target == .new ? "notes.editor.new" : "notes.editor.edit")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("common.cancel", role: .cancel) { dismiss() }
-                    }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("common.save") {
-                            Task {
-                                isSaving = true
-                                let saved = await onSave(text)
-                                isSaving = false
-                                if saved {
-                                    dismiss()
-                                }
-                            }
-                        }
-                        .disabled(isSaving || text.allSatisfy(\.isWhitespace))
-                        .accessibilityIdentifier("notes.editor.save")
-                    }
-                }
                 .onAppear { isFocused = true }
-        }
+        } save: { await onSave(text) }
     }
 }

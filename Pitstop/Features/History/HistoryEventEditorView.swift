@@ -4,9 +4,7 @@ struct HistoryEventEditorView: View {
     let isNew: Bool
     let onSave: (HistoryEventDraft) async -> Bool
 
-    @Environment(\.dismiss) private var dismiss
     @State private var draft: HistoryEventDraft
-    @State private var isSaving = false
 
     init(draft: HistoryEventDraft, isNew: Bool, onSave: @escaping (HistoryEventDraft) async -> Bool) {
         self.isNew = isNew
@@ -22,7 +20,10 @@ struct HistoryEventEditorView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        SaveSheetScaffold(
+            title: isNew ? "history.editor.new" : "history.editor.edit",
+            saveIdentifier: "history.editor.save"
+        ) {
             Form {
                 Section {
                     Picker("history.editor.kind", selection: $draft.kind) {
@@ -53,27 +54,6 @@ struct HistoryEventEditorView: View {
                         .accessibilityIdentifier("history.editor.note")
                 }
             }
-            .navigationTitle(isNew ? "history.editor.new" : "history.editor.edit")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("common.cancel", role: .cancel) { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("common.save") {
-                        Task {
-                            isSaving = true
-                            let saved = await onSave(draft)
-                            isSaving = false
-                            if saved {
-                                dismiss()
-                            }
-                        }
-                    }
-                    .disabled(isSaving)
-                    .accessibilityIdentifier("history.editor.save")
-                }
-            }
-        }
+        } save: { await onSave(draft) }
     }
 }

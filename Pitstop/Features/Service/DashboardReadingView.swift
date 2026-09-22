@@ -16,12 +16,14 @@ struct DashboardReadingView: View {
     let odometerPrefill: Int?
     let onSave: (DashboardReadingEntry) async -> Bool
 
-    @Environment(\.dismiss) private var dismiss
     @State private var entry: DashboardReadingEntry?
-    @State private var isSaving = false
 
     var body: some View {
-        NavigationStack {
+        SaveSheetScaffold(
+            title: "service.report.sheet.title",
+            saveIdentifier: "service.report.save",
+            canSave: entry != nil
+        ) {
             Form {
                 Section {
                     TextField("service.report.sheet.distance", text: binding(\.distance))
@@ -52,32 +54,13 @@ struct DashboardReadingView: View {
                     Text("service.report.sheet.odometerFooter")
                 }
             }
-            .navigationTitle("service.report.sheet.title")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("common.cancel", role: .cancel) { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("common.save") {
-                        guard let entry else { return }
-                        Task {
-                            isSaving = true
-                            let saved = await onSave(entry)
-                            isSaving = false
-                            if saved {
-                                dismiss()
-                            }
-                        }
-                    }
-                    .disabled(isSaving || entry == nil)
-                    .accessibilityIdentifier("service.report.save")
-                }
-            }
             .onAppear {
                 guard entry == nil else { return }
                 entry = DashboardReadingEntry(unit: defaultUnit, odometer: odometerPrefill.map(String.init) ?? "")
             }
+        } save: {
+            guard let entry else { return false }
+            return await onSave(entry)
         }
     }
 

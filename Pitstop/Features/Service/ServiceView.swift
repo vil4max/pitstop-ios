@@ -318,14 +318,16 @@ struct TrackOperationView: View {
     var existing: MaintenancePolicy?
     let onSave: (MaintenanceOperationID, String, String) async -> Bool
 
-    @Environment(\.dismiss) private var dismiss
     @State private var operation: MaintenanceOperationID?
     @State private var kilometers = ""
     @State private var months = ""
-    @State private var isSaving = false
 
     var body: some View {
-        NavigationStack {
+        SaveSheetScaffold(
+            title: existing == nil ? "service.track" : "service.changeInterval",
+            saveIdentifier: "service.track.save",
+            canSave: operation != nil
+        ) {
             Form {
                 Section {
                     Picker("service.track.operation", selection: $operation) {
@@ -349,28 +351,6 @@ struct TrackOperationView: View {
                     Text("service.track.footer")
                 }
             }
-            .navigationTitle(existing == nil ? "service.track" : "service.changeInterval")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("common.cancel", role: .cancel) { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("common.save") {
-                        guard let operation else { return }
-                        Task {
-                            isSaving = true
-                            let saved = await onSave(operation, kilometers, months)
-                            isSaving = false
-                            if saved {
-                                dismiss()
-                            }
-                        }
-                    }
-                    .disabled(isSaving || operation == nil)
-                    .accessibilityIdentifier("service.track.save")
-                }
-            }
             .onAppear {
                 guard operation == nil else { return }
                 operation = operations.first
@@ -379,6 +359,9 @@ struct TrackOperationView: View {
                     months = existing.timeIntervalMonths.map(String.init) ?? ""
                 }
             }
+        } save: {
+            guard let operation else { return false }
+            return await onSave(operation, kilometers, months)
         }
     }
 }

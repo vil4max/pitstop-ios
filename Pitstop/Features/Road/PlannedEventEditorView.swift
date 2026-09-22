@@ -8,9 +8,7 @@ struct PlannedEventEditorView: View {
     let dateRange: ClosedRange<Date>
     let onSave: (PlannedEventDraft) async -> Bool
 
-    @Environment(\.dismiss) private var dismiss
     @State private var draft: PlannedEventDraft
-    @State private var isSaving = false
 
     init(
         draft: PlannedEventDraft,
@@ -27,7 +25,12 @@ struct PlannedEventEditorView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        // Leaving mid-save would store a date the owner cancelled, or leave its failure behind.
+        SaveSheetScaffold(
+            title: isNew ? "road.addDate" : "road.planned.editor.edit",
+            saveIdentifier: "road.planned.editor.save",
+            locksWhileSaving: true
+        ) {
             Form {
                 Section {
                     Picker("road.planned.editor.kind", selection: $draft.kind) {
@@ -64,31 +67,7 @@ struct PlannedEventEditorView: View {
                     }
                 }
             }
-            .interactiveDismissDisabled(isSaving)
-            .navigationTitle(isNew ? "road.addDate" : "road.planned.editor.edit")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    // Leaving mid-save would store a date the owner cancelled, or leave its failure behind.
-                    Button("common.cancel", role: .cancel) { dismiss() }
-                        .disabled(isSaving)
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("common.save") {
-                        Task {
-                            isSaving = true
-                            let saved = await onSave(draft)
-                            isSaving = false
-                            if saved {
-                                dismiss()
-                            }
-                        }
-                    }
-                    .disabled(isSaving)
-                    .accessibilityIdentifier("road.planned.editor.save")
-                }
-            }
-        }
+        } save: { await onSave(draft) }
     }
 }
 

@@ -5,10 +5,8 @@ struct CarEditorView: View {
     let car: ProvisionalCarContext
     let onSave: (_ name: String, _ odometer: String) async -> Bool
 
-    @Environment(\.dismiss) private var dismiss
     @State private var name: String
     @State private var odometer: String
-    @State private var isSaving = false
 
     init(car: ProvisionalCarContext, onSave: @escaping (_ name: String, _ odometer: String) async -> Bool) {
         self.car = car
@@ -18,7 +16,10 @@ struct CarEditorView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        SaveSheetScaffold(
+            title: "carEditor.title",
+            saveIdentifier: "carEditor.save"
+        ) {
             Form {
                 Section("carEditor.name.section") {
                     TextField("carEditor.name.placeholder", text: $name)
@@ -37,27 +38,6 @@ struct CarEditorView: View {
                     Text("carEditor.odometer.footer")
                 }
             }
-            .navigationTitle("carEditor.title")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("common.cancel", role: .cancel) { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("common.save") {
-                        Task {
-                            isSaving = true
-                            let saved = await onSave(name, odometer)
-                            isSaving = false
-                            if saved {
-                                dismiss()
-                            }
-                        }
-                    }
-                    .disabled(isSaving)
-                    .accessibilityIdentifier("carEditor.save")
-                }
-            }
-        }
+        } save: { await onSave(name, odometer) }
     }
 }
