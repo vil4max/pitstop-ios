@@ -45,4 +45,14 @@ struct VehicleServiceReportRoadTests {
         #expect(lead.dimension == .distance && lead.remainingKm == 3200 && lead.remainingDays == nil)
         #expect(lead.isFromDashboard)
     }
+
+    @Test("REQ-MAINT-034: every stored reading's odometer is a mileage observation, not only the newest")
+    func olderReadingsAreObservations() {
+        let older = dashboardReport(distance: 3200, odometer: 38800, day: 0)
+        let newer = dashboardReport(days: 40, day: 5)
+        let context = MaintenanceContext(now: Fixture.date(10), latestReading: nil, reports: [newer, older])
+        #expect(context.mileage == .known && context.observedKm == 38800)
+        let history = MileageObservation.history(readings: [], completions: [], reports: [newer, older])
+        #expect(history.map(\.km) == [38800])
+    }
 }

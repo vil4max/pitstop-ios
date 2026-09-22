@@ -84,7 +84,7 @@ struct PersistenceSchemaTests {
         let v4 = Self.shape(of: Schema(versionedSchema: PitstopSchemaV4.self))
         #expect(v4.filter { !$0.hasPrefix("VehicleServiceReportRecord ") } == Self.frozenV3)
         #expect(v4.filter { $0.hasPrefix("VehicleServiceReportRecord ") } == [
-            "VehicleServiceReportRecord completionIDAtEntry:Optional<UUID>? distanceUnit:String id:UUID! "
+            "VehicleServiceReportRecord completionIDsAtEntry:Array<UUID> distanceUnit:String id:UUID! "
                 + "odometerKm:Optional<Int>? operationID:String "
                 + "remainingDays:Optional<Int>? remainingDistance:Optional<Double>? reportedAt:Date source:String "
                 + "vehicleID:UUID",

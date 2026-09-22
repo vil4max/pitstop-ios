@@ -66,7 +66,8 @@ struct VehicleServiceReportCaptureTests {
         "REQ-MAINT-039: an overdue countdown is read as overdue, never as a mileage",
         arguments: [
             "приборка: ТО просрочено на 300 км",
-            "прострочено на 300 км",
+            "ТО прострочено на 300 км",
+            "ТО просрочено на 300 км",
             "dashboard says service 300 km overdue",
             "dashboard says 300 km overdue",
             "приборка показывает: просрочено на 300 км",
@@ -79,9 +80,53 @@ struct VehicleServiceReportCaptureTests {
         #expect(proposal.extractedRemainingDistance == -300 && proposal.extractedOdometerKm == nil)
     }
 
-    @Test("REQ-MAINT-039: an overdue display without a readable countdown keeps only the words")
+    @Test(
+        "REQ-MAINT-039: overdue without a service word is no dashboard reading and never a mileage",
+        arguments: [
+            "insurance overdue by 10 days",
+            "техосмотр просрочено на 10 дней",
+            "прострочено на 300 км",
+        ]
+    )
+    func overdueWithoutServiceKeepsWords(text: String) async throws {
+        #expect(try await RuleBasedInterpreter().interpret(input(text)) == nil)
+    }
+
+    @Test("REQ-MAINT-039: other phrases that say overdue keep their earlier interpretation")
+    func overdueElsewhereFallsThrough() async throws {
+        let odometer = try #require(try await RuleBasedInterpreter().interpret(
+            input("страховка просрочена, пробег 91500 км")
+        ))
+        #expect(odometer.kind == .odometerReading && odometer.extractedOdometerKm == 91500)
+        let washing = try #require(try await RuleBasedInterpreter().interpret(
+            input("washed the car, parking fine overdue")
+        ))
+        #expect(washing.kind == .vehicleEvent && washing.extractedEventKind == .carWash)
+    }
+
+    @Test("REQ-MAINT-039: an overdue value that cannot be read as a countdown keeps only the words")
     func unreadableOverdueKeepsWords() async throws {
-        #expect(try await RuleBasedInterpreter().interpret(input("приборка пишет просрочено, пробег 91500 км")) == nil)
+        #expect(try await RuleBasedInterpreter().interpret(input("приборка: просрочено на 300 км пробега")) == nil)
+    }
+
+    @Test(
+        "REQ-MAINT-039: a mileage beside an overdue service word stays the odometer reading",
+        arguments: [
+            "пробег 91500, ТО просрочено",
+            "пробег 91500 км, ТО просрочено",
+            "odometer 91500 km, service overdue",
+            "приборка пишет просрочено, пробег 91500 км",
+        ]
+    )
+    func mileageBesideOverdueIsTheOdometer(text: String) async throws {
+        let proposal = try #require(try await RuleBasedInterpreter().interpret(input(text)))
+        #expect(proposal.kind == .odometerReading && proposal.extractedOdometerKm == 91500)
+    }
+
+    @Test("REQ-MAINT-039: the particle \"то\" is not the service \"ТО\"")
+    func particleIsNotAService() async throws {
+        #expect(try await RuleBasedInterpreter().interpret(input("что-то просрочено на 300 км")) == nil)
+        #expect(try await RuleBasedInterpreter().interpret(input("то есть просрочено на 300 км")) == nil)
     }
 
     @Test("REQ-MAINT-039: a number followed by пробега is the odometer, never a chained countdown value")

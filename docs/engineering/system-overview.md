@@ -610,7 +610,7 @@ erDiagram
         string distanceUnit "km or mi, as entered"
         int remainingDays "optional, negative when overdue"
         string source "manualEntry or pitCapture"
-        UUID completionIDAtEntry "optional, newest completion when saved"
+        UUID completionIDsAtEntry "list, completions already saved when entered"
     }
 ```
 

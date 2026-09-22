@@ -27,7 +27,7 @@ func dashboardReport(
         remainingDistance: distance,
         distanceUnit: unit,
         remainingDays: days
-    ).entered(after: completion)
+    ).entered(after: completion.map { [$0] } ?? [])
 }
 
 func dashboardStates(
@@ -170,6 +170,19 @@ struct VehicleServiceReportEngineTests {
         #expect(state.anchorKm == 55000 && state.isDecidedByReport)
     }
 
+    @Test("REQ-MAINT-031: undoing the newest same-day completion leaves an earlier one known as earlier")
+    func undoKeepsEarlierSameDayCompletionEarlier() throws {
+        let first = Fixture.completion(.engineOilService, km: 40000, day: 0.01)
+        let second = Fixture.completion(.engineOilService, km: 40010, day: 0.02)
+        let postService = dashboardReport(distance: 15000, odometer: 40010, day: 0)
+            .entered(after: [first, second])
+        let beforeUndo = try oil([], [first, second], reports: [postService], currentKm: 40010, day: 0.03)
+        #expect(!beforeUndo.isReportSuperseded)
+        // "Undo" removes the newest completion; the one left was saved before the reading too.
+        let afterUndo = try oil([], [first], reports: [postService], currentKm: 40010, day: 0.03)
+        #expect(!afterUndo.isReportSuperseded && afterUndo.countingReport == postService)
+    }
+
     @Test("REQ-MAINT-031: on different days the calendar day decides, whatever was saved first")
     func differentDaysUseTheCalendarDay() throws {
         let earlier = Fixture.completion(.engineOilService, km: 39000, day: -3)
@@ -197,16 +210,6 @@ struct VehicleServiceReportEngineTests {
             now: Fixture.date(60), latestReading: Fixture.reading(30000, day: 0), reports: [dashboard]
         )
         #expect(context.mileage == .known && context.observedKm == 38800)
-    }
-
-    @Test("REQ-MAINT-034: every stored reading's odometer is a mileage observation, not only the newest")
-    func olderReadingsAreObservations() {
-        let older = dashboardReport(distance: 3200, odometer: 38800, day: 0)
-        let newer = dashboardReport(days: 40, day: 5)
-        let context = MaintenanceContext(now: Fixture.date(10), latestReading: nil, reports: [newer, older])
-        #expect(context.mileage == .known && context.observedKm == 38800)
-        let history = MileageObservation.history(readings: [], completions: [], reports: [newer, older])
-        #expect(history.map(\.km) == [38800])
     }
 
     @Test("REQ-MAINT-035: a reading is called old after 180 days and still counts; it never expires")

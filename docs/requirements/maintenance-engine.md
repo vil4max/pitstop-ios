@@ -580,7 +580,7 @@ Core: P1, C2
 Source: [ADR 0035](../decisions/0035-dashboard-service-reading.md), [ADR 0031](../decisions/0031-stop-tracking-an-operation.md)
 Given an operation with a stored dashboard reading and no policy, or whose tracking the owner stopped
 When Service and Road are shown
-Then the operation stays on them until the owner deletes the reading; deleting waits for a confirmation that names the operation and says that completions, History and the interval stay; cancelling changes nothing
+Then the operation stays on them until the owner deletes the reading; deleting waits for a confirmation that names the operation, says that its readings go with the mileage they were entered at, and that completions, History and the interval stay; cancelling changes nothing
 
 ### REQ-MAINT-037 — The unit is kept as entered
 Status: proposed

@@ -176,7 +176,7 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             try requireNew(ReportRecord.self, id: record.report.id)
             let entered = try record.report.entered(after: completions(
                 of: record.report.operationID, vehicleID: record.report.vehicleID
-            ).newest(of: record.report.operationID))
+            ))
             modelContext.insert(ReportRecord(entered))
             return .vehicleServiceReportRecorded(entered)
         case let .removeVehicleServiceReport(remove):

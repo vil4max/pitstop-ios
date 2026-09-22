@@ -25,8 +25,9 @@ enum PitstopSchemaV4: VersionedSchema {
         var distanceUnit: String
         var remainingDays: Int?
         var source: String
-        /// The newest completion of the operation when this reading was saved (ADR 0035, same-day order).
-        var completionIDAtEntry: UUID?
+        /// The operation's completions already saved when this reading was saved (ADR 0035, same-day
+        /// order). Amended in V4 before any release shipped it.
+        var completionIDsAtEntry: [UUID]
 
         init(
             id: UUID,
@@ -38,7 +39,7 @@ enum PitstopSchemaV4: VersionedSchema {
             distanceUnit: String,
             remainingDays: Int?,
             source: String,
-            completionIDAtEntry: UUID?
+            completionIDsAtEntry: [UUID]
         ) {
             self.id = id
             self.vehicleID = vehicleID
@@ -49,7 +50,7 @@ enum PitstopSchemaV4: VersionedSchema {
             self.distanceUnit = distanceUnit
             self.remainingDays = remainingDays
             self.source = source
-            self.completionIDAtEntry = completionIDAtEntry
+            self.completionIDsAtEntry = completionIDsAtEntry
         }
     }
 }

@@ -52,9 +52,15 @@ fact (MNT-VR-001, options V1 and V2).
    supersedes the reading. On the same day the order in which the two were
    saved decides (agent decision within the owner's rule, 2026-09-22), never the
    times they carry, because "Mark done" keeps the time its sheet was opened.
-   The store stamps each reading with the newest completion of the operation
-   already saved at that moment (`completionIDAtEntry`); a same-day completion
-   other than that one was saved after the reading and supersedes it. So "300 km
+   The store stamps each reading with every completion of the operation
+   already saved at that moment (`completionIDsAtEntry`); a same-day completion
+   not in that set was saved after the reading and supersedes it. A set rather
+   than the newest completion alone: with two same-day completions before the
+   reading, undoing the newer one must leave the older known as earlier.
+   "Saved after the reading" is read literally: if a stamped completion is
+   undone and the work confirmed again, the new completion was saved after the
+   reading and supersedes it, even on the same day (agent choice, 2026-09-22).
+   So "300 km
    overdue" entered in the morning and "Mark done" in the afternoon leave the
    operation on the owner's interval, while a reading entered after "Mark done"
    keeps counting. Every entered reading keeps its own row and ID: the engine
@@ -62,7 +68,8 @@ fact (MNT-VR-001, options V1 and V2).
    and a replayed confirmation of an older proposal is rejected as a duplicate
    (`duplicateRecord`, reported by Remember as already saved) instead of
    overwriting the newer reading. Deleting removes every row of the
-   operation.
+   operation, including the mileage those readings were entered at (see
+   Consequences).
 4. **Earliest anchor wins per dimension** between the owner's interval and the
    reading; an exact tie goes to the owner's interval (owner decision,
    2026-09-22). The share denominator is the owner's interval for that
@@ -93,8 +100,9 @@ fact (MNT-VR-001, options V1 and V2).
    row menu gains "Enter dashboard reading" (sheet: remaining distance, an
    explicit km / mi choice defaulting to the unit of the newest reading,
    remaining days, and the odometer, prefilled from a same-day reading) and
-   "Delete dashboard reading" behind a confirmation that names the operation and
-   says that completions, History and the interval stay.
+   "Delete dashboard reading" behind a confirmation that names the operation,
+   says that every reading of it is removed with the mileage it was entered at,
+   and that completions, History and the interval stay.
 9. **Road.** The milestone is placed by its deciding dimension as before; the
    fact label gains "from dashboard" when the reading decided it
    (`RoadMilestone.isFromDashboard`, `RoadMilestone.distanceText`). No new
@@ -110,9 +118,17 @@ fact (MNT-VR-001, options V1 and V2).
     right before the number ("in", "через", "до ТО", "осталось", "залишилось",
     "overdue by", "просрочено на", "прострочено на") or right after its unit
     ("left", "overdue"); a second value joined by "and" continues the
-    countdown. "Overdue" / "просрочено" / "прострочено" alone count as naming
-    the display, and a capture that says "overdue" but has no readable
-    countdown keeps only its words: its number is never written as a mileage. A
+    countdown. "Overdue" / "просрочено" / "прострочено" count as naming the
+    display only next to a service word (an uppercase "ТО" of its own, never
+    the particle of "что-то" or "то есть"; "service", "обслуживание") or a
+    catalog operation, so "insurance overdue by 10 days" is no reading. A
+    dashboard phrase keeps only its words when a number followed by a unit or a
+    day word is marked overdue but cannot be read as a countdown ("приборка:
+    просрочено на 300 км пробега"); every other phrase falls through to the
+    washing and odometer rules, so "пробег 91500 км, ТО просрочено" and
+    "odometer 91500 km, service overdue" stay odometer readings. Those rules
+    never take a number marked overdue ("прострочено на 300 км") as a mileage,
+    and nothing past a word that is not a unit or a day word marks a number. A
     number after "пробег", "odometer" or a bare "на", or followed by "пробега" or
     "odometer", is never a remaining value, so "машина показывает 91500 км"
     stays an odometer reading, "пробег 38800 км, приборка показывает ТО через
@@ -128,9 +144,16 @@ fact (MNT-VR-001, options V1 and V2).
     capture without one can only keep its words.
 11. **Schema V4.** `VehicleServiceReportRecord` is added in `PitstopSchemaV4`
     with a lightweight V3 → V4 stage; V3 is now frozen like V1 and V2. Besides
-    the reading's own fields it stores `completionIDAtEntry`. No completion field
-    was added: the completion entity is the frozen V1 class. A stored unit this
-    version cannot read drops the distance part rather than guessing.
+    the reading's own fields it stores `completionIDsAtEntry`. No completion
+    field was added: the completion entity is the frozen V1 class. V4 was
+    amended in place after it reached `main` in 56330ba (the single
+    `completionIDAtEntry` became the `completionIDsAtEntry` set), before any
+    TestFlight or App Store build contained it: no `tf-` tag contains 56330ba,
+    and the newest TestFlight build, 1.1.0, holds a V2 or V3 store. Developer
+    stores written by 56330ba (devices and simulators) do not match the amended
+    V4 and must be deleted. Once a build with V4 ships, V4 is frozen too. A
+    stored unit this version cannot read drops the distance part rather than
+    guessing.
 
 ## Worked example (fictional car)
 
@@ -154,6 +177,12 @@ reading and the anchors return to completion + interval.
   interval (or to unknown without one). This loses little: the car's
   post-service countdown is about one interval, which is what the owner's
   interval already says.
+- Deleting a reading also removes the mileage it was entered at: its odometer
+  no longer feeds current mileage or the Road rate estimate. The confirmation
+  says so. The rows are not kept as hidden mileage facts because a reading is
+  often deleted for being wrong, mileage included, and keeping rows the owner
+  deleted would need a deleted flag checked by every reader (agent choice,
+  2026-09-22). An owner who wants to keep the mileage records it on Car Board.
 - Known limitation: deleting a reading removes its rows, so replaying the
   confirmation of a deleted Pit capture (the same proposal confirmed again)
   brings it back. Rejecting it would need a record of deletions; a replay
@@ -197,9 +226,14 @@ reading and the anchors return to completion + interval.
   due after the work was done.
 - **A saved-at timestamp on completions:** the completion entity is the frozen
   V1 class, so a new field means a new copy of a shipped entity and its
-  migration; stamping the reading with the completion it followed gives the
-  same same-day order with one field on the unshipped V4 record (agent
-  decision within the owner's "completion supersedes" rule, 2026-09-22).
+  migration; stamping the reading with the completions saved before it gives
+  the same same-day order with one field on the V4 record, which no release
+  has shipped (agent decision within the owner's "completion supersedes" rule,
+  2026-09-22).
+- **Stamping only the newest completion at entry** (the first cut): undoing
+  that completion made an earlier same-day completion look newer than the
+  reading.
+- **Keeping deleted rows as hidden mileage facts:** see Consequences.
 - **Keeping only one row per operation:** a replayed confirmation of an older
   proposal would then find no duplicate and overwrite the newer reading.
 - **A countdown rule that matches any number near "dashboard":** it turned

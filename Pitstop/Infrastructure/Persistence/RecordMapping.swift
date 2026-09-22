@@ -199,7 +199,7 @@ extension PitstopSchemaV4.VehicleServiceReportRecord {
             distanceUnit: report.distanceUnit.rawValue,
             remainingDays: report.remainingDays,
             source: report.source.rawValue,
-            completionIDAtEntry: report.completionIDAtEntry
+            completionIDsAtEntry: report.completionIDsAtEntry.sorted { $0.uuidString < $1.uuidString }
         )
     }
 
@@ -217,7 +217,7 @@ extension PitstopSchemaV4.VehicleServiceReportRecord {
             distanceUnit: unit ?? .kilometers,
             remainingDays: remainingDays,
             source: VehicleServiceReport.Source(rawValue: source) ?? .manualEntry,
-            completionIDAtEntry: completionIDAtEntry
+            completionIDsAtEntry: Set(completionIDsAtEntry)
         )
     }
 }

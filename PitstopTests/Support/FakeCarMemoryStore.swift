@@ -222,7 +222,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
         case let .recordVehicleServiceReport(record):
             guard record.report.vehicleID == vehicle.id else { throw .unknownVehicle }
             guard !reports.contains(where: { $0.id == record.report.id }) else { throw .duplicateRecord }
-            let entered = record.report.entered(after: completions.newest(of: record.report.operationID))
+            let entered = record.report.entered(after: completions)
             seed(entered)
             return .vehicleServiceReportRecorded(entered)
         case let .removeVehicleServiceReport(remove):

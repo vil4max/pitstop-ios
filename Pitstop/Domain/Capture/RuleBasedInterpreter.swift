@@ -27,8 +27,10 @@ public struct RuleBasedInterpreter: SemanticInterpreting {
         // Before the odometer rule, because "service in 3200 km" would otherwise read as a mileage of
         // 3,200 km, and after the completion rule, so "changed the oil at 84 200, next in 15 000" stays
         // the completion it reports. The operation is taken only when exactly one is named; a bare
-        // "service" is asked, never guessed. "Overdue" alone names a countdown, so it counts as the display.
-        if reading.reportsDashboard || reading.mentionsOverdue, let remaining = reading.dashboardRemaining {
+        // "service" is asked, never guessed. "Overdue" next to a service word or a catalog operation names
+        // the car's countdown too; "insurance overdue" does not.
+        let isDashboardPhrase = reading.reportsDashboard || reading.mentionsServiceOverdue
+        if isDashboardPhrase, let remaining = reading.dashboardRemaining {
             return MemoryProposal(
                 sourceInputID: input.id,
                 kind: .vehicleServiceReport,
@@ -40,8 +42,10 @@ public struct RuleBasedInterpreter: SemanticInterpreting {
                 extractedRemainingDays: remaining.days
             )
         }
-        // An overdue countdown that could not be read is kept as words: its number is never a mileage.
-        if reading.mentionsOverdue {
+        // A dashboard phrase whose number is marked overdue but could not be read as a countdown is kept as
+        // words: that number is never a mileage. Anything else, including "odometer 91500 km, service
+        // overdue", falls through to the rules below.
+        if isDashboardPhrase, reading.hasOverdueMarkedValue {
             return nil
         }
         if reading.reportsWashing {
@@ -79,8 +83,13 @@ private struct Reading {
     private let words: [String]
     /// Marks that survive word splitting: a question, and the English contracted negation.
     private let isQuestionOrNegated: Bool
+    /// "ТО" (scheduled service) written as an uppercase word of its own. Lowercased, "то" is also the
+    /// particle of "что-то" and "то есть", so only the uppercase spelling names a service.
+    private let namesScheduledService: Bool
 
     init(_ text: String) {
+        // Split keeping hyphens inside a token, so "что-ТО" is one token and never the service.
+        namesScheduledService = text.split { !$0.isLetter && $0 != "-" }.contains("ТО")
         let lowered = text.lowercased()
         isQuestionOrNegated = lowered.contains("?") || lowered.contains("n't")
         words = lowered.split { !$0.isLetter && !$0.isNumber }.map(String.init)
@@ -147,6 +156,15 @@ private struct Reading {
         containsStem(["overdue", "просроч", "простроч"])
     }
 
+    /// "Overdue" said of service work: next to a service word ("ТО", "service", "обслуживание") or a
+    /// catalog operation. An overdue insurance, inspection or parking fine is not the car's countdown.
+    var mentionsServiceOverdue: Bool {
+        guard mentionsOverdue else { return false }
+        let namesService = namesScheduledService || containsWord(["service", "servicing", "maintenance"])
+            || containsStem(["сервис", "сервіс", "обслуж", "обслуг", "техобслуж"])
+        return namesService || operation != nil
+    }
+
     /// What the display says is left: a number after a countdown marker ("in", "через", "до ТО",
     /// "overdue by", "просрочено на") or before "left" / "overdue" after its unit, followed by a distance
     /// unit or a day word. A second value joined by "and" continues the countdown. A number after
@@ -177,12 +195,23 @@ private struct Reading {
         return (distance, unit, days)
     }
 
-    /// +1 for a countdown still ahead, −1 for an overdue one, nil when the number is not marked as a
-    /// countdown at all. Only the word right before the number counts, or "left" right after its unit.
+    /// A number marked overdue and followed by a unit or a day word: an overdue countdown value, whether
+    /// or not it could be read as one.
+    var hasOverdueMarkedValue: Bool {
+        words.indices.contains { index in
+            guard joinedNumber(from: index) != nil, let next = nextWord(after: index, skippingDigits: true),
+                  Self.isUnitOrDayWord(next)
+            else { return false }
+            return countdownSign(before: index, unitWord: next) == -1
+        }
+    }
+
+    /// +1 ahead, −1 overdue, nil when unmarked. Only the word right before the number counts, or "left" /
+    /// "overdue" right after a unit or day word; never past any other word ("пробег 91500, ТО просрочено").
     private func countdownSign(before index: Int, unitWord: String) -> Double? {
         let previous = index > 0 ? words[index - 1] : nil
         let beforePrevious = index > 1 ? words[index - 2] : nil
-        let afterUnit = word(after: unitWord, from: index)
+        let afterUnit = Self.isUnitOrDayWord(unitWord) ? word(after: unitWord, from: index) : nil
         if let previous, Self.overdueMarkers.contains(previous) || (previous == "by" && beforePrevious == "overdue")
             || (previous == "на" && beforePrevious.map(Self.overdueMarkers.contains) == true)
         {
@@ -206,6 +235,10 @@ private struct Reading {
             return nil
         }
         return words[unitIndex + 1]
+    }
+
+    private static func isUnitOrDayWord(_ word: String) -> Bool {
+        units.contains(word) || mileUnits.contains(word) || dayWords.contains(where: word.hasPrefix)
     }
 
     private static func isMileageWord(_ word: String) -> Bool {
@@ -265,9 +298,14 @@ private struct Reading {
 
     private func mileage(allowingLooseMarkers: Bool) -> Double? {
         var candidates: [Double] = []
-        for (index, _) in words.enumerated() {
+        for index in words.indices {
             guard let value = joinedNumber(from: index) else { continue }
-            let unitFollows = nextWord(after: index, skippingDigits: true).map(Self.units.contains) ?? false
+            let following = nextWord(after: index, skippingDigits: true)
+            // "Просрочено на 300 км" is how far past something is, never where the car is.
+            if let following, countdownSign(before: index, unitWord: following) == -1 {
+                continue
+            }
+            let unitFollows = following.map(Self.units.contains) ?? false
             let previous = previousWord(before: index)
             let markerPrecedes = previous.map { word in
                 word.hasPrefix("пробег") || word.hasPrefix("одометр") || Self.mileageWords.contains(word)

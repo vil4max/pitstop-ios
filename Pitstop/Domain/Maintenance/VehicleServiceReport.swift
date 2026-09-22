@@ -23,10 +23,11 @@ public struct VehicleServiceReport: Identifiable, Hashable, Codable, Sendable {
     /// A date shown by the car, stored as whole days. Negative means overdue.
     public let remainingDays: Int?
     public let source: Source
-    /// The newest completion of this operation that was already saved when this reading was saved; set
-    /// by the store, never by the caller. It orders a reading and a completion of the same day by when
-    /// each was saved: a same-day completion other than this one was saved after the reading (ADR 0035).
-    public let completionIDAtEntry: UUID?
+    /// Every completion of this operation already saved when this reading was saved; set by the store,
+    /// never by the caller. It orders a reading and a completion of the same day by when each was saved:
+    /// a same-day completion not in this set was saved after the reading. A set, not the newest one
+    /// alone, so undoing the newest leaves an earlier same-day completion known as earlier (ADR 0035).
+    public let completionIDsAtEntry: Set<UUID>
 
     public init(
         id: UUID = UUID(),
@@ -38,7 +39,7 @@ public struct VehicleServiceReport: Identifiable, Hashable, Codable, Sendable {
         distanceUnit: DistanceUnit = .kilometers,
         remainingDays: Int? = nil,
         source: Source = .manualEntry,
-        completionIDAtEntry: UUID? = nil
+        completionIDsAtEntry: Set<UUID> = []
     ) {
         self.id = id
         self.vehicleID = vehicleID
@@ -49,15 +50,16 @@ public struct VehicleServiceReport: Identifiable, Hashable, Codable, Sendable {
         self.distanceUnit = distanceUnit
         self.remainingDays = remainingDays
         self.source = source
-        self.completionIDAtEntry = completionIDAtEntry
+        self.completionIDsAtEntry = completionIDsAtEntry
     }
 
-    /// The same reading as the store saves it: stamped with the operation's newest completion at that moment.
-    public func entered(after completion: MaintenanceCompletion?) -> VehicleServiceReport {
+    /// The same reading as the store saves it: stamped with the operation's completions saved by then.
+    public func entered(after completions: some Sequence<MaintenanceCompletion>) -> VehicleServiceReport {
         VehicleServiceReport(
             id: id, vehicleID: vehicleID, operationID: operationID, reportedAt: reportedAt,
             odometerKm: odometerKm, remainingDistance: remainingDistance, distanceUnit: distanceUnit,
-            remainingDays: remainingDays, source: source, completionIDAtEntry: completion?.id
+            remainingDays: remainingDays, source: source,
+            completionIDsAtEntry: Set(completions.filter { $0.operationID == operationID }.map(\.id))
         )
     }
 }
@@ -111,8 +113,8 @@ public extension VehicleServiceReport {
     /// A completion confirmed after the reading resets the car's own countdown too, so the reading
     /// stops deciding anything (core C5, ADR 0035). On different days the calendar day decides. On the
     /// same day the order in which the two were saved decides, never the times they carry: "Mark done"
-    /// keeps the time its sheet was opened. A same-day completion that is not the one already saved when
-    /// the reading was saved came after it, so "300 km overdue" in the morning and "Mark done" in the
+    /// keeps the time its sheet was opened. A same-day completion that was not already saved when the
+    /// reading was saved came after it, so "300 km overdue" in the morning and "Mark done" in the
     /// afternoon supersede the reading.
     func isSuperseded(
         by completion: MaintenanceCompletion?,
@@ -122,15 +124,7 @@ public extension VehicleServiceReport {
         let reportDay = calendar.startOfDay(for: reportedAt)
         let completionDay = calendar.startOfDay(for: completion.performedAt)
         guard completionDay == reportDay else { return completionDay > reportDay }
-        return completion.id != completionIDAtEntry
-    }
-}
-
-public extension Sequence<MaintenanceCompletion> {
-    /// The completion the engine counts from for `operation`: the latest by date, the ID deciding a tie.
-    func newest(of operation: MaintenanceOperationID) -> MaintenanceCompletion? {
-        filter { $0.operationID == operation }
-            .max { ($0.performedAt, $0.id.uuidString) < ($1.performedAt, $1.id.uuidString) }
+        return !completionIDsAtEntry.contains(completion.id)
     }
 }
 

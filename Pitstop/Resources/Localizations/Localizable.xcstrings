@@ -5326,19 +5326,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Only what the car said is removed. Completions, History and your interval stay."
+            "value" : "Every reading entered for this service is removed, with the mileage it was entered at. Completions, History and your interval stay."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удаляется только то, что показывала машина. Выполненные работы, история и ваш интервал остаются."
+            "value" : "Удаляются все показания панели для этой работы вместе с пробегом, при котором они введены. Выполненные работы, история и ваш интервал остаются."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Видаляється лише те, що показувала машина. Виконані роботи, історія та ваш інтервал залишаються."
+            "value" : "Видаляються всі показання панелі для цієї роботи разом із пробігом, за якого їх введено. Виконані роботи, історія та ваш інтервал залишаються."
           }
         }
       }
