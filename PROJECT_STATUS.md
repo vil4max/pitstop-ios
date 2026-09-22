@@ -1,7 +1,7 @@
 # PitStop — Project Status
 
 **Project State:** Active — product baseline delivered; open work in the work plan  
-**Next task:** none planned; the owner schedules RD-000 ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
+**Next task:** RD-000, the first iOS 27 redesign card (`next`; the owner starts it in a new session, [`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
 **TestFlight:** version 1.1.0 (tag `tf-1.1.0-2`); delivery is tag-gated (ADR 0013)
 
@@ -35,6 +35,9 @@ project marker is gitignored.
   would hit are in the
   [MNT-INT-001 record](docs/planning/investigations/mnt-int-001-maintenance-intelligence.md);
   a real market and source stay owner-only (MNT-INT-003).
+- The app icon shows Pit's round head from the redesign (ICON-002, ADR 0037),
+  ahead of the redesign itself; until RD-011 the app still draws the eyes in
+  the glass circle.
 - Remaining work: SYS-007 is delivered (ADR 0036); the iOS 27 redesign cards, owner-only device checks, and
   owner decisions. All are in
   [`docs/planning/work-plan.md`](docs/planning/work-plan.md).

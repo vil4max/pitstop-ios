@@ -139,8 +139,8 @@ Avoid:
 
 Pit's head is the utility control (the 56 pt circle) and appears in the Pit
 capture sheet header (44 pt). The widget and the
-control keep the capture glyph (ADR 0025). The app icon stays eyes-only
-(REQ-ICON-001) and uses the lens geometry.
+control keep the capture glyph (ADR 0025). The app icon shows the same head
+at rest (REQ-ICON-001, ADR 0037).
 
 > Pit waits nearby.
 

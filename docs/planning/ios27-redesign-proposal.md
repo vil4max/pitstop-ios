@@ -4,7 +4,8 @@
 applied to the requirement files on 2026-09-22 (owner: "design decisions
 are made and approved in the design session"); ADRs are still written by the
 cards. Earlier text: requirement and ADR edits still happen card by card (spec
-pyramid: propose, then approve per file). No code changed yet\
+pyramid: propose, then approve per file). No app code changed yet; the app
+icon shipped ahead of the cards with Pit's head (ICON-002, ADR 0037)\
 **Mockups:** [`../design/ios27-mockups.html`](../design/ios27-mockups.html),
 a self-contained HTML page kept in the repository until the redesign is fully
 implemented (owner decision 2026-09-22: not published to Figma). Open it in a
@@ -299,8 +300,8 @@ Deltas:
   disabled, Then every state has a distinct static geometry (outline, tilt or
   offset) and the inward tilt never exceeds 6°.
 - `app-icon.md`: unchanged wording; the icon is regenerated from the new
-  `PitEyeShape` per ADR 0029 "Editing" (REQ-ICON-002). REQ-ICON-001 still
-  holds.
+  `PitEyeShape` per ADR 0029 "Editing" (REQ-ICON-002). REQ-ICON-001 was
+  later reworded to the head (§3.6d).
 - ADR 0028 is not edited; a follow-up ADR records the geometry change and
   the reference, and the vocabulary test keeps one geometry per state.
 - The lens geometry applies to every Pit mark: the utility control, the
@@ -446,6 +447,12 @@ Spec conflicts the owner decides:
   Pit is resting or idle, When no motion-table state is active, Then the
   head neither tilts nor lifts; only the states in the motion table move it.
 
+Decided 2026-09-22: the round head is chosen and its wording is applied to
+`product-design.md` ("Pit visual identity"); REQ-PIT-024 is approved; the
+app icon shows the same head at rest: REQ-ICON-001 is reworded from the
+eyes to the head (owner decision 2026-09-22) and the icon was rebuilt in Icon
+Composer ahead of the redesign as ICON-002 (ADR 0037).
+
 ### 3.6e Pit is always on screen (owner rule, 2026-09-22)
 
 Pit is the anchor point for talking to the app, so he is never hidden: the
@@ -462,8 +469,9 @@ a tap on Pit inside the sheet is the owner's own action and opens at once.
 
 ### 3.7 `requirements/app-icon.md`
 
-- No change. The utility mark and the sheet eyes keep the icon geometry
-  (REQ-ICON-002). Owner question: whether the data-free widget should show
+- The icon shows Pit's head at rest (REQ-ICON-001 reworded, owner decision
+  2026-09-22); the utility control, the sheet header and the icon share one
+  geometry (REQ-ICON-002). Owner question: whether the data-free widget should show
   Pit's eyes instead of the capture glyph (ADR 0025 chose the glyph so the
   widget shows the action, not the icon; the proposal keeps the glyph).
 

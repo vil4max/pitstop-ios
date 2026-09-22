@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** none planned; the owner schedules RD-000  
+**Next task:** RD-000 (`next`); the owner starts it in a new session  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -9,8 +9,9 @@
 
 ## Plan
 
-No implementation card is open outside the redesign section below; the
-owner schedules RD-000.
+No implementation card is open outside the redesign section below. The
+next step is the redesign, starting with RD-000; the app icon already shows
+the redesigned Pit (ICON-002, ADR 0037) as its announcement.
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
 now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
@@ -22,8 +23,8 @@ Proposal: [`ios27-redesign-proposal.md`](ios27-redesign-proposal.md),
 approved by the owner on 2026-09-22; the mockup page lives in
 [`../design/ios27-mockups.html`](../design/ios27-mockups.html) until the
 redesign is implemented (no Figma screens by owner decision). RD-000 goes first because
-every screen card uses its components; it becomes `next` when the owner
-schedules it after the current queue. The cards run strictly one at a time
+every screen card uses its components; it is `next`, and nobody starts it
+until the owner opens the session for it. The cards run strictly one at a time
 on one redesign branch (`redesign/ios27`), because they share the design
 system, the string catalog and the same screens; `main` stays releasable to
 TestFlight throughout, and the branch merges when the last card lands.
@@ -40,7 +41,7 @@ on screen" until a snapshot-testing card exists.
 
 | ID | Screen | Est | Depends on | Status | Acceptance (summary) |
 |---|---|---:|---|---|---|
-| RD-000 | Design system: `surfaceTint`, `contentOnAccent`, `StatusChip`, `StageSurface`, `EmptyState`, `RemainingShareTrack`, `GlassPill`, `StepStrip`; typography role table; preview matrix; redesign ADR; colour-literal check in `just verify` | 2d | — | planned | Components render in light, dark and AX text previews; a SwiftLint custom rule or script in `just verify` fails on any colour literal or `Color.blue`-style use under `Features/` (REQ-DESIGN-004 is checked, not wished); REQ-DESIGN-001…003 tests |
+| RD-000 | Design system: `surfaceTint`, `contentOnAccent`, `StatusChip`, `StageSurface`, `EmptyState`, `RemainingShareTrack`, `GlassPill`, `StepStrip`; typography role table; preview matrix; redesign ADR; colour-literal check in `just verify` | 2d | — | next | Components render in light, dark and AX text previews; a SwiftLint custom rule or script in `just verify` fails on any colour literal or `Color.blue`-style use under `Features/` (REQ-DESIGN-004 is checked, not wished); REQ-DESIGN-001…003 tests |
 | RD-001 | Car Board: tinted stage with mileage and recency, glass pencil, tile anatomy with chip and chevron, Road tile markers | 2d | RD-000 | planned | REQ-BOARD-001…028 pass; recency derived only from the observation date; AX sizes stack half tiles; VoiceOver reads heading, hero action, tiles in order |
 | RD-002 | Road: marker vocabulary, "Back to now" glass pill, grouped milestone list under "Ahead" and "Waiting for mileage", one-line past summary, estimate line kept tertiary | 2d | RD-000; MNT-VR-002 on `main` | planned | REQ-ROAD-004, 008…015, 027, 028 pass; lane and list show identical milestones; Reduce Motion return without animation; overdue never red |
 | RD-003 | Service: one "Track" toolbar menu with the delivered "Track an operation" and "Track several" items and their disable rules, grouped "Next visit" and "Tracked" lists, status chips, remaining-share track, visible "Mark as done", more menu with the dashboard-reading entries | 2d | RD-000; MNT-VR-002 on `main` | planned | Existing Service tests pass unchanged; track drawn only with a known interval, a last completion and a mileage observation newer than 90 days; `unknown` and stale mileage draw no track; VoiceOver reads the fact line, not the bar |
@@ -51,7 +52,7 @@ on screen" until a snapshot-testing card exists.
 | RD-008 | Sparse states: EmptyState on Road, Service, History, Notes and the first-launch board | 1d | RD-000 | planned | REQ-GRAMMAR-004; no placeholder metric; wording unchanged; one or two actions |
 | RD-009 | Widgets: delivered widget restyled with the shared glyph disc and tokens; SYS-007 frames become that card's input | 0.5d | RD-000 | planned | WidgetEntryTests pass; no data read; tinted and dark appearances checked in the gallery (DEV-WIDGET) |
 | RD-010 | Utility layer and Settings: no geometry change; REQ-UTILITY-012 test; Settings unchanged | 0.5d | RD-000 | planned | Layer position identical on Car Board and every detail screen; Pit stays on screen inside every sheet and above the keyboard (REQ-UTILITY-012, REQ-PIT-026), checked on the simulator at the medium and large detents; tapping Pit in a sheet opens capture over it and returns with the input intact; edge cases checked: a capture over "Mark as done" for the same operation leaves no duplicate completion when the editor then saves; Pit is disabled while Track several, the planned date editor or the dashboard reading is saving; above the keyboard Pit covers neither a sheet's trailing controls nor a keyboard accessory, at AX sizes (and in landscape if the app supports it) |
-| RD-011 | Pit character: round head (the utility circle itself) with a navy visor and lit lens eyes (owner request, proposal §3.6d), per-eye tilt, head tilt and lift only in motion-table states, accent eyes on knock; icon stays eyes-only unless REQ-ICON-001 is re-approved | 2d | RD-000; owner decision on the product-design wording (§3.6d) | planned | Every motion state has a distinct static pose (REQ-PIT-022); inward tilt ≤ 6°; knock uses the accent (REQ-PIT-023); head still when idle (REQ-PIT-024); ADR 0028 tests pass; Reduce Motion poses checked; the head keeps the pressed-state feedback the glass circle gave (scale and highlight on touch); Reduce Transparency and Increase Contrast variants of the shell, bezel and visor; contrast and separation of the head checked over light and dark scrolling content; the ADR amends ADR 0009 for the Pit control (no glass) |
+| RD-011 | Pit character: round head (the utility circle itself) with a navy visor and lit lens eyes (owner request, proposal §3.6d), per-eye tilt, head tilt and lift only in motion-table states, accent eyes on knock; the head matches the delivered icon geometry (ADR 0037), and a geometry change regenerates the icon in this card | 2d | RD-000 | planned | Every motion state has a distinct static pose (REQ-PIT-022); inward tilt ≤ 6°; knock uses the accent (REQ-PIT-023); head still when idle (REQ-PIT-024); ADR 0028 tests pass; Reduce Motion poses checked; the head keeps the pressed-state feedback the glass circle gave (scale and highlight on touch); Reduce Transparency and Increase Contrast variants of the shell, bezel and visor; contrast and separation of the head checked over light and dark scrolling content; the ADR amends ADR 0009 for the Pit control (no glass) |
 | RD-012 | Car profile: `PhotosPicker` in the car editor (no camera), on-device subject lift onto the stage, the owner's side-view placeholders facing right, SUV (default) or sedan chosen in the car editor, replacing `AbstractCarView` (AI-generated by the owner, provenance in `docs/design/assets/README.md`), 28 / 44 pt avatar in headers, Road "Now" and Pit; the next schema version after the newest on `main`, previous one frozen; car-profile ADR | 3d | RD-001 | planned | REQ-BOARD-029…031, REQ-DESIGN-005 and the REQ-BOARD-017 wording change; migration tests from every shipped schema version; photo stored as a file, never in a row, analytics, logs, a widget timeline entry or the repository; placeholder source and licence recorded; failed lift falls back to the masked photo; deleting the photo removes the file; widget avatar waits for SYS-007 |
 
 ## Owner-only work
@@ -61,6 +62,7 @@ on screen" until a snapshot-testing card exists.
 | MNT-INT-003 | Private licence and terms review of one real maintenance source, outside this repository (MNT-INT-002 is done; needs a market decision) | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md) |
 | DEV-SIRI | Device check list: Siri in ru and uk, reply language, locked phone, prompt time against the 30-second limit | ADR 0026 |
 | DEV-WIDGET | Widget gallery (capture and next-service widgets), Control Center, Lock Screen control and rectangular/inline widget, Action button, Shortcuts listing; TestFlight upgrade check of the store move; first Xcode Cloud archive carries the App Group in both profiles | ADR 0025, ADR 0026, ADR 0036 |
+| DEV-ICON | Home Screen app icon on a device in dark, clear and tinted styles; glass tuning by eye in Icon Composer | ADR 0029, ADR 0037 |
 | DEV-FM | Device evaluation of English captures with Foundation Models; then close or keep CAP-005 open, decide the Release rollout gate and the `interpreter_version` value | ADR 0027 |
 
 ## Owner decisions pending
@@ -127,7 +129,9 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
 - Pit motion: PIT-MOTION-001, livelier eyes and the full motion language
   (owner request 2026-09-21, ADR 0028).
 - App icon: ICON-001, Pit's eyes as a Liquid Glass Icon Composer icon
-  (owner decision 2026-09-21, ADR 0029).
+  (owner decision 2026-09-21, ADR 0029); ICON-002 redrew it as Pit's round
+  head from the redesign, shipped ahead of the redesign (owner decision
+  2026-09-22, ADR 0037).
 - Launch screen: the old "P" artwork replaced by Car Board's plain grouped
   background, per HIG "Launching" (ADR 0029, "Launch screen").
 - System capture: SYS-001…006 (ADR 0023–0026).

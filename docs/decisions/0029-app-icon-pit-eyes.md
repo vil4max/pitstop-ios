@@ -1,6 +1,7 @@
 # App Icon: Pit's Eyes in Liquid Glass
 
-**Status:** Accepted (owner decision 2026-09-21)\
+**Status:** Accepted (owner decision 2026-09-21); motif, layers and groups
+amended by [ADR 0037](0037-app-icon-pit-head.md) (Pit's head, 2026-09-22)\
 **Task:** ICON-001\
 **Builds on:** [`0009-design-language.md`](0009-design-language.md) (colour roles, Pit mark),
 [`0028-pit-eyes-and-motion.md`](0028-pit-eyes-and-motion.md) (eye geometry)\
