@@ -169,7 +169,7 @@ resting → startle → knock
 
 Pit:
 
-> Кстати. Масло через сколько обычно меняешь?
+> By the way, how often do you usually change the oil?
 
 Choices:
 
@@ -177,7 +177,7 @@ Choices:
 5 000
 7 500
 10 000
-Не знаю
+I don't know
 ```
 
 This is in-app behaviour. It is not a push notification.
