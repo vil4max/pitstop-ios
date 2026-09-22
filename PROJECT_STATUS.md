@@ -1,7 +1,7 @@
 # PitStop — Project Status
 
-**Project State:** Active — product baseline delivered; open work in the work plan  
-**Next task:** RD-000, the first iOS 27 redesign card (`next`; the owner starts it in a new session, [`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
+**Project State:** Frozen temporarily since 2026-09-22 (owner decision); no work starts until the owner unfreezes it  
+**Next task:** RD-000, the first iOS 27 redesign card (`next`; starts in a new session after the owner unfreezes the project, [`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
 **TestFlight:** version 1.1.0 (tag `tf-1.1.0-2`); delivery is tag-gated (ADR 0013)
 

@@ -1,7 +1,7 @@
 # Work Plan
 
-**Status:** Active; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** RD-000 (`next`); the owner starts it in a new session  
+**Status:** Frozen temporarily since 2026-09-22 (owner decision); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
+**Next task:** RD-000 (`next`); starts in a new session after the owner unfreezes the project  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
