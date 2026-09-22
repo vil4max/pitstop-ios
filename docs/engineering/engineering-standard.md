@@ -107,7 +107,7 @@ testManagerMethod
 Fixtures are explicit domain examples, not production recommendations
 unless sourced.
 
-Required abstraction fixtures: - Arteon custom oil cadence; - DSG
+Required abstraction fixtures: - fictional Kestrel custom oil cadence; - DSG
 independent distance cycle; - AWD/Haldex independent cycle; -
 brake-fluid time cycle; - BMW-like vehicle-reported condition fixture; -
 unknown baseline; - partial service; - early completion.

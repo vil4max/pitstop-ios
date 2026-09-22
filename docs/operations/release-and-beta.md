@@ -46,7 +46,7 @@ composition; - history recording.
 
 ## Beta cohort
 
-Target: - Max / Arteon; - five friends; - different cars where possible.
+Target: - the owner's own car; - five friends; - different cars where possible.
 
 Avoid collecting unnecessary demographic data.
 

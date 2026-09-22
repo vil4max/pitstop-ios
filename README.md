@@ -24,7 +24,7 @@ not a shipped feature list. What the app implements today is in the
 
 - **Repo:** [vil4max/pitstop-ios](https://github.com/vil4max/pitstop-ios) (public, ADR 0014)
 - **TestFlight:** tag-gated through Xcode Cloud (ADR 0013); version 1.1.0
-- **Bundle ID:** `dev.vil4max.pitstop` (new App Store listing; not an update from `dev.vilchevskyi.arteon`)
+- **Bundle ID:** `dev.vil4max.pitstop` (new App Store listing; not an update of the earlier prototype bundle)
 - **SwiftData:** no automatic migration between bundle IDs; fresh install or manual re-import
 - **iCloud (future):** `iCloud.dev.vil4max.pitstop`
 

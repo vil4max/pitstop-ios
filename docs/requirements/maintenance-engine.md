@@ -177,7 +177,7 @@ current service anchor
 
 Do not ask the LLM whether DSG is "close enough."
 
-The planner may use explicit grouping tolerances for the Arteon fixture
+The planner may use explicit grouping tolerances for the Kestrel fixture
 during the spike.
 
 A future knowledge source may provide operation-specific grouping
@@ -278,7 +278,7 @@ Implements core constraint C5 ([`../core.md`](../core.md#constraints)).
 -   Partial service resets only confirmed operations.
 -   Service Planner can compose a multi-operation scope.
 -   Optional items do not become due merely because they were suggested.
--   Current seeded Arteon data can be adapted without immediate
+-   Current seeded demo data can be adapted without immediate
     destructive migration.
 
 ## Failure criteria
