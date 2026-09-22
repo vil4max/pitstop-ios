@@ -22,6 +22,44 @@ Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
 now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
 external entry; needs a voice capture path in Pit).
 
+## Redesign (iOS 27)
+
+Proposal: [`ios27-redesign-proposal.md`](ios27-redesign-proposal.md),
+approved by the owner on 2026-09-22; the mockup page lives in
+[`../design/ios27-mockups.html`](../design/ios27-mockups.html) until the
+redesign is implemented (no Figma screens by owner decision). RD-000 goes first because
+every screen card uses its components; it becomes `next` when the owner
+schedules it after the current queue. The cards run strictly one at a time
+on one redesign branch (`redesign/ios27`), because they share the design
+system, the string catalog and the same screens; `main` stays releasable to
+TestFlight throughout, and the branch merges when the last card lands.
+Each card is one screen, keeps that screen's behaviour and tests, adds
+light/dark and accessibility-extra-large previews, updates
+`docs/design/ios27-mockups.html` if the screen deviates from it, and updates the screen's row in
+`docs/engineering/system-overview.md`. The redesign ADR is written with RD-000
+and numbered after the newest ADR on `main` at that time. Not part of these cards: the SYS-007 widgets; RD-003 restyles the delivered
+MNT-VR-002 row line, sheet and menu entries without changing their wording.
+ROAD-EST-002 has landed its estimate line on Road; RD-002 keeps it as
+delivered. Text-clipping at accessibility
+sizes (proposed REQ-GRAMMAR-003) is a manual check listed under "Not verified
+on screen" until a snapshot-testing card exists.
+
+| ID | Screen | Est | Depends on | Status | Acceptance (summary) |
+|---|---|---:|---|---|---|
+| RD-000 | Design system: `surfaceTint`, `contentOnAccent`, `StatusChip`, `StageSurface`, `EmptyState`, `RemainingShareTrack`, `GlassPill`, `StepStrip`; typography role table; preview matrix; redesign ADR; colour-literal check in `just verify` | 2d | — | planned | Components render in light, dark and AX text previews; a SwiftLint custom rule or script in `just verify` fails on any colour literal or `Color.blue`-style use under `Features/` (REQ-DESIGN-004 is checked, not wished); REQ-DESIGN-001…003 tests |
+| RD-001 | Car Board: tinted stage with mileage and recency, glass pencil, tile anatomy with chip and chevron, Road tile markers | 2d | RD-000 | planned | REQ-BOARD-001…028 pass; recency derived only from the observation date; AX sizes stack half tiles; VoiceOver reads heading, hero action, tiles in order |
+| RD-002 | Road: marker vocabulary, "Back to now" glass pill, grouped milestone list under "Ahead" and "Waiting for mileage", one-line past summary, estimate line kept tertiary | 2d | RD-000; MNT-VR-002 on `main` | planned | REQ-ROAD-004, 008…015, 027, 028 pass; lane and list show identical milestones; Reduce Motion return without animation; overdue never red |
+| RD-003 | Service: one "Track" toolbar menu with the delivered "Track an operation" and "Track several" items and their disable rules, grouped "Next visit" and "Tracked" lists, status chips, remaining-share track, visible "Mark as done", more menu with the dashboard-reading entries | 2d | RD-000; MNT-VR-002 on `main` | planned | Existing Service tests pass unchanged; track drawn only with a known interval, a last completion and a mileage observation newer than 90 days; `unknown` and stale mileage draw no track; VoiceOver reads the fact line, not the bar |
+| RD-004 | Track several: step strip, tinted quick-pick chips, stacked Confirm and Back | 1d | RD-003 | planned | ADR 0033 tests pass unchanged; step labels never truncate; chip selected only when the field holds the value |
+| RD-005 | History: month groups, rail, distinct completions with "corrected on Service" line | 1d | RD-000 | planned | HistoryTests pass; grouping deterministic by calendar month; completions not editable here |
+| RD-006 | Notes: grouped rows, meta line, archive glyph plus swipe, wrapping chips at AX sizes | 1d | RD-000 | planned | NotesTests pass; unclassified notes stay under "All"; archive reachable by row action, swipe and VoiceOver action |
+| RD-007 | Pit capture sheet: eyes beside a moment title, composer with prominent action, question card above the composer, quoted raw words in confirmation, saved state | 2d | RD-000 | planned | Capture and Pit tests pass unchanged; REQ-PIT-021; large detent at AX sizes; one question at a time; Close cancels unsent words |
+| RD-008 | Sparse states: EmptyState on Road, Service, History, Notes and the first-launch board | 1d | RD-000 | planned | REQ-GRAMMAR-004; no placeholder metric; wording unchanged; one or two actions |
+| RD-009 | Widgets: delivered widget restyled with the shared glyph disc and tokens; SYS-007 frames become that card's input | 0.5d | RD-000 | planned | WidgetEntryTests pass; no data read; tinted and dark appearances checked in the gallery (DEV-WIDGET) |
+| RD-010 | Utility layer and Settings: no geometry change; REQ-UTILITY-012 test; Settings unchanged | 0.5d | RD-000 | planned | Layer position identical on Car Board and every detail screen; REQ-UTILITY-012 wording settled by the simulator check at the medium detent |
+| RD-011 | Pit eyes geometry: lens outline with per-eye tilt (owner gaze reference, proposal §3.6b), regenerated app icon, neutral glass control with accent-coloured eyes on knock (owner decision: option A) | 1.5d | RD-000 | planned | Every motion state has a distinct static geometry (REQ-PIT-022); inward tilt ≤ 6°; ADR 0028 tests pass; icon rendered in six appearances at 1024, 120, 60, 40 px (REQ-ICON-002…005); Reduce Motion poses checked; knock draws the eyes in the accent and every other state in the content colour (REQ-PIT-023) |
+| RD-012 | Car profile: `PhotosPicker` in the car editor (no camera), on-device subject lift onto the stage, one neutral placeholder replacing `AbstractCarView` (original artwork or recorded permissive licence), 28 / 44 pt avatar in headers, Road "Now" and Pit; the next schema version after the newest on `main`, previous one frozen; car-profile ADR | 3d | RD-001 | planned | REQ-BOARD-029…031 and the REQ-BOARD-017 wording change; migration tests from every shipped schema version; photo stored as a file, never in a row, analytics, logs, a widget timeline entry or the repository; placeholder source and licence recorded; failed lift falls back to the masked photo; deleting the photo removes the file; widget avatar waits for SYS-007 |
+
 ## Owner-only work
 
 | ID | Item | Source |
@@ -73,7 +111,8 @@ correcting, archiving and restoring notes; the dashboard reading sheet, the
 "Car says" line, "old" wording, supersede by "Mark done", delete, the Road
 "from dashboard" suffix and the Pit dashboard capture (MNT-VR-002); VoiceOver order, AX5 text size,
 Reduce Transparency and ru/uk strings on screen; question returns that need
-days of clock time.
+days of clock time; after each RD card lands, text clipping at the
+largest Dynamic Type size on that screen (proposed REQ-GRAMMAR-003, manual).
 
 ## Delivered
 
