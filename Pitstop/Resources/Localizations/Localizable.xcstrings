@@ -6649,28 +6649,6 @@
         }
       }
     },
-    "surface.pending.detail" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This part of PitStop is being built. Nothing here is lost or hidden."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Эта часть PitStop ещё в работе. Здесь ничего не потеряно и не скрыто."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ця частина PitStop ще в роботі. Тут нічого не втрачено і не приховано."
-          }
-        }
-      }
-    },
     "tile.history.empty.detail" : {
       "localizations" : {
         "en" : {

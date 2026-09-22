@@ -261,19 +261,6 @@ struct RootView: View {
             ServiceView(viewModel: service, carName: carBoard.state.car.name)
         case .tile(.history):
             HistoryView(viewModel: history, carName: carBoard.state.car.name)
-        case let .tile(kind):
-            FeatureScaffold(carName: carBoard.state.car.name, title: title(for: kind)) {
-                PendingSurfaceView(kind: kind)
-            }
-        }
-    }
-
-    private func title(for kind: CarBoardTileKind) -> String {
-        switch kind {
-        case .road: String(localized: "tile.road.title")
-        case .notes: String(localized: "tile.notes.title")
-        case .service: String(localized: "tile.service.title")
-        case .history: String(localized: "tile.history.title")
         }
     }
 }
