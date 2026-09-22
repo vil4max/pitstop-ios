@@ -169,4 +169,20 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
   unknown fact yields no recommendation, the owner's policy stays effective;
   no production change. Owner decision 2026-09-22 under the "do everything"
   delegation; production-model gaps are listed in the MNT-INT-001 record.
+- Pre-redesign preparation: PREP-002, 004, 005, 009, 010, 011, 012, 014 and
+  015, behaviour- and pixel-preserving except the fictional example name. The
+  unreachable pending surface and its string are gone (PREP-011);
+  `DesignSystem/Components/LoadFailureBanner` serves five screens (PREP-002);
+  `Features/Shared` gains `FeatureEmptyState` (PREP-004), `SaveSheetScaffold`
+  for six editors, with `MarkDoneView` keeping its in-form confirmation
+  (PREP-005), `FeatureFormat` for day recency, mileage and amount precision
+  (PREP-010), and `ProgressText` with the neutral `progress.*` keys shared by
+  Service and Road (PREP-009); `RootView` and `ServiceView` bodies are under the
+  80-line lint warning (PREP-012); tests share `TestViewModels` and `TestStore`
+  from `PitstopTests/Support` (PREP-014); fixtures, demo data and the car-name
+  placeholder use the fictional Kestrel and VIN-like values that cannot be
+  real (PREP-015). PREP-006 was not done: `Color.accentColor` does not follow
+  `.tint`, so the two Track several uses do not render `PitColor.accentPrimary`
+  today, and routing them through it is a visible colour change left to the
+  redesign.
 - TestFlight: 1.0.0 and 1.1.0 rounds (tags `tf-1.0.0-1`, `tf-1.1.0-1`).

@@ -119,11 +119,11 @@ flowchart TB
         fPit["Pit"]
         fSet["Settings"]
         fSys["SystemCapture"]
-        fShared["Shared: FeatureScaffold, PersistenceMode, InputParsing, WholeNumberInput, OdometerAnalytics"]
+        fShared["Shared: FeatureScaffold, FeatureEmptyState, SaveSheetScaffold, FeatureFormat, ProgressText, PersistenceMode, InputParsing, WholeNumberInput, OdometerAnalytics"]
     end
 
     subgraph ds["DesignSystem"]
-        dsC["PitEyesGlyph, UtilityLayer, TileCard, ScreenHeader, PitColor, DesignTokens"]
+        dsC["PitEyesGlyph, UtilityLayer, TileCard, ScreenHeader, LoadFailureBanner, PitColor, DesignTokens"]
     end
 
     subgraph domL["Domain (Foundation and Synchronization only)"]
@@ -821,5 +821,9 @@ change by its owner.
   CarBoard's `CarBoardRoute`; Pit's `CaptureAnalytics` sends Notes'
   `NotesAnalyticsEvent` and `NoteInputSource`; SystemCapture's
   `RememberIntentHandler` replies with Pit's `PitDestination`; CarBoard's tile
-  embeds Road's `RoadLaneView`; `Features/Shared/FeatureScaffold` takes CarBoard's
-  `CarBoardTileKind`.
+  embeds Road's `RoadLaneView`. Resolved by PREP-011: `Features/Shared/FeatureScaffold`
+  no longer takes CarBoard's `CarBoardTileKind`, because the unreachable pending
+  surface that needed it was removed. Resolved by PREP-009 and PREP-010: Road no
+  longer reads Service's `service.progress.*` keys and the Car Board tile no
+  longer calls a History extension for recency; both go through `Features/Shared`
+  (`ProgressText`, `FeatureFormat`).
