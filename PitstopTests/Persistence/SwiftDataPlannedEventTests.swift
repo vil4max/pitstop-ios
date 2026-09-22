@@ -6,20 +6,6 @@ import Testing
 private let now = DomainFixtures.Odometers.baseDate
 private let day: TimeInterval = 86400
 
-private func makeStore(url: URL? = nil) throws -> SwiftDataCarMemoryStore {
-    try SwiftDataCarMemoryStore(modelContainer: PersistenceContainer.make(storeURL: url))
-}
-
-private func temporaryStoreURL() -> URL {
-    URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-}
-
-private func removeStore(at url: URL) {
-    for suffix in ["", "-shm", "-wal"] {
-        try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-    }
-}
-
 private func planned(
     _ vehicleID: VehicleID,
     _ kind: PlannedDatedEvent.Kind = .insuranceExpiry,
@@ -39,12 +25,12 @@ private func planned(
 struct SwiftDataPlannedEventTests {
     @Test("REQ-ROAD-021: planned dates survive a reopen, earliest first, with only kind, date and label")
     func roundTripSurvivesReopen() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let insurance: PlannedDatedEvent
         let tyres: PlannedDatedEvent
         do {
-            let store = try makeStore(url: url)
+            let store = try TestStore.carMemory(url: url)
             let vehicleID = try await store.currentVehicle().id
             insurance = planned(vehicleID, inDays: 200)
             tyres = planned(vehicleID, .other(label: "Winter tyres"), inDays: 30)
@@ -53,7 +39,7 @@ struct SwiftDataPlannedEventTests {
             try await store.execute(.addPlannedEvent(.init(event: tyres)), now: now)
         }
 
-        let reopened = try makeStore(url: url)
+        let reopened = try TestStore.carMemory(url: url)
 
         #expect(try await reopened.plannedEvents() == [tyres, insurance])
         // A plan is not a fact: History and maintenance stay empty (core C5).
@@ -63,11 +49,11 @@ struct SwiftDataPlannedEventTests {
 
     @Test("REQ-ROAD-019: a correction keeps identity, vehicle and creation time, and survives a reopen")
     func correctionKeepsIdentity() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let original: PlannedDatedEvent
         do {
-            let store = try makeStore(url: url)
+            let store = try TestStore.carMemory(url: url)
             let vehicleID = try await store.currentVehicle().id
             original = planned(vehicleID, .other(label: "Warranty"), inDays: 100)
             try await store.execute(.addPlannedEvent(.init(event: original)), now: now)
@@ -86,7 +72,7 @@ struct SwiftDataPlannedEventTests {
             #expect(updated.createdAt == now)
         }
 
-        let stored = try #require(try await makeStore(url: url).plannedEvents().first)
+        let stored = try #require(try await TestStore.carMemory(url: url).plannedEvents().first)
         #expect(stored.id == original.id && stored.createdAt == original.createdAt)
         #expect(stored.kind == .other(label: "Warranty ends"))
         #expect(stored.date == now.addingTimeInterval(120 * day))
@@ -94,7 +80,7 @@ struct SwiftDataPlannedEventTests {
 
     @Test("REQ-ROAD-019: deleting removes only that date; unknown IDs are rejected")
     func removal() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         let insurance = planned(vehicleID, inDays: 40)
         let tyres = planned(vehicleID, .other(label: nil), inDays: 50)
@@ -115,7 +101,7 @@ struct SwiftDataPlannedEventTests {
 
     @Test("REQ-ROAD-017: invalid, foreign or repeated plans are rejected and nothing is saved")
     func rejectedCommandsSaveNothing() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         let stored = planned(vehicleID, .other(label: nil), inDays: 10)
         try await store.execute(.addPlannedEvent(.init(event: stored)), now: now)
@@ -152,7 +138,7 @@ struct SwiftDataPlannedEventTests {
 
     @Test("REQ-ROAD-018: one insurance expiry on Road per car; one that has left Road does not count")
     func oneInsuranceOnRoad() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         let expired = planned(vehicleID, inDays: -14)
         try await store.execute(.addPlannedEvent(.init(event: expired)), now: now)
@@ -205,7 +191,7 @@ struct SwiftDataPlannedEventTests {
 
     @Test("REQ-ROAD-017: a failed save reports failure and the plan never appears later")
     func failedSaveLeavesNothing() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
 
         await store.failNextSave()

@@ -5,15 +5,11 @@ import Testing
 
 private let now = DomainFixtures.Odometers.baseDate.addingTimeInterval(90 * 86400)
 
-private func makeStore(url: URL? = nil) throws -> SwiftDataCarMemoryStore {
-    try SwiftDataCarMemoryStore(modelContainer: PersistenceContainer.make(storeURL: url))
-}
-
 @Suite("SwiftData car memory store")
 struct SwiftDataCarMemoryStoreTests {
     @Test("REQ-BOARD-003: first launch creates one provisional, editable car and no facts")
     func firstLaunchCreatesProvisionalCar() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
 
         let vehicle = try await store.currentVehicle()
 
@@ -25,7 +21,7 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("REQ-DOMAIN-003: the provisional car creates no odometer reading or maintenance baseline")
     func provisionalCarHasNoReadings() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         _ = try await store.currentVehicle()
 
         #expect(try await store.odometerReadings().latest == nil)
@@ -36,7 +32,7 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("REQ-DOMAIN-001: the latest reading is projected from history, not stored on the vehicle")
     func latestReadingIsProjected() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         for (offset, value) in [(0.0, 84200.0), (60, 86000), (30, 85500)] {
             let reading = OdometerReading(
@@ -55,11 +51,11 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("REQ-CAPTURE-011: a raw note without any classification survives a relaunch")
     func rawNoteSurvivesRelaunch() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer { Self.removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let vehicleID: VehicleID
         do {
-            let store = try makeStore(url: url)
+            let store = try TestStore.carMemory(url: url)
             vehicleID = try await store.currentVehicle().id
             try await store.execute(
                 .createNote(CreateNoteCommand(vehicleID: vehicleID, rawText: "Стук справа спереди на лежачих")),
@@ -67,7 +63,7 @@ struct SwiftDataCarMemoryStoreTests {
             )
         }
 
-        let reopened = try makeStore(url: url)
+        let reopened = try TestStore.carMemory(url: url)
 
         let notes = try await reopened.notes()
         #expect(notes.map(\.rawText) == ["Стук справа спереди на лежачих"])
@@ -78,7 +74,7 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("REQ-CAPTURE-021: an invalid command is rejected and nothing is saved")
     func invalidCommandSavesNothing() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         let negative = OdometerReading(vehicleID: vehicleID, value: -10, recordedAt: now)
 
@@ -95,9 +91,9 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("ADR-0007: a command for a vehicle the store does not own writes nothing, not even a provisional car")
     func foreignVehicleIsRejected() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer { Self.removeStore(at: url) }
-        let store = try makeStore(url: url)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let store = try TestStore.carMemory(url: url)
         let foreignNote = CreateNoteCommand(vehicleID: DomainFixtures.Vehicles.secondaryID, rawText: "чужая машина")
 
         await #expect(throws: CarMemoryStoreError.unknownVehicle) {
@@ -110,7 +106,7 @@ struct SwiftDataCarMemoryStoreTests {
             )
         }
 
-        let reopened = try makeStore(url: url)
+        let reopened = try TestStore.carMemory(url: url)
         #expect(try await reopened.odometerReadings().isEmpty)
         #expect(try await reopened.notes().isEmpty)
         // The rejected commands created no car: the first read still makes the provisional one.
@@ -119,7 +115,7 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("REQ-BOARD-003: a confirmed fact edits the car and ends the provisional state")
     func vehicleFactEndsProvisionalState() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
 
         let result = try await store.execute(
@@ -139,7 +135,7 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("REQ-DOMAIN-006: a custom policy becomes effective and the recommendation record stays unchanged")
     func customPolicyReplacesEffectivePolicy() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         for policy in [
             DomainFixtures.Maintenance.standardOilPolicy,
@@ -167,7 +163,7 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("ADR-0007: confirming a completion stores that completion and no history event")
     func completionIsStoredForConfirmedOperationOnly() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         let completion = MaintenanceCompletion(
             vehicleID: vehicleID,
@@ -187,7 +183,7 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("REQ-DOMAIN-015: saving a note about intended work creates no history event or completion")
     func noteCreatesNoHistory() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
 
         try await store.execute(
@@ -206,9 +202,9 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("ADR-0007: events, money, and note contexts read back exactly from disk, newest first")
     func historyEventsRoundTrip() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer { Self.removeStore(at: url) }
-        let store = try makeStore(url: url)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let store = try TestStore.carMemory(url: url)
         let vehicleID = try await store.currentVehicle().id
         let wash = HistoryEvent(
             vehicleID: vehicleID,
@@ -237,16 +233,16 @@ struct SwiftDataCarMemoryStoreTests {
             now: now
         )
 
-        let reopened = try makeStore(url: url)
+        let reopened = try TestStore.carMemory(url: url)
         #expect(try await reopened.historyEvents() == [wash, service])
         #expect(try await reopened.notes().first?.canonicalContexts == [.shopping, .carWash])
     }
 
     @Test("REQ-CAPTURE-009: a failed save reports failure and the write never appears later")
     func failedSaveLeavesNothingBehind() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer { Self.removeStore(at: url) }
-        let store = try makeStore(url: url)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let store = try TestStore.carMemory(url: url)
         let vehicleID = try await store.currentVehicle().id
         let rename = RecordVehicleFactCommand(vehicleID: vehicleID, fact: VehicleFact(field: .name, value: "Arteon"))
 
@@ -261,14 +257,14 @@ struct SwiftDataCarMemoryStoreTests {
         try await store.execute(.createNote(CreateNoteCommand(rawText: "сохранённая")), now: now)
 
         #expect(try await store.currentVehicle().name == ProvisionalCarContext.defaultName)
-        let reopened = try makeStore(url: url)
+        let reopened = try TestStore.carMemory(url: url)
         #expect(try await reopened.notes().map(\.rawText) == ["сохранённая"])
         #expect(try await reopened.currentVehicle().isProvisional)
     }
 
     @Test("ADR-0007: repeating a command with a known ID never rewrites the stored record")
     func duplicateIDIsRejected() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         let id = UUID()
         let first = OdometerReading(
@@ -294,10 +290,10 @@ struct SwiftDataCarMemoryStoreTests {
 
     @Test("ADR-0007: two stores on one file converge on the same provisional car")
     func provisionalCarIsSharedAcrossStores() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer { Self.removeStore(at: url) }
-        let app = try makeStore(url: url)
-        let systemExtension = try makeStore(url: url)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let app = try TestStore.carMemory(url: url)
+        let systemExtension = try TestStore.carMemory(url: url)
 
         let first = try await app.currentVehicle()
         let second = try await systemExtension.currentVehicle()
@@ -305,25 +301,15 @@ struct SwiftDataCarMemoryStoreTests {
         #expect(first.id == second.id)
         #expect(first.id == Vehicle.provisionalID)
     }
-
-    private static func removeStore(at url: URL) {
-        for suffix in ["", "-shm", "-wal"] {
-            try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-        }
-    }
 }
 
 @Suite("SwiftData note updates")
 struct SwiftDataNoteUpdateTests {
     @Test("REQ-CAPTURE-012: a corrected and archived note reads back from disk with its identity")
     func noteUpdateSurvivesRelaunch() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer {
-            for suffix in ["", "-shm", "-wal"] {
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-            }
-        }
-        let store = try makeStore(url: url)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let store = try TestStore.carMemory(url: url)
         guard case let .noteCreated(note) = try await store.execute(
             .createNote(CreateNoteCommand(rawText: "заменить дворники")),
             now: now
@@ -338,7 +324,7 @@ struct SwiftDataNoteUpdateTests {
         )
         try await store.execute(.updateNote(UpdateNoteCommand(noteID: note.id, status: .archived)), now: now)
 
-        let reopened = try await makeStore(url: url).notes()
+        let reopened = try await TestStore.carMemory(url: url).notes()
         #expect(reopened.count == 1)
         #expect(reopened.first?.id == note.id)
         #expect(reopened.first?.rawText == "заменить задний дворник")
@@ -351,7 +337,7 @@ struct SwiftDataNoteUpdateTests {
 
     @Test("ADR-0007: updating a note that does not exist fails and writes nothing")
     func unknownNoteIsRejected() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         await #expect(throws: CarMemoryStoreError.unknownNote) {
             try await store.execute(.updateNote(UpdateNoteCommand(noteID: UUID(), status: .archived)), now: now)
         }
@@ -363,13 +349,9 @@ struct SwiftDataNoteUpdateTests {
 struct SwiftDataCompletionRevokeTests {
     @Test("ADR-0010: a revoked completion is gone after reopening, and an unknown ID changes nothing")
     func revokeSurvivesRelaunch() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer {
-            for suffix in ["", "-shm", "-wal"] {
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-            }
-        }
-        let store = try makeStore(url: url)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let store = try TestStore.carMemory(url: url)
         let vehicleID = try await store.currentVehicle().id
         let kept = MaintenanceCompletion(
             vehicleID: vehicleID,
@@ -390,19 +372,15 @@ struct SwiftDataCompletionRevokeTests {
             try await store.execute(.revokeMaintenanceCompletion(.init(completionID: UUID())), now: now)
         }
 
-        #expect(try await makeStore(url: url).maintenanceCompletions() == [kept])
+        #expect(try await TestStore.carMemory(url: url).maintenanceCompletions() == [kept])
     }
 
     @Test("ADR-0020: an operation outside the catalog keeps its identity on disk and in the engine")
     func uncataloguedOperationKeepsIdentity() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer {
-            for suffix in ["", "-shm", "-wal"] {
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-            }
-        }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let operation = MaintenanceOperationID(rawValue: "coolantService")
-        let store = try makeStore(url: url)
+        let store = try TestStore.carMemory(url: url)
         let vehicleID = try await store.currentVehicle().id
         let policy = MaintenancePolicy(operationID: operation, timeIntervalMonths: 48, source: .userCustom)
         let completion = MaintenanceCompletion(
@@ -413,7 +391,7 @@ struct SwiftDataCompletionRevokeTests {
         try await store.execute(.setMaintenancePolicy(.init(vehicleID: vehicleID, policy: policy)), now: now)
         try await store.execute(.confirmMaintenanceCompletion(.init(completion: completion)), now: now)
 
-        let reopened = try makeStore(url: url)
+        let reopened = try TestStore.carMemory(url: url)
         let states = try await MaintenanceEngine().states(
             policies: reopened.maintenancePolicies(),
             completions: reopened.maintenanceCompletions(),
@@ -431,13 +409,9 @@ struct SwiftDataCompletionRevokeTests {
 struct SwiftDataEventCorrectionTests {
     @Test("REQ-DOMAIN-016: a corrected event reads back from disk with the same identity")
     func correctionSurvivesRelaunch() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer {
-            for suffix in ["", "-shm", "-wal"] {
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-            }
-        }
-        let store = try makeStore(url: url)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let store = try TestStore.carMemory(url: url)
         let vehicleID = try await store.currentVehicle().id
         let event = HistoryEvent(vehicleID: vehicleID, kind: .service, date: DomainFixtures.Odometers.baseDate)
         try await store.execute(.recordVehicleEvent(RecordVehicleEventCommand(event: event)), now: now)
@@ -453,12 +427,12 @@ struct SwiftDataEventCorrectionTests {
         )
         try await store.execute(.correctVehicleEvent(CorrectVehicleEventCommand(event: corrected)), now: now)
 
-        #expect(try await makeStore(url: url).historyEvents() == [corrected])
+        #expect(try await TestStore.carMemory(url: url).historyEvents() == [corrected])
     }
 
     @Test("ADR-0007: correcting an event that does not exist fails and writes nothing")
     func unknownEventIsRejected() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         let ghost = HistoryEvent(vehicleID: vehicleID, kind: .other, date: DomainFixtures.Odometers.baseDate)
         await #expect(throws: CarMemoryStoreError.unknownEvent) {
@@ -469,7 +443,7 @@ struct SwiftDataEventCorrectionTests {
 
     @Test("ADR-0007: a correction cannot move an event to another vehicle")
     func correctionCannotChangeVehicle() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         let event = HistoryEvent(vehicleID: vehicleID, kind: .carWash, date: DomainFixtures.Odometers.baseDate)
         try await store.execute(.recordVehicleEvent(RecordVehicleEventCommand(event: event)), now: now)

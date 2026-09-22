@@ -15,22 +15,12 @@ private func makeStore(url: URL? = nil) throws -> SwiftDataPitQuestionStore {
     )
 }
 
-private func temporaryStoreURL() -> URL {
-    URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-}
-
-private func removeStore(at url: URL) {
-    for suffix in ["", "-shm", "-wal"] {
-        try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-    }
-}
-
 @Suite("SwiftData Pit question store")
 struct SwiftDataPitQuestionStoreTests {
     @Test("REQ-PIT-012: a deferred question stays deferred after the store is reopened")
     func deferralSurvivesReopen() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         do {
             let store = try makeStore(url: url)
             try await store.execute(.asked(questionID: oil), now: now)
@@ -48,8 +38,8 @@ struct SwiftDataPitQuestionStoreTests {
 
     @Test("REQ-PIT-010: persisted interruption and dismissal times feed the attention policy")
     func persistedBudgetFeedsPolicy() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         do {
             let store = try makeStore(url: url)
             try await store.execute(.asked(questionID: road), now: now)
@@ -130,8 +120,8 @@ struct SwiftDataPitQuestionStoreTests {
 
     @Test("ADR-0007: a version 1 store opens under the current version with car memory intact")
     func versionOneStoreMigrates() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let vehicleID: VehicleID
         do {
             let v1 = Schema(versionedSchema: PitstopSchemaV1.self)

@@ -7,13 +7,9 @@ private let now = DomainFixtures.Odometers.baseDate.addingTimeInterval(30 * 8640
 @MainActor
 @Suite("Stop tracking an operation")
 struct StopTrackingTests {
-    private func makeModel(_ store: FakeCarMemoryStore) -> ServiceViewModel {
-        ServiceViewModel(store: store, now: { now })
-    }
-
     /// Oil every 10,000 km, done at 50,000 km twenty days ago, with a current reading.
     private func trackedOilWithHistory(_ store: FakeCarMemoryStore) async throws -> ServiceViewModel {
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         let vehicleID = await store.vehicle.id
         _ = try await store.execute(
             .recordOdometerReading(.init(reading: OdometerReading(
@@ -99,7 +95,7 @@ struct StopTrackingTests {
             .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: recommendation)),
             now: now
         )
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         await model.load()
 
         try model.requestStopTracking(#require(model.state.operations.first))
@@ -123,7 +119,7 @@ struct StopTrackingTests {
             .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: recommendation)),
             now: now
         )
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         #expect(await model.track(.dsgService, kilometersText: "40000", monthsText: ""))
         try model.requestStopTracking(#require(model.state.operations.first))
 
@@ -154,7 +150,7 @@ struct StopTrackingTests {
     func surfacesDropTheOperation() async throws {
         let store = FakeCarMemoryStore()
         let vehicleID = await store.vehicle.id
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         // The only mileage is 200 days old, so this distance rule alone makes the Pit mileage question relevant.
         #expect(await model.track(.engineOilService, kilometersText: "10000", monthsText: ""))
         #expect(await model.confirmDone(

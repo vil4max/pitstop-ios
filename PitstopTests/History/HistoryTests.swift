@@ -52,14 +52,10 @@ struct HistoryTimelineTests {
 @MainActor
 @Suite("History view model")
 struct HistoryViewModelTests {
-    private func makeModel(_ store: FakeCarMemoryStore) -> HistoryViewModel {
-        HistoryViewModel(store: store, now: { now })
-    }
-
     @Test("ADR-0007: an event saved without mileage or cost keeps them unknown, not zero")
     func unknownFactsStayUnknown() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.history(store, now: now)
         var draft = model.newDraft()
         draft.kind = .carWash
 
@@ -73,7 +69,7 @@ struct HistoryViewModelTests {
     @Test("REQ-DOMAIN-016: a corrected event keeps its identity and the timeline shows the corrected facts")
     func correctedEventKeepsIdentity() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.history(store, now: now)
         var draft = model.newDraft()
         draft.odometerText = "84 200"
         draft.amountText = "12500,50"
@@ -95,7 +91,7 @@ struct HistoryViewModelTests {
     @Test("ADR-0006: an event dated in the future is a plan and is not recorded")
     func futureEventIsRejected() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.history(store, now: now)
         var draft = model.newDraft()
         draft.date = now.addingTimeInterval(86400)
 
@@ -127,7 +123,7 @@ struct HistoryViewModelTests {
     @Test("REQ-CAPTURE-009: a failed save is reported and nothing appears in the timeline")
     func failedSaveIsReported() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.history(store, now: now)
         await store.failEverything()
 
         #expect(await !model.save(model.newDraft()))
@@ -143,7 +139,7 @@ struct HistoryViewModelTests {
         await board.load()
         #expect(board.state.history.latest == nil)
 
-        #expect(await makeModel(store).save(HistoryEventDraft(kind: .carWash, date: now)))
+        #expect(await TestViewModels.history(store, now: now).save(HistoryEventDraft(kind: .carWash, date: now)))
         await board.load()
 
         guard case let .event(latest) = board.state.history.latest else {
@@ -156,7 +152,7 @@ struct HistoryViewModelTests {
     @Test("ADR-0006: a correction cannot move a recorded event into the future")
     func correctionCannotMoveIntoFuture() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.history(store, now: now)
         #expect(await model.save(model.newDraft()))
         let original = try #require(await store.events.first)
         var correction = model.draft(for: original)
@@ -183,7 +179,7 @@ struct HistoryViewModelTests {
     @Test("ADR-0007: a correction may clear a fact the user no longer trusts")
     func correctionCanClearFacts() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.history(store, now: now)
         var draft = model.newDraft()
         draft.odometerText = "84200"
         draft.amountText = "500"

@@ -80,10 +80,6 @@ struct RememberPipelineTests {
 @MainActor
 @Suite("Notes view model")
 struct NotesViewModelTests {
-    private func makeModel(_ store: FakeCarMemoryStore) -> NotesViewModel {
-        NotesViewModel(store: store, now: { now })
-    }
-
     @Test("REQ-CAPTURE-026, ADR-0030: a note typed in the editor carries the injected locale")
     func editorCaptureCarriesInjectedLocale() {
         let model = NotesViewModel(store: FakeCarMemoryStore(), now: { now }, locale: { Locale(identifier: "en_GB") })
@@ -99,7 +95,7 @@ struct NotesViewModelTests {
     @Test("REQ-CAPTURE-012: a saved note can be found, corrected, and keeps its identity")
     func noteCanBeCorrected() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.notes(store, now: now)
         #expect(await model.add(text: "заменить дворники"))
         let note = try #require(model.state.visibleNotes.first)
 
@@ -113,7 +109,7 @@ struct NotesViewModelTests {
     @Test("REQ-DOMAIN-013: archiving moves the note to the archived list and keeps its wording")
     func archivingChangesOnlyStatus() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.notes(store, now: now)
         #expect(await model.add(text: "поменял масло, надо записать"))
         let note = try #require(model.state.visibleNotes.first)
 
@@ -127,7 +123,7 @@ struct NotesViewModelTests {
     @Test("REQ-BOARD-012: the main list keeps unclassified notes; a context filter only narrows while selected")
     func contextFilterNeverHidesFromMainList() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.notes(store, now: now)
         let vehicleID = await store.vehicle.id
         for (text, contexts) in [("без контекста", Set<NoteContext>()), ("мойка", [.carWash])] {
             _ = try? await store.execute(
@@ -148,7 +144,7 @@ struct NotesViewModelTests {
     @Test("REQ-CAPTURE-009: a failed save reports failure so the editor keeps the text")
     func failedSaveKeepsEditorOpen() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.notes(store, now: now)
         await store.failEverything()
 
         #expect(await !model.add(text: "мысль"))
@@ -159,7 +155,7 @@ struct NotesViewModelTests {
     @Test("ADR-0006: blank text saves nothing")
     func blankTextSavesNothing() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.notes(store, now: now)
         #expect(await !model.add(text: "   "))
         #expect(model.state.editorFailure == .emptyText)
         #expect(await store.executed.isEmpty)
@@ -168,7 +164,7 @@ struct NotesViewModelTests {
     @Test("REQ-CAPTURE-009: a failed archive is reported on the list and never leaks into the editor")
     func failedArchiveIsVisibleOnTheList() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.notes(store, now: now)
         #expect(await model.add(text: "мысль"))
         let note = try #require(model.state.visibleNotes.first)
         await store.failEverything()
@@ -183,7 +179,7 @@ struct NotesViewModelTests {
     @Test("REQ-BOARD-012: a filter whose last note was archived falls back to the main list")
     func orphanedFilterIsCleared() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.notes(store, now: now)
         let vehicleID = await store.vehicle.id
         for (text, contexts) in [("без контекста", Set<NoteContext>()), ("мойка", [.carWash])] {
             _ = try await store.execute(
@@ -203,7 +199,7 @@ struct NotesViewModelTests {
 
     @Test("ADR-0006: each visit to Notes starts from the active main list")
     func visitStartsFromMainList() async {
-        let model = makeModel(FakeCarMemoryStore())
+        let model = TestViewModels.notes(FakeCarMemoryStore(), now: now)
         model.select(scope: .archived)
         await model.prepareForDisplay()
         #expect(model.state.scope == .active && model.state.contextFilter == nil)

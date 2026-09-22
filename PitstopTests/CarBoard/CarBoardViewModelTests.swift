@@ -20,16 +20,10 @@ private final class TestClock: @unchecked Sendable {
 @MainActor
 @Suite("Car Board view model")
 struct CarBoardViewModelTests {
-    private func makeModel(_ store: FakeCarMemoryStore, persistence: PersistenceMode = .durable)
-        -> CarBoardViewModel
-    {
-        CarBoardViewModel(store: store, persistence: persistence, now: { now })
-    }
-
     @Test("REQ-BOARD-001: Car Board has a usable state before and after the first load, with no setup step")
     func firstLaunchNeedsNoSetup() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
         #expect(model.state.car == .firstLaunch)
 
         await model.load()
@@ -42,7 +36,7 @@ struct CarBoardViewModelTests {
 
     @Test("REQ-BOARD-002: the provisional car shows its display name and no vehicle facts")
     func provisionalCarHasNoFacts() async {
-        let model = makeModel(FakeCarMemoryStore())
+        let model = TestViewModels.carBoard(FakeCarMemoryStore(), now: now)
         await model.load()
         #expect(model.state.car.make == nil && model.state.car.model == nil && model.state.car.year == nil)
         #expect(model.state.mileage == .unknown)
@@ -51,7 +45,7 @@ struct CarBoardViewModelTests {
     @Test("REQ-BOARD-004: a blank mileage field records no reading and mileage stays unknown")
     func blankMileageRecordsNothing() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
         await model.load()
 
         let saved = await model.saveCar(name: "Arteon", odometerText: "  ")
@@ -66,7 +60,7 @@ struct CarBoardViewModelTests {
     @Test("REQ-BOARD-005: a supplied zero reading is recorded and shown as 0 km")
     func zeroReadingIsRecorded() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
         await model.load()
 
         #expect(await model.saveCar(name: ProvisionalCarContext.defaultName, odometerText: "0"))
@@ -93,7 +87,7 @@ struct CarBoardViewModelTests {
             performedAt: now.addingTimeInterval(-2 * 86400), odometerKm: 84200
         )
         _ = try await store.execute(.confirmMaintenanceCompletion(.init(completion: completion)), now: now)
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
 
         await model.load()
 
@@ -110,7 +104,7 @@ struct CarBoardViewModelTests {
             performedAt: now.addingTimeInterval(-100 * 86400), odometerKm: 84200
         )
         _ = try await store.execute(.confirmMaintenanceCompletion(.init(completion: completion)), now: now)
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
         await model.load()
         #expect(model.state.mileage == .kilometers(84200))
 
@@ -122,7 +116,7 @@ struct CarBoardViewModelTests {
     @Test("ADR-0007: an unchanged editor executes no command")
     func unchangedEditorSavesNothing() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
         await model.load()
 
         #expect(await model.saveCar(name: ProvisionalCarContext.defaultName, odometerText: ""))
@@ -162,7 +156,7 @@ struct CarBoardViewModelTests {
     @Test("REQ-CAPTURE-009: a failed save is reported and the editor result is false")
     func failedSaveIsReported() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
         await model.load()
         await store.failEverything()
 
@@ -177,7 +171,7 @@ struct CarBoardViewModelTests {
     func loadFailureKeepsBoardUsable() async {
         let store = FakeCarMemoryStore()
         await store.failEverything()
-        let model = makeModel(store, persistence: .temporary)
+        let model = TestViewModels.carBoard(store, persistence: .temporary, now: now)
 
         await model.load()
 
@@ -189,7 +183,7 @@ struct CarBoardViewModelTests {
     @Test("ADR-0007: invalid input is rejected before any command is executed")
     func invalidInputExecutesNothing() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
         await model.load()
 
         #expect(await !model.saveCar(name: "Arteon", odometerText: "abc"))
@@ -200,7 +194,7 @@ struct CarBoardViewModelTests {
     @Test("REQ-CAPTURE-009: when the name saves and the reading fails, the message does not claim nothing changed")
     func partialSaveIsReportedHonestly() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
         await model.load()
         await store.failReadingCommands()
 
@@ -231,7 +225,7 @@ struct CarBoardViewModelTests {
     func loadFailureRecovers() async {
         let store = FakeCarMemoryStore()
         await store.failEverything()
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
         await model.load()
         #expect(model.state.isLoadFailed)
         #expect(await !model.saveCar(name: "Arteon", odometerText: ""))
@@ -251,7 +245,7 @@ struct CarBoardViewModelTests {
     func blankNameKeepsStoredName() async {
         let store = FakeCarMemoryStore(vehicle: Vehicle(id: Vehicle.provisionalID, name: "Arteon"))
         await store.failEverything()
-        let model = makeModel(store)
+        let model = TestViewModels.carBoard(store, now: now)
         await model.load()
         #expect(model.state.car.name == ProvisionalCarContext.defaultName)
         await store.recover()

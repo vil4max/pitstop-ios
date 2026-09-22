@@ -193,12 +193,8 @@ struct MileageQuestionEndToEndTests {
 
     @Test("ADR-0018, REQ-PIT-012: after relaunches a deferral returns at 14 d, an answer once stale, a dismissal never")
     func returnsFollowPersistedState() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer {
-            for suffix in ["", "-shm", "-wal"] {
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-            }
-        }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         func launch(at moment: Date) throws -> App {
             try App(storeURL: url, now: moment)
         }

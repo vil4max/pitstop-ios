@@ -7,13 +7,9 @@ private let now = DomainFixtures.Odometers.baseDate.addingTimeInterval(30 * 8640
 @MainActor
 @Suite("Service view model")
 struct ServiceViewModelTests {
-    private func makeModel(_ store: FakeCarMemoryStore) -> ServiceViewModel {
-        ServiceViewModel(store: store, now: { now })
-    }
-
     @Test("REQ-BOARD-014: with nothing tracked there are no operations, no scope, and no urgency")
     func nothingTrackedIsCalm() async {
-        let model = makeModel(FakeCarMemoryStore())
+        let model = TestViewModels.service(FakeCarMemoryStore(), now: now)
         await model.load()
         #expect(model.state.operations.isEmpty && model.state.scope.isEmpty)
         #expect(model.state.untrackedOperations == MaintenanceOperationID.catalog)
@@ -22,7 +18,7 @@ struct ServiceViewModelTests {
     @Test("REQ-MAINT-017: tracking an operation needs no baseline and starts as unknown")
     func trackingStartsUnknown() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
 
         #expect(await model.track(.engineOilService, kilometersText: "10 000", monthsText: ""))
 
@@ -38,7 +34,7 @@ struct ServiceViewModelTests {
     )
     func invalidIntervalIsRejected(kilometers: String, months: String) async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         #expect(await !model.track(.brakeFluid, kilometersText: kilometers, monthsText: months))
         #expect(model.state.failure == .invalidInterval)
         #expect(await store.executed.isEmpty)
@@ -47,7 +43,7 @@ struct ServiceViewModelTests {
     @Test("REQ-DOMAIN-007: confirming work starts the cycle from that completion and records nothing else")
     func confirmingWorkStartsCycle() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         let vehicleID = await store.vehicle.id
         _ = try await store.execute(
             .recordOdometerReading(.init(reading: OdometerReading(
@@ -72,7 +68,7 @@ struct ServiceViewModelTests {
     @Test("ADR-0006: work dated in the future cannot be confirmed as done")
     func futureWorkIsNotConfirmed() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         #expect(await !model.confirmDone(.brakeFluid, on: now.addingTimeInterval(3 * 86400), odometerText: ""))
         #expect(model.state.failure == .futureDate)
         #expect(await store.completions.isEmpty)
@@ -81,7 +77,7 @@ struct ServiceViewModelTests {
     @Test("REQ-CAPTURE-009: a failed save is reported and changes no state")
     func failedSaveIsReported() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         await store.failEverything()
         #expect(await !model.track(.airFilter, kilometersText: "30000", monthsText: ""))
         #expect(model.state.failure == .notSaved && model.state.operations.isEmpty)
@@ -91,7 +87,11 @@ struct ServiceViewModelTests {
     func tileStateNeverInventsBaseline() async throws {
         let store = FakeCarMemoryStore()
         let board = CarBoardViewModel(store: store, now: { now })
-        #expect(await makeModel(store).track(.engineOilService, kilometersText: "10000", monthsText: ""))
+        #expect(await TestViewModels.service(store, now: now).track(
+            .engineOilService,
+            kilometersText: "10000",
+            monthsText: ""
+        ))
 
         await board.load()
 
@@ -102,7 +102,7 @@ struct ServiceViewModelTests {
     @Test("ADR-0010: a confirmation made by mistake can be undone and the cycle returns to what was known")
     func mistakenConfirmationCanBeUndone() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         #expect(await model.track(.engineOilService, kilometersText: "10000", monthsText: ""))
         #expect(await model.confirmDone(.engineOilService, on: now, odometerText: "845000"))
         let wrong = try #require(model.state.operations.first)
@@ -117,7 +117,7 @@ struct ServiceViewModelTests {
     @Test("REQ-DOMAIN-006: changing the interval of a tracked operation replaces the owner's own policy only")
     func intervalCanBeChanged() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         #expect(await model.track(.engineOilService, kilometersText: "10000", monthsText: ""))
         #expect(await model.track(.engineOilService, kilometersText: "7500", monthsText: "6"))
 
@@ -129,7 +129,7 @@ struct ServiceViewModelTests {
     @Test("ADR-0010: marking work done at a mileage above the last reading does not inflate what remains")
     func completionAboveReadingIsNotInflated() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         let vehicleID = await store.vehicle.id
         let old = OdometerReading(vehicleID: vehicleID, value: 68500, recordedAt: now.addingTimeInterval(-60 * 86400))
         _ = try await store.execute(.recordOdometerReading(.init(reading: old)), now: now)
@@ -144,7 +144,7 @@ struct ServiceViewModelTests {
     @Test("REQ-CAPTURE-009: a failed undo is reported on the list and never leaks into the next sheet")
     func failedUndoIsReportedOnTheList() async throws {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.service(store, now: now)
         #expect(await model.track(.brakeFluid, kilometersText: "", monthsText: "24"))
         #expect(await model.confirmDone(.brakeFluid, on: now, odometerText: ""))
         let operation = try #require(model.state.operations.first)

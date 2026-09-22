@@ -5,21 +5,13 @@ import Testing
 
 private let now = DomainFixtures.Odometers.baseDate.addingTimeInterval(90 * 86400)
 
-private func makeStore(url: URL? = nil) throws -> SwiftDataCarMemoryStore {
-    try SwiftDataCarMemoryStore(modelContainer: PersistenceContainer.make(storeURL: url))
-}
-
 @Suite("SwiftData stop tracking")
 struct SwiftDataStopTrackingTests {
     @Test("REQ-MAINT-023: stopping tracking deletes the owner's policy on disk and keeps every other record")
     func stopTrackingKeepsHistoryOnDisk() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer {
-            for suffix in ["", "-shm", "-wal"] {
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-            }
-        }
-        let store = try makeStore(url: url)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let store = try TestStore.carMemory(url: url)
         let vehicleID = try await store.currentVehicle().id
         let custom = MaintenancePolicy(operationID: .engineOilService, distanceIntervalKm: 10000, source: .userCustom)
         let recommendation = MaintenancePolicy(operationID: .engineOilService, distanceIntervalKm: 15000)
@@ -43,7 +35,7 @@ struct SwiftDataStopTrackingTests {
         )
 
         #expect(result == .trackingStopped(custom))
-        let reopened = try makeStore(url: url)
+        let reopened = try TestStore.carMemory(url: url)
         #expect(try await Set(reopened.maintenancePolicies()) == [recommendation, brakes])
         #expect(try await reopened.maintenanceCompletions() == [completion])
         #expect(try await reopened.historyEvents() == [event])
@@ -51,7 +43,7 @@ struct SwiftDataStopTrackingTests {
 
     @Test("REQ-MAINT-023: stopping an operation the owner does not track is rejected and saves nothing")
     func stopTrackingUnknownPolicyIsRejected() async throws {
-        let store = try makeStore()
+        let store = try TestStore.carMemory()
         let vehicleID = try await store.currentVehicle().id
         let recommendation = MaintenancePolicy(operationID: .dsgService, distanceIntervalKm: 60000)
         try await store.execute(.setMaintenancePolicy(.init(vehicleID: vehicleID, policy: recommendation)), now: now)

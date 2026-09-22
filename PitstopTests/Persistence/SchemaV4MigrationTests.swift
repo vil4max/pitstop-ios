@@ -5,24 +5,10 @@ import Testing
 
 private let now = Date(timeIntervalSince1970: 1_800_000_000)
 
-private func temporaryStoreURL() -> URL {
-    URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-}
-
-private func removeStore(at url: URL) {
-    for suffix in ["", "-shm", "-wal"] {
-        try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-    }
-}
-
 /// A store written by a container that knows only `schema`, as an older build wrote it.
 private func legacyContainer(_ schema: any VersionedSchema.Type, url: URL) throws -> ModelContainer {
     let legacy = Schema(versionedSchema: schema)
     return try ModelContainer(for: legacy, configurations: ModelConfiguration(schema: legacy, url: url))
-}
-
-private func makeStore(url: URL) throws -> SwiftDataCarMemoryStore {
-    try SwiftDataCarMemoryStore(modelContainer: PersistenceContainer.make(storeURL: url))
 }
 
 /// Fictional car memory an older build could hold: a reading, an owner policy, a completion.
@@ -53,13 +39,13 @@ private func dashboard(_ vehicleID: VehicleID, unit: DistanceUnit = .kilometers)
 /// After migration the old facts are intact, the new entity works and a reading survives a reopen.
 private func expectMigrated(url: URL, vehicleID: VehicleID) async throws {
     do {
-        let store = try makeStore(url: url)
+        let store = try TestStore.carMemory(url: url)
         #expect(try await store.maintenancePolicies().map(\.operationID) == [.engineOilService])
         #expect(try await store.maintenanceCompletions().map(\.odometerKm) == [30000])
         #expect(try await store.vehicleServiceReports().isEmpty)
         try await store.execute(.recordVehicleServiceReport(.init(report: dashboard(vehicleID))), now: now)
     }
-    let reopened = try await makeStore(url: url).vehicleServiceReports()
+    let reopened = try await TestStore.carMemory(url: url).vehicleServiceReports()
     #expect(reopened.map(\.remainingDistance) == [3200])
     #expect(reopened.map(\.remainingDays) == [45])
     #expect(reopened.map(\.odometerKm) == [38800])
@@ -69,8 +55,8 @@ private func expectMigrated(url: URL, vehicleID: VehicleID) async throws {
 struct SchemaV4MigrationTests {
     @Test("REQ-MAINT-030: a version 3 store opens under version 4 with car memory and planned dates intact")
     func versionThreeStoreMigrates() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let vehicleID: VehicleID
         let insurance: PlannedDatedEvent
         do {
@@ -81,14 +67,14 @@ struct SchemaV4MigrationTests {
             )
             try await store.execute(.addPlannedEvent(.init(event: insurance)), now: now)
         }
-        #expect(try await makeStore(url: url).plannedEvents() == [insurance])
+        #expect(try await TestStore.carMemory(url: url).plannedEvents() == [insurance])
         try await expectMigrated(url: url, vehicleID: vehicleID)
     }
 
     @Test("REQ-MAINT-030: a version 1 store passes every stage and opens under version 4")
     func versionOneStoreMigrates() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let vehicleID: VehicleID
         do {
             vehicleID = try await seed(SwiftDataCarMemoryStore(
@@ -100,8 +86,8 @@ struct SchemaV4MigrationTests {
 
     @Test("REQ-MAINT-030: a version 2 store passes the remaining stages and opens under version 4")
     func versionTwoStoreMigrates() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let vehicleID: VehicleID
         do {
             vehicleID = try await seed(SwiftDataCarMemoryStore(
@@ -129,21 +115,21 @@ struct SchemaV4MigrationTests {
 struct SwiftDataVehicleServiceReportTests {
     @Test("REQ-MAINT-037: a reading in miles round-trips as miles, never re-read as kilometres")
     func milesRoundTrip() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
-        let vehicleID = try await makeStore(url: url).currentVehicle().id
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let vehicleID = try await TestStore.carMemory(url: url).currentVehicle().id
         let report = dashboard(vehicleID, unit: .miles)
-        try await makeStore(url: url).execute(.recordVehicleServiceReport(.init(report: report)), now: now)
-        let stored = try await makeStore(url: url).vehicleServiceReports()
+        try await TestStore.carMemory(url: url).execute(.recordVehicleServiceReport(.init(report: report)), now: now)
+        let stored = try await TestStore.carMemory(url: url).vehicleServiceReports()
         #expect(stored == [report])
         #expect(stored.first?.distanceUnit == .miles && stored.first?.remainingDistance == 3200)
     }
 
     @Test("REQ-MAINT-031: a new reading replaces the operation's previous one; delete removes it")
     func oneReadingPerOperationAndDelete() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
-        let store = try makeStore(url: url)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let store = try TestStore.carMemory(url: url)
         let vehicleID = try await store.currentVehicle().id
         try await store.execute(.recordVehicleServiceReport(.init(report: dashboard(vehicleID))), now: now)
         let newer = VehicleServiceReport(
@@ -168,9 +154,9 @@ struct SwiftDataVehicleServiceReportTests {
 
     @Test("REQ-MAINT-030: an invalid reading is rejected and nothing is stored")
     func invalidReadingSavesNothing() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
-        let store = try makeStore(url: url)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let store = try TestStore.carMemory(url: url)
         let vehicleID = try await store.currentVehicle().id
         let withoutOdometer = VehicleServiceReport(
             vehicleID: vehicleID, operationID: .engineOilService, reportedAt: now, remainingDistance: 3200

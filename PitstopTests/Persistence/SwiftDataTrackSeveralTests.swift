@@ -10,12 +10,8 @@ private let now = DomainFixtures.Odometers.baseDate.addingTimeInterval(90 * 8640
 struct SwiftDataTrackSeveralTests {
     @Test("REQ-MAINT-027: the starter's confirmed items survive a reopen as the owner's own policies")
     func starterPoliciesPersist() async throws {
-        let url = URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-        defer {
-            for suffix in ["", "-shm", "-wal"] {
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-            }
-        }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let store = try SwiftDataCarMemoryStore(modelContainer: PersistenceContainer.make(storeURL: url))
         let model = TrackSeveralViewModel(store: store, operations: MaintenanceOperationID.catalog, now: { now })
         model.gearbox = .dualClutch

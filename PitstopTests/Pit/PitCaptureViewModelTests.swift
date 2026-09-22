@@ -8,13 +8,6 @@ private let now = DomainFixtures.Odometers.baseDate
 @MainActor
 @Suite("Pit capture surface")
 struct PitCaptureViewModelTests {
-    private func makeModel(_ store: FakeCarMemoryStore) -> PitCaptureViewModel {
-        PitCaptureViewModel(
-            pipeline: RememberPipeline(store: store, interpreter: RuleBasedInterpreter(), now: { now }),
-            now: { now }
-        )
-    }
-
     @Test("REQ-CAPTURE-026, ADR-0030: a typed Pit capture carries the injected locale to the interpreter")
     func captureCarriesInjectedLocale() async {
         let interpreter = InputRecordingInterpreter()
@@ -54,7 +47,7 @@ struct PitCaptureViewModelTests {
     @Test("REQ-CAPTURE-010: a raw thought is saved and the surface names where it went")
     func thoughtIsSavedToNotes() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.pitCapture(store, now: now)
         model.text = "Спросить про пятно на заднем сиденье"
 
         await model.submit(from: .carBoard)
@@ -66,7 +59,7 @@ struct PitCaptureViewModelTests {
     @Test("REQ-CAPTURE-016: completed work stops for confirmation, and only confirming writes it")
     func completionIsConfirmedFirst() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.pitCapture(store, now: now)
         model.text = "поменял масло на 85000"
 
         await model.submit(from: .service)
@@ -86,7 +79,7 @@ struct PitCaptureViewModelTests {
     @Test("REQ-CAPTURE-008: keeping only the words saves a note and says it was saved as written")
     func keepingWordsSavesANote() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.pitCapture(store, now: now)
         model.text = "помыл машину за 1200"
         await model.submit(from: .carBoard)
 
@@ -99,7 +92,7 @@ struct PitCaptureViewModelTests {
     @Test("REQ-CAPTURE-005: closing a pending proposal writes nothing and clears the surface")
     func cancellingWritesNothing() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.pitCapture(store, now: now)
         model.text = "поменял масло на 85000"
         await model.submit(from: .carBoard)
 
@@ -112,7 +105,7 @@ struct PitCaptureViewModelTests {
     @Test("REQ-CAPTURE-001: raw mode saves the words as they are, even for a report of work")
     func rawModeSavesAsWritten() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.pitCapture(store, now: now)
         model.mode = .raw
         model.text = "поменял масло на 85000"
 
@@ -125,7 +118,7 @@ struct PitCaptureViewModelTests {
     @Test("REQ-CAPTURE-009: a failed confirmation stays on the confirmation and says nothing was saved")
     func failedSaveKeepsText() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.pitCapture(store, now: now)
         model.text = "поменял масло на 85000"
         await model.submit(from: .carBoard)
         await store.failCommands()
@@ -143,7 +136,7 @@ struct PitCaptureViewModelTests {
     @Test("ADR-0006: blank text cannot be submitted")
     func blankTextIsNotSubmitted() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.pitCapture(store, now: now)
         model.text = "   "
 
         #expect(!model.canSubmit)
@@ -154,7 +147,7 @@ struct PitCaptureViewModelTests {
     @Test("REQ-CAPTURE-010: a mileage reading reports the car itself as its destination")
     func readingGoesToTheBoard() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.pitCapture(store, now: now)
         model.text = "пробег 84 200"
 
         await model.submit(from: .notes)
@@ -185,7 +178,7 @@ struct PitCaptureViewModelTests {
     @Test("ADR-0011: a step that finishes after the surface was reset does not overwrite it")
     func staleStepIsIgnored() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.pitCapture(store, now: now)
         model.text = "поменял масло на 85000"
         await model.submit(from: .carBoard)
 
@@ -223,7 +216,7 @@ struct PitCaptureViewModelTests {
     @Test("REQ-CAPTURE-009: confirming a proposal that was already saved starts over without a false error")
     func alreadySavedStartsOver() async {
         let store = FakeCarMemoryStore()
-        let model = makeModel(store)
+        let model = TestViewModels.pitCapture(store, now: now)
         model.text = "поменял масло на 85000"
         await model.submit(from: .carBoard)
         guard case let .confirming(pending) = model.phase else {

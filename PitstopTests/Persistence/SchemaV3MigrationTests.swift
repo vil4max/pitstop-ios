@@ -6,16 +6,6 @@ import Testing
 private let now = Date(timeIntervalSince1970: 1_800_000_000)
 private let oil = PitQuestionFixtures.oilIntervalID
 
-private func temporaryStoreURL() -> URL {
-    URL.temporaryDirectory.appending(path: "pitstop-\(UUID().uuidString).store")
-}
-
-private func removeStore(at url: URL) {
-    for suffix in ["", "-shm", "-wal"] {
-        try? FileManager.default.removeItem(at: URL(fileURLWithPath: url.path + suffix))
-    }
-}
-
 /// A store written by a container that knows only `schema`, as an older build wrote it.
 private func legacyContainer(_ schema: any VersionedSchema.Type, url: URL) throws -> ModelContainer {
     let legacy = Schema(versionedSchema: schema)
@@ -74,8 +64,8 @@ private func expectPlannedDatesWork(url: URL, vehicleID: VehicleID) async throws
 struct SchemaV3MigrationTests {
     @Test("ADR-0032: a version 2 store opens under version 3 with car memory and question state intact")
     func versionTwoStoreMigrates() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let facts: SeededFacts
         do {
             let container = try legacyContainer(PitstopSchemaV2.self, url: url)
@@ -102,8 +92,8 @@ struct SchemaV3MigrationTests {
 
     @Test("ADR-0032: a version 1 store passes both stages and opens under version 3 with car memory intact")
     func versionOneStoreMigrates() async throws {
-        let url = temporaryStoreURL()
-        defer { removeStore(at: url) }
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
         let facts: SeededFacts
         do {
             let container = try legacyContainer(PitstopSchemaV1.self, url: url)
