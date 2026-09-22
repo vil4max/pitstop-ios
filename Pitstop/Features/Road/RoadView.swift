@@ -74,15 +74,12 @@ struct RoadView: View {
         }
 
         if projection.isCompletelyEmpty {
-            ContentUnavailableView {
-                Label("tile.road.empty.headline", systemImage: "road.lanes")
-            } description: {
+            FeatureEmptyState(title: "tile.road.empty.headline", systemImage: "road.lanes", topPadding: 0) {
                 Text("tile.road.empty.detail")
             } actions: {
                 Button("road.addDate") { editor = .new }
                     .buttonStyle(.borderedProminent)
             }
-            .frame(maxWidth: .infinity)
         } else if !projection.slots.isEmpty {
             lane(projection)
             milestoneList(projection)

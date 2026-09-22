@@ -104,9 +104,7 @@ struct ServiceView: View {
     }
 
     private var emptyState: some View {
-        ContentUnavailableView {
-            Label("tile.service.empty.headline", systemImage: "wrench.and.screwdriver")
-        } description: {
+        FeatureEmptyState(title: "tile.service.empty.headline", systemImage: "wrench.and.screwdriver") {
             Text("service.empty.detail")
         } actions: {
             Button("service.track") { sheet = .track }
@@ -116,8 +114,6 @@ struct ServiceView: View {
                 .disabled(!viewModel.state.canTrackSeveral)
                 .accessibilityIdentifier("service.empty.trackSeveral")
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 24)
     }
 
     /// A suggestion only: nothing here is a plan or a record until the user marks work as done.

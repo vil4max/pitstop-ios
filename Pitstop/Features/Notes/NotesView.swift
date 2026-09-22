@@ -89,12 +89,10 @@ struct NotesView: View {
     }
 
     private var emptyState: some View {
-        ContentUnavailableView {
-            Label(
-                viewModel.state.scope == .active ? "tile.notes.empty.headline" : "notes.archived.empty",
-                systemImage: "note.text"
-            )
-        } description: {
+        FeatureEmptyState(
+            title: viewModel.state.scope == .active ? "tile.notes.empty.headline" : "notes.archived.empty",
+            systemImage: "note.text"
+        ) {
             if viewModel.state.scope == .active {
                 Text("tile.notes.empty.detail")
             }
@@ -104,8 +102,6 @@ struct NotesView: View {
                     .buttonStyle(.borderedProminent)
             }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 24)
     }
 
     private var scopeBinding: Binding<NoteStatus> {

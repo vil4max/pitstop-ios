@@ -13,16 +13,12 @@ struct HistoryView: View {
                     LoadFailureBanner(message: "history.load.failed") { await viewModel.load() }
                 }
                 if viewModel.state.timeline.entries.isEmpty {
-                    ContentUnavailableView {
-                        Label("tile.history.empty.headline", systemImage: "clock.arrow.circlepath")
-                    } description: {
+                    FeatureEmptyState(title: "tile.history.empty.headline", systemImage: "clock.arrow.circlepath") {
                         Text("tile.history.empty.detail")
                     } actions: {
                         Button("history.add") { editor = .new }
                             .buttonStyle(.borderedProminent)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 24)
                 } else {
                     ForEach(viewModel.state.timeline.entries) { entry in
                         if case let .event(event) = entry {
