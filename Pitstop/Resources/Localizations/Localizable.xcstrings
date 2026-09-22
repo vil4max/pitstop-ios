@@ -4953,7 +4953,7 @@
         }
       }
     },
-    "service.progress.almost" : {
+    "progress.almost" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4975,7 +4975,7 @@
         }
       }
     },
-    "service.progress.completionMileageMissing" : {
+    "progress.completionMileageMissing" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4997,7 +4997,7 @@
         }
       }
     },
-    "service.progress.completionMissing" : {
+    "progress.completionMissing" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5019,7 +5019,7 @@
         }
       }
     },
-    "service.progress.daysLeft %lld" : {
+    "progress.daysLeft %lld" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5041,7 +5041,7 @@
         }
       }
     },
-    "service.progress.daysPast %lld" : {
+    "progress.daysPast %lld" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5063,7 +5063,7 @@
         }
       }
     },
-    "service.progress.inKm %lld" : {
+    "progress.inKm %lld" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5085,7 +5085,7 @@
         }
       }
     },
-    "service.progress.mileageStale" : {
+    "progress.mileageStale" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5107,7 +5107,7 @@
         }
       }
     },
-    "service.progress.mileageUnknown" : {
+    "progress.mileageUnknown" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5151,7 +5151,7 @@
         }
       }
     },
-    "service.progress.overKm %lld" : {
+    "progress.overKm %lld" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5173,7 +5173,7 @@
         }
       }
     },
-    "service.progress.reached" : {
+    "progress.reached" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {

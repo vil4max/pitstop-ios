@@ -49,16 +49,13 @@ extension RoadMilestone {
 
     private var factText: Text {
         switch distanceLabel {
-        case let .inKm(kilometers): Text("service.progress.inKm \(kilometers)")
-        case let .pastKm(kilometers): Text("service.progress.overKm \(kilometers)")
-        case let .daysLeft(days): Text("service.progress.daysLeft \(days)")
-        case let .daysPast(days): Text("service.progress.daysPast \(days)")
-        case .reached: Text("service.progress.reached")
-        case .almost: Text("service.progress.almost")
-        case .blocked(.mileageStale): Text("service.progress.mileageStale")
-        case .blocked(.completionMileageMissing): Text("service.progress.completionMileageMissing")
-        case .blocked(.completionMissing): Text("service.progress.completionMissing")
-        case .blocked(.mileageUnknown): Text("service.progress.mileageUnknown")
+        case let .inKm(kilometers): ProgressText.kilometersAhead(kilometers)
+        case let .pastKm(kilometers): ProgressText.kilometersPast(kilometers)
+        case let .daysLeft(days): ProgressText.daysLeft(days)
+        case let .daysPast(days): ProgressText.daysPast(days)
+        case .reached: ProgressText.reached
+        case .almost: ProgressText.almost
+        case let .blocked(block): ProgressText.blocked(block)
         }
     }
 }

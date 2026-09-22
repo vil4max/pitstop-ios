@@ -51,30 +51,24 @@ extension MaintenanceOperationState {
             decided = Self.text(
                 remaining: kilometers,
                 isDue: status == .due,
-                ahead: { Text("service.progress.inKm \($0)") },
-                past: { Text("service.progress.overKm \($0)") }
+                ahead: ProgressText.kilometersAhead,
+                past: ProgressText.kilometersPast
             )
         } else if decidedBy == .time, let days = remainingDays {
             decided = Self.text(
                 remaining: days,
                 isDue: status == .due,
-                ahead: { Text("service.progress.daysLeft \($0)") },
-                past: { Text("service.progress.daysPast \($0)") }
+                ahead: ProgressText.daysLeft,
+                past: ProgressText.daysPast
             )
         }
-        guard let blockText else { return decided ?? Text("service.progress.mileageUnknown") }
+        guard let blockText else { return decided ?? ProgressText.blocked(.mileageUnknown) }
         guard let decided else { return blockText }
         return Text("\(decided) \(blockText)")
     }
 
     private var blockText: Text? {
-        switch distanceBlock {
-        case .mileageStale: Text("service.progress.mileageStale")
-        case .mileageUnknown: Text("service.progress.mileageUnknown")
-        case .completionMileageMissing: Text("service.progress.completionMileageMissing")
-        case .completionMissing: Text("service.progress.completionMissing")
-        case .none: nil
-        }
+        distanceBlock.map(ProgressText.blocked)
     }
 
     private static func text(
@@ -84,9 +78,9 @@ extension MaintenanceOperationState {
         past: (Int) -> Text
     ) -> Text {
         if isDue {
-            return remaining == 0 ? Text("service.progress.reached") : past(abs(remaining))
+            return remaining == 0 ? ProgressText.reached : past(abs(remaining))
         }
-        return remaining == 0 ? Text("service.progress.almost") : ahead(remaining)
+        return remaining == 0 ? ProgressText.almost : ahead(remaining)
     }
 }
 
