@@ -1,7 +1,7 @@
 # PitStop — Project Status
 
 **Project State:** Active — product baseline delivered; open work in the work plan  
-**Next task:** MNT-INT-002 — Recommendation provenance fixture, waiting for an owner decision ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
+**Next task:** SYS-007 — waits for the owner's App Group registration ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
 **TestFlight:** version 1.1.0 (tag `tf-1.1.0-2`); delivery is tag-gated (ADR 0013)
 
@@ -29,8 +29,15 @@ project marker is gitignored.
   record what was delivered.
 - MNT-VR-002, the car's dashboard service reading as a maintenance anchor, is
   delivered with schema V4 (ADR 0035).
-- Remaining work: two planned tasks (MNT-INT-002 and SYS-007), the iOS 27
-  redesign cards, owner-only device checks, and owner decisions. All are in
+- MNT-INT-002, the recommendation provenance fixture, is done in test-only
+  code with a fictional car and the fictional market "XM"; production
+  maintenance types are unchanged. The production-model gaps a real source
+  would hit are in the
+  [MNT-INT-001 record](docs/planning/investigations/mnt-int-001-maintenance-intelligence.md);
+  a real market and source stay owner-only (MNT-INT-003).
+- Remaining work: one planned task (SYS-007, waiting for the owner's App Group
+  registration), the iOS 27 redesign cards, owner-only device checks, and
+  owner decisions. All are in
   [`docs/planning/work-plan.md`](docs/planning/work-plan.md).
 - Requirements: 166 REQ IDs are `Status: proposed`; REQ-BOARD-026 and REQ-ICON-001
   are approved. Tests cite the proposed IDs.

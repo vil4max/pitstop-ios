@@ -1,6 +1,6 @@
 # MNT-INT-001 Maintenance intelligence investigations
 
-**Status:** Investigated (agent, 2026-09-21); owner decisions pending\
+**Status:** Investigated (agent, 2026-09-21); area 1 decided and MNT-INT-002 done (2026-09-22); other owner decisions pending\
 **Task:** MNT-INT-001 (Phase 7, `work-plan.md`)\
 **Register:** [`../investigations.md`](../investigations.md) (also answers INV-VEH-002 and part of INV-MNT-001)\
 **Contracts:** [`../../core.md`](../../core.md) (P2, P3, P4, C2, C5),
@@ -228,6 +228,59 @@ whether a legal review is required before any source is used; and whether
 recommendations wait for beta evidence (INV-PROD-001) as the card and roadmap
 say.
 
+**Owner decision (2026-09-22, under the owner's delegation "do everything"):**
+run MNT-INT-002 now. The target market stays undecided, so the fixture uses the
+fictional market "XM"; choosing a real market and source stays owner-only work
+(MNT-INT-003). The other questions above (paid source, backend, legal review,
+waiting for beta evidence) stay open.
+
+### MNT-INT-002 result (done 2026-09-22)
+
+Test-only code in `PitstopTests/MaintenanceIntelligence/`; no production file
+changed. `RecommendationProvenanceShape.swift` holds the shape (source with
+edition and licence reference, section-level `SourceReference`, applicability
+over the nine domain-model dimensions, a rule with explicit anchoring, a
+procedure composition, and a resolver that projects a record into a production
+`MaintenancePolicy`). `KestrelRecommendationFixture.swift` holds the fictional
+schedule; `RecommendationProvenanceTests.swift` holds the acceptance tests.
+
+- **Acceptance.** All five checks pass in `just verify`: every fictional rule
+  is expressible, including the fixed grid from first registration and the
+  three-component oil procedure with provenance on every component
+  (REQ-DOMAIN-004, ADR 0020 Q3); another transmission and an unknown drivetrain
+  each yield no recommendation; a `userCustom` oil policy wins through the
+  production `effective` precedence while the projected recommendation stays
+  unchanged beside it (REQ-DOMAIN-006); a guard test checks that the fixture
+  names only "Example Motors", "Kestrel", a code in the ISO 3166-1
+  user-assigned range and the reserved `.example` domain.
+- **Measurement.** Inexpressible rule shapes in the test shape: zero. The shape
+  needed three things beyond the sketch above: a section reference per rule
+  and per component (a document alone is not traceable enough for
+  REQ-DOMAIN-004); an evaluation order where a mismatch on any dimension wins
+  over an unknown fact, so the outcome does not depend on dictionary order; and
+  a year-range requirement next to plain equality.
+- **Production-model gaps a real source would hit** (listed by a test, not
+  fixed, because production stays unchanged until a real source is approved):
+  1. `MaintenancePolicy` has no provenance or recommendation reference, so a
+     `defaultRecommendation` policy cannot say where it came from.
+  2. No anchoring field: a fixed-grid rule projected into today's policy would
+     move with every completion, so the resolver refuses it
+     (`notRepresentable`) instead of changing its meaning (ADR 0020 Q3).
+  3. No first-registration date on `Vehicle`, which a grid from first
+     registration needs as its origin.
+  4. No procedure or component type; composition exists only in this fixture.
+  5. `Vehicle` supplies make, model and year only. Market, engine,
+     transmission, drivetrain and service regime are not collected, so with a
+     real `Vehicle` every recommendation that names them is unknown and yields
+     nothing. Service regime is an owner-declared usage pattern, not a car
+     fact, and needs its own question.
+  6. Storage: `MaintenancePolicyRecord` has no column for any of the above, so
+     a real source needs a new schema version (ADR 0007).
+- **Not covered.** Operation-name mapping from a source's wording to catalog
+  IDs, units other than kilometres and months, "whichever comes first" versus
+  "whichever comes last" wording, and edition supersession; none is needed by
+  the fictional schedule. These belong to MNT-INT-003's checklist.
+
 ### Area 2 — Presets: no-go for numeric presets; conditional go for an operation-set starter
 
 - Numeric presets (P3) are rejected while area 1 is closed.
@@ -325,7 +378,8 @@ None in this task: no code, schema, requirement, or ADR text changes. If the
 follow-ups are accepted:
 
 - MNT-INT-002 adds test-only types; production `MaintenancePolicy` is
-  unchanged until a real source is approved.
+  unchanged until a real source is approved. Done 2026-09-22 (see
+  "MNT-INT-002 result").
 - MNT-POL-001 adds one `DomainCommand` case, its validation, store handling,
   and a Service action; no schema change (the row is deleted).
 - MNT-PRE-001 is presentation plus repeated existing commands.
@@ -336,7 +390,7 @@ follow-ups are accepted:
 
 | Proposed ID | Title | Type | Depends on | Est |
 |---|---|---|---|---:|
-| MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only) | investigation | owner decision on area 1 scope | 1d |
+| MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only); done 2026-09-22 | investigation | owner decision on area 1 scope (decided 2026-09-22) | 1d |
 | MNT-INT-003 | Private licence and terms review of one real source (outside this repository) | investigation, owner | MNT-INT-002, market decision | 1d |
 | MNT-POL-001 | Stop tracking an operation (remove the owner's policy) | implementation | — | 1d |
 | MNT-PRE-001 | "Track several" starter with owner intervals | implementation | MNT-POL-001, product review gate, ENG-002 events | 2d |
@@ -347,9 +401,9 @@ follow-ups are accepted:
 
 ## Owner decisions (summary)
 
-1. Area 1 scope: stop at owner cadence, or run MNT-INT-002 now; target market
-   or markets; budget and backend acceptance for any paid source; legal review
-   requirement.
+1. Area 1 scope: decided 2026-09-22, run MNT-INT-002 now (done) with the
+   fictional market "XM". Still open: target market or markets; budget and
+   backend acceptance for any paid source; legal review requirement.
 2. Area 2: build the starter sheet now or after beta evidence; allowed chip
    values; whether class questions may become vehicle facts.
 3. Area 3: entry point for dated events; user label on `other`; Car Board

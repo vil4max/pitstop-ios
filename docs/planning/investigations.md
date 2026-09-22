@@ -202,7 +202,9 @@ Investigate:
 
 Investigated 2026-09-21 in MNT-INT-001
 ([`investigations/mnt-int-001-maintenance-intelligence.md`](investigations/mnt-int-001-maintenance-intelligence.md)):
-no app-supplied manufacturer data for now; owner decision pending.
+no app-supplied manufacturer data for now. The owner chose to run the
+fictional fixture (MNT-INT-002, done 2026-09-22); the target market, source,
+budget and legal review stay owner decisions (MNT-INT-003).
 
 ### INV-VEH-003 Progressive vehicle discovery
 
@@ -223,8 +225,10 @@ Region may reorder options. It must not become vehicle truth.
 Can official sources reliably identify required components of procedures?
 
 Partly addressed by MNT-INT-001: procedure composition shares the source,
-licence, and verification problem of INV-VEH-002; a fictional fixture test is
-proposed (MNT-INT-002).
+licence, and verification problem of INV-VEH-002. MNT-INT-002 (done
+2026-09-22) showed in test-only code that a three-component procedure with
+provenance on every component is expressible; production has no procedure
+type yet.
 
 ### INV-MNT-002 Service grouping
 
@@ -242,6 +246,11 @@ viable after core product validation, and under which gates?
 Record: [`investigations/mnt-int-001-maintenance-intelligence.md`](investigations/mnt-int-001-maintenance-intelligence.md)
 (investigated 2026-09-21; owner decisions pending). The full record lives in
 its own file because it cites external sources and proposes follow-up tasks.
+Area 1 decided 2026-09-22: MNT-INT-002 ran with the fictional market "XM" and
+is done; the fictional schedule is fully expressible in the test-only shape,
+and the record lists the production-model gaps a real source would hit
+(provenance, anchoring, first registration, procedure type, vehicle facts,
+schema). A real market and source stay owner-only (MNT-INT-003).
 
 ### MNT-VR-001 Vehicle-reported remaining value
 

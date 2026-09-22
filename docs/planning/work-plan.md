@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** MNT-INT-002 — Recommendation provenance fixture (fictional car, tests only)  
+**Next task:** SYS-007 — waits for the owner's App Group registration  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -15,7 +15,6 @@ store that TestFlight testers already hold.
 
 | ID | Title | Est | Depends on | Status | Source | Owner decision needed |
 |---|---|---:|---|---|---|---|
-| MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only) | 1d | owner decision | next | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 1 | Stop at owner cadence or run it now; target market |
 | SYS-007 | Widget with car data: App Group, store move, next-service widget | 3d+ | SYS-005 | planned | [SYS-004 record](investigations/sys-004-widgets.md), "Cost of a data widget"; ADR 0025 | Approve the data widget; register the App Group; accept the ADR 0007 change and a device migration check |
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
@@ -64,7 +63,7 @@ on screen" until a snapshot-testing card exists.
 
 | ID | Item | Source |
 |---|---|---|
-| MNT-INT-003 | Private licence and terms review of one real maintenance source, outside this repository (after MNT-INT-002 and a market decision) | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md) |
+| MNT-INT-003 | Private licence and terms review of one real maintenance source, outside this repository (MNT-INT-002 is done; needs a market decision) | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md) |
 | DEV-SIRI | Device check list: Siri in ru and uk, reply language, locked phone, prompt time against the 30-second limit | ADR 0026 |
 | DEV-WIDGET | Widget gallery, Control Center, Lock Screen control, Action button, Shortcuts listing | ADR 0025, ADR 0026 |
 | DEV-FM | Device evaluation of English captures with Foundation Models; then close or keep CAP-005 open, decide the Release rollout gate and the `interpreter_version` value | ADR 0027 |
@@ -164,4 +163,10 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
 - Architecture: ARCH-001, the inward dependency rule restored: the persistence
   mode and the mileage and amount parsers moved to `Features/Shared`, so no
   feature reads `AppEnvironment` or another feature's view model.
+- Recommendation provenance fixture: MNT-INT-002, test-only provenance and
+  applicability shape with a fictional schedule (Example Motors Kestrel,
+  fictional market "XM"); every fictional rule is expressible, a mismatch or an
+  unknown fact yields no recommendation, the owner's policy stays effective;
+  no production change. Owner decision 2026-09-22 under the "do everything"
+  delegation; production-model gaps are listed in the MNT-INT-001 record.
 - TestFlight: 1.0.0 and 1.1.0 rounds (tags `tf-1.0.0-1`, `tf-1.1.0-1`).
