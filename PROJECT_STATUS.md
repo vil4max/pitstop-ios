@@ -1,7 +1,7 @@
 # PitStop — Project Status
 
 **Project State:** Active — product baseline delivered; open work in the work plan  
-**Next task:** MNT-PRE-001 — "Track several" starter with owner intervals; waits for the product review gate ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
+**Next task:** MNT-INT-002 — Recommendation provenance fixture (fictional car, tests only); waits for an owner decision ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
 **TestFlight:** version 1.1.0 (tag `tf-1.1.0-2`); delivery is tag-gated (ADR 0013)
 
@@ -27,10 +27,10 @@ project marker is gitignored.
   through SYS-006, ANL, MNT-INT-001) is delivered on `main`. The GitHub board
   was deleted; the work plan lists only open work, and ADRs plus `git log`
   record what was delivered.
-- Remaining work: five planned tasks (MNT-PRE-001 through SYS-007),
+- Remaining work: four planned tasks (MNT-INT-002 through SYS-007),
   owner-only device checks, and owner decisions. All are in
   [`docs/planning/work-plan.md`](docs/planning/work-plan.md).
-- Requirements: 151 REQ IDs are `Status: proposed`; REQ-BOARD-026 and REQ-ICON-001
+- Requirements: 156 REQ IDs are `Status: proposed`; REQ-BOARD-026 and REQ-ICON-001
   are approved. Tests cite the proposed IDs.
 
 ## Current implementation status
@@ -46,7 +46,7 @@ Source of truth for what exists on `main`:
 | Persistence | SwiftData behind a command-only store, schema V3; V1 and V2 frozen (ADR 0007, 0016, 0032) |
 | Notes | Save, find, correct, archive without AI |
 | History | Record and correct events; timeline of events and confirmed completions |
-| Service | Deterministic engine, visit planner, track / mark done / change interval / undo / stop tracking (ADR 0010, 0031) |
+| Service | Deterministic engine, visit planner, track / track several / mark done / change interval / undo / stop tracking (ADR 0010, 0031, 0033) |
 | Road | Deterministic projection, tile and screen; owner-stated planned dates, insurance expiry first, added and corrected on Road (ADR 0008, 0032) |
 | Remember / Pit | Raw and rule-based interpreted capture end to end, confirmation, deadline, current-mileage question (ADR 0006, 0011, 0015–0019) |
 | System capture | Siri intent, App Shortcuts, voice clarification, Open Pit control and data-free widget (ADR 0023–0026) |

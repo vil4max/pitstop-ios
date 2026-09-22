@@ -6,6 +6,8 @@ struct ServiceViewState: Equatable {
     var scope: SuggestedServiceScope = .empty
     var mileage: MileageKnowledge = .unknown
     var isLoadFailed = false
+    /// False until the first successful load; before it, `operations` is empty only because nothing was read.
+    var hasLoaded = false
     /// Shown inside the open sheet, next to the input that failed.
     var failure: ServiceFailure?
     /// Shown on the list: undo happens with no sheet open.
@@ -15,6 +17,12 @@ struct ServiceViewState: Equatable {
     var stopTrackingCandidate: StopTrackingRequest?
     /// Operations that keep a rule the owner did not set; stopping the owner's rule falls back to it.
     var operationsWithOtherPolicy: Set<MaintenanceOperationID> = []
+
+    /// "Track several" offers only what is known to be untracked; before a successful load every operation would
+    /// look untracked and a save could silently replace the owner's interval (REQ-MAINT-025, ADR 0033).
+    var canTrackSeveral: Bool {
+        hasLoaded && !isLoadFailed && !untrackedOperations.isEmpty
+    }
 
     var untrackedOperations: [MaintenanceOperationID] {
         let tracked = Set(operations.map(\.id))
@@ -63,6 +71,7 @@ final class ServiceViewModel {
             state.scope = ServicePlanner().suggestedScope(for: states, context: context)
             state.mileage = context.mileage
             state.isLoadFailed = false
+            state.hasLoaded = true
         } catch {
             state.isLoadFailed = true
         }
@@ -71,17 +80,10 @@ final class ServiceViewModel {
     /// The owner's own cadence for one operation; calling it again for a tracked operation changes the
     /// interval. At least one interval is required.
     func track(_ operation: MaintenanceOperationID, kilometersText: String, monthsText: String) async -> Bool {
-        let kilometers = WholeNumberInput.parsePositive(kilometersText, upTo: 1_000_000)
-        let months = WholeNumberInput.parsePositive(monthsText, upTo: 600)
-        guard kilometers != .invalid, months != .invalid, kilometers.intValue != nil || months.intValue != nil else {
+        guard let policy = OwnerInterval.policy(for: operation, kilometersText: kilometersText, monthsText: monthsText)
+        else {
             return fail(.invalidInterval)
         }
-        let policy = MaintenancePolicy(
-            operationID: operation,
-            distanceIntervalKm: kilometers.intValue,
-            timeIntervalMonths: months.intValue,
-            source: .userCustom
-        )
         return await execute { vehicleID in .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: policy)) }
     }
 
@@ -142,6 +144,16 @@ final class ServiceViewModel {
             state.listFailure = .notSaved
         }
         return stopped
+    }
+
+    /// A fresh starter for the operations not tracked yet; after it saves anything, Service reloads (ADR 0033).
+    func makeTrackSeveral() -> TrackSeveralViewModel {
+        TrackSeveralViewModel(
+            store: store,
+            operations: state.untrackedOperations,
+            now: now,
+            onSaved: { [weak self] in await self?.load() }
+        )
     }
 
     func dismissFailure() {

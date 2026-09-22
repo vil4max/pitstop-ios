@@ -485,3 +485,43 @@ Source: [ADR 0010](../decisions/0010-maintenance-engine-rules.md) (undo confirma
 Given a tracked operation on Service
 When the owner chooses to stop tracking it
 Then nothing is removed until the owner confirms a dialog that names the operation, says that history stays and, when another policy remains, says that it applies instead; cancelling changes nothing
+
+### REQ-MAINT-025 — "Track several" starts from the untracked operations with nothing chosen
+Status: proposed
+Core: C2, P1
+Source: [Simple owner cadence first](#simple-owner-cadence-first), [ADR 0033](../decisions/0033-track-several-starter.md)
+Given the owner opens "Track several" on Service
+When the starter appears
+Then it offers every catalog operation that is not tracked yet, selects none of them, fills no interval, and leaves both car-type questions unanswered; the owner selects and deselects operations freely
+
+### REQ-MAINT-026 — Each chosen operation needs the owner's own valid interval
+Status: proposed
+Core: C2
+Source: [Simple owner cadence first](#simple-owner-cadence-first), [ADR 0033](../decisions/0033-track-several-starter.md)
+Given operations selected in "Track several"
+When the owner moves on to the confirmation
+Then every operation must have a distance and/or time interval that passes the same validation as the single Track sheet, each failing operation is marked by name, and quick picks offered as common choices are never preselected, only fill a field when tapped, stay editable, and are never called a recommendation
+
+### REQ-MAINT-027 — Nothing is saved before one confirmation that lists everything
+Status: proposed
+Core: P1, C2
+Source: [ADR 0006](../decisions/0006-capture-confirmation-policy.md), [ADR 0033](../decisions/0033-track-several-starter.md)
+Given valid intervals for the chosen operations
+When the owner has not confirmed the summary that lists every operation with its interval
+Then nothing is written; cancelling at any step writes nothing; after confirmation each item is saved as the owner's own policy (`userCustom`) and Service, Road and Car Board show it on reload
+
+### REQ-MAINT-028 — Items are saved one at a time and a failure is reported per item
+Status: proposed
+Core: P1
+Source: [ADR 0033](../decisions/0033-track-several-starter.md)
+Given a confirmed "Track several" summary
+When saving one item fails
+Then the other items are still saved, the result names each item as saved or not saved, and retrying saves only the items that failed
+
+### REQ-MAINT-029 — Car-type answers only reorder the starter list
+Status: proposed
+Core: C2
+Source: [ADR 0033](../decisions/0033-track-several-starter.md)
+Given the optional gearbox and drive questions in "Track several"
+When the owner answers them
+Then only the order of the offered operations changes; no operation is selected or hidden, and no answer is stored as a vehicle fact or written anywhere

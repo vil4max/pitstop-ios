@@ -213,15 +213,24 @@ extension MaintenanceOperationID {
     /// Localized titles are presentation only; the ID stays the domain identity. An ID without a
     /// known title is shown verbatim so it is neither looked up nor parsed as a format string.
     var titleText: Text {
+        titleResource.map { Text($0) } ?? Text(verbatim: rawValue)
+    }
+
+    /// The same title as plain text, for announcements and other string-only APIs.
+    var localizedTitle: String {
+        titleResource.map { String(localized: $0) } ?? rawValue
+    }
+
+    private var titleResource: LocalizedStringResource? {
         switch self {
-        case .engineOilService: Text("operation.engineOilService")
-        case .dsgService: Text("operation.dsgService")
-        case .awdCouplingService: Text("operation.awdCouplingService")
-        case .brakeFluid: Text("operation.brakeFluid")
-        case .cabinFilter: Text("operation.cabinFilter")
-        case .airFilter: Text("operation.airFilter")
-        case .sparkPlugs: Text("operation.sparkPlugs")
-        default: Text(verbatim: rawValue)
+        case .engineOilService: "operation.engineOilService"
+        case .dsgService: "operation.dsgService"
+        case .awdCouplingService: "operation.awdCouplingService"
+        case .brakeFluid: "operation.brakeFluid"
+        case .cabinFilter: "operation.cabinFilter"
+        case .airFilter: "operation.airFilter"
+        case .sparkPlugs: "operation.sparkPlugs"
+        default: nil
         }
     }
 }

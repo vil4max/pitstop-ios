@@ -15,6 +15,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
     private var failure: CarMemoryStoreError?
     private var failsReadings = false
     private var failsCommands = false
+    private var failingPolicyOperations: Set<MaintenanceOperationID> = []
 
     init(vehicle: Vehicle = .provisional()) {
         self.vehicle = vehicle
@@ -28,11 +29,17 @@ actor FakeCarMemoryStore: CarMemoryStore {
         failure = nil
         failsReadings = false
         failsCommands = false
+        failingPolicyOperations = []
     }
 
     /// Reads keep working; only writes fail, as when the disk is full.
     func failCommands() {
         failsCommands = true
+    }
+
+    /// Only policy writes for these operations fail, so a multi-item save can fail part way.
+    func failPolicies(for operations: Set<MaintenanceOperationID>) {
+        failingPolicyOperations = operations
     }
 
     func failReadingCommands() {
@@ -139,6 +146,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
             }
             return .completionRevoked(completions.remove(at: index))
         case let .setMaintenancePolicy(set):
+            guard !failingPolicyOperations.contains(set.policy.operationID) else { throw .storageFailure }
             policies.removeAll { $0.operationID == set.policy.operationID && $0.source == set.policy.source }
             policies.append(set.policy)
             return .policySet(set.policy)

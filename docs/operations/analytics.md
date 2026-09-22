@@ -133,6 +133,7 @@ approved investigation and passes the telemetry change gate.
 | --- | --- | --- | --- |
 | `pit_question_asked` | `question = current_mileage`, `context = car_board \| notes \| service \| history \| road` | ADR 0017 and 0018 ask how often a question is asked and where | `REVIEW` (proposed) |
 | `pit_question_resolved` | `question`, `resolution = answered \| deferred \| dismissed`, `is_return = true \| false` | ADR 0018: how often a returned deferral is answered versus deferred again | `REVIEW` (proposed) |
+| `track_several_applied` | `selected_count_bucket = 1 \| 2_3 \| 4_plus`, `saved_count_bucket`, `failed = true \| false`, `quick_pick_share = none \| some \| all` | MNT-INT-001 area 2 and ADR 0033: tracked operations per car with the starter, abandonment, quick pick versus typed share (INV-MNT-003); no operation IDs or interval values | `REVIEW` (proposed) |
 | `car_board_tile_opened` | `tile = notes \| history \| service \| road` | Car Board navigation value; could support `AQ-001` and `AQ-005` | `REVIEW` (proposed) |
 
 ## P0 event taxonomy

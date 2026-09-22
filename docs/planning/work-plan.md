@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** MNT-PRE-001 — "Track several" starter with owner intervals  
+**Next task:** MNT-INT-002 — Recommendation provenance fixture (fictional car, tests only)  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -15,8 +15,7 @@ store that TestFlight testers already hold.
 
 | ID | Title | Est | Depends on | Status | Source | Owner decision needed |
 |---|---|---:|---|---|---|---|
-| MNT-PRE-001 | "Track several" starter with owner intervals | 2d | product review gate | next | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 2 | Build now or after beta evidence; allowed cadence chip values; whether car-class questions may become vehicle facts |
-| MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only) | 1d | owner decision | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 1 | Stop at owner cadence or run it now; target market |
+| MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only) | 1d | owner decision | next | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 1 | Stop at owner cadence or run it now; target market |
 | ROAD-EST-001 | Mileage-rate estimate for distance milestones (investigation) | 1d | — | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), R5 | Whether estimates are wanted at all; requires a REQ-ROAD-007 change |
 | MNT-VR-001 | Vehicle-reported remaining value as a rule (investigation) | 1d | — | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), R6 | — |
 | SYS-007 | Widget with car data: App Group, store move, next-service widget | 3d+ | SYS-005 | planned | [SYS-004 record](investigations/sys-004-widgets.md), "Cost of a data widget"; ADR 0025 | Approve the data widget; register the App Group; accept the ADR 0007 change and a device migration check |
@@ -36,7 +35,7 @@ external entry; needs a voice capture path in Pit).
 
 ## Owner decisions pending
 
-- Requirements: 151 REQ IDs are `Status: proposed`; REQ-BOARD-026 and REQ-ICON-001
+- Requirements: 156 REQ IDs are `Status: proposed`; REQ-BOARD-026 and REQ-ICON-001
   are approved. Approval is an owner action.
 - ADR 0020: questions A–D (promote ADR 0001, recommendation data source,
   Service Plan vs multi-operation visit order, legacy data import) and the
@@ -51,7 +50,10 @@ external entry; needs a voice capture path in Pit).
 - Owner review of the agent decisions that say so in their status: ADR 0024,
   ADR 0026, ADR 0027, ADR 0030, ADR 0031, ADR 0032 (including its three
   delegated answers: entry on Road, an optional label on `other`, insurance on
-  Road only).
+  Road only), ADR 0033 (including its three delegated answers: build now,
+  unselected quick picks of 5,000 / 7,500 / 10,000 / 15,000 km and 6 / 12 / 24
+  months labelled as common choices, car-type answers reorder only and are not
+  stored).
 - Product scope without a task yet: multi-operation visit recording and
   accepted Service Plans (ADR 0020 C), procedure components with provenance,
   the "Consider" list, engine-hours rules; undo reaches only the newest
@@ -63,7 +65,7 @@ external entry; needs a voice capture path in Pit).
 
 Covered by tests but not exercised in the simulator or on a device: Road lane
 scrolling, "Back to now", clusters and Reduce Motion; the Service actions
-(track, mark done, change interval, undo, stop tracking); editing a planned
+(track, track several, mark done, change interval, undo, stop tracking); editing a planned
 date and the ru/uk editor strings (adding and deleting one were checked in en on
 the simulator, 2026-09-22); adding and correcting History events;
 correcting, archiving and restoring notes; VoiceOver order, AX5 text size,
@@ -97,6 +99,11 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
 - Planned dates: ROAD-EVT-001, the owner adds an insurance expiry or another
   date with an optional name on Road, and edits or deletes it there; one
   insurance expiry on Road per car; schema V3 with V2 frozen (ADR 0032).
+- Track several: MNT-PRE-001, the owner picks untracked operations on
+  Service, enters every interval (optional unselected quick picks), confirms
+  one summary; items are saved one at a time as the owner's own policies with a
+  per-item result and retry of failed items; gearbox and drive answers only
+  reorder the list and are never stored (ADR 0033).
 - Analytics: ENG-002, ANL-001 (ADR 0021, 0022); maintenance intelligence
   investigation MNT-INT-001.
 - Architecture: ARCH-001, the inward dependency rule restored: the persistence

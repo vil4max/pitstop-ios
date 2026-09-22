@@ -34,6 +34,11 @@ struct ServiceView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
+                Button("service.trackSeveral", systemImage: "checklist") { sheet = .trackSeveral }
+                    .disabled(!viewModel.state.canTrackSeveral)
+                    .accessibilityIdentifier("service.trackSeveral")
+            }
+            ToolbarItem(placement: .primaryAction) {
                 Button("service.track", systemImage: "plus") { sheet = .track }
                     .disabled(viewModel.state.untrackedOperations.isEmpty)
                     .accessibilityIdentifier("service.track")
@@ -74,6 +79,8 @@ struct ServiceView: View {
                     { operation, kilometers, months in
                         await viewModel.track(operation, kilometersText: kilometers, monthsText: months)
                     }
+                case .trackSeveral:
+                    TrackSeveralView(makeModel: viewModel.makeTrackSeveral)
                 case let .interval(operation):
                     TrackOperationView(
                         operations: [operation],
@@ -101,6 +108,10 @@ struct ServiceView: View {
         } actions: {
             Button("service.track") { sheet = .track }
                 .buttonStyle(.borderedProminent)
+            Button("service.trackSeveral") { sheet = .trackSeveral }
+                .buttonStyle(.bordered)
+                .disabled(!viewModel.state.canTrackSeveral)
+                .accessibilityIdentifier("service.empty.trackSeveral")
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 24)
@@ -206,12 +217,14 @@ struct ServiceView: View {
 
 enum ServiceSheet: Identifiable, Equatable {
     case track
+    case trackSeveral
     case interval(MaintenanceOperationID)
     case done(MaintenanceOperationID)
 
     var id: String {
         switch self {
         case .track: "track"
+        case .trackSeveral: "trackSeveral"
         case let .interval(operation): "interval-\(operation.rawValue)"
         case let .done(operation): "done-\(operation.rawValue)"
         }
@@ -337,56 +350,6 @@ struct TrackOperationView: View {
                 if let existing {
                     kilometers = existing.distanceIntervalKm.map(String.init) ?? ""
                     months = existing.timeIntervalMonths.map(String.init) ?? ""
-                }
-            }
-        }
-    }
-}
-
-struct MarkDoneView: View {
-    let operation: MaintenanceOperationID
-    let onConfirm: (Date, String) async -> Bool
-
-    @Environment(\.dismiss) private var dismiss
-    @State private var date = Date()
-    @State private var odometer = ""
-    @State private var isSaving = false
-
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    DatePicker("service.done.date", selection: $date, in: ...Date(), displayedComponents: .date)
-                    TextField("carEditor.odometer.placeholder", text: $odometer)
-                        .keyboardType(.numberPad)
-                        .pitReportsEditing()
-                        .accessibilityIdentifier("service.done.odometer")
-                } header: {
-                    operation.titleText
-                } footer: {
-                    Text("service.done.footer")
-                }
-                Section {
-                    // The explicit confirmation: only performed work resets a cycle (core C5).
-                    Button("service.done.confirm") {
-                        Task {
-                            isSaving = true
-                            let saved = await onConfirm(date, odometer)
-                            isSaving = false
-                            if saved {
-                                dismiss()
-                            }
-                        }
-                    }
-                    .disabled(isSaving)
-                    .accessibilityIdentifier("service.done.confirm")
-                }
-            }
-            .navigationTitle("service.markDone")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("common.cancel", role: .cancel) { dismiss() }
                 }
             }
         }
