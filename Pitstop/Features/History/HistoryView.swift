@@ -130,12 +130,12 @@ struct HistoryRow: View {
     private var facts: some View {
         HStack(spacing: 10) {
             if let kilometers = entry.odometerKm {
-                Text("carBoard.mileage.km \(kilometers)")
+                FeatureFormat.mileage(kilometers)
             } else {
                 Text("history.mileage.unknown")
             }
             if case let .event(event) = entry, let amount = event.amount {
-                Text(amount, format: .number.precision(.fractionLength(0 ... 2)))
+                Text(amount, format: FeatureFormat.amountStyle)
             }
         }
         .font(.footnote)
@@ -149,16 +149,6 @@ extension HistoryEntry {
         case let .event(event): Text(event.kind.title)
         case let .completion(completion): completion.operationID.titleText
         }
-    }
-
-    /// Events carry a day, not a moment, so recency is counted in whole days ("today", "3 days ago").
-    func recencyText(now: Date = Date(), calendar: Calendar = .current) -> Text {
-        let day = calendar.startOfDay(for: date)
-        let today = calendar.startOfDay(for: now)
-        let formatter = RelativeDateTimeFormatter()
-        formatter.dateTimeStyle = .named
-        formatter.unitsStyle = .full
-        return Text(verbatim: formatter.localizedString(for: day, relativeTo: today))
     }
 
     var systemImage: String {

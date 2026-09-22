@@ -49,7 +49,7 @@ struct CarHeroView: View {
         case .unknown:
             Text("carBoard.mileage.unknown")
         case let .kilometers(value):
-            Text("carBoard.mileage.km \(value)")
+            FeatureFormat.mileage(value)
         }
     }
 }

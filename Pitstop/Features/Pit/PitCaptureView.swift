@@ -278,7 +278,7 @@ struct PitCaptureView: View {
             facts.append(Text("pit.confirm.atMileage \(kilometers)"))
         }
         if let amount {
-            facts.append(Text("pit.confirm.amount \(amount.formatted(.number.precision(.fractionLength(0 ... 2))))"))
+            facts.append(Text("pit.confirm.amount \(FeatureFormat.amount(amount))"))
         }
         return facts
     }

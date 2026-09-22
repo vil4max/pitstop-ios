@@ -51,7 +51,7 @@ struct CarBoardTileView: View {
                         .font(.headline)
                         .foregroundStyle(PitColor.contentPrimary)
                         .lineLimit(2)
-                    latest.recencyText()
+                    FeatureFormat.dayRecency(of: latest.date)
                         .font(.footnote)
                         .foregroundStyle(PitColor.contentSecondary)
                 } else if descriptor.kind == .service, let subject = service.summarySubject {
