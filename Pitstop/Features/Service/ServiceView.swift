@@ -23,18 +23,7 @@ struct ServiceView: View {
                 }
             }
         }
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button("service.trackSeveral", systemImage: "checklist") { sheet = .trackSeveral }
-                    .disabled(!viewModel.state.canTrackSeveral)
-                    .accessibilityIdentifier("service.trackSeveral")
-            }
-            ToolbarItem(placement: .primaryAction) {
-                Button("service.track", systemImage: "plus") { sheet = .track }
-                    .disabled(viewModel.state.untrackedOperations.isEmpty)
-                    .accessibilityIdentifier("service.track")
-            }
-        }
+        .toolbar { toolbarItems }
         .task { await viewModel.load() }
         .alert("service.failure.notSaved", isPresented: listFailureBinding) {
             Button("common.ok") { viewModel.dismissFailure() }
@@ -63,42 +52,57 @@ struct ServiceView: View {
         .stopTrackingConfirmation(viewModel)
         .deleteReportConfirmation(viewModel)
         .sheet(item: $sheet) { sheet in
-            Group {
-                switch sheet {
-                case .track:
-                    TrackOperationView(operations: viewModel.state
-                        .untrackedOperations)
-                    { operation, kilometers, months in
-                        await viewModel.track(operation, kilometersText: kilometers, monthsText: months)
-                    }
-                case .trackSeveral:
-                    TrackSeveralView(makeModel: viewModel.makeTrackSeveral)
-                case let .interval(operation):
-                    TrackOperationView(
-                        operations: [operation],
-                        existing: viewModel.state.operations.first { $0.id == operation }.flatMap(\.policy)
-                    ) { operation, kilometers, months in
-                        await viewModel.track(operation, kilometersText: kilometers, monthsText: months)
-                    }
-                case let .done(operation):
-                    MarkDoneView(operation: operation) { date, odometer in
-                        await viewModel.confirmDone(operation, on: date, odometerText: odometer)
-                    }
-                case let .report(operation):
-                    DashboardReadingView(
-                        operation: operation,
-                        defaultUnit: viewModel.state.defaultReportUnit,
-                        odometerPrefill: viewModel.state.sameDayOdometerKm
-                    ) { entry in
-                        await viewModel.enterReport(
-                            operation, distanceText: entry.distance, unit: entry.unit,
-                            daysText: entry.days, odometerText: entry.odometer
-                        )
-                    }
+            sheetContent(sheet)
+                .alert(failureTitle, isPresented: failureBinding) {
+                    Button("common.ok") { viewModel.dismissFailure() }
                 }
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarItems: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Button("service.trackSeveral", systemImage: "checklist") { sheet = .trackSeveral }
+                .disabled(!viewModel.state.canTrackSeveral)
+                .accessibilityIdentifier("service.trackSeveral")
+        }
+        ToolbarItem(placement: .primaryAction) {
+            Button("service.track", systemImage: "plus") { sheet = .track }
+                .disabled(viewModel.state.untrackedOperations.isEmpty)
+                .accessibilityIdentifier("service.track")
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(_ sheet: ServiceSheet) -> some View {
+        switch sheet {
+        case .track:
+            TrackOperationView(operations: viewModel.state.untrackedOperations) { operation, kilometers, months in
+                await viewModel.track(operation, kilometersText: kilometers, monthsText: months)
             }
-            .alert(failureTitle, isPresented: failureBinding) {
-                Button("common.ok") { viewModel.dismissFailure() }
+        case .trackSeveral:
+            TrackSeveralView(makeModel: viewModel.makeTrackSeveral)
+        case let .interval(operation):
+            TrackOperationView(
+                operations: [operation],
+                existing: viewModel.state.operations.first { $0.id == operation }.flatMap(\.policy)
+            ) { operation, kilometers, months in
+                await viewModel.track(operation, kilometersText: kilometers, monthsText: months)
+            }
+        case let .done(operation):
+            MarkDoneView(operation: operation) { date, odometer in
+                await viewModel.confirmDone(operation, on: date, odometerText: odometer)
+            }
+        case let .report(operation):
+            DashboardReadingView(
+                operation: operation,
+                defaultUnit: viewModel.state.defaultReportUnit,
+                odometerPrefill: viewModel.state.sameDayOdometerKm
+            ) { entry in
+                await viewModel.enterReport(
+                    operation, distanceText: entry.distance, unit: entry.unit,
+                    daysText: entry.days, odometerText: entry.odometer
+                )
             }
         }
     }

@@ -80,7 +80,12 @@ struct RootView: View {
         }
     }
 
+    /// One modifier chain, split into slices only for length; the slices apply in the original order.
     private var content: some View {
+        systemEntry(pitCoordination(boardNavigation))
+    }
+
+    private var boardNavigation: some View {
         NavigationStack(path: $path) {
             CarBoardView(viewModel: carBoard)
                 .navigationDestination(for: CarBoardRoute.self) { route in
@@ -102,92 +107,102 @@ struct RootView: View {
         }
         // Text input lives in sheets, which cover the layer; it never rides up over a keyboard.
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        // Pit waits nearby and yields to whatever the user is doing: the utility sheets report here, and
-        // every screen, editor, and scroll view below reports through the environment (ADR 0019).
-        .task(id: reduceMotion) { pit.setReduceMotion(reduceMotion) }
-        .onChange(of: sheet) { _, newSheet in
-            pit.report(newSheet == nil ? [] : newSheet == .pit ? .capturing : .modalTask, from: .utilitySheet)
-            // Whatever Pit saved shows on the board and on the surface the user is on.
-            if newSheet == nil {
-                Task { await refreshVisibleSurface() }
-            }
-        }
-        // However Pit was closed — Close or a swipe — a pending capture is cancelled, never left half-done.
-        // An unanswered question is not: Pit keeps knocking until it is answered, deferred, or dismissed.
-        .onChange(of: sheet == .pit) { wasPit, isPit in
-            if wasPit, !isPit {
-                pitCapture.cancel()
-                pitQuestion.acknowledge()
-                // Pit leaves the sheet: its eyes close for a moment in the utility layer (ADR 0028).
-                Task { await pit.leave() }
-            }
-        }
-        // Pit may interrupt only where the question belongs and only once the user has settled there
-        // (REQ-PIT-006, 007); the policy and the question's relevance decide the rest (ADR 0017). Settling
-        // restarts after every navigation and every return to an idle interface (ADR 0019).
-        .task(id: askTrigger) {
-            await askTrigger.run(
-                settle: { try await Task.sleep(for: Self.questionSettleDelay) },
-                ask: { await askIfUseful() }
-            )
-        }
-        .onChange(of: pitQuestion.isAsking) { wasAsking, isAsking in
-            if wasAsking, !isAsking {
-                pit.endQuestion()
-            }
-        }
-        // A capture may have supplied the fact the pending question asks for (ADR 0017).
-        .onChange(of: pitCapture.phase) { _, phase in
-            if case .saved = phase {
-                Task { await pitQuestion.revalidate() }
-            }
-        }
-        .onChange(of: pitQuestion.phase) { _, phase in
-            // An answer changes what Service, Road, and the board show; they update under the sheet.
-            if case .answered = phase {
-                Task { await refreshVisibleSurface() }
-            }
-        }
-        .onDisappear { pit.stop() }
-        // Queued analytics live only in memory; leaving the app is the last good moment to send them (ADR 0022).
-        .onChange(of: scenePhase) { _, phase in
-            switch phase {
-            case .background:
-                wasInBackground = true
-                Task.detached(priority: .utility) { [analyticsSharing] in await analyticsSharing.flush() }
-            case .active where wasInBackground:
-                // Siri may have saved while the app was suspended (ADR 0023); show it on return. Only a
-                // return from the background: launch and Control Center or alert dismissals load nothing.
-                wasInBackground = false
-                Task { await refreshAfterReturn() }
-            default:
-                break
-            }
-        }
-        // "Open Pit" from Siri, Shortcuts, or Spotlight opens capture over the current surface, as a tap
-        // on Pit would (REQ-PIT-013, REQ-CAPTURE-023). `initial` covers a request made during a cold launch;
-        // an open feature editor defers the request until it closes (ADR 0024).
-        .onChange(of: openPitGate, initial: true) { _, gate in
-            if captureRequests.take(isPresentationBlocked: gate.isBlocked) {
-                sheet = .pit
-            }
-        }
-        .task {
-            guard let text = Self.initialCapture() else { return }
-            pitCapture.text = text
-            sheet = .pit
-            await pitCapture.submit(from: visibleFeature)
-        }
-        .sheet(item: $sheet) { sheet in
-            switch sheet {
-            case .settings:
-                SettingsView(isStorageTemporary: carBoard.state.isStorageTemporary, analytics: analyticsSharing)
-            case .pit:
-                PitCaptureView(viewModel: pitCapture, question: pitQuestion, visible: visibleFeature) { destination in
-                    open(destination)
+    }
+
+    private func pitCoordination(_ view: some View) -> some View {
+        view
+            // Pit waits nearby and yields to whatever the user is doing: the utility sheets report here, and
+            // every screen, editor, and scroll view below reports through the environment (ADR 0019).
+            .task(id: reduceMotion) { pit.setReduceMotion(reduceMotion) }
+            .onChange(of: sheet) { _, newSheet in
+                pit.report(newSheet == nil ? [] : newSheet == .pit ? .capturing : .modalTask, from: .utilitySheet)
+                // Whatever Pit saved shows on the board and on the surface the user is on.
+                if newSheet == nil {
+                    Task { await refreshVisibleSurface() }
                 }
             }
-        }
+            // However Pit was closed — Close or a swipe — a pending capture is cancelled, never left half-done.
+            // An unanswered question is not: Pit keeps knocking until it is answered, deferred, or dismissed.
+            .onChange(of: sheet == .pit) { wasPit, isPit in
+                if wasPit, !isPit {
+                    pitCapture.cancel()
+                    pitQuestion.acknowledge()
+                    // Pit leaves the sheet: its eyes close for a moment in the utility layer (ADR 0028).
+                    Task { await pit.leave() }
+                }
+            }
+            // Pit may interrupt only where the question belongs and only once the user has settled there
+            // (REQ-PIT-006, 007); the policy and the question's relevance decide the rest (ADR 0017). Settling
+            // restarts after every navigation and every return to an idle interface (ADR 0019).
+            .task(id: askTrigger) {
+                await askTrigger.run(
+                    settle: { try await Task.sleep(for: Self.questionSettleDelay) },
+                    ask: { await askIfUseful() }
+                )
+            }
+            .onChange(of: pitQuestion.isAsking) { wasAsking, isAsking in
+                if wasAsking, !isAsking {
+                    pit.endQuestion()
+                }
+            }
+            // A capture may have supplied the fact the pending question asks for (ADR 0017).
+            .onChange(of: pitCapture.phase) { _, phase in
+                if case .saved = phase {
+                    Task { await pitQuestion.revalidate() }
+                }
+            }
+            .onChange(of: pitQuestion.phase) { _, phase in
+                // An answer changes what Service, Road, and the board show; they update under the sheet.
+                if case .answered = phase {
+                    Task { await refreshVisibleSurface() }
+                }
+            }
+            .onDisappear { pit.stop() }
+    }
+
+    private func systemEntry(_ view: some View) -> some View {
+        view
+            // Queued analytics live only in memory; leaving the app is the last good moment to send them (ADR 0022).
+            .onChange(of: scenePhase) { _, phase in
+                switch phase {
+                case .background:
+                    wasInBackground = true
+                    Task.detached(priority: .utility) { [analyticsSharing] in await analyticsSharing.flush() }
+                case .active where wasInBackground:
+                    // Siri may have saved while the app was suspended (ADR 0023); show it on return. Only a
+                    // return from the background: launch and Control Center or alert dismissals load nothing.
+                    wasInBackground = false
+                    Task { await refreshAfterReturn() }
+                default:
+                    break
+                }
+            }
+            // "Open Pit" from Siri, Shortcuts, or Spotlight opens capture over the current surface, as a tap
+            // on Pit would (REQ-PIT-013, REQ-CAPTURE-023). `initial` covers a request made during a cold launch;
+            // an open feature editor defers the request until it closes (ADR 0024).
+            .onChange(of: openPitGate, initial: true) { _, gate in
+                if captureRequests.take(isPresentationBlocked: gate.isBlocked) {
+                    sheet = .pit
+                }
+            }
+            .task {
+                guard let text = Self.initialCapture() else { return }
+                pitCapture.text = text
+                sheet = .pit
+                await pitCapture.submit(from: visibleFeature)
+            }
+            .sheet(item: $sheet) { sheet in
+                switch sheet {
+                case .settings:
+                    SettingsView(isStorageTemporary: carBoard.state.isStorageTemporary, analytics: analyticsSharing)
+                case .pit:
+                    PitCaptureView(
+                        viewModel: pitCapture, question: pitQuestion, visible: visibleFeature
+                    ) { destination in
+                        open(destination)
+                    }
+                }
+            }
     }
 
     private struct OpenPitGate: Equatable {
