@@ -138,6 +138,720 @@
           }
         }
       }
+    },
+    "widget.fact.almost" : {
+      "comment" : "Short progress fact: almost at the planned point",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "almost at the planned point"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "почти срок"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "майже строк"
+          }
+        }
+      }
+    },
+    "widget.fact.distanceNotCounted" : {
+      "comment" : "Short progress fact: last time has no mileage, so distance is not counted",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "distance not counted"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "пробег не считается"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "пробіг не рахується"
+          }
+        }
+      }
+    },
+    "widget.fact.inDays %lld" : {
+      "comment" : "Short progress fact: days left",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "in %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "in %lld days"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "через %lld дн."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "через %lld дн."
+          }
+        }
+      }
+    },
+    "widget.fact.inKm %lld" : {
+      "comment" : "Short progress fact: distance left",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "in %lld km"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "через %lld км"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "через %lld км"
+          }
+        }
+      }
+    },
+    "widget.fact.mileageStale" : {
+      "comment" : "Short progress fact: distance not counted because mileage is out of date",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mileage out of date"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "пробег устарел"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "пробіг застарів"
+          }
+        }
+      }
+    },
+    "widget.fact.mileageUnknown" : {
+      "comment" : "Short progress fact: distance not counted because mileage is unknown",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mileage unknown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "пробег неизвестен"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "пробіг невідомий"
+          }
+        }
+      }
+    },
+    "widget.fact.noBaseline" : {
+      "comment" : "Short progress fact: nothing to count from",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "last time not recorded"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "прошлый раз не записан"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "минулий раз не записано"
+          }
+        }
+      }
+    },
+    "widget.fact.nothingCounted" : {
+      "comment" : "Short progress fact: a dashboard reading was superseded and no rule is left",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nothing counted"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ничего не считается"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нічого не рахується"
+          }
+        }
+      }
+    },
+    "widget.fact.overDays %lld" : {
+      "comment" : "Short progress fact: days past the planned date",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day past"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days past"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld дн. после срока"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld дн. після строку"
+          }
+        }
+      }
+    },
+    "widget.fact.overKm %lld" : {
+      "comment" : "Short progress fact: distance past the planned point",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld km past"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld км после срока"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld км після строку"
+          }
+        }
+      }
+    },
+    "widget.fact.reached" : {
+      "comment" : "Short progress fact: the planned point is reached",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "planned point reached"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "срок наступил"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "строк настав"
+          }
+        }
+      }
+    },
+    "widget.nextService.description" : {
+      "comment" : "Next-service widget gallery description",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows the service that needs attention first, as the Service screen lists it."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает обслуживание, которое требует внимания первым, как на экране «Сервис»."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показує обслуговування, яке потребує уваги першим, як на екрані «Сервіс»."
+          }
+        }
+      }
+    },
+    "widget.nextService.empty.detail" : {
+      "comment" : "Next-service widget empty state: a tap opens the app",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open PitStop to track one thing, like oil."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Откройте PitStop, чтобы отслеживать, например, масло."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкрийте PitStop, щоб відстежувати, наприклад, оливу."
+          }
+        }
+      }
+    },
+    "widget.nextService.empty.headline" : {
+      "comment" : "Next-service widget with no car or nothing tracked",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing tracked"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ничего не отслеживается"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нічого не відстежується"
+          }
+        }
+      }
+    },
+    "widget.nextService.inline %@ %@" : {
+      "comment" : "Lock Screen inline widget: operation name, then its status word",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "widget.nextService.title" : {
+      "comment" : "Next-service widget name in the gallery and its header",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next service"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Следующее обслуживание"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наступне обслуговування"
+          }
+        }
+      }
+    },
+    "widget.nextService.unavailable" : {
+      "comment" : "Next-service widget when the car memory cannot be read right now",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open PitStop to see service."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Откройте PitStop, чтобы увидеть обслуживание."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкрийте PitStop, щоб побачити обслуговування."
+          }
+        }
+      }
+    },
+    "widget.operation.airFilter" : {
+      "comment" : "Maintenance operation name, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Air filter"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Воздушный фильтр"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повітряний фільтр"
+          }
+        }
+      }
+    },
+    "widget.operation.awdCouplingService" : {
+      "comment" : "Maintenance operation name, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AWD coupling service"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обслуживание муфты полного привода"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обслуговування муфти повного приводу"
+          }
+        }
+      }
+    },
+    "widget.operation.brakeFluid" : {
+      "comment" : "Maintenance operation name, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brake fluid"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тормозная жидкость"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гальмівна рідина"
+          }
+        }
+      }
+    },
+    "widget.operation.cabinFilter" : {
+      "comment" : "Maintenance operation name, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cabin filter"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Салонный фильтр"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Салонний фільтр"
+          }
+        }
+      }
+    },
+    "widget.operation.dsgService" : {
+      "comment" : "Maintenance operation name, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSG service"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обслуживание DSG"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обслуговування DSG"
+          }
+        }
+      }
+    },
+    "widget.operation.engineOilService" : {
+      "comment" : "Maintenance operation name, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engine oil service"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Замена моторного масла"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заміна моторної оливи"
+          }
+        }
+      }
+    },
+    "widget.operation.sparkPlugs" : {
+      "comment" : "Maintenance operation name, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spark plugs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свечи зажигания"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свічки запалювання"
+          }
+        }
+      }
+    },
+    "widget.status.approaching" : {
+      "comment" : "Status word, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approaching"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приближается"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наближається"
+          }
+        }
+      }
+    },
+    "widget.status.approaching.byDate" : {
+      "comment" : "Status word when only the date rule decided, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approaching by date"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приближается по дате"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наближається за датою"
+          }
+        }
+      }
+    },
+    "widget.status.due" : {
+      "comment" : "Status word, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Due"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пора"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Час"
+          }
+        }
+      }
+    },
+    "widget.status.unknown" : {
+      "comment" : "Status word, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not enough facts"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недостаточно фактов"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недостатньо фактів"
+          }
+        }
+      }
+    },
+    "widget.status.upToDate" : {
+      "comment" : "Status word, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Up to date"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В порядке"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У порядку"
+          }
+        }
+      }
+    },
+    "widget.status.upToDate.byDate" : {
+      "comment" : "Status word when only the date rule decided, as on the Service screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Up to date by date"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В порядке по дате"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У порядку за датою"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

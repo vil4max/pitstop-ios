@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** SYS-007 — waits for the owner's App Group registration  
+**Next task:** none planned; the owner schedules RD-000  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -9,13 +9,8 @@
 
 ## Plan
 
-Order is the pick-up order. `next` is the one task to start; `planned` waits
-for its dependency or owner decision. SYS-007 is last because it moves the
-store that TestFlight testers already hold.
-
-| ID | Title | Est | Depends on | Status | Source | Owner decision needed |
-|---|---|---:|---|---|---|---|
-| SYS-007 | Widget with car data: App Group, store move, next-service widget | 3d+ | SYS-005 | planned | [SYS-004 record](investigations/sys-004-widgets.md), "Cost of a data widget"; ADR 0025 | Approve the data widget; register the App Group; accept the ADR 0007 change and a device migration check |
+No implementation card is open outside the redesign section below; the
+owner schedules RD-000.
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
 now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
@@ -65,12 +60,12 @@ on screen" until a snapshot-testing card exists.
 |---|---|---|
 | MNT-INT-003 | Private licence and terms review of one real maintenance source, outside this repository (MNT-INT-002 is done; needs a market decision) | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md) |
 | DEV-SIRI | Device check list: Siri in ru and uk, reply language, locked phone, prompt time against the 30-second limit | ADR 0026 |
-| DEV-WIDGET | Widget gallery, Control Center, Lock Screen control, Action button, Shortcuts listing | ADR 0025, ADR 0026 |
+| DEV-WIDGET | Widget gallery (capture and next-service widgets), Control Center, Lock Screen control and rectangular/inline widget, Action button, Shortcuts listing; TestFlight upgrade check of the store move; first Xcode Cloud archive carries the App Group in both profiles | ADR 0025, ADR 0026, ADR 0036 |
 | DEV-FM | Device evaluation of English captures with Foundation Models; then close or keep CAP-005 open, decide the Release rollout gate and the `interpreter_version` value | ADR 0027 |
 
 ## Owner decisions pending
 
-- Requirements: 166 REQ IDs are `Status: proposed` (MNT-VR-002 added
+- Requirements: 176 REQ IDs are `Status: proposed` (SYS-007 added REQ-WIDGET-001…010; MNT-VR-002 added
   REQ-MAINT-030…039 and REQ-ROAD-026 and reworded REQ-MAINT-023 as the owner
   approved in substance). 29 are approved: REQ-BOARD-026, REQ-ICON-001,
   REQ-ROAD-007, 022, 023, and the iOS 27 redesign set approved in the design
@@ -189,4 +184,8 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
   `.tint`, so the two Track several uses do not render `PitColor.accentPrimary`
   today, and routing them through it is a visible colour change left to the
   redesign.
+- Data widget: SYS-007, App Group `group.dev.vil4max.pitstop`, a one-time
+  non-destructive move of the store into the group container, and a
+  read-only "Next service" widget that shows Service's first operation
+  through the shared engine and opens Service (ADR 0036).
 - TestFlight: 1.0.0 and 1.1.0 rounds (tags `tf-1.0.0-1`, `tf-1.1.0-1`).

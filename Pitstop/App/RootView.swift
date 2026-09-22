@@ -12,6 +12,7 @@ struct RootView: View {
     let pitQuestion: PitQuestionViewModel
     let analyticsSharing: AnalyticsSharing
     let captureRequests: CaptureSurfaceRequests
+    let serviceRequests: ServiceLinkRequests
     /// DEBUG demo seeding; it must finish before any surface loads, or a surface opened first reads an empty store.
     var prepare: (@Sendable () async -> Void)?
 
@@ -185,6 +186,13 @@ struct RootView: View {
                     sheet = .pit
                 }
             }
+            // The next-service widget's link (ADR 0036). It waits while a sheet or an editor is open, so
+            // opening Service never discards what the person was writing.
+            .onChange(of: serviceLinkGate, initial: true) { _, gate in
+                if serviceRequests.take(isPresentationBlocked: gate.isBlocked) {
+                    path = [.tile(.service)]
+                }
+            }
             .task {
                 guard let text = Self.initialCapture() else { return }
                 pitCapture.text = text
@@ -205,13 +213,20 @@ struct RootView: View {
             }
     }
 
-    private struct OpenPitGate: Equatable {
+    private struct RequestGate: Equatable {
         let isPending: Bool
         let isBlocked: Bool
     }
 
-    private var openPitGate: OpenPitGate {
-        OpenPitGate(isPending: captureRequests.isPending, isBlocked: pit.isFeatureTaskPresented)
+    private var openPitGate: RequestGate {
+        RequestGate(isPending: captureRequests.isPending, isBlocked: pit.isFeatureTaskPresented)
+    }
+
+    private var serviceLinkGate: RequestGate {
+        RequestGate(
+            isPending: serviceRequests.isPending,
+            isBlocked: sheet != nil || pit.isFeatureTaskPresented
+        )
     }
 
     private var askTrigger: PitAskTrigger {

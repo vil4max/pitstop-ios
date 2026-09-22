@@ -1,7 +1,7 @@
 # PitStop — Project Status
 
 **Project State:** Active — product baseline delivered; open work in the work plan  
-**Next task:** SYS-007 — waits for the owner's App Group registration ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
+**Next task:** none planned; the owner schedules RD-000 ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
 **TestFlight:** version 1.1.0 (tag `tf-1.1.0-2`); delivery is tag-gated (ADR 0013)
 
@@ -35,11 +35,10 @@ project marker is gitignored.
   would hit are in the
   [MNT-INT-001 record](docs/planning/investigations/mnt-int-001-maintenance-intelligence.md);
   a real market and source stay owner-only (MNT-INT-003).
-- Remaining work: one planned task (SYS-007, waiting for the owner's App Group
-  registration), the iOS 27 redesign cards, owner-only device checks, and
+- Remaining work: SYS-007 is delivered (ADR 0036); the iOS 27 redesign cards, owner-only device checks, and
   owner decisions. All are in
   [`docs/planning/work-plan.md`](docs/planning/work-plan.md).
-- Requirements: 166 REQ IDs are `Status: proposed` and 29 are approved:
+- Requirements: 176 REQ IDs are `Status: proposed` and 29 are approved:
   REQ-BOARD-026, REQ-ICON-001, REQ-ROAD-007, 022, 023, and the iOS 27
   redesign set approved in the design session on 2026-09-22 (REQ-DESIGN-001…005,
   REQ-GRAMMAR-001…004, REQ-BOARD-027…031, REQ-ROAD-027…029, REQ-PIT-021…026, REQ-UTILITY-012).
@@ -55,7 +54,8 @@ Source of truth for what exists on `main`:
 | Product contracts / specs | Present under `docs/` (see `docs/README.md`) |
 | Car context | Persisted provisional car, optional name and mileage edit |
 | Car Board | Design language, four live tiles, utility layer (ADR 0009) |
-| Persistence | SwiftData behind a command-only store, schema V4; V1 to V3 frozen (ADR 0007, 0016, 0032, 0035) |
+| Persistence | SwiftData behind a command-only store, schema V4 in the App Group container; V1 to V3 frozen (ADR 0007, 0016, 0032, 0035, 0036) |
+| Widgets | Data-free capture widget and Open Pit control; read-only next-service widget (ADR 0025, 0036) |
 | Notes | Save, find, correct, archive without AI |
 | History | Record and correct events; timeline of events and confirmed completions |
 | Service | Deterministic engine, visit planner, track / track several / mark done / change interval / undo / stop tracking; the car's dashboard reading as an anchor, entered on Service or through Pit (ADR 0010, 0031, 0033, 0035) |

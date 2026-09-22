@@ -111,8 +111,10 @@ inspectable and correctable (core P1). Limits:
 
 ## Consequences and limits
 
-- The store file is `Application Support/Pitstop.store`. There is no iCloud
-  sync, export, or deletion flow yet.
+- The store file was `Application Support/Pitstop.store` in the app's
+  container. Since ADR 0036 it lives in the App Group container, moved there
+  once at launch, and the next-service widget reads it read-only. There is no
+  iCloud sync, export, or deletion flow yet.
 - Correcting or archiving a note uses `UpdateNoteCommand` (CB-003). It changes
   text or status only and can never create an event or completion.
 - App wiring (container creation at launch and the failure path when the

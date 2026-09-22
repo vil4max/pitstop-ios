@@ -169,9 +169,10 @@ the built product and on the simulator, not by unit tests.
   SYS-005; the URL route was checked with `simctl openurl` instead.
 - **Shortcuts listing:** whether the Shortcuts app lists Open Pit once now
   that two bundles declare it.
-- **Data widget later:** App Group, store move with a migration test, read-only
-  store in the extension, reload budget, and Lock Screen redaction (SYS-004,
-  "Cost of a data widget"); proposed as SYS-007.
+- **Data widget:** delivered by SYS-007 in ADR 0036 (App Group, store move,
+  read-only store in the extension, `pitstop://service`). It changes two
+  statements above: both targets now have entitlements, and domain and
+  persistence files enter the extension through membership exceptions.
 - **Xcode Cloud:** the first TestFlight archive with the extension confirms
   signing of `dev.vil4max.pitstop.widgets` (automatic signing registers the
   new ID).

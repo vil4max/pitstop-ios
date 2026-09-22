@@ -29,7 +29,12 @@ enum PersistenceContainer {
         return try ModelContainer(for: schema, migrationPlan: PitstopMigrationPlan.self, configurations: configuration)
     }
 
-    static var defaultStoreURL: URL {
-        URL.applicationSupportDirectory.appending(path: "Pitstop.store")
+    /// The widget's view of an existing store (ADR 0036). `allowsSave: false` opens it read-only, and without
+    /// a migration plan: a store of another version fails to open instead of being migrated by the extension,
+    /// so only the app ever changes the file. The caller checks that the file exists first.
+    static func makeReadOnly(storeURL: URL) throws -> ModelContainer {
+        let schema = Schema(versionedSchema: PitstopSchemaV4.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL, allowsSave: false)
+        return try ModelContainer(for: schema, configurations: configuration)
     }
 }

@@ -41,12 +41,13 @@ flowchart LR
         subgraph app["PitStop app process"]
             ui["SwiftUI app: Car Board, Notes, Service, History, Road, Settings, Pit sheet"]
             intents["App Intents: RememberInPitStopIntent, OpenPitIntent, PitStopShortcuts"]
-            store[("SwiftData store Pitstop.store, schema V4")]
+            store[("SwiftData store Pitstop.store in the App Group container, schema V4")]
             analytics["Analytics boundary: consent gate, PostHog HTTP adapter"]
             fm["Foundation Models interpreter, DEBUG launch argument only"]
         end
         subgraph ext["PitstopWidgets extension"]
             widget["CaptureWidget, data-free"]
+            nextService["NextServiceWidget, reads the store read-only"]
             control["OpenPitControl, Control Center and Lock Screen"]
         end
         siri["Siri, Shortcuts, Spotlight"]
@@ -63,11 +64,15 @@ flowchart LR
     user --> ui
     user --> siri
     user --> widget
+    user --> nextService
     user --> control
     siri --> intents
     intents --> store
     ui --> store
     widget -- "pitstop://pit" --> ui
+    nextService -- "pitstop://service" --> ui
+    nextService -. "read-only" .-> store
+    ui -. "reloadTimelines after a saved command" .-> nextService
     control -- "OpenPitIntent" --> ui
     ui --> fm
     intents --> fm
@@ -83,9 +88,14 @@ and registers the same `RememberIntentHandler` and `CaptureSurfaceRequests`
 with `AppDependencyManager`, so a Siri save and the Pit sheet write to the
 same SwiftData file ([`Pitstop/App/PitstopApp.swift`](../../Pitstop/App/PitstopApp.swift),
 [ADR 0007](../decisions/0007-persistence.md), [ADR 0023](../decisions/0023-remember-intent.md)).
-The widget extension shares only the `Shared/` sources and has no store, no
-App Group, and no car data; both of its entries can only open the Pit sheet
-([ADR 0025](../decisions/0025-widgets-and-controls.md)). Analytics leaves the
+The store lives in the App Group container `group.dev.vil4max.pitstop`, moved
+there once at launch from the app's own container. The widget extension's
+capture widget and control are data-free and only open the Pit sheet
+([ADR 0025](../decisions/0025-widgets-and-controls.md)); its next-service
+widget opens the store read-only, runs the same maintenance engine as Service,
+and opens Service through `pitstop://service`. The app remains the only writer
+and asks WidgetKit to reload that widget after every saved command
+([ADR 0036](../decisions/0036-app-group-store-and-next-service-widget.md)). Analytics leaves the
 device only when the build carries `PostHogProjectAPIKey` and `PostHogHost`
 and the user opted in under Settings; the repository ships no key, so the
 gated no-op client is what runs ([ADR 0021](../decisions/0021-analytics-boundary.md),
@@ -145,11 +155,11 @@ flowchart TB
     end
 
     subgraph sharedL["Shared (app and widget targets)"]
-        sh["CaptureSurface, CaptureSurfaceRequests, OpenPitIntent"]
+        sh["AppLink, CaptureSurface, CaptureSurfaceRequests, OpenPitIntent, NextServiceContent"]
     end
 
     subgraph wid["PitstopWidgets target"]
-        w["PitstopWidgetsBundle, CaptureWidget, OpenPitControl"]
+        w["PitstopWidgetsBundle, CaptureWidget, NextServiceWidget, OpenPitControl"]
     end
 
     appL --> featL
@@ -162,6 +172,7 @@ flowchart TB
     ds --> domL
     infL --> domL
     wid --> sharedL
+    wid -. "membership: maintenance domain, schemas, read-only reader" .-> domL
 ```
 
 The app is one Xcode target whose folders act as layers; there are no Swift
@@ -179,7 +190,8 @@ non-view-model types (see [Mismatches](#mismatches-found-while-writing-this-page
 `Shared/` is a
 folder compiled into both the app and the widget extension
 (`Pitstop.xcodeproj/project.xcproj`), which is how the control reaches
-`OpenPitIntent`. Folder roots: [`Pitstop/Domain`](../../Pitstop/Domain),
+`OpenPitIntent`. The extension also compiles a named set of domain and
+persistence files through membership exceptions (ADR 0036). Folder roots: [`Pitstop/Domain`](../../Pitstop/Domain),
 [`Pitstop/Infrastructure`](../../Pitstop/Infrastructure),
 [`Pitstop/Features`](../../Pitstop/Features), [`Pitstop/App`](../../Pitstop/App),
 [`Pitstop/DesignSystem`](../../Pitstop/DesignSystem), [`Shared`](../../Shared),
@@ -615,7 +627,8 @@ erDiagram
 ```
 
 The store keeps one car (created provisionally on first read) and its facts as
-SwiftData records in `Application Support/Pitstop.store`
+SwiftData records in `Library/Application Support/Pitstop.store` of the App
+Group container (ADR 0036)
 ([`PitstopSchemaV1.swift`](../../Pitstop/Infrastructure/Persistence/PitstopSchemaV1.swift),
 [`PitstopSchemaV2.swift`](../../Pitstop/Infrastructure/Persistence/PitstopSchemaV2.swift),
 [`PitstopSchemaV3.swift`](../../Pitstop/Infrastructure/Persistence/PitstopSchemaV3.swift),
@@ -805,6 +818,7 @@ record.
 | Siri Remember | "Remember in PitStop": Siri asks for the words, confirms or asks one detail by voice, answers with where it saved; unlocked phone only; refused with temporary storage | 0023, 0026 | `App/Intents/RememberInPitStopIntent.swift`, `Features/SystemCapture/` | `RememberIntentHandlerTests`, `RememberSpeechTests` | Unit tests; device check pending (DEV-SIRI) |
 | App Shortcuts | Remember and Open Pit shortcuts with en phrases in code and ru, uk phrases in the catalog | 0024 | `App/Intents/PitStopShortcuts.swift`, `Shared/OpenPitIntent.swift` | `AppShortcutsTests` | Unit tests; Shortcuts listing device check pending (DEV-WIDGET); ru and uk phrases await owner review |
 | Widget and control | Data-free small and circular widget and an Open Pit control that open the Pit sheet; deferred while an editor is open | 0025 | `PitstopWidgets/`, `Shared/` | `WidgetEntryTests` | Unit tests; widget gallery, Control Center, Lock Screen and Action button device check pending (DEV-WIDGET) |
+| Next-service widget | Small, Lock Screen rectangular and inline widget showing Service's first operation (name, status word, one fact) or a calm empty state; tap opens Service; reloads after saved commands and at the next time-based change; store moved once into the App Group container | 0036 | `PitstopWidgets/NextServiceWidget.swift`, `Shared/NextServiceContent.swift`, `Shared/AppLink.swift`, `Infrastructure/Persistence/StoreRelocation.swift`, `NextServiceStoreReader.swift`, `Infrastructure/Widgets/` | `StoreRelocationTests`, `NextServiceWidgetTests`, `WidgetEntryTests` | Unit tests; gallery, rendering and TestFlight upgrade device checks pending (DEV-WIDGET) |
 | Analytics | Off by default; Settings opt-in; closed event values without user text; PostHog adapter active only with a key and host in the build (none shipped) | 0002, 0021, 0022 | `Infrastructure/Analytics/`, `Features/Pit/CaptureAnalytics.swift`, `Features/Notes/NotesAnalytics.swift`, `Features/Settings/SettingsView.swift` | `AnalyticsBoundaryTests`, `CaptureAnalyticsTests`, `FeatureAnalyticsTests`, `PostHogAnalyticsClientTests` | Unit tests; no PostHog project exists, so delivery is untested end to end |
 | Logging | OSLog categories; capture stages logged without content | 0003 | `Infrastructure/Logging/` | `CaptureStageTests` | Unit tests |
 | App icon | Pit's resting eyes as a Liquid Glass icon with six appearances | 0029 | `Pitstop/AppIcon.icon` | none (asset) | Not covered by tests |

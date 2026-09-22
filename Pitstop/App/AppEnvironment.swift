@@ -60,8 +60,14 @@ struct AppEnvironment: Sendable {
             }
             return AppEnvironment(stores, registry: registry, persistence: .temporary, analytics: analytics)
         }
-        if let stores = makeStores(url: PersistenceContainer.defaultStoreURL, registry: registry) {
-            return AppEnvironment(stores, registry: registry, persistence: .durable, analytics: analytics)
+        if let url = durableStoreURL(), let stores = makeStores(url: url, registry: registry) {
+            let reloader = WidgetCenterNextServiceReloader()
+            // Once per durable launch: a widget left on "unavailable" or empty before this launch moved or
+            // migrated the store shows it now.
+            reloader.reloadNextService()
+            return AppEnvironment(
+                stores, registry: registry, persistence: .durable, analytics: analytics, reloader: reloader
+            )
         }
         // Core P2: the app must still open. The user is told that nothing will be kept.
         log.error("Persistent store unavailable; falling back to memory")
@@ -112,6 +118,39 @@ struct AppEnvironment: Sendable {
         )
     }
 
+    /// Moves the store into the App Group container first, once (ADR 0036). Only the durable store moves;
+    /// test, preview and demo launches never touch the user's files. `nil` means no durable store may open.
+    private static func durableStoreURL() -> URL? {
+        let relocation = StoreRelocation(
+            legacyStore: StoreLocation.legacyStoreURL,
+            groupStore: StoreLocation.groupContainerURL().map(StoreLocation.groupStoreURL(in:))
+        )
+        let (store, outcome) = relocation.prepare()
+        let log = AppLog.logger(category: "app.persistence")
+        switch outcome {
+        case .freshInstall, .alreadyMoved:
+            break
+        case .moved:
+            log.info("Store moved into the App Group container")
+        case .leftoverRemoved:
+            log.info("Removed the old copy of the moved store")
+        case let .leftoverBackedUp(backup):
+            let name = backup.lastPathComponent
+            log.error("Kept a changed store at the old location as \(name, privacy: .public); it is not merged")
+        case .leftoverKept:
+            log.error("A changed store at the old location could not be renamed; it stays untouched")
+        case .groupUnavailable:
+            log.error("App Group container unavailable; the store stays in the app container")
+        case .groupUnavailableAfterMove:
+            // Opening the emptied old location would look like lost data and collect facts in the wrong place.
+            log.error("App Group container unavailable after the move; nothing will be kept this launch")
+        case let .keptLegacy(failure):
+            let step = String(describing: failure)
+            log.error("Store move failed at \(step, privacy: .public); the old store stays in use")
+        }
+        return store
+    }
+
     private typealias Stores = (car: SwiftDataCarMemoryStore, questions: SwiftDataPitQuestionStore)
 
     private init(
@@ -119,10 +158,12 @@ struct AppEnvironment: Sendable {
         registry: PitQuestionRegistry,
         persistence: PersistenceMode,
         analytics: Analytics,
+        reloader: (any NextServiceReloading)? = nil,
         prepare: (@Sendable () async -> Void)? = nil
     ) {
         self.init(
-            store: stores.car,
+            // Only the durable store feeds the widget; temporary stores have nothing it could show.
+            store: reloader.map { WidgetReloadingCarMemoryStore(base: stores.car, reloader: $0) } ?? stores.car,
             questions: stores.questions,
             registry: registry,
             persistence: persistence,

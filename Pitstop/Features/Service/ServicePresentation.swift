@@ -1,16 +1,7 @@
 import SwiftUI
 
 extension MaintenanceStatus {
-    /// Status is always said in words; colour only supports it (non-colour status meaning).
-    var label: LocalizedStringKey {
-        switch self {
-        case .unknown: "service.status.unknown"
-        case .upToDate: "service.status.upToDate"
-        case .approaching: "service.status.approaching"
-        case .due: "service.status.due"
-        }
-    }
-
+    /// Status is always said in words (`statusLabel`); colour only supports it (non-colour status meaning).
     var color: Color {
         switch self {
         case .unknown: PitColor.contentTertiary
@@ -20,67 +11,39 @@ extension MaintenanceStatus {
         case .due: PitColor.statusDue
         }
     }
-
-    var systemImage: String {
-        switch self {
-        case .unknown: "questionmark.circle"
-        case .upToDate: "checkmark.circle"
-        case .approaching: "clock.badge.exclamationmark"
-        case .due: "exclamationmark.circle"
-        }
-    }
 }
 
 extension MaintenanceOperationState {
-    /// "Up to date" that rests on the date rule alone says so, instead of implying the distance is fine.
+    /// The shared status word (`statusWord`), said in the app's words.
     var statusLabel: LocalizedStringKey {
-        guard isPartial else { return status.label }
-        return status == .approaching ? "service.status.approaching.byDate" : "service.status.upToDate.byDate"
+        switch statusWord {
+        case .unknown: "service.status.unknown"
+        case .upToDate: "service.status.upToDate"
+        case .upToDateByDate: "service.status.upToDate.byDate"
+        case .approaching: "service.status.approaching"
+        case .approachingByDate: "service.status.approaching.byDate"
+        case .due: "service.status.due"
+        }
     }
 
-    /// One honest line about where this operation stands, in the dimension that decided it. Words
-    /// follow the status, so text and status can never disagree near the anchor.
+    /// One honest line about where this operation stands; `progressFact` decides what it says, here and
+    /// in the widget (ADR 0036).
     var progressText: Text {
-        // Kept on Service only by a reading that newer work superseded: there is no rule left to count by.
-        if policy == nil, countingReport == nil {
+        switch progressFact {
+        case .readingSuperseded:
             return Text("service.progress.readingSuperseded")
+        case .noBaseline:
+            return Text("service.progress.noBaseline")
+        case let .progress(measure, block):
+            let measured = measure.map(ProgressText.text(for:))
+            let blocked = block.map(ProgressText.blocked)
+            switch (measured, blocked) {
+            case let (measured?, blocked?): return Text("\(measured) \(blocked)")
+            case let (measured?, nil): return measured
+            case let (nil, blocked?): return blocked
+            case (nil, nil): return ProgressText.blocked(.mileageUnknown)
+            }
         }
-        guard hasBaseline else { return Text("service.progress.noBaseline") }
-        var decided: Text?
-        if decidedBy == .distance, let kilometers = remainingKm {
-            decided = Self.text(
-                remaining: kilometers,
-                isDue: status == .due,
-                ahead: ProgressText.kilometersAhead,
-                past: ProgressText.kilometersPast
-            )
-        } else if decidedBy == .time, let days = remainingDays {
-            decided = Self.text(
-                remaining: days,
-                isDue: status == .due,
-                ahead: ProgressText.daysLeft,
-                past: ProgressText.daysPast
-            )
-        }
-        guard let blockText else { return decided ?? ProgressText.blocked(.mileageUnknown) }
-        guard let decided else { return blockText }
-        return Text("\(decided) \(blockText)")
-    }
-
-    private var blockText: Text? {
-        distanceBlock.map(ProgressText.blocked)
-    }
-
-    private static func text(
-        remaining: Int,
-        isDue: Bool,
-        ahead: (Int) -> Text,
-        past: (Int) -> Text
-    ) -> Text {
-        if isDue {
-            return remaining == 0 ? ProgressText.reached : past(abs(remaining))
-        }
-        return remaining == 0 ? ProgressText.almost : ahead(remaining)
     }
 }
 

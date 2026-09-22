@@ -27,6 +27,17 @@ enum ProgressText {
         Text("progress.almost")
     }
 
+    static func text(for measure: ProgressMeasure) -> Text {
+        switch measure {
+        case let .kilometersAhead(kilometers): kilometersAhead(kilometers)
+        case let .kilometersPast(kilometers): kilometersPast(kilometers)
+        case let .daysLeft(days): daysLeft(days)
+        case let .daysPast(days): daysPast(days)
+        case .reached: reached
+        case .almost: almost
+        }
+    }
+
     /// Why there is no number; the reason is said as it is.
     static func blocked(_ block: DistanceBlock) -> Text {
         switch block {

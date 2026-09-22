@@ -87,7 +87,28 @@ struct WidgetExtensionTests {
         "widget.capture.description",
         "widget.capture.action",
         "widget.capture.hint",
-    ]
+        "widget.nextService.title",
+        "widget.nextService.description",
+        "widget.nextService.empty.headline",
+        "widget.nextService.empty.detail",
+        "widget.nextService.unavailable",
+        "widget.nextService.inline %@ %@",
+        "widget.status.unknown",
+        "widget.status.upToDate",
+        "widget.status.upToDate.byDate",
+        "widget.status.approaching",
+        "widget.status.approaching.byDate",
+        "widget.status.due",
+        "widget.fact.inKm %lld",
+        "widget.fact.overKm %lld",
+        "widget.fact.reached",
+        "widget.fact.almost",
+        "widget.fact.mileageUnknown",
+        "widget.fact.mileageStale",
+        "widget.fact.distanceNotCounted",
+        "widget.fact.noBaseline",
+        "widget.fact.nothingCounted",
+    ] + MaintenanceOperationID.catalog.map { "widget.operation.\($0.rawValue)" }
 
     private func extensionBundle() throws -> Bundle {
         let plugIns = try #require(Bundle.main.builtInPlugInsURL, "The test host has no PlugIns directory")
@@ -151,12 +172,25 @@ struct WidgetExtensionTests {
         #expect(app.allSatisfy { !$0.value.isEmpty && $0.value != $0.key })
     }
 
-    @Test("ADR-0025: the control and the widget are named in every locale", arguments: locales)
+    @Test("ADR-0025, ADR-0036: the control and the widgets are named in every locale", arguments: locales)
     func widgetStringsAreLocalized(locale: String) throws {
         let widgets = try table("Localizable", locale: locale, in: extensionBundle())
         for key in Self.widgetKeys {
             let value = try #require(widgets[key], "\(key) missing in \(locale)")
             #expect(!value.isEmpty && value != key)
+        }
+    }
+
+    /// English plurals compile into a `.stringsdict`, so these are resolved through the locale's bundle.
+    @Test("ADR-0036: the widget's day counts resolve in every locale", arguments: locales)
+    func widgetPluralsAreLocalized(locale: String) throws {
+        let url = try #require(try extensionBundle().url(forResource: locale, withExtension: "lproj"))
+        let bundle = try #require(Bundle(url: url))
+        for key in ["widget.fact.inDays %lld", "widget.fact.overDays %lld"] {
+            let format = bundle.localizedString(forKey: key, value: nil, table: nil)
+            #expect(format != key, "\(key) missing in \(locale)")
+            let text = String(format: format, locale: Locale(identifier: locale), 3)
+            #expect(text.contains("3") && !text.contains("%"))
         }
     }
 }

@@ -1,8 +1,8 @@
 import AppIntents
 import Foundation
 
-/// The places outside entries may open (ADR 0025). Only Pit exists: `OpenIntent` needs a target type, and
-/// the `pitstop://` URL scheme accepts nothing else, so the scheme cannot reach any other screen or data.
+/// The capture surfaces outside entries may open (ADR 0025). Only Pit exists: `OpenIntent` needs a target
+/// type. The URL scheme's other screen, Service, is an `AppLink` and never an intent target (ADR 0036).
 enum CaptureSurface: String, AppEnum {
     case pit
 
@@ -13,27 +13,17 @@ enum CaptureSurface: String, AppEnum {
         .pit: DisplayRepresentation(title: LocalizedStringResource("intent.captureSurface.pit", table: "OpenPit")),
     ]
 
-    static let urlScheme = "pitstop"
+    static let urlScheme = AppLink.scheme
 
     /// The widget's link, `pitstop://pit`.
     var url: URL {
-        guard let url = URL(string: "\(Self.urlScheme)://\(rawValue)") else {
-            preconditionFailure("A fixed ASCII scheme and a case name as host always form a URL")
-        }
-        return url
+        AppLink.pit.url
     }
 
-    /// Accepts exactly `pitstop://pit` (a trailing slash allowed, scheme and host in any case). Anything else,
-    /// including a path, query, fragment, or user, is not a capture surface, so a link from another app or a
-    /// web page can open the Pit sheet and nothing more.
+    /// Only `pitstop://pit` is a capture surface; every other link, including `pitstop://service`, is not,
+    /// so a link from another app or a web page opens the Pit sheet and nothing more through this type.
     init?(url: URL) {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              components.scheme?.lowercased() == Self.urlScheme,
-              components.path.isEmpty || components.path == "/",
-              components.query == nil, components.fragment == nil,
-              components.user == nil, components.password == nil, components.port == nil,
-              let host = components.host?.lowercased()
-        else { return nil }
-        self.init(rawValue: host)
+        guard AppLink(url: url) == .pit else { return nil }
+        self = .pit
     }
 }

@@ -21,6 +21,7 @@
 | Pit | `PitPresenceModel`, `PitCaptureViewModel`, `PitQuestionRegistry`, `PitQuestionViewModel`, `PitActivitySources` | Capture surface, proposal confirmation, current-mileage question with cooldown and return, activity reporting (CAP-003/004, DISC-001…004, ADR 0012, 0016–0019) |
 | Interpretation | `RuleBasedInterpreter`, `InterpreterChain`, `FoundationModelsInterpreter` | Rules by default; the Foundation Models adapter runs only behind a DEBUG launch argument (CAP-005, ADR 0011, 0027) |
 | System capture | `RememberInPitStopIntent`, `RememberIntentHandler`, `PitStopShortcuts`, `OpenPitIntent`, `CaptureSurfaceRequests`, `PitstopWidgets` | Siri and App Shortcuts, voice clarification, Open Pit control and data-free widget (SYS-002…006, ADR 0023–0026) |
+| Next-service widget | `NextServiceWidget`, `NextServiceContent`, `NextServiceSchedule`, `NextServiceStoreReader`, `StoreRelocation`, `WidgetReloadingCarMemoryStore`, `AppLink`, `ServiceLinkRequests` | Read-only widget of Service's first operation, App Group store move, reloads (SYS-007, ADR 0036) |
 | Analytics | `AnalyticsClient`, `PostHogAnalyticsClient` | Provider-neutral boundary, consent off by default, HTTP adapter without an SDK (ENG-002, ANL-001, ADR 0021, 0022) |
 
 `ProvisionalCarContext.firstLaunch` has `odometerKm: nil`, and the placeholder

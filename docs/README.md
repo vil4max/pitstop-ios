@@ -42,6 +42,7 @@ highest affected layer; evidence from operations flows back up.
 - `requirements/pit-behavior-and-motion.md`
 - `requirements/bottom-utility-layer.md`
 - `requirements/screen-grammar.md`
+- `requirements/widgets.md`
 - `decisions/0004-product-design-rationale.md` — product why / rejected alternatives (not a behaviour contract)
 
 ## Domain
@@ -94,6 +95,7 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0033-track-several-starter.md` — MNT-PRE-001: "Track several" on Service; the owner picks untracked operations, enters every interval (unselected quick picks 5,000/7,500/10,000/15,000 km and 6/12/24 months, labelled as common choices), confirms one summary; items saved one at a time as `userCustom` with per-item result and retry of failed items; gearbox and drive answers only reorder and are never stored
 - `decisions/0034-mileage-rate-estimate.md` — ROAD-EST-002: a distance milestone carries a labelled date estimate derived from the reading history (3 observations in 365 days spanning 60, newest at most 90 days old; median of pair rates with MAD outlier rejection, plus the overall rate; capped at the time anchor; nothing shown when the late bound is past twice the early one or 730 days); annotation only, never stored, no schema change, ADR 0008 ordering unchanged
 - `decisions/0035-dashboard-service-reading.md` — MNT-VR-002: the car's own service countdown as a `VehicleServiceReport` observation (never a policy or completion); anchors derived on read; newest reading per operation until a newer completion; earliest anchor wins per dimension with the owner's interval as share denominator; distance part follows the 90-day mileage rule, days never stale; "old" after 180 days, never expires; keeps an untracked operation visible until deleted; Service line and menu, Road "from dashboard" suffix, confirmed Pit capture; schema V4
+- `decisions/0036-app-group-store-and-next-service-widget.md` — SYS-007: App Group `group.dev.vil4max.pitstop`; one-time non-destructive store move (copy, verify, mark, delete only a matching leftover, back up any other); read-only next-service widget using the shared engine; `pitstop://service`; reloads after saved commands, on launch and at the next time-based change
 - `decisions/0027-foundation-models-interpreter.md` — CAP-005 spike: Foundation Models adapter behind `SemanticInterpreting` with deterministic post-model guards, rules-first `InterpreterChain`, off by default (DEBUG launch argument only), golden set and evaluation lane; Russian and Ukrainian unsupported by Apple Intelligence on iOS 27, model quality not measured
 - `decisions/0005-toolchain-and-project-format.md` — Swift 6, iOS 27, file-system-synchronized project
 
