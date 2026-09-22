@@ -353,7 +353,10 @@ private extension MemoryProposal {
             extractedDistanceIntervalKm: distance,
             extractedTimeIntervalMonths: months,
             extractedEventKind: eventKind,
-            extractedAmount: amount
+            extractedAmount: amount,
+            extractedRemainingDistance: extractedRemainingDistance,
+            extractedRemainingDistanceUnit: extractedRemainingDistanceUnit,
+            extractedRemainingDays: extractedRemainingDays
         )
     }
 }

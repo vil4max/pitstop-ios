@@ -43,9 +43,11 @@ struct RememberSpeech {
             let asked = valueQuestion(field, repeated: repeated)
             guard isVoiceOnly else { return asked }
             return resource("intent.remember.ask.voiceHint \(String(localized: asked))")
-        case .pick(.operationID, _):
+        case .pick(.operationID, _, forDashboardReading: true):
+            return resource("intent.remember.ask.operationID.report")
+        case .pick(.operationID, _, _):
             return resource("intent.remember.ask.operationID")
-        case .pick(.eventKind, _):
+        case .pick(.eventKind, _, _):
             return resource("intent.remember.ask.eventKind")
         case .pick:
             return resource("intent.remember.clarify")
@@ -127,11 +129,41 @@ struct RememberSpeech {
             resource("intent.remember.confirm.event")
         case let .maintenancePolicy(operation, _, _):
             resource("intent.remember.confirm.policy \(operationName(operation))")
+        case let .vehicleServiceReport(operation, _, _, distance, unit, days):
+            reportConfirmation(operation, values: reportValues(distance, unit, days))
         case .vehicleFact:
             resource("intent.remember.confirm.fact")
         case .note:
             resource("intent.remember.confirm.note")
         }
+    }
+
+    /// The values are read back, as a completion's mileage is, so a misheard number is caught before saving.
+    private func reportConfirmation(_ operation: MaintenanceOperationID, values: String) -> LocalizedStringResource {
+        resource("intent.remember.confirm.vehicleReport \(operationName(operation)) \(values)")
+    }
+
+    /// "3200 km / 45 days" in the request's language, in the unit the car showed, overdue in words.
+    private func reportValues(_ distance: Double?, _ unit: DistanceUnit, _ days: Int?) -> String {
+        var parts: [String] = []
+        if let distance {
+            let value = Int(abs(distance).rounded())
+            let key: String.LocalizationValue = switch (unit, distance < 0) {
+            case (.kilometers, false): "service.report.km \(value)"
+            case (.kilometers, true): "service.report.overKm \(value)"
+            case (.miles, false): "service.report.mi \(value)"
+            case (.miles, true): "service.report.overMi \(value)"
+            }
+            parts.append(String(localized: resource(key)))
+        }
+        if let days {
+            let key: String.LocalizationValue = days < 0
+                ? "service.report.overDays \(abs(days))" : "service.report.days \(days)"
+            parts.append(String(localized: resource(key)))
+        }
+        guard parts.count == 2 else { return parts.first ?? "" }
+        // Spoken with a word, not the slash the Service line shows.
+        return String(localized: resource("service.report.pair.spoken \(parts[0]) \(parts[1])"))
     }
 
     /// Resolved here, in the same locale as the sentence around it. An ID without a title is

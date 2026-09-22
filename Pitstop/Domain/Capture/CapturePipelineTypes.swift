@@ -71,6 +71,8 @@ public enum ProposalKind: String, Codable, Sendable, CaseIterable {
     case vehicleFact
     case maintenanceCompletion
     case maintenancePolicyDraft
+    /// What the car's own display says is left for one operation (ADR 0035).
+    case vehicleServiceReport
     case vehicleEvent
     case expense
     case reminderCandidate
@@ -100,6 +102,10 @@ public struct MemoryProposal: Identifiable, Hashable, Codable, Sendable {
     public let extractedTimeIntervalMonths: Int?
     public let extractedEventKind: HistoryEventKind?
     public let extractedAmount: Decimal?
+    /// What a dashboard reading says is left, in the unit the car showed it in (ADR 0035).
+    public let extractedRemainingDistance: Double?
+    public let extractedRemainingDistanceUnit: DistanceUnit?
+    public let extractedRemainingDays: Int?
     /// Fields the producer already knows it could not fill. The validator recomputes this itself.
     public let missingRequiredFields: [ProposalField]
 
@@ -118,6 +124,9 @@ public struct MemoryProposal: Identifiable, Hashable, Codable, Sendable {
         extractedTimeIntervalMonths: Int? = nil,
         extractedEventKind: HistoryEventKind? = nil,
         extractedAmount: Decimal? = nil,
+        extractedRemainingDistance: Double? = nil,
+        extractedRemainingDistanceUnit: DistanceUnit? = nil,
+        extractedRemainingDays: Int? = nil,
         missingRequiredFields: [ProposalField] = []
     ) {
         self.id = id
@@ -134,6 +143,9 @@ public struct MemoryProposal: Identifiable, Hashable, Codable, Sendable {
         self.extractedTimeIntervalMonths = extractedTimeIntervalMonths
         self.extractedEventKind = extractedEventKind
         self.extractedAmount = extractedAmount
+        self.extractedRemainingDistance = extractedRemainingDistance
+        self.extractedRemainingDistanceUnit = extractedRemainingDistanceUnit
+        self.extractedRemainingDays = extractedRemainingDays
         self.missingRequiredFields = missingRequiredFields
     }
 }
@@ -145,4 +157,6 @@ public enum ProposalField: String, Codable, Sendable, CaseIterable {
     case policyInterval
     case eventKind
     case amount
+    /// A dashboard reading with neither a distance nor a number of days left (ADR 0035).
+    case remainingValue
 }

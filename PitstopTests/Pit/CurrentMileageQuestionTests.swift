@@ -11,7 +11,8 @@ private func operation(
     block: DistanceBlock?
 ) -> MaintenanceOperationState {
     MaintenanceOperationState(
-        policy: policy, lastCompletion: nil, status: .unknown, anchorKm: nil, anchorDate: nil,
+        operationID: policy.operationID, policy: policy, lastCompletion: nil, status: .unknown, anchorKm: nil,
+        anchorDate: nil,
         remainingKm: nil, remainingDays: nil, remainingFraction: nil, decidedBy: nil, distanceBlock: block
     )
 }

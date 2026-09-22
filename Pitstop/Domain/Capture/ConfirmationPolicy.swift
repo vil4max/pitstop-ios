@@ -49,7 +49,8 @@ public struct ConfirmationPolicy: Sendable {
         case let .vehicleFact(fact):
             let lowRisk = !fact.field.affectsRecommendationApplicability && isConfident(validated.proposal)
             return lowRisk ? .autoAcceptSafe : .confirmCompact
-        case .maintenanceCompletion, .maintenancePolicy, .vehicleEvent, .expense:
+        // A dashboard reading changes an operation's status, so it is never accepted silently (ADR 0035).
+        case .maintenanceCompletion, .maintenancePolicy, .vehicleServiceReport, .vehicleEvent, .expense:
             return .confirmCompact
         }
     }

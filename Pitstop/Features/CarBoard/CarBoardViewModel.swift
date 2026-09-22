@@ -59,9 +59,12 @@ final class CarBoardViewModel {
             let readings = try await store.odometerReadings()
             let latest = readings.latest
             let completions = try await store.maintenanceCompletions()
+            let reports = try await store.vehicleServiceReports()
             // The header and Service read mileage from one context, so they cannot disagree
             // (REQ-BOARD-026, ADR 0010).
-            let context = MaintenanceContext(now: moment, latestReading: latest, completions: completions)
+            let context = MaintenanceContext(
+                now: moment, latestReading: latest, completions: completions, reports: reports
+            )
             vehicleID = vehicle.id
             isMileageCurrent = context.mileage == .known
             state.car = ProvisionalCarContext(vehicle: vehicle, observedKm: context.observedKm)
@@ -71,6 +74,7 @@ final class CarBoardViewModel {
             state.service = try await MaintenanceEngine().states(
                 policies: store.maintenancePolicies(),
                 completions: completions,
+                reports: reports,
                 context: context
             ).byUrgency
             // The tile projects the same planned dates as the Road screen; insurance has no tile of its own
@@ -80,7 +84,9 @@ final class CarBoardViewModel {
                 maintenanceStates: state.service,
                 plannedEvents: store.plannedEvents().map(\.roadEvent),
                 history: state.history,
-                mileageObservations: MileageObservation.history(readings: readings, completions: completions),
+                mileageObservations: MileageObservation.history(
+                    readings: readings, completions: completions, reports: reports
+                ),
                 calendar: calendar
             ))
             state.isLoadFailed = false

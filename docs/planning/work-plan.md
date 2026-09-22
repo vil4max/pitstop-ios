@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** MNT-VR-002 — Dashboard service reading as a maintenance anchor  
+**Next task:** MNT-INT-002 — Recommendation provenance fixture (fictional car, tests only)  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -15,8 +15,7 @@ store that TestFlight testers already hold.
 
 | ID | Title | Est | Depends on | Status | Source | Owner decision needed |
 |---|---|---:|---|---|---|---|
-| MNT-VR-002 | Dashboard service reading as a maintenance anchor | 3d | — | next | [MNT-VR-001 record](investigations/mnt-vr-001-vehicle-reported-remaining.md) | — (approved 2026-09-22: build now, earliest anchor wins, 180-day "old" wording without expiry, `vehicleCondition` kept unused, REQ-MAINT-023 rewording) |
-| MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only) | 1d | owner decision | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 1 | Stop at owner cadence or run it now; target market |
+| MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only) | 1d | owner decision | next | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 1 | Stop at owner cadence or run it now; target market |
 | SYS-007 | Widget with car data: App Group, store move, next-service widget | 3d+ | SYS-005 | planned | [SYS-004 record](investigations/sys-004-widgets.md), "Cost of a data widget"; ADR 0025 | Approve the data widget; register the App Group; accept the ADR 0007 change and a device migration check |
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
@@ -34,8 +33,9 @@ external entry; needs a voice capture path in Pit).
 
 ## Owner decisions pending
 
-- Requirements: 156 REQ IDs are `Status: proposed`; REQ-BOARD-026 and REQ-ICON-001
-  are approved. Approval is an owner action.
+- Requirements: 166 REQ IDs are `Status: proposed` (MNT-VR-002 added
+  REQ-MAINT-030…039 and REQ-ROAD-026 and reworded REQ-MAINT-023 as the owner
+  approved in substance); REQ-BOARD-026 and REQ-ICON-001 are approved. Approval is an owner action.
 - ADR 0020: questions A–D (promote ADR 0001, recommendation data source,
   Service Plan vs multi-operation visit order, legacy data import) and the
   proposed maintenance-engine success-criterion change. The legacy spike source
@@ -52,7 +52,8 @@ external entry; needs a voice capture path in Pit).
   Road only), ADR 0033 (including its three delegated answers: build now,
   unselected quick picks of 5,000 / 7,500 / 10,000 / 15,000 km and 6 / 12 / 24
   months labelled as common choices, car-type answers reorder only and are not
-  stored).
+  stored), ADR 0035 (the proposed analytics events; its four implementation
+  choices were approved by the owner on 2026-09-22).
 - Product scope without a task yet: multi-operation visit recording and
   accepted Service Plans (ADR 0020 C), procedure components with provenance,
   the "Consider" list, engine-hours rules; undo reaches only the newest
@@ -68,7 +69,9 @@ estimate line; the Service actions
 (track, track several, mark done, change interval, undo, stop tracking); editing a planned
 date and the ru/uk editor strings (adding and deleting one were checked in en on
 the simulator, 2026-09-22); adding and correcting History events;
-correcting, archiving and restoring notes; VoiceOver order, AX5 text size,
+correcting, archiving and restoring notes; the dashboard reading sheet, the
+"Car says" line, "old" wording, supersede by "Mark done", delete, the Road
+"from dashboard" suffix and the Pit dashboard capture (MNT-VR-002); VoiceOver order, AX5 text size,
 Reduce Transparency and ru/uk strings on screen; question returns that need
 days of clock time.
 
@@ -113,6 +116,12 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
   date range derived from the reading history and shown under the kilometre
   fact; derived on read, never stored, and it changes no placement, order or
   cluster (REQ-ROAD-007, 022, 023 approved 2026-09-22; ADR 0034).
+- Dashboard reading: MNT-VR-002, the owner enters what the car's display says
+  is left (distance with an explicit km / mi unit and/or days, odometer with a
+  distance) on Service or through a confirmed Pit capture; derived anchors, the
+  earlier anchor per dimension, superseded by a newer completion, "old" after
+  180 days without expiry, visible until deleted; Road says "from dashboard"
+  when the reading decided; schema V4 with V3 frozen (ADR 0035).
 - Architecture: ARCH-001, the inward dependency rule restored: the persistence
   mode and the mileage and amount parsers moved to `Features/Shared`, so no
   feature reads `AppEnvironment` or another feature's view model.

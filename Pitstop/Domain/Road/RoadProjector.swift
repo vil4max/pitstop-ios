@@ -37,7 +37,7 @@ public struct RoadProjector: Sendable {
         } else if let blocked = waiting.first {
             .nearest(blocked, alsoAhead: 0, waitingForMileage: waiting.count - 1)
         } else {
-            .noKnownMilestones(trackedWithoutBaseline: context.maintenanceStates.count { $0.lastCompletion == nil })
+            .noKnownMilestones(trackedWithoutBaseline: context.maintenanceStates.count { !$0.hasBaseline })
         }
 
         return RoadProjection(
@@ -81,10 +81,10 @@ public struct RoadProjector: Sendable {
         }
     }
 
-    /// An operation with no completion has no anchor, so it is not a milestone: Road never fills
-    /// space with something that is not known (REQ-ROAD-009).
+    /// An operation with neither a completion nor a dashboard reading has no anchor, so it is not a
+    /// milestone: Road never fills space with something that is not known (REQ-ROAD-009, ADR 0035).
     private static func milestone(from state: MaintenanceOperationState) -> RoadMilestone? {
-        guard state.lastCompletion != nil else { return nil }
+        guard state.hasBaseline else { return nil }
         guard let share = state.remainingFraction, let dimension = state.decidedBy else {
             // Known to exist but blocked, whatever the reason: kept and flagged, not placed (REQ-ROAD-006).
             guard state.distanceBlock != nil else { return nil }
@@ -92,7 +92,7 @@ public struct RoadProjector: Sendable {
                 subject: .maintenance(state.id), state: .upcoming, dimension: .distance,
                 remainingKm: nil, remainingDays: nil, anchorKm: state.anchorKm, anchorDate: nil,
                 mileageDependency: state.distanceBlock, plannedLabel: nil, estimate: nil,
-                proximity: .infinity
+                isFromDashboard: false, proximity: .infinity
             )
         }
         let remainingKm = dimension == .distance ? state.remainingKm : nil
@@ -108,6 +108,7 @@ public struct RoadProjector: Sendable {
             mileageDependency: state.distanceBlock,
             plannedLabel: nil,
             estimate: nil,
+            isFromDashboard: state.isDecidedByReport,
             proximity: horizonUnits(km: remainingKm, days: remainingDays)
         )
     }
@@ -137,6 +138,7 @@ public struct RoadProjector: Sendable {
             mileageDependency: nil,
             plannedLabel: event.label,
             estimate: nil,
+            isFromDashboard: false,
             proximity: remaining / Double(RoadRules.horizonDays)
         )
     }

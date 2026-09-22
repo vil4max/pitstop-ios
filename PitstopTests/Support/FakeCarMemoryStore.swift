@@ -11,6 +11,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
     private(set) var policies: [MaintenancePolicy] = []
     private(set) var completions: [MaintenanceCompletion] = []
     private(set) var planned: [PlannedDatedEvent] = []
+    private(set) var reports: [VehicleServiceReport] = []
     private(set) var executed: [DomainCommand] = []
     private var failure: CarMemoryStoreError?
     private var failsReadings = false
@@ -79,6 +80,17 @@ actor FakeCarMemoryStore: CarMemoryStore {
     func plannedEvents() throws(CarMemoryStoreError) -> [PlannedDatedEvent] {
         try check()
         return planned.sorted { ($0.date, $0.createdAt) < ($1.date, $1.createdAt) }
+    }
+
+    func vehicleServiceReports() throws(CarMemoryStoreError) -> [VehicleServiceReport] {
+        try check()
+        return reports.newestFirst
+    }
+
+    /// Seeds a reading without going through a command, for engine and surface fixtures. Like the real
+    /// store it keeps older readings; only the newest per operation is read.
+    func seed(_ report: VehicleServiceReport) {
+        reports.append(report)
     }
 
     func execute(_ command: DomainCommand, now: Date) throws(CarMemoryStoreError) -> CommandResult {
@@ -199,6 +211,28 @@ actor FakeCarMemoryStore: CarMemoryStore {
                 throw .unknownPlannedEvent
             }
             return .plannedEventRemoved(planned.remove(at: index))
+        default:
+            return try applyReport(command)
+        }
+    }
+
+    /// Dashboard readings, with the real store's vehicle check and one-row-per-operation rule.
+    private func applyReport(_ command: DomainCommand) throws(CarMemoryStoreError) -> CommandResult {
+        switch command {
+        case let .recordVehicleServiceReport(record):
+            guard record.report.vehicleID == vehicle.id else { throw .unknownVehicle }
+            guard !reports.contains(where: { $0.id == record.report.id }) else { throw .duplicateRecord }
+            let entered = record.report.entered(after: completions.newest(of: record.report.operationID))
+            seed(entered)
+            return .vehicleServiceReportRecorded(entered)
+        case let .removeVehicleServiceReport(remove):
+            guard remove.vehicleID == vehicle.id else { throw .unknownVehicle }
+            let matches = { (report: VehicleServiceReport) in report.operationID == remove.operationID }
+            guard let removed = reports.filter(matches).newestPerOperation[remove.operationID] else {
+                throw .unknownVehicleServiceReport
+            }
+            reports.removeAll(where: matches)
+            return .vehicleServiceReportRemoved(removed)
         default:
             throw .storageFailure
         }

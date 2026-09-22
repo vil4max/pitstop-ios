@@ -116,14 +116,17 @@ final class PitQuestionViewModel {
         -> (maintenance: MaintenanceContext, relevant: Set<String>)
     {
         let completions = try await store.maintenanceCompletions()
+        let reports = try await store.vehicleServiceReports()
         let maintenance = try await MaintenanceContext(
             now: moment,
             latestReading: store.odometerReadings().latest,
-            completions: completions
+            completions: completions,
+            reports: reports
         )
         let operations = try await MaintenanceEngine().states(
             policies: store.maintenancePolicies(),
             completions: completions,
+            reports: reports,
             context: maintenance
         )
         return (maintenance, registry.relevantQuestionIDs(maintenance: operations))

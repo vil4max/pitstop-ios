@@ -144,8 +144,8 @@ struct PitCaptureView: View {
                     ForEach(Array(facts(pending.content).enumerated()), id: \.offset) { _, fact in
                         fact.font(.subheadline)
                     }
-                    if case .maintenanceCompletion = pending.content {
-                        Text("pit.confirm.resetsCycle")
+                    if let cycleNote = pending.content.cycleNote {
+                        Text(cycleNote)
                             .font(.footnote)
                             .foregroundStyle(PitColor.contentSecondary)
                     }
@@ -173,7 +173,7 @@ struct PitCaptureView: View {
         VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
             Text(verbatim: request.rawText)
                 .foregroundStyle(PitColor.contentSecondary)
-            Text(question(request.question)).font(.headline)
+            Text(question(request.question, kind: request.kind)).font(.headline)
             switch request.question {
             case .odometerKm, .amount:
                 TextField("pit.clarify.answer", text: $answerText)
@@ -195,7 +195,7 @@ struct PitCaptureView: View {
                 ForEach(HistoryEventKind.userSelectable, id: \.self) { kind in
                     choice(Text(kind.title)) { await viewModel.answer(.eventKind(kind)) }
                 }
-            case .vehicleFact, .policyInterval:
+            case .vehicleFact, .policyInterval, .remainingValue:
                 // Not answerable in a single step here; the wording can always be kept.
                 EmptyView()
             }
@@ -261,6 +261,12 @@ struct PitCaptureView: View {
         case let .maintenancePolicy(_, distance, months):
             (distance.map { [Text("pit.confirm.everyKm \($0)")] } ?? [])
                 + (months.map { [Text("pit.confirm.everyMonths \($0)")] } ?? [])
+        case let .vehicleServiceReport(_, date, kilometers, distance, unit, days):
+            // The reading exactly as it will be stored, in the unit the car showed (ADR 0035).
+            VehicleServiceReport.carSaysTexts(distance: distance, unit: unit, days: days)
+                .map { Text("pit.confirm.carSays \($0)") }
+                + [Text("pit.confirm.on \(date.formatted(date: .long, time: .omitted))")]
+                + (kilometers.map { [Text("pit.confirm.atMileage \($0)")] } ?? [])
         case .note, .vehicleFact:
             []
         }
@@ -301,6 +307,8 @@ struct PitCaptureView: View {
         case .vehicleEvent, .expense: Text("pit.confirm.event")
         case let .vehicleFact(fact): Text("pit.confirm.fact \(fact.field.title) \(fact.value)")
         case let .maintenancePolicy(operation, _, _): Text("pit.confirm.policy \(operation.titleText)")
+        case let .vehicleServiceReport(operation, _, _, _, _, _):
+            Text("pit.confirm.vehicleReport \(operation.titleText)")
         case .note: Text("pit.confirm.note")
         }
     }
@@ -312,14 +320,17 @@ struct PitCaptureView: View {
         }
     }
 
-    private func question(_ field: ProposalField) -> LocalizedStringKey {
+    private func question(_ field: ProposalField, kind: ProposalKind) -> LocalizedStringKey {
         switch field {
         case .odometerKm: "pit.clarify.odometerKm"
+        // The car's reading names no work done; asking "what was done?" would suggest it does.
+        case .operationID where kind == .vehicleServiceReport: "pit.clarify.operationID.report"
         case .operationID: "pit.clarify.operationID"
         case .vehicleFact: "pit.clarify.vehicleFact"
         case .policyInterval: "pit.clarify.policyInterval"
         case .eventKind: "pit.clarify.eventKind"
         case .amount: "pit.clarify.amount"
+        case .remainingValue: "pit.clarify.remainingValue"
         }
     }
 

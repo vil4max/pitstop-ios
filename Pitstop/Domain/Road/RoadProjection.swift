@@ -66,6 +66,9 @@ public struct RoadMilestone: Hashable, Identifiable, Sendable {
     /// labelled as an estimate. Annotation only: it changes no placement, order or state
     /// (REQ-ROAD-022, ADR 0034).
     public let estimate: EstimatedDateRange?
+    /// The deciding anchor came from the car's own dashboard reading, not the owner's interval. Only the
+    /// label changes: placement, dimension and state are derived exactly as for any anchor (ADR 0035).
+    public let isFromDashboard: Bool
     /// Ordering key in horizon units: remaining km / 5,000 or remaining days / 183. It orders the one
     /// lane and is never shown; `.infinity` for a milestone that cannot be placed.
     let proximity: Double
@@ -94,7 +97,7 @@ public struct RoadMilestone: Hashable, Identifiable, Sendable {
             && lhs.remainingKm == rhs.remainingKm && lhs.remainingDays == rhs.remainingDays
             && lhs.anchorKm == rhs.anchorKm && lhs.anchorDate == rhs.anchorDate
             && lhs.mileageDependency == rhs.mileageDependency && lhs.plannedLabel == rhs.plannedLabel
-            && lhs.estimate == rhs.estimate
+            && lhs.estimate == rhs.estimate && lhs.isFromDashboard == rhs.isFromDashboard
     }
 
     /// A copy carrying a date estimate. Every other field, including the ordering key, is untouched:
@@ -104,7 +107,7 @@ public struct RoadMilestone: Hashable, Identifiable, Sendable {
             subject: subject, state: state, dimension: dimension, remainingKm: remainingKm,
             remainingDays: remainingDays, anchorKm: anchorKm, anchorDate: anchorDate,
             mileageDependency: mileageDependency, plannedLabel: plannedLabel, estimate: estimate,
-            proximity: proximity
+            isFromDashboard: isFromDashboard, proximity: proximity
         )
     }
 

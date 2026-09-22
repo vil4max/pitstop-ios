@@ -131,7 +131,7 @@ struct StopTrackingTests {
         #expect(request.fallsBackToOtherPolicy && request.message == "service.stopTracking.message.fallback")
         #expect(await model.confirmStopTracking(.dsgService))
 
-        #expect(model.state.operations.map(\.policy) == [recommendation])
+        #expect(model.state.operations.compactMap(\.policy) == [recommendation])
         #expect(await store.policies == [recommendation])
         #expect(!model.state.untrackedOperations.contains(.dsgService))
     }

@@ -120,14 +120,24 @@ struct SchemaV3MigrationTests {
         try await expectPlannedDatesWork(url: url, vehicleID: facts.vehicleID)
     }
 
-    @Test("ADR-0032: the migration plan chains V1 to V2 to V3 and the app opens the newest version")
+    @Test("ADR-0032: the migration plan chains V1 to V2 to V3 before any later version")
     func planChainsEveryVersion() {
         // A loop, not a key path: a key path on the existential metatype crashes the Swift 6.4 compiler.
         var versions: [Schema.Version] = []
         for schema in PitstopMigrationPlan.schemas {
             versions.append(schema.versionIdentifier)
         }
-        #expect(versions == [Schema.Version(1, 0, 0), Schema.Version(2, 0, 0), Schema.Version(3, 0, 0)])
-        #expect(PitstopMigrationPlan.stages.count == 2)
+        let (one, two, three) = (Schema.Version(1, 0, 0), Schema.Version(2, 0, 0), Schema.Version(3, 0, 0))
+        #expect(Array(versions.prefix(3)) == [one, two, three])
+        // The first two stages are V1 to V2 and V2 to V3, in that order, whatever versions follow.
+        var stages: [[Schema.Version]] = []
+        for stage in PitstopMigrationPlan.stages {
+            if case let .lightweight(from, to) = stage {
+                stages.append([from.versionIdentifier, to.versionIdentifier])
+            } else {
+                stages.append([])
+            }
+        }
+        #expect(Array(stages.prefix(2)) == [[one, two], [two, three]])
     }
 }

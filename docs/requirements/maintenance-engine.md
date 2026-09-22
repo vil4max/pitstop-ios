@@ -473,10 +473,10 @@ Then the status is identical each time
 ### REQ-MAINT-023 — Stopping tracking removes only the owner's policy
 Status: proposed
 Core: P1, C5
-Source: [Simple owner cadence first](#simple-owner-cadence-first), [ADR 0031](../decisions/0031-stop-tracking-an-operation.md)
+Source: [Simple owner cadence first](#simple-owner-cadence-first), [ADR 0031](../decisions/0031-stop-tracking-an-operation.md), [ADR 0035](../decisions/0035-dashboard-service-reading.md)
 Given an operation the owner tracks with their own interval, with confirmed completions and History events
 When the owner stops tracking it
-Then only the owner's policy is removed and completions, History events and any recommendation or vehicle-condition record stay; with no other policy left, the operation leaves Service and Road and is offered again under Track, where tracking it again resumes from the kept completions; with another policy left, that policy applies instead and the operation stays on Service
+Then only the owner's policy is removed and completions, History events, any recommendation and any dashboard reading stay; with no other policy and no dashboard reading left, the operation leaves Service and Road and is offered again under Track, where tracking it again resumes from the kept completions; with another policy left, that policy applies instead and the operation stays on Service; with a dashboard reading left, the operation stays on Service and Road under that reading until the owner deletes the reading (rewording approved in substance by the owner, 2026-09-22, ADR 0035)
 
 ### REQ-MAINT-024 — Stopping tracking needs a confirmation that names the operation
 Status: proposed
@@ -525,3 +525,83 @@ Source: [ADR 0033](../decisions/0033-track-several-starter.md)
 Given the optional gearbox and drive questions in "Track several"
 When the owner answers them
 Then only the order of the offered operations changes; no operation is selected or hidden, and no answer is stored as a vehicle fact or written anywhere
+
+### REQ-MAINT-030 — A dashboard reading is its own observation, never a policy or a completion
+Status: proposed
+Core: C2, C5
+Source: [Rule families](#rule-families), [ADR 0035](../decisions/0035-dashboard-service-reading.md)
+Given the owner enters what the car's display says is left for one operation
+When the reading is saved
+Then it is stored as a dashboard reading with its operation, date, odometer, remaining distance with unit and/or remaining days; at least one remaining value is required, the odometer is required with a distance, values outside −50,000…100,000 km or −365…1,095 days are rejected; no policy and no completion is written, and the operation gets anchors and a status without a completion
+
+### REQ-MAINT-031 — Only the newest reading counts, until newer confirmed work supersedes it
+Status: proposed
+Core: C5
+Source: [ADR 0035](../decisions/0035-dashboard-service-reading.md)
+Given several dashboard readings of one operation, or a reading and a completion of it
+When the engine calculates the operation
+Then only the newest reading is used, and not at all once a confirmed completion of that operation supersedes it: on a later calendar day by that day, on the same day when the completion was saved after the reading; a new reading replaces the stored one for every reader, and a replayed confirmation of an older reading is rejected as already saved, never overwriting a newer one
+
+### REQ-MAINT-032 — The earlier anchor wins per dimension
+Status: proposed
+Core: P3, C2
+Source: [Rule families](#rule-families), [ADR 0035](../decisions/0035-dashboard-service-reading.md)
+Given an owner interval with a known baseline and a valid dashboard reading for the same operation
+When the engine calculates the operation
+Then each dimension uses the earlier of the two anchors, an exact tie going to the owner's interval, and the state says whether the deciding anchor came from the reading
+
+### REQ-MAINT-033 — The share is measured against the owner's interval, otherwise the reported value
+Status: proposed
+Core: P3
+Source: [ADR 0035](../decisions/0035-dashboard-service-reading.md)
+Given a reading that decides a dimension
+When the remaining share is calculated
+Then the denominator is the owner's interval for that dimension when one exists, otherwise the value the car reported at the time; 480 km left of a reported 3,200 km is approaching
+
+### REQ-MAINT-034 — Stale mileage blocks only the distance part of a reading
+Status: proposed
+Core: C2
+Source: [ADR 0035](../decisions/0035-dashboard-service-reading.md), [ADR 0010](../decisions/0010-maintenance-engine-rules.md)
+Given a dashboard reading with a distance and days
+When no mileage observation is newer than 90 days
+Then the distance part is blocked with the existing mileage reason and the days part still decides; a reading with an odometer is itself a mileage observation; an owner distance rule that has no completion to count from is reported as not counted, so a status decided by the reading's days alone is partial
+
+### REQ-MAINT-035 — A reading shows its age, is called old after 180 days, and never expires
+Status: proposed
+Core: C2
+Source: [ADR 0035](../decisions/0035-dashboard-service-reading.md)
+Given a dashboard reading
+When Service shows it
+Then the line names the reading's date, says the reading is old once it is more than 180 days old, and the reading keeps counting until the owner replaces it, marks the work done or deletes it
+
+### REQ-MAINT-036 — A reading keeps its operation visible until the reading is deleted
+Status: proposed
+Core: P1, C2
+Source: [ADR 0035](../decisions/0035-dashboard-service-reading.md), [ADR 0031](../decisions/0031-stop-tracking-an-operation.md)
+Given an operation with a stored dashboard reading and no policy, or whose tracking the owner stopped
+When Service and Road are shown
+Then the operation stays on them until the owner deletes the reading; deleting waits for a confirmation that names the operation and says that completions, History and the interval stay; cancelling changes nothing
+
+### REQ-MAINT-037 — The unit is kept as entered
+Status: proposed
+Core: C2
+Source: [ADR 0035](../decisions/0035-dashboard-service-reading.md)
+Given a remaining distance entered in miles or kilometres
+When it is stored and shown
+Then the value and its unit are stored and shown as entered, the unit is chosen explicitly (defaulting to the newest reading's unit), and miles convert to kilometres only for anchor arithmetic
+
+### REQ-MAINT-038 — An overdue reading is accepted and reads as due
+Status: proposed
+Core: C2
+Source: [ADR 0035](../decisions/0035-dashboard-service-reading.md), [REQ-ROAD-012](road-domain-and-ui.md)
+Given a car that shows a negative remaining distance or number of days
+When the owner enters it
+Then it is accepted within bounds, said in words as overdue, and the operation's status is due; Road shows it as attention, not danger
+
+### REQ-MAINT-039 — A reading from capture always needs confirmation and asks one question at a time
+Status: proposed
+Core: C3, C4, P1
+Source: [ADR 0006](../decisions/0006-capture-confirmation-policy.md), [ADR 0035](../decisions/0035-dashboard-service-reading.md)
+Given a capture such as "dashboard says service in 3200 km and 45 days"
+When it passes through the Remember pipeline
+Then it becomes a dashboard reading proposal only when the display is named and a countdown marker ("in", "через", "до ТО", "overdue by", "просрочено на") precedes the value or "left" / "overdue" follows its unit, never from a number after "пробег", "odometer" or a bare "на" or followed by "пробега", an "overdue" capture without a readable countdown keeps only its words and never becomes a mileage, and never instead of a completion the same words report; the proposal is never auto-accepted; the operation is asked first and never guessed, the odometer is asked when a distance is given, a proposal with no remaining value is incomplete; nothing is written before confirmation, cancelling writes nothing, and "I don't know" keeps only the words

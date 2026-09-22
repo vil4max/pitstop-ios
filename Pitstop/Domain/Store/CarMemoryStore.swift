@@ -15,6 +15,9 @@ public enum CommandResult: Hashable, Sendable {
     case plannedEventAdded(PlannedDatedEvent)
     case plannedEventUpdated(PlannedDatedEvent)
     case plannedEventRemoved(PlannedDatedEvent)
+    /// The car's own reading for one operation; it replaced any earlier reading of that operation.
+    case vehicleServiceReportRecorded(VehicleServiceReport)
+    case vehicleServiceReportRemoved(VehicleServiceReport)
 }
 
 public enum CarMemoryStoreError: Error, Hashable, Sendable {
@@ -28,6 +31,8 @@ public enum CarMemoryStoreError: Error, Hashable, Sendable {
     /// A record with this ID already exists; history is never rewritten by a repeated command.
     case duplicateRecord
     case unknownPlannedEvent
+    /// The vehicle has no dashboard reading for that operation, so there is nothing to delete.
+    case unknownVehicleServiceReport
     /// The vehicle already has an insurance expiry on Road; the owner changes that one instead (ADR 0032).
     case insuranceExpiryAlreadyPlanned
     case storageFailure
@@ -46,6 +51,9 @@ public protocol CarMemoryStore: Sendable {
     func maintenanceCompletions() async throws(CarMemoryStoreError) -> [MaintenanceCompletion]
     /// Every stored planned date, earliest first, including ones Road no longer shows (ADR 0032).
     func plannedEvents() async throws(CarMemoryStoreError) -> [PlannedDatedEvent]
+    /// Every stored dashboard reading, newest first. Older readings of an operation are mileage
+    /// observations; the engine counts only the newest per operation (ADR 0035).
+    func vehicleServiceReports() async throws(CarMemoryStoreError) -> [VehicleServiceReport]
 
     /// Validates the command, then persists it. A thrown error means nothing was saved.
     @discardableResult

@@ -50,6 +50,8 @@ enum CaptureIntent: String, AnalyticsCategory {
     case vehicleFact = "vehicle_fact"
     case maintenanceCompletion = "maintenance_completion"
     case maintenancePolicyDraft = "maintenance_policy_draft"
+    /// Proposed with MNT-VR-002 (ADR 0035); listed as proposed in docs/operations/analytics.md.
+    case vehicleServiceReport = "vehicle_service_report"
     case vehicleEvent = "vehicle_event"
     case expense
     case reminderCandidate = "reminder_candidate"
@@ -64,6 +66,7 @@ enum CaptureIntent: String, AnalyticsCategory {
         case .vehicleFact: self = .vehicleFact
         case .maintenanceCompletion: self = .maintenanceCompletion
         case .maintenancePolicyDraft: self = .maintenancePolicyDraft
+        case .vehicleServiceReport: self = .vehicleServiceReport
         case .vehicleEvent: self = .vehicleEvent
         case .expense: self = .expense
         case .reminderCandidate: self = .reminderCandidate
@@ -250,8 +253,8 @@ final class CaptureAnalyticsObserver: CaptureStageObserving {
                 source: OdometerSource(source),
                 anomalyConfirmation: confirmed ? .accepted : .noAnomaly
             )))
-        case .vehicleFact, .maintenanceCompletion, .maintenancePolicyDraft, .vehicleEvent, .expense,
-             .reminderCandidate, .unknown:
+        case .vehicleFact, .maintenanceCompletion, .maintenancePolicyDraft, .vehicleServiceReport, .vehicleEvent,
+             .expense, .reminderCandidate, .unknown:
             break
         }
         return outgoing

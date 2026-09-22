@@ -250,9 +250,11 @@ Question: How should an owner-entered dashboard countdown ("service in
 completions?
 
 Record: [`investigations/mnt-vr-001-vehicle-reported-remaining.md`](investigations/mnt-vr-001-vehicle-reported-remaining.md)
-(investigated 2026-09-22; owner decisions pending). Recommends a separate
-report record superseded by the next completion, earliest anchor wins, gated
-on owner precedence choice and evidence of demand.
+(investigated 2026-09-22; approved by the owner on 2026-09-22). Answered: a
+separate report record superseded by the next completion, earliest anchor wins
+per dimension, "old" after 180 days without expiry; shipped as MNT-VR-002
+without waiting for beta evidence
+([ADR 0035](../decisions/0035-dashboard-service-reading.md)).
 
 ## System investigations
 

@@ -68,9 +68,32 @@ struct PersistenceSchemaTests {
         ])
     }
 
-    @Test("ADR-0032: the app opens the newest schema version")
-    func containerUsesVersionThree() throws {
+    /// V3 as TestFlight builds after ROAD-EVT-001 wrote it. V4 reuses these classes, so V3 is frozen too.
+    private static let frozenV3 = (frozenV2 + [
+        "PlannedVehicleEventRecord createdAt:Date date:Date id:UUID! kind:String label:Optional<String>? "
+            + "vehicleID:UUID",
+    ]).sorted()
+
+    @Test("ADR-0035: schema V3 is frozen; a change must be a new version that copies its classes")
+    func versionThreeIsFrozen() {
+        #expect(Self.shape(of: Schema(versionedSchema: PitstopSchemaV3.self)) == Self.frozenV3)
+    }
+
+    @Test("ADR-0035: schema V4 is V3 unchanged plus the dashboard reading entity, with no interval field")
+    func versionFourExtendsVersionThree() {
+        let v4 = Self.shape(of: Schema(versionedSchema: PitstopSchemaV4.self))
+        #expect(v4.filter { !$0.hasPrefix("VehicleServiceReportRecord ") } == Self.frozenV3)
+        #expect(v4.filter { $0.hasPrefix("VehicleServiceReportRecord ") } == [
+            "VehicleServiceReportRecord completionIDAtEntry:Optional<UUID>? distanceUnit:String id:UUID! "
+                + "odometerKm:Optional<Int>? operationID:String "
+                + "remainingDays:Optional<Int>? remainingDistance:Optional<Double>? reportedAt:Date source:String "
+                + "vehicleID:UUID",
+        ])
+    }
+
+    @Test("ADR-0035: the app opens the newest schema version")
+    func containerUsesVersionFour() throws {
         let container = try PersistenceContainer.make(storeURL: nil)
-        #expect(Self.shape(of: container.schema) == Self.shape(of: Schema(versionedSchema: PitstopSchemaV3.self)))
+        #expect(Self.shape(of: container.schema) == Self.shape(of: Schema(versionedSchema: PitstopSchemaV4.self)))
     }
 }

@@ -41,7 +41,7 @@ flowchart LR
         subgraph app["PitStop app process"]
             ui["SwiftUI app: Car Board, Notes, Service, History, Road, Settings, Pit sheet"]
             intents["App Intents: RememberInPitStopIntent, OpenPitIntent, PitStopShortcuts"]
-            store[("SwiftData store Pitstop.store, schema V3")]
+            store[("SwiftData store Pitstop.store, schema V4")]
             analytics["Analytics boundary: consent gate, PostHog HTTP adapter"]
             fm["Foundation Models interpreter, DEBUG launch argument only"]
         end
@@ -138,7 +138,7 @@ flowchart TB
     end
 
     subgraph infL["Infrastructure (adapters)"]
-        iPers["Persistence: SchemaV1 and SchemaV2 frozen, SchemaV3, stores"]
+        iPers["Persistence: SchemaV1 to SchemaV3 frozen, SchemaV4, stores"]
         iAna["Analytics: consent, PostHog, transport"]
         iInt["Interpretation: FoundationModelsInterpreter"]
         iLog["Logging: AppLog, CaptureStageLogger"]
@@ -600,6 +600,18 @@ erDiagram
         date date "start of the day"
         date createdAt
     }
+    VehicleServiceReportRecord {
+        UUID id PK "V4 and later"
+        UUID vehicleID
+        string operationID "only the newest reading per operation is read"
+        date reportedAt
+        int odometerKm "optional, required with a distance"
+        double remainingDistance "optional, negative when overdue"
+        string distanceUnit "km or mi, as entered"
+        int remainingDays "optional, negative when overdue"
+        string source "manualEntry or pitCapture"
+        UUID completionIDAtEntry "optional, newest completion when saved"
+    }
 ```
 
 The store keeps one car (created provisionally on first read) and its facts as
@@ -607,6 +619,7 @@ SwiftData records in `Application Support/Pitstop.store`
 ([`PitstopSchemaV1.swift`](../../Pitstop/Infrastructure/Persistence/PitstopSchemaV1.swift),
 [`PitstopSchemaV2.swift`](../../Pitstop/Infrastructure/Persistence/PitstopSchemaV2.swift),
 [`PitstopSchemaV3.swift`](../../Pitstop/Infrastructure/Persistence/PitstopSchemaV3.swift),
+[`PitstopSchemaV4.swift`](../../Pitstop/Infrastructure/Persistence/PitstopSchemaV4.swift),
 [`PersistenceContainer.swift`](../../Pitstop/Infrastructure/Persistence/PersistenceContainer.swift)).
 Links are UUID fields, not SwiftData relationships. Schemas V1 and V2 are
 frozen: any change to a record needs a new version with its own copy of the
@@ -616,7 +629,13 @@ file but is a separate actor with its own protocol, so no capture can change
 question state ([ADR 0007](../decisions/0007-persistence.md), ADR 0016). V3
 adds only `PlannedVehicleEventRecord` through a second lightweight stage, so a
 V1 store passes both stages; the record has no field for an insurer, a policy
-number or an amount ([ADR 0032](../decisions/0032-planned-dated-events.md)). Policy rows are
+number or an amount ([ADR 0032](../decisions/0032-planned-dated-events.md)). V4
+adds only `VehicleServiceReportRecord` through a third lightweight stage, and V3
+is frozen too; every entered reading keeps its own row and ID, the engine counts
+only the newest per operation and reads the others as mileage observations, so
+a replayed confirmation is a duplicate rather than an overwrite, and the record has no interval field: it is an observation, never a
+rule
+([ADR 0035](../decisions/0035-dashboard-service-reading.md)). Policy rows are
 keyed by vehicle, operation and source, so a custom interval never deletes a
 recommendation row; the app ships no recommendation data today, so every
 stored policy is `userCustom`. The only write path for car data is
@@ -774,12 +793,12 @@ record.
 |---|---|---|---|---|---|
 | Car context | One provisional car created on first launch; name and mileage editable; hero shows the newest observed mileage | 0007, 0009 | `Domain/Vehicle/`, `Features/CarBoard/CarEditorView.swift`, `CarBoardViewModel.swift` | `ProvisionalCarContextTests`, `CarBoardViewModelTests` | Unit tests |
 | Car Board | Hero plus Road, Notes, Service, History tiles in fixed order; utility layer with Settings and Pit on every screen; board refreshes on return | 0009 | `Features/CarBoard/`, `DesignSystem/Components/UtilityLayer.swift`, `App/RootView.swift` | `CarBoardTileDescriptorTests`, `CarBoardViewModelTests` | Unit tests; VoiceOver order, AX5, Reduce Transparency and ru/uk screens not verified |
-| Persistence | Data survives relaunch; a failed on-disk store falls back to memory and says so; schemas V1 and V2 frozen, V2 adds question state, V3 adds planned dates; V1 and V2 stores migrate to V3 | 0007, 0016, 0032 | `Infrastructure/Persistence/`, `App/AppEnvironment.swift` | `PersistenceSchemaTests`, `SchemaV3MigrationTests`, `SwiftDataCarMemoryStoreTests`, `SwiftDataPitQuestionStoreTests`, `SwiftDataPlannedEventTests` | Unit tests |
+| Persistence | Data survives relaunch; a failed on-disk store falls back to memory and says so; schemas V1 to V3 frozen, V2 adds question state, V3 adds planned dates, V4 adds dashboard readings; V1, V2 and V3 stores migrate to V4 | 0007, 0016, 0032, 0035 | `Infrastructure/Persistence/`, `App/AppEnvironment.swift` | `PersistenceSchemaTests`, `SchemaV3MigrationTests`, `SchemaV4MigrationTests`, `SwiftDataCarMemoryStoreTests`, `SwiftDataPitQuestionStoreTests`, `SwiftDataPlannedEventTests` | Unit tests |
 | Notes | Add a note (raw capture), list active or archived, filter by context, correct, archive and restore; no AI | 0006, 0011 | `Features/Notes/`, `Domain/Notes/` | `NotesTests`, `FeatureAnalyticsTests` | Unit tests; correct, archive and restore not verified on screen |
 | History | Record and correct events with optional mileage and amount; timeline of events and confirmed completions | 0007 | `Features/History/`, `Domain/History/HistoryTimeline.swift` | `HistoryTests` | Unit tests; add and correct not verified on screen |
-| Service | Track an operation with a distance and/or time interval, or several at once ("Track several": pick operations, enter each interval with optional unselected quick picks, confirm one summary, per-item saved / not saved with retry of failed items; optional gearbox and drive answers only reorder), mark done, change interval, undo the newest completion, stop tracking (owner policy removed behind a confirmation; completions and History stay); status with reasons; suggested visit scope | 0001, 0010, 0020, 0031, 0033 | `Features/Service/`, `Domain/Maintenance/` | `MaintenanceEngineTests`, `ServicePlannerTests`, `ServiceViewModelTests`, `StopTrackingTests`, `SwiftDataStopTrackingTests`, `TrackSeveralTests`, `SwiftDataTrackSeveralTests` | Unit tests; Service actions and the "Track several" sheet not verified on screen |
-| Road | Lane of maintenance milestones and owner-stated planned dates in horizon units, clusters, waiting-for-mileage list, past summary, back to now; add a date (insurance expiry, or another date with an optional name), edit, and delete behind a confirmation; a distance milestone also carries a labelled date estimate derived from the reading history (annotation only, never stored) | 0008, 0032, 0034 | `Features/Road/`, `Domain/Road/` | `RoadProjectorTests`, `RoadViewModelTests`, `PlannedDatedEventTests`, `PlannedEventViewModelTests`, `MileageRateEstimateTests`, `RoadEstimateProjectionTests` | Unit tests; lane scrolling, back to now, clusters, Reduce Motion, the planned date editor and the estimate line not verified on screen |
-| Remember in Pit | Type a thought; raw or interpreted mode; confirm, keep words only, answer one missing field, or "I don't know"; told where it was saved | 0006, 0011, 0015 | `Domain/Capture/`, `Features/Pit/PitCaptureViewModel.swift`, `PitCaptureView.swift` | `InterpretedRememberTests`, `RawFallbackTests`, `ConfirmationPolicyTests`, `ProposalValidatorTests`, `DomainCommandTests`, `RuleBasedInterpreterTests`, `CaptureInputTests`, `CaptureStageTests`, `RememberEndToEndTests` | Unit tests |
+| Service | Track an operation with a distance and/or time interval, or several at once ("Track several": pick operations, enter each interval with optional unselected quick picks, confirm one summary, per-item saved / not saved with retry of failed items; optional gearbox and drive answers only reorder), mark done, change interval, undo the newest completion, stop tracking (owner policy removed behind a confirmation; completions and History stay); enter the car's dashboard reading (distance with an explicit km / mi unit, days, odometer) shown as "Car says …" with its date, "old" after 180 days, the earlier anchor winning per dimension, and delete it behind a confirmation; status with reasons; suggested visit scope | 0001, 0010, 0020, 0031, 0033, 0035 | `Features/Service/`, `Domain/Maintenance/` | `MaintenanceEngineTests`, `ServicePlannerTests`, `ServiceViewModelTests`, `StopTrackingTests`, `SwiftDataStopTrackingTests`, `TrackSeveralTests`, `SwiftDataTrackSeveralTests`, `VehicleServiceReportTests` | Unit tests; Service actions, the "Track several" sheet and the dashboard reading sheet not verified on screen |
+| Road | Lane of maintenance milestones and owner-stated planned dates in horizon units, clusters, waiting-for-mileage list, past summary, back to now; add a date (insurance expiry, or another date with an optional name), edit, and delete behind a confirmation; a distance milestone also carries a labelled date estimate derived from the reading history (annotation only, never stored); a milestone decided by the car's dashboard reading reads "from dashboard" | 0008, 0032, 0034, 0035 | `Features/Road/`, `Domain/Road/` | `RoadProjectorTests`, `RoadViewModelTests`, `PlannedDatedEventTests`, `PlannedEventViewModelTests`, `MileageRateEstimateTests`, `RoadEstimateProjectionTests`, `VehicleServiceReportTests` | Unit tests; lane scrolling, back to now, clusters, Reduce Motion, the planned date editor, the estimate line and the dashboard suffix not verified on screen |
+| Remember in Pit | Type a thought; raw or interpreted mode; confirm, keep words only, answer one missing field, or "I don't know"; told where it was saved | 0006, 0011, 0015 | `Domain/Capture/`, `Features/Pit/PitCaptureViewModel.swift`, `PitCaptureView.swift` | `InterpretedRememberTests`, `RawFallbackTests`, `ConfirmationPolicyTests`, `ProposalValidatorTests`, `DomainCommandTests`, `RuleBasedInterpreterTests`, `CaptureInputTests`, `CaptureStageTests`, `RememberEndToEndTests`, `VehicleServiceReportCaptureTests` | Unit tests |
 | Foundation Models interpreter | DEBUG builds launched with `-pitstop-foundation-models` ask the model after the rules; Release never does | 0027 | `Infrastructure/Interpretation/FoundationModelsInterpreter.swift`, `Domain/Capture/ModelDraft.swift`, `App/InterpreterComposition.swift` | `FoundationModelsInterpreterTests`, `InterpreterEvaluationTests` (golden set) | Unit tests with a fake model; device evaluation pending (DEV-FM) |
 | Pit presence and motion | Eyes rest, blink and look around irregularly, yield to any activity, startle and knock to ask, think and glance in the sheet, close on leaving; Reduce Motion mapping | 0012, 0019, 0028 | `Domain/Pit/PitPresence.swift`, `Features/Pit/PitPresenceModel.swift`, `PitCaptureEyes.swift`, `PitActivityReporting.swift`, `DesignSystem/Components/PitEyesGlyph.swift` | `PitPresenceTests`, `PitCaptureEyesTests`, `PitEyesGlyphTests`, `PitLeavingTests`, `PitActivityReportingTests` | Unit tests; motion on screen not recorded here |
 | Pit current-mileage question | On Service, when mileage is unknown or stale and a distance rule is tracked, Pit knocks once; answer, defer (14 d) or dismiss (never again); 12 h and 7 d cooldowns | 0016, 0017, 0018 | `Domain/Pit/`, `Features/Pit/PitQuestionViewModel.swift`, `PitQuestionCard.swift`, `PitAskTrigger.swift` | `PitQuestionRegistryTests`, `CurrentMileageQuestionTests`, `PitQuestionReturnTests`, `MileageQuestionReturnTests`, `MileageQuestionEndToEndTests` | Unit tests; returns that need days of clock time not verified on screen |

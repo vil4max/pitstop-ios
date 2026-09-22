@@ -32,4 +32,15 @@ enum WholeNumberInput: Equatable {
         let parsed = parse(text, upTo: maximum)
         return parsed == .value(0) ? .invalid : parsed
     }
+
+    /// Same as `parse`, with an optional leading minus: a car shows an overdue countdown as a negative
+    /// value, and the owner types it as shown (ADR 0035).
+    static func parseSigned(_ text: String, upTo maximum: Int) -> WholeNumberInput {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let sign = trimmed.first, sign == "-" || sign == "\u{2212}" else { return parse(trimmed, upTo: maximum) }
+        switch parse(String(trimmed.dropFirst()), upTo: maximum) {
+        case let .value(value): return .value(-value)
+        case .absent, .invalid: return .invalid
+        }
+    }
 }

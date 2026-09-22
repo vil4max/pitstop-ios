@@ -39,6 +39,7 @@ struct RememberSpeechTests {
             conflicts: []
         ),
         .confirm(.vehicleFact(VehicleFact(field: .name, value: "Arteon")), conflicts: []),
+        .confirm(Self.dashboardReading, conflicts: []),
         .confirm(.note(text: "стук справа при повороте", contexts: []), conflicts: []),
         .clarify(.odometerKm),
         .value(.odometerKm, repeated: false),
@@ -47,7 +48,25 @@ struct RememberSpeechTests {
         .value(.amount, repeated: true),
         .pick(.operationID, options: MaintenanceOperationID.catalog.map(ClarificationAnswer.operation)),
         .pick(.eventKind, options: HistoryEventKind.userSelectable.map(ClarificationAnswer.eventKind)),
+        .pick(.operationID, options: [.operation(.engineOilService)], forDashboardReading: true),
     ]
+
+    private static let dashboardReading = ValidatedContent.vehicleServiceReport(
+        operationID: .engineOilService, reportedAt: speechNow, odometerKm: 38800,
+        remainingDistance: 2000, unit: .miles, remainingDays: -5
+    )
+
+    @Test("REQ-MAINT-039: Siri reads a dashboard reading's values back and asks which service the car means")
+    func dashboardReadingIsReadBack() {
+        let speech = RememberSpeech(locale: Locale(identifier: "en"))
+        let confirmation = spoken(speech.question(.confirm(Self.dashboardReading, conflicts: [])))
+        #expect(confirmation.contains("mi") && confirmation.contains("5 days overdue"))
+        // Spoken with a word, never the slash the Service line shows.
+        #expect(confirmation.contains(" and ") && !confirmation.contains("/"))
+        let options = [ClarificationAnswer.operation(.engineOilService)]
+        let reportQuestion = spoken(speech.question(.pick(.operationID, options: options, forDashboardReading: true)))
+        #expect(reportQuestion != spoken(speech.question(.pick(.operationID, options: options))))
+    }
 
     private func spoken(_ resource: LocalizedStringResource) -> String {
         String(localized: resource)

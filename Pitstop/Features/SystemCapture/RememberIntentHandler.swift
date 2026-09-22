@@ -12,7 +12,8 @@ enum RememberQuestion: Equatable, Sendable {
     /// Asked with `answer`.
     case value(ProposalField, repeated: Bool)
     /// One of a known list: an operation from the catalog or an event kind. Asked with `answer`.
-    case pick(ProposalField, options: [ClarificationAnswer])
+    /// `forDashboardReading` asks which service the car means rather than what was done (ADR 0035).
+    case pick(ProposalField, options: [ClarificationAnswer], forDashboardReading: Bool = false)
 }
 
 enum RememberChoice: Equatable, Sendable {
@@ -155,7 +156,9 @@ struct RememberIntentHandler: Sendable {
         case .operationID, .eventKind:
             let options = Self.options(for: field)
             let answer = try await ask(.cancel, input: input, kind: kind) {
-                try await prompter.answer(.pick(field, options: options))
+                try await prompter.answer(.pick(
+                    field, options: options, forDashboardReading: kind == .vehicleServiceReport
+                ))
             }
             switch answer {
             case let .picked(choice)? where options.contains(choice):
@@ -167,7 +170,7 @@ struct RememberIntentHandler: Sendable {
             case nil:
                 return nil
             }
-        case .vehicleFact, .policyInterval:
+        case .vehicleFact, .policyInterval, .remainingValue:
             let choice = try await ask(.cancel, input: input, kind: kind) {
                 try await prompter.choose(.clarify(field))
             }
@@ -185,7 +188,7 @@ struct RememberIntentHandler: Sendable {
         switch field {
         case .operationID: MaintenanceOperationID.catalog.map(ClarificationAnswer.operation)
         case .eventKind: HistoryEventKind.userSelectable.map(ClarificationAnswer.eventKind)
-        case .odometerKm, .amount, .vehicleFact, .policyInterval: []
+        case .odometerKm, .amount, .vehicleFact, .policyInterval, .remainingValue: []
         }
     }
 
@@ -214,7 +217,7 @@ struct RememberIntentHandler: Sendable {
                 return .amount(amount)
             }
             return WholeNumberInput.parsePositive(number, upTo: Int(Int32.max)).intValue.map { .amount(Decimal($0)) }
-        case .operationID, .eventKind, .vehicleFact, .policyInterval:
+        case .operationID, .eventKind, .vehicleFact, .policyInterval, .remainingValue:
             return nil
         }
     }

@@ -24,6 +24,26 @@ public struct RuleBasedInterpreter: SemanticInterpreting {
                 extractedOperationID: operation
             )
         }
+        // Before the odometer rule, because "service in 3200 km" would otherwise read as a mileage of
+        // 3,200 km, and after the completion rule, so "changed the oil at 84 200, next in 15 000" stays
+        // the completion it reports. The operation is taken only when exactly one is named; a bare
+        // "service" is asked, never guessed. "Overdue" alone names a countdown, so it counts as the display.
+        if reading.reportsDashboard || reading.mentionsOverdue, let remaining = reading.dashboardRemaining {
+            return MemoryProposal(
+                sourceInputID: input.id,
+                kind: .vehicleServiceReport,
+                rawText: text,
+                extractedOdometerKm: reading.statedOdometerBesideRemaining,
+                extractedOperationID: reading.operation,
+                extractedRemainingDistance: remaining.distance,
+                extractedRemainingDistanceUnit: remaining.distance == nil ? nil : remaining.unit,
+                extractedRemainingDays: remaining.days
+            )
+        }
+        // An overdue countdown that could not be read is kept as words: its number is never a mileage.
+        if reading.mentionsOverdue {
+            return nil
+        }
         if reading.reportsWashing {
             return MemoryProposal(
                 sourceInputID: input.id,
@@ -115,6 +135,107 @@ private struct Reading {
         return found.count == 1 ? found.first : nil
     }
 
+    /// The car's own display is named: "dashboard says", "the car shows", "приборка показывает".
+    var reportsDashboard: Bool {
+        let namesCar = containsWord(["car", "машина", "авто"])
+        let saysSomething = containsWord(["says", "shows", "показывает", "пишет", "показує", "пише"])
+        return containsStem(["dashboard", "приборн", "приборк", "бортов", "панел"]) || (namesCar && saysSomething)
+    }
+
+    /// "Overdue", "просрочено", "прострочено" anywhere in the words.
+    var mentionsOverdue: Bool {
+        containsStem(["overdue", "просроч", "простроч"])
+    }
+
+    /// What the display says is left: a number after a countdown marker ("in", "через", "до ТО",
+    /// "overdue by", "просрочено на") or before "left" / "overdue" after its unit, followed by a distance
+    /// unit or a day word. A second value joined by "and" continues the countdown. A number after
+    /// "пробег", "odometer" or a bare "на", or followed by "пробега" / "odometer", is never a remaining
+    /// value, so a plain mileage next to the display is not mistaken for one. With no marked value,
+    /// nothing was reported.
+    var dashboardRemaining: (distance: Double?, unit: DistanceUnit, days: Int?)? {
+        var distance: Double?
+        var unit = DistanceUnit.kilometers
+        var days: Int?
+        var sign: Double?
+        for index in words.indices {
+            guard let value = joinedNumber(from: index), let next = nextWord(after: index, skippingDigits: true),
+                  !Self.isMileageWord(word(after: next, from: index) ?? ""),
+                  let marked = countdownSign(before: index, unitWord: next) ?? continuation(before: index, sign)
+            else { continue }
+            sign = marked
+            if distance == nil, Self.units.contains(next) {
+                distance = marked * value
+            } else if distance == nil, Self.mileUnits.contains(next) {
+                distance = marked * value
+                unit = .miles
+            } else if days == nil, Self.dayWords.contains(where: next.hasPrefix), value <= 10000 {
+                days = Int(marked * value)
+            }
+        }
+        guard distance != nil || days != nil else { return nil }
+        return (distance, unit, days)
+    }
+
+    /// +1 for a countdown still ahead, −1 for an overdue one, nil when the number is not marked as a
+    /// countdown at all. Only the word right before the number counts, or "left" right after its unit.
+    private func countdownSign(before index: Int, unitWord: String) -> Double? {
+        let previous = index > 0 ? words[index - 1] : nil
+        let beforePrevious = index > 1 ? words[index - 2] : nil
+        let afterUnit = word(after: unitWord, from: index)
+        if let previous, Self.overdueMarkers.contains(previous) || (previous == "by" && beforePrevious == "overdue")
+            || (previous == "на" && beforePrevious.map(Self.overdueMarkers.contains) == true)
+        {
+            return -1
+        }
+        if let afterUnit, Self.overdueMarkers.contains(afterUnit) {
+            return -1
+        }
+        if let previous, Self.aheadMarkers.contains(previous) || (previous == "то" && beforePrevious == "до") {
+            return 1
+        }
+        if let afterUnit, Self.trailingAheadMarkers.contains(afterUnit) {
+            return 1
+        }
+        return nil
+    }
+
+    /// The word right after the unit that follows the number at `index`.
+    private func word(after unitWord: String, from index: Int) -> String? {
+        guard let unitIndex = words.firstIndex(of: unitWord, after: index), unitIndex + 1 < words.count else {
+            return nil
+        }
+        return words[unitIndex + 1]
+    }
+
+    private static func isMileageWord(_ word: String) -> Bool {
+        word.hasPrefix("пробег") || word.hasPrefix("пробіг") || word.hasPrefix("одометр") || mileageWords.contains(word)
+    }
+
+    /// "3200 km and 45 days": a value joined to a countdown value already read shares its sign.
+    private func continuation(before index: Int, _ sign: Double?) -> Double? {
+        guard let sign, index > 0 else { return nil }
+        let previous = words[index - 1]
+        let joined = Self.conjunctions.contains(previous) || Self.units.contains(previous)
+            || Self.mileUnits.contains(previous)
+        return joined ? sign : nil
+    }
+
+    /// A dashboard capture may also say where the car is: "пробег 38 800 км" or "38 800 км пробега". Only
+    /// an explicit mileage word counts here; the remaining distance itself is never read as the odometer.
+    var statedOdometerBesideRemaining: Double? {
+        for index in words.indices {
+            guard let value = joinedNumber(from: index) else { continue }
+            let before = previousWord(before: index).map(Self.isMileageWord) ?? false
+            let after = nextWord(after: index, skippingDigits: true)
+                .flatMap { word(after: $0, from: index) }.map(Self.isMileageWord) ?? false
+            if before || after, DomainCommandLimits.isPlausibleOdometer(value), value >= 100 {
+                return value
+            }
+        }
+        return nil
+    }
+
     /// A price is written after "за" or "for", or next to a currency word.
     var amount: Decimal? {
         for (index, word) in words.enumerated() {
@@ -169,6 +290,14 @@ private struct Reading {
 
     private static let units: Set<String> = ["км", "km", "килом", "kilometers", "kilometres"]
     private static let mileageWords: Set<String> = ["mileage", "odometer"]
+    private static let mileUnits: Set<String> = ["mi", "mile", "miles", "миль", "милі"]
+    private static let dayWords = ["day", "дн", "ден", "сут", "дні", "днів"]
+    private static let aheadMarkers: Set<String> = [
+        "in", "через", "осталось", "остаётся", "остается", "залишилось", "лишилось", "залишається",
+    ]
+    private static let trailingAheadMarkers: Set<String> = ["left", "remaining", "осталось", "залишилось"]
+    private static let overdueMarkers: Set<String> = ["overdue", "просрочено", "прострочено"]
+    private static let conjunctions: Set<String> = ["and", "or", "и", "или", "і", "й", "та", "або"]
     private static let looseMileageMarkers: Set<String> = ["на", "at"]
     private static let yearMarkers: Set<String> = ["в", "с", "in", "since", "from", "года", "году"]
     private static let currencies: Set<String> = ["руб", "рублей", "₽", "грн", "uah", "eur", "usd"]
@@ -218,5 +347,16 @@ private struct Reading {
     private static func number(_ word: String) -> Double? {
         guard !word.isEmpty, word.allSatisfy(\.isNumber) else { return nil }
         return Double(word)
+    }
+}
+
+private extension [String] {
+    /// The first index of `word` after `index`, skipping the digit groups of the number itself.
+    func firstIndex(of word: String, after index: Int) -> Int? {
+        var cursor = index + 1
+        while cursor < count, self[cursor].allSatisfy(\.isNumber) {
+            cursor += 1
+        }
+        return cursor < count && self[cursor] == word ? cursor : nil
     }
 }

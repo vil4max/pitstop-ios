@@ -216,6 +216,10 @@ struct UnavailableCarMemoryStore: CarMemoryStore {
         throw .storageFailure
     }
 
+    func vehicleServiceReports() async throws(CarMemoryStoreError) -> [VehicleServiceReport] {
+        throw .storageFailure
+    }
+
     func execute(_: DomainCommand, now _: Date) async throws(CarMemoryStoreError) -> CommandResult {
         throw .storageFailure
     }

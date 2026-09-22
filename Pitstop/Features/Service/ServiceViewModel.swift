@@ -17,16 +17,26 @@ struct ServiceViewState: Equatable {
     var stopTrackingCandidate: StopTrackingRequest?
     /// Operations that keep a rule the owner did not set; stopping the owner's rule falls back to it.
     var operationsWithOtherPolicy: Set<MaintenanceOperationID> = []
+    /// Deleting a dashboard reading waits for a confirmation that names the operation (ADR 0035).
+    var deleteReportCandidate: MaintenanceOperationID?
+    /// The unit the dashboard sheet starts with: the newest reading's unit, so a car in miles is not
+    /// entered as kilometres by default (REQ-MAINT-037).
+    var defaultReportUnit: DistanceUnit = .kilometers
+    /// Today's odometer reading, if one exists: the dashboard sheet prefills it (ADR 0035). An older
+    /// reading is not offered, because the car has moved since.
+    var sameDayOdometerKm: Int?
+
+    /// Only operations tracked by a rule count here: one kept on Service by a dashboard reading alone can
+    /// still be tracked with the owner's own interval.
+    var untrackedOperations: [MaintenanceOperationID] {
+        let tracked = Set(operations.filter { $0.policy != nil }.map(\.id))
+        return MaintenanceOperationID.catalog.filter { !tracked.contains($0) }
+    }
 
     /// "Track several" offers only what is known to be untracked; before a successful load every operation would
     /// look untracked and a save could silently replace the owner's interval (REQ-MAINT-025, ADR 0033).
     var canTrackSeveral: Bool {
         hasLoaded && !isLoadFailed && !untrackedOperations.isEmpty
-    }
-
-    var untrackedOperations: [MaintenanceOperationID] {
-        let tracked = Set(operations.map(\.id))
-        return MaintenanceOperationID.catalog.filter { !tracked.contains($0) }
     }
 }
 
@@ -41,6 +51,10 @@ enum ServiceFailure: Equatable {
     case invalidInterval
     case invalidOdometer
     case futureDate
+    /// The dashboard reading has neither a distance nor a number of days, or one of them is out of range.
+    case invalidReport
+    /// A reported distance needs the mileage it was read at.
+    case reportOdometerMissing
 }
 
 @MainActor
@@ -59,13 +73,23 @@ final class ServiceViewModel {
     func load() async {
         do {
             let completions = try await store.maintenanceCompletions()
-            let context = try await MaintenanceContext(
+            let reports = try await store.vehicleServiceReports()
+            let readings = try await store.odometerReadings()
+            let context = MaintenanceContext(
                 now: now(),
-                latestReading: store.odometerReadings().latest,
-                completions: completions
+                latestReading: readings.latest,
+                completions: completions,
+                reports: reports
             )
             let policies = try await store.maintenancePolicies()
-            let states = MaintenanceEngine().states(policies: policies, completions: completions, context: context)
+            let states = MaintenanceEngine().states(
+                policies: policies, completions: completions, reports: reports, context: context
+            )
+            state.defaultReportUnit = Self.defaultUnit(readings: readings, reports: reports)
+            let moment = now()
+            state.sameDayOdometerKm = readings.latest
+                .flatMap { Calendar.current.isDate($0.recordedAt, inSameDayAs: moment) ? $0 : nil }
+                .map { Int($0.valueInKilometers.rounded()) }
             state.operationsWithOtherPolicy = Set(policies.filter { $0.source != .userCustom }.map(\.operationID))
             state.operations = states.byUrgency
             state.scope = ServicePlanner().suggestedScope(for: states, context: context)
@@ -119,7 +143,7 @@ final class ServiceViewModel {
 
     /// Only the owner's own policy can be removed; a recommendation-backed operation has no such action.
     func requestStopTracking(_ operation: MaintenanceOperationState) {
-        guard operation.policy.source == .userCustom else { return }
+        guard operation.policy?.source == .userCustom else { return }
         state.stopTrackingCandidate = StopTrackingRequest(
             operation: operation.id,
             fallsBackToOtherPolicy: state.operationsWithOtherPolicy.contains(operation.id)
@@ -154,6 +178,86 @@ final class ServiceViewModel {
             now: now,
             onSaved: { [weak self] in await self?.load() }
         )
+    }
+
+    // MARK: - Dashboard reading
+
+    /// The owner enters what the car's display says is left (ADR 0035). The value is kept in the unit
+    /// the owner chose; the odometer is required with a distance. Nothing is written when a check fails.
+    func enterReport(
+        _ operation: MaintenanceOperationID,
+        distanceText: String,
+        unit: DistanceUnit,
+        daysText: String,
+        odometerText: String
+    ) async -> Bool {
+        let distance = WholeNumberInput.parseSigned(distanceText, upTo: 1_000_000)
+        let days = WholeNumberInput.parseSigned(daysText, upTo: 100_000)
+        guard distance != .invalid, days != .invalid, distance != .absent || days != .absent else {
+            return fail(.invalidReport)
+        }
+        let odometer = InputParsing.kilometers(from: odometerText)
+        if case .invalid = odometer {
+            return fail(.invalidOdometer)
+        }
+        if distance != .absent, odometer.intValue == nil {
+            return fail(.reportOdometerMissing)
+        }
+        let moment = now()
+        let odometerKm = odometer.intValue
+        var saved = false
+        do {
+            let vehicleID = try await store.currentVehicle().id
+            let report = VehicleServiceReport(
+                vehicleID: vehicleID, operationID: operation, reportedAt: moment, odometerKm: odometerKm,
+                remainingDistance: distance.intValue.map(Double.init), distanceUnit: unit,
+                remainingDays: days.intValue, source: .manualEntry
+            )
+            try await store.execute(.recordVehicleServiceReport(.init(report: report)), now: moment)
+            saved = true
+        } catch .invalidCommand(.reportRemainingDistanceOutOfRange) {
+            return fail(.invalidReport)
+        } catch .invalidCommand(.reportRemainingDaysOutOfRange) {
+            return fail(.invalidReport)
+        } catch .invalidCommand(.odometerOutOfRange) {
+            return fail(.invalidOdometer)
+        } catch {
+            return fail(.notSaved)
+        }
+        await load()
+        state.failure = nil
+        return saved
+    }
+
+    func requestDeleteReport(_ operation: MaintenanceOperationState) {
+        guard operation.report != nil else { return }
+        state.deleteReportCandidate = operation.id
+    }
+
+    func cancelDeleteReport() {
+        state.deleteReportCandidate = nil
+    }
+
+    /// The dialog's destructive action; it takes the operation the dialog presented (the ADR 0031
+    /// pattern). Completions, History and the owner's interval stay.
+    func confirmDeleteReport(_ operation: MaintenanceOperationID) async -> Bool {
+        state.deleteReportCandidate = nil
+        let deleted = await execute { vehicleID in
+            .removeVehicleServiceReport(.init(vehicleID: vehicleID, operationID: operation))
+        }
+        if !deleted {
+            state.failure = nil
+            state.listFailure = .notSaved
+        }
+        return deleted
+    }
+
+    private static func defaultUnit(readings: [OdometerReading], reports: [VehicleServiceReport]) -> DistanceUnit {
+        let newestReport = reports.filter { $0.remainingDistance != nil }.max { $0.reportedAt < $1.reportedAt }
+        if let newestReport, newestReport.reportedAt >= (readings.latest?.recordedAt ?? .distantPast) {
+            return newestReport.distanceUnit
+        }
+        return readings.latest?.unit ?? .kilometers
     }
 
     func dismissFailure() {

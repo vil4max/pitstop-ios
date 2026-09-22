@@ -187,6 +187,41 @@ extension PitstopSchemaV3.PlannedVehicleEventRecord {
     }
 }
 
+extension PitstopSchemaV4.VehicleServiceReportRecord {
+    convenience init(_ report: VehicleServiceReport) {
+        self.init(
+            id: report.id,
+            vehicleID: report.vehicleID.rawValue,
+            operationID: report.operationID.rawValue,
+            reportedAt: report.reportedAt,
+            odometerKm: report.odometerKm,
+            remainingDistance: report.remainingDistance,
+            distanceUnit: report.distanceUnit.rawValue,
+            remainingDays: report.remainingDays,
+            source: report.source.rawValue,
+            completionIDAtEntry: report.completionIDAtEntry
+        )
+    }
+
+    /// A reading whose unit cannot be read drops its distance rather than guessing: treating miles as
+    /// kilometres would move the anchor by 60% (core C2). Its day part, if any, still counts.
+    var domain: VehicleServiceReport {
+        let unit = DistanceUnit(rawValue: distanceUnit)
+        return VehicleServiceReport(
+            id: id,
+            vehicleID: VehicleID(rawValue: vehicleID),
+            operationID: MaintenanceOperationID(rawValue: operationID),
+            reportedAt: reportedAt,
+            odometerKm: odometerKm,
+            remainingDistance: unit == nil ? nil : remainingDistance,
+            distanceUnit: unit ?? .kilometers,
+            remainingDays: remainingDays,
+            source: VehicleServiceReport.Source(rawValue: source) ?? .manualEntry,
+            completionIDAtEntry: completionIDAtEntry
+        )
+    }
+}
+
 protocol Identified {
     static func matching(_ id: UUID) -> Predicate<Self>
 }
@@ -205,6 +240,12 @@ extension Schema1.HistoryEventRecord: Identified {
 
 extension PitstopSchemaV3.PlannedVehicleEventRecord: Identified {
     static func matching(_ id: UUID) -> Predicate<PitstopSchemaV3.PlannedVehicleEventRecord> {
+        #Predicate { $0.id == id }
+    }
+}
+
+extension PitstopSchemaV4.VehicleServiceReportRecord: Identified {
+    static func matching(_ id: UUID) -> Predicate<PitstopSchemaV4.VehicleServiceReportRecord> {
         #Predicate { $0.id == id }
     }
 }

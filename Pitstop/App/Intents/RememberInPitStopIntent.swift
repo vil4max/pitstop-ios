@@ -70,7 +70,7 @@ private struct SiriPrompter: RememberPrompting {
             // captured, so re-asking `text` adds no second parameter to the Shortcuts editor (ADR 0026).
             let spoken = try await intent.$text.requestValue(dialog)
             return speech.isUnknown(spoken) ? .unknown : .spoken(spoken)
-        case let .pick(_, answers):
+        case let .pick(_, answers, _):
             let offered = (answers + [.unknown]).compactMap { answer in
                 speech.option(answer).map { (option: IntentChoiceOption(title: $0), answer: answer) }
             }

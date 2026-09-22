@@ -54,6 +54,19 @@ public struct DomainCommandMapper: Sendable {
                 source: .userCustom
             )
             return .setMaintenancePolicy(SetMaintenancePolicyCommand(vehicleID: vehicleID, policy: policy))
+        case let .vehicleServiceReport(operationID, reportedAt, odometerKm, distance, unit, days):
+            let report = VehicleServiceReport(
+                id: recordID,
+                vehicleID: vehicleID,
+                operationID: operationID,
+                reportedAt: reportedAt,
+                odometerKm: odometerKm,
+                remainingDistance: distance,
+                distanceUnit: unit,
+                remainingDays: days,
+                source: validated.source.readingSource == .manualEntry ? .manualEntry : .pitCapture
+            )
+            return .recordVehicleServiceReport(RecordVehicleServiceReportCommand(report: report))
         case let .vehicleEvent(kind, date, odometerKm, amount):
             return .recordVehicleEvent(RecordVehicleEventCommand(event: HistoryEvent(
                 id: recordID,

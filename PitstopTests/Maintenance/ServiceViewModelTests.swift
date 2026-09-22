@@ -27,8 +27,8 @@ struct ServiceViewModelTests {
         #expect(await model.track(.engineOilService, kilometersText: "10 000", monthsText: ""))
 
         let operation = try #require(model.state.operations.first)
-        #expect(operation.status == .unknown && operation.policy.source == .userCustom)
-        #expect(operation.policy.distanceIntervalKm == 10000 && operation.policy.timeIntervalMonths == nil)
+        #expect(operation.status == .unknown && operation.policy?.source == .userCustom)
+        #expect(operation.policy?.distanceIntervalKm == 10000 && operation.policy?.timeIntervalMonths == nil)
         #expect(!model.state.untrackedOperations.contains(.engineOilService))
     }
 

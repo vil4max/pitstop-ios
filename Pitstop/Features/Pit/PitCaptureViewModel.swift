@@ -12,7 +12,8 @@ enum PitDestination: Equatable {
         switch result {
         case .noteCreated, .noteUpdated: self = .notes
         case .eventRecorded, .eventCorrected: self = .history
-        case .completionConfirmed, .completionRevoked, .policySet, .trackingStopped: self = .service
+        case .completionConfirmed, .completionRevoked, .policySet, .trackingStopped,
+             .vehicleServiceReportRecorded, .vehicleServiceReportRemoved: self = .service
         case .readingRecorded, .vehicleUpdated: self = .carBoard
         // No proposal maps to a planned date (ADR 0032); if one ever does, Road is reached from Car Board.
         case .plannedEventAdded, .plannedEventUpdated, .plannedEventRemoved: self = .carBoard
@@ -110,7 +111,7 @@ final class PitCaptureViewModel {
         case .amount:
             guard case let .value(amount) = InputParsing.amount(from: text) else { return fail(.invalidAmount) }
             await answer(.amount(amount))
-        case .operationID, .vehicleFact, .policyInterval, .eventKind:
+        case .operationID, .vehicleFact, .policyInterval, .eventKind, .remainingValue:
             // These are answered by choosing, not typing; the surface offers the choices.
             return
         }

@@ -406,3 +406,12 @@ Source: [Mixed time and mileage](#mixed-time-and-mileage), [ADR 0034](../decisio
 Given fewer than 3 observations in the last 365 days, a span under 60 days, a newest observation older than 90 days, fewer than 2 usable pairs, no remaining kilometres, a range wider than twice its early bound, or a bound more than 730 days away
 When the Road projection is computed
 Then the milestone carries no estimate and nothing else changes
+
+### REQ-ROAD-026 — A milestone decided by a dashboard reading says so
+Status: proposed
+Core: C2
+Source: [Mixed time and mileage](#mixed-time-and-mileage), [ADR 0035](../decisions/0035-dashboard-service-reading.md)
+Given a maintenance milestone whose deciding anchor came from the car's dashboard reading
+When the milestone is labelled on Road or the Road tile
+Then its fact reads "from dashboard" after the distance or days; a milestone decided by the owner's interval has no such suffix; placement, dimension, order and state are derived as for any other anchor, with no conversion
+

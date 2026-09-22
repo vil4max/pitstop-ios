@@ -51,7 +51,7 @@ struct ServiceView: View {
         .pitActivity(
             .modalTask,
             while: sheet != nil || undoCandidate != nil || viewModel.state.stopTrackingCandidate != nil
-                || listFailureBinding.wrappedValue
+                || viewModel.state.deleteReportCandidate != nil || listFailureBinding.wrappedValue
         )
         // Undo deletes a recorded fact, so it asks first and names what will be removed.
         .confirmationDialog(
@@ -70,6 +70,7 @@ struct ServiceView: View {
             }
         }
         .stopTrackingConfirmation(viewModel)
+        .deleteReportConfirmation(viewModel)
         .sheet(item: $sheet) { sheet in
             Group {
                 switch sheet {
@@ -84,13 +85,24 @@ struct ServiceView: View {
                 case let .interval(operation):
                     TrackOperationView(
                         operations: [operation],
-                        existing: viewModel.state.operations.first { $0.id == operation }?.policy
+                        existing: viewModel.state.operations.first { $0.id == operation }.flatMap(\.policy)
                     ) { operation, kilometers, months in
                         await viewModel.track(operation, kilometersText: kilometers, monthsText: months)
                     }
                 case let .done(operation):
                     MarkDoneView(operation: operation) { date, odometer in
                         await viewModel.confirmDone(operation, on: date, odometerText: odometer)
+                    }
+                case let .report(operation):
+                    DashboardReadingView(
+                        operation: operation,
+                        defaultUnit: viewModel.state.defaultReportUnit,
+                        odometerPrefill: viewModel.state.sameDayOdometerKm
+                    ) { entry in
+                        await viewModel.enterReport(
+                            operation, distanceText: entry.distance, unit: entry.unit,
+                            daysText: entry.days, odometerText: entry.odometer
+                        )
                     }
                 }
             }
@@ -160,6 +172,10 @@ struct ServiceView: View {
                     undoCandidate = operation
                 } onStopTracking: {
                     viewModel.requestStopTracking(operation)
+                } onEnterReport: {
+                    sheet = .report(operation.id)
+                } onDeleteReport: {
+                    viewModel.requestDeleteReport(operation)
                 }
             }
         }
@@ -210,6 +226,8 @@ struct ServiceView: View {
         case .invalidInterval: "service.failure.interval"
         case .invalidOdometer: "carEditor.failure.odometer"
         case .futureDate: "service.failure.future"
+        case .invalidReport: "service.failure.report"
+        case .reportOdometerMissing: "service.failure.reportOdometer"
         case .notSaved, .none: "service.failure.notSaved"
         }
     }
@@ -220,6 +238,7 @@ enum ServiceSheet: Identifiable, Equatable {
     case trackSeveral
     case interval(MaintenanceOperationID)
     case done(MaintenanceOperationID)
+    case report(MaintenanceOperationID)
 
     var id: String {
         switch self {
@@ -227,6 +246,7 @@ enum ServiceSheet: Identifiable, Equatable {
         case .trackSeveral: "trackSeveral"
         case let .interval(operation): "interval-\(operation.rawValue)"
         case let .done(operation): "done-\(operation.rawValue)"
+        case let .report(operation): "report-\(operation.rawValue)"
         }
     }
 }
@@ -237,6 +257,8 @@ private struct OperationRow: View {
     let onChangeInterval: () -> Void
     let onUndo: () -> Void
     let onStopTracking: () -> Void
+    let onEnterReport: () -> Void
+    let onDeleteReport: () -> Void
 
     var body: some View {
         TileCard(minHeight: 0) {
@@ -250,6 +272,13 @@ private struct OperationRow: View {
                 operation.progressText
                     .font(.footnote)
                     .foregroundStyle(PitColor.contentSecondary)
+                // Secondary to the status: what the car said and when, never a second status (ADR 0035).
+                if let reportText = operation.reportText(now: .now) {
+                    reportText
+                        .font(.footnote)
+                        .foregroundStyle(PitColor.contentSecondary)
+                        .accessibilityIdentifier("service.report.\(operation.id.rawValue)")
+                }
                 HStack {
                     Button("service.markDone", systemImage: "checkmark", action: onMarkDone)
                         .buttonStyle(.bordered)
@@ -267,7 +296,18 @@ private struct OperationRow: View {
                                 action: onUndo
                             )
                         }
-                        if operation.policy.source == .userCustom {
+                        Button(
+                            "service.report.enter",
+                            systemImage: "gauge.with.dots.needle.33percent",
+                            action: onEnterReport
+                        )
+                        .accessibilityIdentifier("service.report.enter.\(operation.id.rawValue)")
+                        if operation.report != nil {
+                            Button("service.report.delete", systemImage: "gauge.badge.minus", role: .destructive,
+                                   action: onDeleteReport)
+                                .accessibilityIdentifier("service.report.delete.\(operation.id.rawValue)")
+                        }
+                        if operation.policy?.source == .userCustom {
                             Button(
                                 "service.stopTracking",
                                 systemImage: "eye.slash",

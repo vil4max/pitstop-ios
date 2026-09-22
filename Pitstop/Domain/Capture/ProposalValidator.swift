@@ -34,6 +34,14 @@ public enum ValidatedContent: Hashable, Sendable {
     case vehicleFact(VehicleFact)
     case maintenanceCompletion(operationID: MaintenanceOperationID, performedAt: Date, odometerKm: Int?)
     case maintenancePolicy(operationID: MaintenanceOperationID, distanceIntervalKm: Int?, timeIntervalMonths: Int?)
+    case vehicleServiceReport(
+        operationID: MaintenanceOperationID,
+        reportedAt: Date,
+        odometerKm: Int?,
+        remainingDistance: Double?,
+        unit: DistanceUnit,
+        remainingDays: Int?
+    )
     case vehicleEvent(kind: HistoryEventKind, date: Date, odometerKm: Int?, amount: Decimal?)
     case expense(kind: HistoryEventKind, date: Date, odometerKm: Int?, amount: Decimal)
 }
@@ -141,6 +149,8 @@ public struct ProposalValidator: Sendable {
             try maintenanceCompletion(proposal, date: date)
         case .maintenancePolicyDraft:
             try maintenancePolicy(proposal)
+        case .vehicleServiceReport:
+            try vehicleServiceReport(proposal, date: date)
         case .vehicleEvent:
             try vehicleEvent(proposal, date: date)
         case .expense:
@@ -203,6 +213,41 @@ public struct ProposalValidator: Sendable {
         guard (distance ?? 1) > 0, (months ?? 1) > 0 else { throw .preserve(.invalidExtractedValue) }
         return (
             .maintenancePolicy(operationID: operationID, distanceIntervalKm: distance, timeIntervalMonths: months),
+            []
+        )
+    }
+
+    /// The operation is asked for first and never guessed: "service" may mean an inspection that is
+    /// not in the catalog. The mileage is asked for only when a distance was reported, because
+    /// without it that distance has no anchor (ADR 0035).
+    private func vehicleServiceReport(_ proposal: MemoryProposal, date: Date) throws(Rejection) -> Checked {
+        let distance = proposal.extractedRemainingDistance
+        let days = proposal.extractedRemainingDays
+        var missing: [ProposalField] = []
+        if proposal.extractedOperationID == nil {
+            missing.append(.operationID)
+        }
+        if distance != nil, proposal.extractedOdometerKm == nil {
+            missing.append(.odometerKm)
+        }
+        if distance == nil, days == nil {
+            missing.append(.remainingValue)
+        }
+        guard missing.isEmpty, let operationID = proposal.extractedOperationID else { throw .missing(missing) }
+        let unit = proposal.extractedRemainingDistanceUnit ?? .kilometers
+        let kilometers = unit == .miles ? distance.map { $0 * 1.609344 } : distance
+        if let kilometers, !VehicleServiceReportLimits.isPlausibleRemainingKm(kilometers) {
+            throw .preserve(.invalidExtractedValue)
+        }
+        if let days, !VehicleServiceReportLimits.isPlausibleRemainingDays(days) {
+            throw .preserve(.invalidExtractedValue)
+        }
+        let odometerKm = try wholeKilometers(proposal.extractedOdometerKm)
+        return (
+            .vehicleServiceReport(
+                operationID: operationID, reportedAt: date, odometerKm: odometerKm,
+                remainingDistance: distance, unit: unit, remainingDays: days
+            ),
             []
         )
     }

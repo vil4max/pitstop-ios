@@ -1,6 +1,9 @@
 # MNT-VR-001 Vehicle-reported remaining value as a rule
 
-**Status:** Investigated (agent, 2026-09-22); owner decisions pending\
+**Status:** Investigated (agent, 2026-09-22); approved by the owner on
+2026-09-22 (build now, earliest anchor wins, 180-day "old" wording without
+expiry, `vehicleCondition` kept unused, REQ-MAINT-023 reworded); delivered as
+MNT-VR-002, [ADR 0035](../../decisions/0035-dashboard-service-reading.md)\
 **Task:** MNT-VR-001 (`../work-plan.md`)\
 **Source:** [MNT-INT-001](mnt-int-001-maintenance-intelligence.md), area 3, candidate R6\
 **Register:** [`../investigations.md`](../investigations.md)\

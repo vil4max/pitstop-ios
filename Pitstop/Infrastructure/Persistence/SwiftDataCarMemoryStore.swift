@@ -3,6 +3,7 @@ import SwiftData
 
 private typealias Schema1 = PitstopSchemaV1
 private typealias PlannedRecord = PitstopSchemaV3.PlannedVehicleEventRecord
+private typealias ReportRecord = PitstopSchemaV4.VehicleServiceReportRecord
 
 @ModelActor
 actor SwiftDataCarMemoryStore: CarMemoryStore {
@@ -58,6 +59,14 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
         try storage {
             let sort = [SortDescriptor(\PlannedRecord.date), SortDescriptor(\PlannedRecord.createdAt)]
             return try modelContext.fetch(FetchDescriptor(sortBy: sort)).map(\.domain)
+        }
+    }
+
+    func vehicleServiceReports() throws(CarMemoryStoreError) -> [VehicleServiceReport] {
+        try storage {
+            // Every stored reading: older ones are still mileage observations and let a replayed
+            // confirmation be recognised; the engine counts only the newest per operation (ADR 0035).
+            try modelContext.fetch(FetchDescriptor<ReportRecord>()).map(\.domain).newestFirst
         }
     }
 
@@ -153,7 +162,56 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             let removed = record.domain
             modelContext.delete(record)
             return .plannedEventRemoved(removed)
+        case .recordVehicleServiceReport, .removeVehicleServiceReport:
+            return try applyReport(command)
         }
+    }
+
+    private func applyReport(_ command: DomainCommand) throws -> CommandResult {
+        switch command {
+        case let .recordVehicleServiceReport(record):
+            try requireVehicle(record.report.vehicleID)
+            // A new reading replaces the older one for every reader, but the older row stays so that a
+            // replayed confirmation of it is a duplicate, never an overwrite of the newer reading.
+            try requireNew(ReportRecord.self, id: record.report.id)
+            let entered = try record.report.entered(after: completions(
+                of: record.report.operationID, vehicleID: record.report.vehicleID
+            ).newest(of: record.report.operationID))
+            modelContext.insert(ReportRecord(entered))
+            return .vehicleServiceReportRecorded(entered)
+        case let .removeVehicleServiceReport(remove):
+            try requireVehicle(remove.vehicleID)
+            let matches = try reportRecords(remove.operationID, vehicleID: remove.vehicleID)
+            guard let removed = matches.map(\.domain).newestPerOperation[remove.operationID] else {
+                throw CarMemoryStoreError.unknownVehicleServiceReport
+            }
+            matches.forEach(modelContext.delete)
+            return .vehicleServiceReportRemoved(removed)
+        default:
+            throw CarMemoryStoreError.storageFailure
+        }
+    }
+
+    private func completions(
+        of operationID: MaintenanceOperationID,
+        vehicleID: VehicleID
+    ) throws -> [MaintenanceCompletion] {
+        let vehicle = vehicleID.rawValue
+        let operation = operationID.rawValue
+        return try modelContext.fetch(FetchDescriptor<Schema1.MaintenanceCompletionRecord>(
+            predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation }
+        )).map(\.domain)
+    }
+
+    private func reportRecords(
+        _ operationID: MaintenanceOperationID,
+        vehicleID: VehicleID
+    ) throws -> [ReportRecord] {
+        let vehicle = vehicleID.rawValue
+        let operation = operationID.rawValue
+        return try modelContext.fetch(FetchDescriptor<ReportRecord>(
+            predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation }
+        ))
     }
 
     private func insertPlanned(_ event: PlannedDatedEvent, now: Date) throws -> CommandResult {

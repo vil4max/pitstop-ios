@@ -134,6 +134,9 @@ approved investigation and passes the telemetry change gate.
 | `pit_question_asked` | `question = current_mileage`, `context = car_board \| notes \| service \| history \| road` | ADR 0017 and 0018 ask how often a question is asked and where | `REVIEW` (proposed) |
 | `pit_question_resolved` | `question`, `resolution = answered \| deferred \| dismissed`, `is_return = true \| false` | ADR 0018: how often a returned deferral is answered versus deferred again | `REVIEW` (proposed) |
 | `track_several_applied` | `selected_count_bucket = 1 \| 2_3 \| 4_plus`, `saved_count_bucket`, `failed = true \| false`, `quick_pick_share = none \| some \| all` | MNT-INT-001 area 2 and ADR 0033: tracked operations per car with the starter, abandonment, quick pick versus typed share (INV-MNT-003); no operation IDs or interval values | `REVIEW` (proposed) |
+| `service_report_entered` | `entry = service_sheet \| pit_capture`, `dimensions = distance \| days \| both`, `unit = km \| mi`, `overdue = true \| false` | MNT-VR-001 and ADR 0035: whether owners have and enter dashboard countdowns (the demand evidence the record asked for); no operation IDs, values, dates or odometer | `REVIEW` (proposed) |
+| `service_report_deleted` | none | ADR 0035: how often a reading is removed rather than superseded by "Mark done" | `REVIEW` (proposed) |
+| `intent = vehicle_service_report` (value of the existing capture `intent` property) | on `input_interpretation_completed`, `draft_saved`, `draft_cancelled` | ADR 0035: the capture enum gained this case with the proposal kind; it is a closed value without user text and stays uncollected like every event while consent is off | `REVIEW` (proposed) |
 | `car_board_tile_opened` | `tile = notes \| history \| service \| road` | Car Board navigation value; could support `AQ-001` and `AQ-005` | `REVIEW` (proposed) |
 
 ## P0 event taxonomy

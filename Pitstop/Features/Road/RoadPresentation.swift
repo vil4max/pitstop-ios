@@ -40,8 +40,14 @@ extension RoadMilestone {
     }
 
     /// Distance in kilometres or time in days, in the dimension that placed the milestone. A blocked
-    /// milestone says why it has no number instead of showing one.
+    /// milestone says why it has no number instead of showing one. When the car's own dashboard reading
+    /// decided, the fact names that source; it adds no dimension and converts nothing (REQ-ROAD-026).
     var distanceText: Text {
+        guard isFromDashboard else { return factText }
+        return Text("road.fromDashboard \(factText)")
+    }
+
+    private var factText: Text {
         switch distanceLabel {
         case let .inKm(kilometers): Text("service.progress.inKm \(kilometers)")
         case let .pastKm(kilometers): Text("service.progress.overKm \(kilometers)")
@@ -51,6 +57,7 @@ extension RoadMilestone {
         case .almost: Text("service.progress.almost")
         case .blocked(.mileageStale): Text("service.progress.mileageStale")
         case .blocked(.completionMileageMissing): Text("service.progress.completionMileageMissing")
+        case .blocked(.completionMissing): Text("service.progress.completionMissing")
         case .blocked(.mileageUnknown): Text("service.progress.mileageUnknown")
         }
     }

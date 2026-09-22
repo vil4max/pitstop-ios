@@ -20,6 +20,12 @@ public enum DomainCommandError: Error, Hashable, Sendable {
     /// Blank, multi-line, or untrimmed; a missing label is `nil`, never an empty string.
     case invalidPlannedLabel
     case plannedLabelTooLong
+    /// A dashboard reading that says neither a distance nor a number of days says nothing (ADR 0035).
+    case reportWithoutRemainingValue
+    /// A reported distance has no anchor without the mileage it was read at.
+    case reportOdometerMissing
+    case reportRemainingDistanceOutOfRange
+    case reportRemainingDaysOutOfRange
 }
 
 public enum DomainCommandLimits {
@@ -192,6 +198,28 @@ public struct RemovePlannedEventCommand: Hashable, Sendable {
     }
 }
 
+/// The owner enters what the car's own display says is left for one operation (ADR 0035). It
+/// replaces the previous reading for that operation; it is never a policy and resets no cycle.
+public struct RecordVehicleServiceReportCommand: Hashable, Sendable {
+    public let report: VehicleServiceReport
+
+    public init(report: VehicleServiceReport) {
+        self.report = report
+    }
+}
+
+/// The owner deletes the car's reading for one operation. Completions, History and the owner's own
+/// interval are untouched; an operation kept visible by the reading alone leaves Service with it.
+public struct RemoveVehicleServiceReportCommand: Hashable, Sendable {
+    public let vehicleID: VehicleID
+    public let operationID: MaintenanceOperationID
+
+    public init(vehicleID: VehicleID, operationID: MaintenanceOperationID) {
+        self.vehicleID = vehicleID
+        self.operationID = operationID
+    }
+}
+
 public enum DomainCommand: Hashable, Sendable {
     case createNote(CreateNoteCommand)
     case updateNote(UpdateNoteCommand)
@@ -207,6 +235,8 @@ public enum DomainCommand: Hashable, Sendable {
     case addPlannedEvent(AddPlannedEventCommand)
     case updatePlannedEvent(UpdatePlannedEventCommand)
     case removePlannedEvent(RemovePlannedEventCommand)
+    case recordVehicleServiceReport(RecordVehicleServiceReportCommand)
+    case removeVehicleServiceReport(RemoveVehicleServiceReportCommand)
 
     public func validate(now: Date) throws(DomainCommandError) {
         switch self {
@@ -243,6 +273,32 @@ public enum DomainCommand: Hashable, Sendable {
             try Self.check(command.event, now: now)
         case .removePlannedEvent:
             break
+        case let .recordVehicleServiceReport(command):
+            try Self.check(command.report, now: now)
+        case let .removeVehicleServiceReport(command):
+            guard !command.operationID.rawValue.isBlank else { throw .emptyOperationID }
+        }
+    }
+
+    /// Nothing is stored unless the reading can be turned into an anchor: an operation, at least one
+    /// remaining value in range, and the mileage a reported distance was read at (ADR 0035).
+    private static func check(_ report: VehicleServiceReport, now: Date) throws(DomainCommandError) {
+        guard !report.operationID.rawValue.isBlank else { throw .emptyOperationID }
+        try checkNotFuture(report.reportedAt, now: now)
+        try checkOdometer(report.odometerKm.map(Double.init))
+        guard report.remainingDistance != nil || report.remainingDays != nil else {
+            throw .reportWithoutRemainingValue
+        }
+        if let kilometers = report.remainingDistanceKm {
+            guard VehicleServiceReportLimits.isPlausibleRemainingKm(kilometers) else {
+                throw .reportRemainingDistanceOutOfRange
+            }
+            guard report.odometerKm != nil else { throw .reportOdometerMissing }
+        }
+        if let days = report.remainingDays {
+            guard VehicleServiceReportLimits.isPlausibleRemainingDays(days) else {
+                throw .reportRemainingDaysOutOfRange
+            }
         }
     }
 
