@@ -100,6 +100,16 @@ Pit is always on screen: he is the anchor point for talking to the app
   unchanged.
 - In the Pit Capture Surface Pit is in the header instead.
 - Pit is never hidden: the "hidden" state is not used.
+- Inside a sheet that locks while it saves (Track several, the planned date
+  editor, the dashboard reading), Pit is shown disabled for the duration of
+  the save, so a capture never interleaves with a partial save.
+- A capture made over an editor that writes the same kind of fact keeps the
+  existing duplicate and conflict rules: when the owner returns to the
+  editor, it rechecks what is stored before saving and never records the
+  same completion twice.
+- Above the keyboard, Pit never covers a sheet's own trailing controls or a
+  keyboard accessory; when space is short he moves up beside the accessory
+  bar rather than over it.
 
 Pit is not a tab.
 
