@@ -51,16 +51,7 @@ struct CarBoardView: View {
                 .foregroundStyle(PitColor.contentSecondary)
         }
         if viewModel.state.isLoadFailed {
-            HStack {
-                Label("carBoard.load.failed", systemImage: "exclamationmark.arrow.circlepath")
-                    .font(.footnote)
-                    .foregroundStyle(PitColor.contentSecondary)
-                Spacer()
-                Button("carBoard.load.retry") {
-                    Task { await viewModel.load() }
-                }
-                .font(.footnote.weight(.semibold))
-            }
+            LoadFailureBanner(message: "carBoard.load.failed") { await viewModel.load() }
         }
     }
 

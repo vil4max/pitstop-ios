@@ -11,16 +11,7 @@ struct NotesView: View {
             VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
                 controls
                 if viewModel.state.isLoadFailed {
-                    HStack {
-                        Label("notes.load.failed", systemImage: "exclamationmark.arrow.circlepath")
-                            .font(.footnote)
-                            .foregroundStyle(PitColor.contentSecondary)
-                        Spacer()
-                        Button("carBoard.load.retry") {
-                            Task { await viewModel.load() }
-                        }
-                        .font(.footnote.weight(.semibold))
-                    }
+                    LoadFailureBanner(message: "notes.load.failed") { await viewModel.load() }
                 }
                 if viewModel.state.visibleNotes.isEmpty {
                     emptyState

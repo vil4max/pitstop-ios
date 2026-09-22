@@ -14,16 +14,7 @@ struct RoadView: View {
         FeatureScaffold(carName: carName, title: String(localized: "tile.road.title")) {
             VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {
                 if viewModel.state.isLoadFailed {
-                    HStack {
-                        Label("road.load.failed", systemImage: "exclamationmark.arrow.circlepath")
-                            .font(.footnote)
-                            .foregroundStyle(PitColor.contentSecondary)
-                        Spacer()
-                        Button("carBoard.load.retry") {
-                            Task { await viewModel.load() }
-                        }
-                        .font(.footnote.weight(.semibold))
-                    }
+                    LoadFailureBanner(message: "road.load.failed") { await viewModel.load() }
                 }
                 if let projection = viewModel.state.projection {
                     content(projection)

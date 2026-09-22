@@ -11,16 +11,7 @@ struct ServiceView: View {
         FeatureScaffold(carName: carName, title: String(localized: "tile.service.title")) {
             VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {
                 if viewModel.state.isLoadFailed {
-                    HStack {
-                        Label("service.load.failed", systemImage: "exclamationmark.arrow.circlepath")
-                            .font(.footnote)
-                            .foregroundStyle(PitColor.contentSecondary)
-                        Spacer()
-                        Button("carBoard.load.retry") {
-                            Task { await viewModel.load() }
-                        }
-                        .font(.footnote.weight(.semibold))
-                    }
+                    LoadFailureBanner(message: "service.load.failed") { await viewModel.load() }
                 }
                 if viewModel.state.operations.isEmpty {
                     emptyState

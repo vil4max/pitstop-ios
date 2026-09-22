@@ -10,16 +10,7 @@ struct HistoryView: View {
         FeatureScaffold(carName: carName, title: String(localized: "tile.history.title")) {
             VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
                 if viewModel.state.isLoadFailed {
-                    HStack {
-                        Label("history.load.failed", systemImage: "exclamationmark.arrow.circlepath")
-                            .font(.footnote)
-                            .foregroundStyle(PitColor.contentSecondary)
-                        Spacer()
-                        Button("carBoard.load.retry") {
-                            Task { await viewModel.load() }
-                        }
-                        .font(.footnote.weight(.semibold))
-                    }
+                    LoadFailureBanner(message: "history.load.failed") { await viewModel.load() }
                 }
                 if viewModel.state.timeline.entries.isEmpty {
                     ContentUnavailableView {
