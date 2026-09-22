@@ -30,6 +30,9 @@ final class CarBoardViewModel {
     private let store: any CarMemoryStore
     private let analytics: any AnalyticsTracking<OdometerAnalyticsEvent>
     private let now: @Sendable () -> Date
+    /// The owner's calendar, passed to the Road projection so the tile and the Road screen bucket
+    /// reading days the same way (ADR 0034).
+    private let calendar: Calendar
     private var vehicleID: VehicleID?
     /// Whether the shown mileage is recent enough to count; a stale one is re-recorded even unchanged.
     private var isMileageCurrent = false
@@ -38,11 +41,13 @@ final class CarBoardViewModel {
         store: any CarMemoryStore,
         persistence: PersistenceMode = .durable,
         analytics: any AnalyticsTracking<OdometerAnalyticsEvent> = NoAnalyticsTracker(),
-        now: @escaping @Sendable () -> Date = { Date() }
+        now: @escaping @Sendable () -> Date = { Date() },
+        calendar: Calendar = .autoupdatingCurrent
     ) {
         self.store = store
         self.analytics = analytics
         self.now = now
+        self.calendar = calendar
         state = CarBoardViewState(isStorageTemporary: persistence == .temporary)
     }
 
@@ -51,7 +56,8 @@ final class CarBoardViewModel {
         let moment = now()
         do {
             let vehicle = try await store.currentVehicle()
-            let latest = try await store.odometerReadings().latest
+            let readings = try await store.odometerReadings()
+            let latest = readings.latest
             let completions = try await store.maintenanceCompletions()
             // The header and Service read mileage from one context, so they cannot disagree
             // (REQ-BOARD-026, ADR 0010).
@@ -73,7 +79,9 @@ final class CarBoardViewModel {
                 now: moment,
                 maintenanceStates: state.service,
                 plannedEvents: store.plannedEvents().map(\.roadEvent),
-                history: state.history
+                history: state.history,
+                mileageObservations: MileageObservation.history(readings: readings, completions: completions),
+                calendar: calendar
             ))
             state.isLoadFailed = false
         } catch {

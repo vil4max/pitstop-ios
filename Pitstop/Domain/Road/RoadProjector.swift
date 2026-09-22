@@ -6,7 +6,13 @@ public struct RoadProjector: Sendable {
     public init() {}
 
     public func project(_ context: RoadContext) -> RoadProjection {
+        // The rate is read once per projection: every milestone of this car is estimated from the
+        // same history, and a car with no usable history simply has no estimates (REQ-ROAD-023).
+        let rate = MileageRateEstimator.rate(
+            from: context.mileageObservations, now: context.now, calendar: context.calendar
+        )
         let candidates = context.maintenanceStates.compactMap(Self.milestone(from:))
+            .map { Self.annotated($0, rate: rate, now: context.now, calendar: context.calendar) }
             + context.plannedEvents.compactMap { Self.milestone(from: $0, now: context.now) }
         let placed = candidates.filter(\.proximity.isFinite).sorted(by: Self.isAhead)
         let waiting = candidates.filter { !$0.proximity.isFinite }.sorted { $0.id < $1.id }
@@ -45,6 +51,21 @@ public struct RoadProjector: Sendable {
         )
     }
 
+    /// The date estimate is attached to a milestone that is already complete, and only to a distance
+    /// milestone with kilometres left. Nothing below this line reads it, so placement, ordering and
+    /// clustering are the same with and without it (REQ-ROAD-007, REQ-ROAD-022, ADR 0008).
+    private static func annotated(
+        _ milestone: RoadMilestone, rate: MileageRate?, now: Date, calendar: Calendar
+    ) -> RoadMilestone {
+        guard milestone.dimension == .distance, let remainingKm = milestone.remainingKm, let rate,
+              let range = MileageRateEstimator.dateRange(
+                  remainingKm: remainingKm, rate: rate, timeAnchor: milestone.anchorDate,
+                  now: now, calendar: calendar
+              )
+        else { return milestone }
+        return milestone.annotated(with: range)
+    }
+
     /// One lane, nearest first in horizon units. Due and overdue have a non-positive key, so they
     /// lead; on an exact tie the more urgent state wins before the stable ID decides.
     private static func isAhead(_ lhs: RoadMilestone, _ rhs: RoadMilestone) -> Bool {
@@ -70,7 +91,8 @@ public struct RoadProjector: Sendable {
             return RoadMilestone(
                 subject: .maintenance(state.id), state: .upcoming, dimension: .distance,
                 remainingKm: nil, remainingDays: nil, anchorKm: state.anchorKm, anchorDate: nil,
-                mileageDependency: state.distanceBlock, plannedLabel: nil, proximity: .infinity
+                mileageDependency: state.distanceBlock, plannedLabel: nil, estimate: nil,
+                proximity: .infinity
             )
         }
         let remainingKm = dimension == .distance ? state.remainingKm : nil
@@ -85,6 +107,7 @@ public struct RoadProjector: Sendable {
             anchorDate: state.anchorDate,
             mileageDependency: state.distanceBlock,
             plannedLabel: nil,
+            estimate: nil,
             proximity: horizonUnits(km: remainingKm, days: remainingDays)
         )
     }
@@ -113,6 +136,7 @@ public struct RoadProjector: Sendable {
             anchorDate: event.date,
             mileageDependency: nil,
             plannedLabel: event.label,
+            estimate: nil,
             proximity: remaining / Double(RoadRules.horizonDays)
         )
     }

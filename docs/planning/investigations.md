@@ -109,9 +109,10 @@ Question: Can Road show a labelled date range for a distance milestone,
 derived from reading history, without breaking core C2 and REQ-ROAD-007?
 
 Record: [`investigations/road-est-001-mileage-rate-estimate.md`](investigations/road-est-001-mileage-rate-estimate.md)
-(investigated 2026-09-22; owner decisions pending). Recommends a conditional
-go for an annotation-only estimate that never places or orders a milestone,
-after a REQ-ROAD-007 wording change.
+(investigated 2026-09-22; approved by the owner on 2026-09-22). Answered: an
+annotation-only estimate that never places or orders a milestone, shipped as
+ROAD-EST-002 with the REQ-ROAD-007 wording change and REQ-ROAD-022/023
+([ADR 0034](../decisions/0034-mileage-rate-estimate.md)).
 
 ## Capture investigations
 

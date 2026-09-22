@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active; see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** ROAD-EST-002 — Labelled date estimate on Road distance milestones  
+**Next task:** MNT-VR-002 — Dashboard service reading as a maintenance anchor  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -15,8 +15,7 @@ store that TestFlight testers already hold.
 
 | ID | Title | Est | Depends on | Status | Source | Owner decision needed |
 |---|---|---:|---|---|---|---|
-| ROAD-EST-002 | Labelled date estimate on Road distance milestones | 2d | — | next | [ROAD-EST-001 record](investigations/road-est-001-mileage-rate-estimate.md) | — (approved 2026-09-22 with REQ-ROAD-007 wording and REQ-ROAD-022/023) |
-| MNT-VR-002 | Dashboard service reading as a maintenance anchor | 3d | ROAD-EST-002 (same Road label code) | planned | [MNT-VR-001 record](investigations/mnt-vr-001-vehicle-reported-remaining.md) | — (approved 2026-09-22: build now, earliest anchor wins, 180-day "old" wording without expiry, `vehicleCondition` kept unused, REQ-MAINT-023 rewording) |
+| MNT-VR-002 | Dashboard service reading as a maintenance anchor | 3d | — | next | [MNT-VR-001 record](investigations/mnt-vr-001-vehicle-reported-remaining.md) | — (approved 2026-09-22: build now, earliest anchor wins, 180-day "old" wording without expiry, `vehicleCondition` kept unused, REQ-MAINT-023 rewording) |
 | MNT-INT-002 | Recommendation provenance fixture (fictional car, tests only) | 1d | owner decision | planned | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md), area 1 | Stop at owner cadence or run it now; target market |
 | SYS-007 | Widget with car data: App Group, store move, next-service widget | 3d+ | SYS-005 | planned | [SYS-004 record](investigations/sys-004-widgets.md), "Cost of a data widget"; ADR 0025 | Approve the data widget; register the App Group; accept the ADR 0007 change and a device migration check |
 
@@ -64,7 +63,8 @@ external entry; needs a voice capture path in Pit).
 ## Not verified on screen
 
 Covered by tests but not exercised in the simulator or on a device: Road lane
-scrolling, "Back to now", clusters and Reduce Motion; the Service actions
+scrolling, "Back to now", clusters, Reduce Motion and the milestone date
+estimate line; the Service actions
 (track, track several, mark done, change interval, undo, stop tracking); editing a planned
 date and the ru/uk editor strings (adding and deleting one were checked in en on
 the simulator, 2026-09-22); adding and correcting History events;
@@ -109,6 +109,10 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
 - Investigations ROAD-EST-001 (mileage-rate estimate) and MNT-VR-001
   (dashboard countdown); both approved by the owner on 2026-09-22 and
   scheduled as ROAD-EST-002 and MNT-VR-002.
+- Road date estimate: ROAD-EST-002, a distance milestone carries a labelled
+  date range derived from the reading history and shown under the kilometre
+  fact; derived on read, never stored, and it changes no placement, order or
+  cluster (REQ-ROAD-007, 022, 023 approved 2026-09-22; ADR 0034).
 - Architecture: ARCH-001, the inward dependency rule restored: the persistence
   mode and the mileage and amount parsers moved to `Features/Shared`, so no
   feature reads `AppEnvironment` or another feature's view model.

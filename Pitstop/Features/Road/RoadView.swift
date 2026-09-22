@@ -256,6 +256,9 @@ private struct MilestoneRow: View {
                 milestone.distanceText
                     .font(.footnote)
                     .foregroundStyle(PitColor.contentSecondary)
+                if let estimate = milestone.estimate {
+                    RoadEstimateLine(range: estimate)
+                }
                 if milestone.mileageDependency != nil, milestone.remainingDays != nil {
                     Text("road.milestone.byDateOnly")
                         .font(.footnote)

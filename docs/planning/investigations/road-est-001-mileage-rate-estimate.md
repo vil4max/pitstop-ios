@@ -1,6 +1,7 @@
 # ROAD-EST-001 Mileage-rate estimate for distance milestones
 
-**Status:** Investigated (agent, 2026-09-22); owner decisions pending\
+**Status:** Investigated (agent, 2026-09-22); approved by the owner 2026-09-22 and
+implemented as ROAD-EST-002 ([ADR 0034](../../decisions/0034-mileage-rate-estimate.md))\
 **Task:** ROAD-EST-001 (`../work-plan.md`)\
 **Source:** [MNT-INT-001](mnt-int-001-maintenance-intelligence.md), area 3, candidate R5\
 **Register:** [`../investigations.md`](../investigations.md)\

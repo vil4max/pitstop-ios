@@ -200,19 +200,49 @@ struct PlannedEventViewModelTests {
         #expect(model.state.projection?.slots.isEmpty == true)
     }
 
-    @Test("REQ-BOARD-010: the Car Board tile and the Road screen project the same planned dates")
+    @Test("REQ-BOARD-010: the Car Board tile and the Road screen project the same dates and estimates")
     func tileAgreesWithScreen() async throws {
         let store = FakeCarMemoryStore()
+        // A tracked distance operation and a reading history, so the projections must agree on the
+        // date estimate too and not only on the planned dates (ADR 0034).
+        try await seedDrivenCar(store)
         let screen = await makeModel(store)
         #expect(await screen.save(draft(inDays: 40)))
         #expect(await screen.save(draft(.other, inDays: 200, label: "Warranty ends")))
-        let board = CarBoardViewModel(store: store, now: { now })
+        let board = CarBoardViewModel(store: store, now: { now }, calendar: utc)
 
         await board.load()
 
         let tile = try #require(board.state.road)
         #expect(tile == screen.state.projection)
-        #expect(tile.slots.flatMap(\.milestones).map(\.plannedLabel) == [nil, "Warranty ends"])
+        let milestones = tile.slots.flatMap(\.milestones)
+        // The two planned dates in order; the insurance expiry has no label of its own.
+        let plannedLabels = milestones.compactMap { milestone -> String? in
+            guard case .planned = milestone.subject else { return nil }
+            return milestone.plannedLabel ?? "insurance"
+        }
+        #expect(plannedLabels == ["insurance", "Warranty ends"])
+        #expect(milestones.contains { $0.subject == .maintenance(.engineOilService) && $0.estimate != nil })
+    }
+
+    /// 46 km/day over three months and an oil change 5,900 km ahead: enough history for an estimate.
+    private func seedDrivenCar(_ store: FakeCarMemoryStore) async throws {
+        let vehicleID = await store.vehicle.id
+        let policy = MaintenancePolicy(operationID: .engineOilService, distanceIntervalKm: 10000, source: .userCustom)
+        _ = try await store.execute(.setMaintenancePolicy(.init(vehicleID: vehicleID, policy: policy)), now: now)
+        let done = MaintenanceCompletion(
+            vehicleID: vehicleID,
+            operationID: .engineOilService,
+            performedAt: now.addingTimeInterval(-90 * day),
+            odometerKm: 48000
+        )
+        _ = try await store.execute(.confirmMaintenanceCompletion(.init(completion: done)), now: now)
+        for (daysAgo, km) in [(90.0, 48000.0), (60, 49400), (30, 50800), (2, 52100)] {
+            let reading = OdometerReading(
+                vehicleID: vehicleID, value: km, recordedAt: now.addingTimeInterval(-daysAgo * day)
+            )
+            _ = try await store.execute(.recordOdometerReading(.init(reading: reading)), now: now)
+        }
     }
 
     @Test("ADR-0008: a date that passed more than 14 days ago is gone from Road but kept in the store")

@@ -65,6 +65,11 @@ Milestones may be date-based, mileage-based, or both.
 
 Do not fake conversion between time and mileage without an explicit supported projection model.
 
+A date estimate on a distance milestone is the explicit supported projection
+model of ROAD-EST-002 ([ADR 0034](../decisions/0034-mileage-rate-estimate.md)):
+a labelled range derived from the car's own reading history, shown apart from
+the fact, never stored, and never used to place, order, or cluster anything.
+
 If mileage is stale or unknown:
 - preserve date-based milestones;
 - mark mileage-dependent confidence/state appropriately;
@@ -267,12 +272,12 @@ When the Road projection is computed
 Then that milestone is marked with an unknown/stale dependency state
 
 ### REQ-ROAD-007 — No invented mileage or time conversion
-Status: proposed
+Status: approved (owner, 2026-09-22)
 Core: C2
-Source: [Mixed time and mileage](#mixed-time-and-mileage), [Acceptance criteria](#acceptance-criteria), [Failure criteria](#failure-criteria)
-Given date-based or mileage-based milestones and no explicit supported projection model
+Source: [Mixed time and mileage](#mixed-time-and-mileage), [Acceptance criteria](#acceptance-criteria), [Failure criteria](#failure-criteria), [ADR 0034](../decisions/0034-mileage-rate-estimate.md)
+Given date-based or mileage-based milestones
 When the Road projection is computed or rendered
-Then time is not converted to mileage or mileage to time, and current mileage is never invented
+Then each milestone is placed, ordered and labelled by its own dimension; time is not converted to mileage or mileage to time except in the labelled date estimate of REQ-ROAD-022; and current mileage is never invented
 
 ### REQ-ROAD-008 — Known milestones are visible in the initial viewport
 Status: proposed
@@ -385,3 +390,19 @@ Source: [Planned dated events](#planned-dated-events), [ADR 0032](../decisions/0
 Given planned dates and a store written by an earlier schema version
 When the app opens the store again
 Then the planned dates, car memory, and Pit question state are all intact
+
+### REQ-ROAD-022 — A distance milestone may carry a labelled date estimate
+Status: approved (owner, 2026-09-22)
+Core: C2, P5
+Source: [Mixed time and mileage](#mixed-time-and-mileage), [ADR 0034](../decisions/0034-mileage-rate-estimate.md)
+Given a distance-placed milestone with known remaining kilometres and an eligible reading history (REQ-ROAD-023)
+When the Road projection is computed
+Then the milestone carries an estimated date range derived from the reading history, labelled as an estimate, and its placement, order and state are the same as without it
+
+### REQ-ROAD-023 — No estimate without enough recent readings
+Status: approved (owner, 2026-09-22)
+Core: C2
+Source: [Mixed time and mileage](#mixed-time-and-mileage), [ADR 0034](../decisions/0034-mileage-rate-estimate.md)
+Given fewer than 3 observations in the last 365 days, a span under 60 days, a newest observation older than 90 days, fewer than 2 usable pairs, no remaining kilometres, a range wider than twice its early bound, or a bound more than 730 days away
+When the Road projection is computed
+Then the milestone carries no estimate and nothing else changes

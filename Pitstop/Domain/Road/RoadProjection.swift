@@ -62,6 +62,10 @@ public struct RoadMilestone: Hashable, Identifiable, Sendable {
     public let mileageDependency: DistanceBlock?
     /// The owner's label of a planned event, shown verbatim instead of the generic title (ADR 0032).
     public let plannedLabel: String?
+    /// An approximate date range for a distance milestone, derived from the reading history and
+    /// labelled as an estimate. Annotation only: it changes no placement, order or state
+    /// (REQ-ROAD-022, ADR 0034).
+    public let estimate: EstimatedDateRange?
     /// Ordering key in horizon units: remaining km / 5,000 or remaining days / 183. It orders the one
     /// lane and is never shown; `.infinity` for a milestone that cannot be placed.
     let proximity: Double
@@ -90,6 +94,18 @@ public struct RoadMilestone: Hashable, Identifiable, Sendable {
             && lhs.remainingKm == rhs.remainingKm && lhs.remainingDays == rhs.remainingDays
             && lhs.anchorKm == rhs.anchorKm && lhs.anchorDate == rhs.anchorDate
             && lhs.mileageDependency == rhs.mileageDependency && lhs.plannedLabel == rhs.plannedLabel
+            && lhs.estimate == rhs.estimate
+    }
+
+    /// A copy carrying a date estimate. Every other field, including the ordering key, is untouched:
+    /// the annotation cannot move a milestone (REQ-ROAD-022).
+    func annotated(with estimate: EstimatedDateRange) -> RoadMilestone {
+        RoadMilestone(
+            subject: subject, state: state, dimension: dimension, remainingKm: remainingKm,
+            remainingDays: remainingDays, anchorKm: anchorKm, anchorDate: anchorDate,
+            mileageDependency: mileageDependency, plannedLabel: plannedLabel, estimate: estimate,
+            proximity: proximity
+        )
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -175,17 +191,27 @@ public struct RoadContext: Hashable, Sendable {
     public let maintenanceStates: [MaintenanceOperationState]
     public let plannedEvents: [PlannedVehicleEvent]
     public let history: HistoryTimeline
+    /// Reading history for the date estimate only. With none, Road is exactly what it was before
+    /// ADR 0034: every milestone keeps its place and its label, without an estimate.
+    public let mileageObservations: [MileageObservation]
+    /// The calendar the surfaces pass in (the owner's autoupdating one in the app), so day bucketing
+    /// and estimated days follow it (ADR 0032, ADR 0034).
+    public let calendar: Calendar
 
     public init(
         now: Date,
         maintenanceStates: [MaintenanceOperationState],
         plannedEvents: [PlannedVehicleEvent] = [],
-        history: HistoryTimeline = .empty
+        history: HistoryTimeline = .empty,
+        mileageObservations: [MileageObservation] = [],
+        calendar: Calendar = Calendar(identifier: .gregorian)
     ) {
         self.now = now
         self.maintenanceStates = maintenanceStates
         self.plannedEvents = plannedEvents
         self.history = history
+        self.mileageObservations = mileageObservations
+        self.calendar = calendar
     }
 }
 

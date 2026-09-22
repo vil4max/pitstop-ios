@@ -1,7 +1,7 @@
 # PitStop — Project Status
 
 **Project State:** Active — product baseline delivered; open work in the work plan  
-**Next task:** ROAD-EST-002 — Labelled date estimate on Road distance milestones ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
+**Next task:** MNT-VR-002 — Dashboard service reading as a maintenance anchor ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
 **TestFlight:** version 1.1.0 (tag `tf-1.1.0-2`); delivery is tag-gated (ADR 0013)
 

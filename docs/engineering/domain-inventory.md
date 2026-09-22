@@ -11,7 +11,7 @@
 | Vehicle / provisional car | `ProvisionalCarContext`, `Vehicle`, `OdometerReading` | Domain models and reading facts on `main` |
 | Car Board UI | `CarBoardView`, `CarBoardViewModel`, `CarEditorView`, `AppEnvironment` | Persisted car context with optional name and mileage edit (CB-001); design language, tile grid, detail scaffold, and utility layer in place (CB-002, ADR 0009); four live tiles (CB-003…007) |
 | Capture pipeline | `CaptureInput`, `MemoryProposal`, `RawProposalFactory`, `ProposalValidator`, `ConfirmationPolicy`, `DomainCommandMapper`, `DomainCommand` | Domain path (DOM-003, ADR 0006) plus `RememberPipeline` orchestration, deadline and cancellation (ADR 0015), persisted through the store and driven by Pit and Siri (CAP-001…007) |
-| Road projection | `RoadProjector`, `RoadProjection`, `RoadMilestone`, `RoadSlot`, `PlannedVehicleEvent` | Pure projection with tests (CB-006, ADR 0008); Road tile and Road screen render it (CB-007) |
+| Road projection | `RoadProjector`, `RoadProjection`, `RoadMilestone`, `RoadSlot`, `PlannedVehicleEvent`, `MileageObservation`, `MileageRateEstimator`, `MileageRate`, `EstimatedDateRange` | Pure projection with tests (CB-006, ADR 0008); Road tile and Road screen render it (CB-007); a distance milestone carries a derived, never stored date estimate from the reading history (ROAD-EST-002, ADR 0034) |
 | Planned dates | `PlannedDatedEvent`, `PlannedEventLimits`, `AddPlannedEventCommand`, `UpdatePlannedEventCommand`, `RemovePlannedEventCommand`, `PlannedEventEditorView` | Owner-stated insurance expiry or other date with an optional label; entered, corrected and deleted on Road; one insurance expiry on Road per car; fed into Road and the Road tile (ROAD-EVT-001, ADR 0032) |
 | Maintenance engine | `MaintenanceOperationID`, `MaintenancePolicy`, `MaintenanceCompletion`, `MaintenanceStatus` | `MaintenanceEngine` derives status from policies and confirmed completions (ADR 0010, 0020) |
 | Persistence | `CarMemoryStore`, `SwiftDataCarMemoryStore`, `PitstopSchemaV1`, `PitstopSchemaV2`, `PitstopSchemaV3` | Command-only store behind a domain protocol (ENG-004, ADR 0007); V2 adds persisted Pit question state with a lightweight migration from V1 (ADR 0016); V3 adds planned dates with a second lightweight stage, and V2 is frozen (ADR 0032) |
@@ -33,7 +33,7 @@ facts; the header shows the newest mileage observation (REQ-BOARD-026).
 | Concept | Role | Source of truth | Derived / calculated | Code (`main`) |
 |---|---|---|---|---|
 | Vehicle | Car identity and configuration | Vehicle facts + config | — | `Vehicle`, `ProvisionalCarContext` |
-| Odometer Reading | Mileage fact at a time | Reading history | Latest valid reading | `OdometerReading` |
+| Odometer Reading | Mileage fact at a time | Reading history | Latest valid reading; mileage rate, derived on read and never stored (ADR 0034) | `OdometerReading`, `MileageRateEstimator` |
 | Maintenance Operation | Stable maintenance identity | Operation ID | — | `MaintenanceOperationID` |
 | Maintenance Procedure | Composed service procedure | Procedure definition + provenance | — | — |
 | Maintenance Recommendation | Sourced default interval/rule | Verified recommendation | — | — |

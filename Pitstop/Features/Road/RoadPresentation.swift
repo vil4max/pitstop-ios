@@ -115,3 +115,77 @@ extension RoadProjection {
         }
     }
 }
+
+/// How a date estimate reads. A range that crosses more than 45 days is said in months: a day inside
+/// it would claim a precision the rate does not have. A bound outside the current year carries its
+/// year, so neither "April - August" two years out nor "November - November" can read as the months
+/// just ahead.
+struct RoadEstimateLabel: Equatable {
+    enum Granularity: Equatable {
+        case day
+        case month
+    }
+
+    let granularity: Granularity
+    /// The visible range, e.g. "Mar 2 – Mar 28".
+    let text: String
+    /// True when both bounds are the same day, so the label names one day and not a range.
+    let isSingleDay: Bool
+    /// The bounds spoken in full, so VoiceOver never reads an abbreviation letter by letter.
+    let spokenEarliest: String
+    let spokenLatest: String
+
+    static let monthGranularityAfterDays = 45
+
+    init(range: EstimatedDateRange, now: Date, calendar: Calendar, locale: Locale) {
+        let span = calendar.dateComponents([.day], from: range.earliest, to: range.latest).day ?? 0
+        granularity = span > Self.monthGranularityAfterDays ? .month : .day
+        isSingleDay = calendar.isDate(range.earliest, inSameDayAs: range.latest)
+        let base = Date.FormatStyle(locale: locale, calendar: calendar, timeZone: calendar.timeZone)
+        // Each bound is formatted on its own: an interval style prints a year whenever the range
+        // crosses one, even for a range of a few weeks, and never when it does not.
+        var shown = granularity == .day ? base.month(.abbreviated).day() : base.month(.wide)
+        var spoken = granularity == .day ? base.month(.wide).day() : base.month(.wide)
+        // A month name alone means "this year". An estimate reaches two years ahead, so any bound
+        // outside the current year says which year it is in.
+        let thisYear = calendar.component(.year, from: now)
+        let years = [range.earliest, range.latest].map { calendar.component(.year, from: $0) }
+        if years.contains(where: { $0 != thisYear }) {
+            shown = shown.year()
+            spoken = spoken.year()
+        }
+        let earliest = range.earliest.formatted(shown)
+        let latest = range.latest.formatted(shown)
+        // Only one day means one label; two different days that print alike still need both bounds.
+        text = isSingleDay ? earliest : "\(earliest) \u{2013} \(latest)"
+        spokenEarliest = range.earliest.formatted(spoken)
+        spokenLatest = range.latest.formatted(spoken)
+    }
+}
+
+/// The estimate line under a milestone's fact. Secondary by style and by wording, never a state
+/// colour: it is an annotation, not something the car told us (REQ-ROAD-022).
+struct RoadEstimateLine: View {
+    let range: EstimatedDateRange
+    var font: Font = .footnote
+    /// Only the wording depends on it: which bound needs its year spelled out.
+    var now: Date = .now
+
+    @Environment(\.locale) private var locale
+    @Environment(\.calendar) private var calendar
+
+    var body: some View {
+        let label = RoadEstimateLabel(range: range, now: now, calendar: calendar, locale: locale)
+        Text("road.estimate \(label.text)")
+            .font(font)
+            .foregroundStyle(PitColor.contentTertiary)
+            .accessibilityLabel(accessibilityLabel(label))
+    }
+
+    /// One day is spoken as one day: "between December 8 and December 8" is not a range.
+    private func accessibilityLabel(_ label: RoadEstimateLabel) -> Text {
+        label.isSingleDay
+            ? Text("road.estimate.accessibility.oneDay \(label.spokenEarliest)")
+            : Text("road.estimate.accessibility \(label.spokenEarliest) \(label.spokenLatest)")
+    }
+}

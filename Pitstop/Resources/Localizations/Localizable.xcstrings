@@ -3655,6 +3655,72 @@
         }
       }
     },
+    "road.estimate %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estimate: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ориентировочно: %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Орієнтовно: %@"
+          }
+        }
+      }
+    },
+    "road.estimate.accessibility %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estimated between %1$@ and %2$@, from your mileage readings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Примерно между %1$@ и %2$@, по вашим показаниям пробега"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приблизно між %1$@ і %2$@, за вашими показаннями пробігу"
+          }
+        }
+      }
+    },
+    "road.estimate.accessibility.oneDay %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estimated around %@, from your mileage readings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Примерно %@, по вашим показаниям пробега"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приблизно %@, за вашими показаннями пробігу"
+          }
+        }
+      }
+    },
     "road.failure.date" : {
       "localizations" : {
         "en" : {

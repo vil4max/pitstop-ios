@@ -60,7 +60,9 @@ final class RoadViewModel {
         do {
             let moment = now()
             let planned = try await store.plannedEvents()
-            state.projection = try await Self.projection(from: store, planned: planned, now: moment)
+            state.projection = try await Self.projection(
+                from: store, planned: planned, now: moment, calendar: calendar
+            )
             state.plannedEvents = planned
             state.isLoadFailed = false
         } catch {
@@ -73,12 +75,14 @@ final class RoadViewModel {
     static func projection(
         from store: any CarMemoryStore,
         planned: [PlannedDatedEvent],
-        now: Date
+        now: Date,
+        calendar: Calendar = .autoupdatingCurrent
     ) async throws(CarMemoryStoreError) -> RoadProjection {
         let completions = try await store.maintenanceCompletions()
-        let context = try await MaintenanceContext(
+        let readings = try await store.odometerReadings()
+        let context = MaintenanceContext(
             now: now,
-            latestReading: store.odometerReadings().latest,
+            latestReading: readings.latest,
             completions: completions
         )
         let states = try await MaintenanceEngine().states(
@@ -91,7 +95,9 @@ final class RoadViewModel {
             now: now,
             maintenanceStates: states,
             plannedEvents: planned.map(\.roadEvent),
-            history: history
+            history: history,
+            mileageObservations: MileageObservation.history(readings: readings, completions: completions),
+            calendar: calendar
         ))
     }
 

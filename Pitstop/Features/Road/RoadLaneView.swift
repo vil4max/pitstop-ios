@@ -91,6 +91,14 @@ private struct RoadSlotView: View {
                     .foregroundStyle(PitColor.contentSecondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
+                // The compact tile has no room for a second caption line; Road itself shows it.
+                if !isCompact, let estimate = lead.estimate {
+                    RoadEstimateLine(range: estimate, font: .caption2)
+                        .multilineTextAlignment(.center)
+                        // A dated range is long enough to stretch one slot past its neighbours.
+                        .minimumScaleFactor(0.8)
+                        .lineLimit(3)
+                }
                 if slot.milestones.count > 1 {
                     // A cluster shows one label and a count, so labels can never overlap (REQ-ROAD-013).
                     Text("road.cluster.more \(slot.milestones.count - 1)")
