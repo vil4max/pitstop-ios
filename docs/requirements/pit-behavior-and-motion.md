@@ -89,9 +89,17 @@ Behavioural metaphor:
 
 ## Availability
 
-Pit is persistent on primary and detail screens in the bottom-trailing utility position.
+Pit is always on screen: he is the anchor point for talking to the app
+(owner rule 2026-09-22).
 
-Pit may hide visual detail when inactive but the affordance remains discoverable and reachable.
+- On primary and detail screens Pit is the bottom-trailing utility control.
+- Inside every other sheet (editors, Track several, Mark as done, Settings)
+  Pit keeps the same bottom-trailing spot inside the sheet, and rides above
+  the keyboard while the owner types. Tapping him opens the Pit Capture
+  Surface over the sheet; closing it returns to the sheet with its input
+  unchanged.
+- In the Pit Capture Surface Pit is in the header instead.
+- Pit is never hidden: the "hidden" state is not used.
 
 Pit is not a tab.
 
@@ -101,7 +109,7 @@ Motion is semantic.
 
 | State/action | Meaning |
 |---|---|
-| hidden | not visually active |
+| hidden | not used: Pit is always on screen |
 | resting | available and waiting |
 | blink | alive / idle |
 | double blink | rare natural variation |
@@ -464,6 +472,14 @@ Source: [Poses](#poses), [Idle policy](#idle-policy)
 Given Pit is resting or idle
 When no motion-language state that moves the head is active
 Then the head neither tilts nor lifts
+
+### REQ-PIT-026 — Pit is always on screen
+Status: approved (owner, 2026-09-22)
+Core: P5
+Source: [Availability](#availability)
+Given any screen or sheet other than the Pit Capture Surface, with or without the keyboard
+When it is displayed
+Then Pit is visible in the bottom-trailing position and one tap opens the Pit Capture Surface, and closing it returns to the same sheet with its input unchanged
 
 ### REQ-PIT-025 — The sheet opens large at accessibility text sizes
 Status: approved (owner, 2026-09-22)

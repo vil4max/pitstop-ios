@@ -91,7 +91,9 @@ Settings:
 - never hidden in overflow or only top-trailing.
 
 Pit:
-- always available on primary/detail screens;
+- always on screen, the anchor point for talking to the app: the utility
+  control on primary and detail screens, and the same bottom-trailing spot
+  inside every other sheet, above the keyboard while typing;
 - bottom-trailing;
 - custom;
 - visually distinct;

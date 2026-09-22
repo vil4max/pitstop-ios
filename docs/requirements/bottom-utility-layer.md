@@ -30,7 +30,11 @@ This is a utility layer, not root navigation.
 
 - bottom-trailing;
 - stable position;
-- custom Pit Eyes affordance;
+- always on screen (owner rule 2026-09-22): when a sheet covers the layer,
+  Pit alone stays at the same bottom-trailing spot inside the sheet, above
+  the keyboard while typing; Settings is not repeated in sheets, which have
+  their own Close or Cancel;
+- Pit's round head (see `product-design.md`);
 - opens Pit Capture Surface;
 - not a tab;
 - not a floating add button;
@@ -51,8 +55,9 @@ The utility layer must:
 - define keyboard behaviour;
 - define sheet/full-screen-cover behaviour.
 
-Resolved (delivered behaviour): text input lives in sheets, so the layer
-never rides up over the keyboard, and it is unchanged when the sheet closes.
+Resolved (delivered behaviour): text input lives in sheets; the layer itself
+never rides up over the keyboard and is unchanged when the sheet closes,
+while Pit stays on screen inside the sheet (see Pit).
 The app has no full-screen covers; if one is added, it covers the layer too.
 Pit's control is Pit's head: the whole 56 pt circle is the head (see
 `product-design.md`, "Pit visual identity"), with no glass disc behind it;
@@ -175,10 +180,10 @@ Given Pit animation is not running, for example with Reduce Motion enabled
 When the Pit control is displayed
 Then the control remains visible, discoverable, and keeps its semantic label
 
-### REQ-UTILITY-012 — Sheets cover the layer
-Status: proposed (pending the simulator check at the medium detent, RD-010)
+### REQ-UTILITY-012 — Sheets keep Pit and cover the rest of the layer
+Status: approved (owner rule 2026-09-22: Pit is always on screen); the medium-detent layout is checked on the simulator in RD-010
 Core: P5
-Source: [Safe areas and scrolling](#safe-areas-and-scrolling)
-Given a sheet is presented
-When the keyboard or the sheet is shown
-Then the utility layer is neither visible above the sheet nor moved, and it is in its position when the sheet closes
+Source: [Pit](#pit), [Safe areas and scrolling](#safe-areas-and-scrolling)
+Given a sheet other than the Pit Capture Surface is presented
+When the sheet or the keyboard is shown
+Then Pit stays visible at the bottom-trailing spot of the sheet, above the keyboard, Settings is not shown over the sheet, and both return to their layer positions when the sheet closes

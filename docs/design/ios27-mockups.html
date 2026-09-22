@@ -290,9 +290,6 @@ body[data-text="ax"] .two{flex-direction:column}
 .kv dd{margin:0}
 .sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;border:1px solid rgba(0,0,0,.12)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-.eyedisc{zoom:1;width:56px;height:56px;border-radius:28px;background:#E9ECF2;border:1px solid #D5DAE3;box-shadow:none;display:inline-flex;align-items:center;justify-content:center;font-size:0;--p-label:#000;--p-surface:#fff}
-.eyedisc.knockA{--p-label:#1A5EB3}
-.eyedisc.face{opacity:.55;background:#1A5EB3;border-color:transparent;--p-label:#fff;--p-surface:#1A5EB3}
 .avatar{width:28px;height:28px;border-radius:50%;background:var(--p-tint2);display:inline-flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 auto;vertical-align:middle}
 .avatar svg{width:24px;height:12px}
 .avatar.lg{width:44px;height:44px}.avatar.lg svg{width:36px;height:18px}
@@ -313,6 +310,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
 .eyes.big,.eyes.big.knock,.eyes.big.startle,.eyes.big.side,.eyes.big.look,.eyes.big.up{transform:none;margin:0 6px 0 0}
 .util .gl.pitbtn{background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:0 8px 20px -8px var(--p-shadow),0 2px 5px -2px var(--p-shadow)}
 .util .gl.pitbtn .eyes{display:block}
+.sheet{position:absolute}.util.sheetpit{bottom:30px}
 .pithead-cell{display:inline-flex;align-items:center;justify-content:center;width:104px;height:104px;border-radius:24px;background:#E9ECF2}
 .pithead-cell.dark{background:#1C1C1E}
 .carimg{display:block;aspect-ratio:960/334;height:auto;max-width:100%}
@@ -371,7 +369,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
 </div>
 
 <div class="intro">
-  <div class="eyebrow">Design proposal · 2026-09-22 · fictional data only</div>
+  <div class="eyebrow">Approved design · 2026-09-22 · fictional data only</div>
   <h1>PitStop on iOS 27</h1>
   <p class="lead">Home is the car. Everything else is a view into its memory. The redesign keeps that root idea and the delivered behaviour, and changes how the surfaces are built: three tiers instead of a card for everything.</p>
   <div class="notes">
@@ -775,7 +773,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
   <h2>Pit, the character</h2>
   <p>The owner asked for a full image of Pit with a head, with EVE (WALL-E's friend) as the reference. Pit becomes a small companion who peeks from behind the interface: an original round head with a dark face screen, and the chosen lens eyes lit on that screen. From the reference it borrows mechanics only: lit eyes on a dark glass face, expression by eye shape, a slight tilt of the head. EVE's upright egg shape, arms, glow colour and proportions are not copied. Pit still has no body, no mouth and no hands: the face screen and the eyes do all the acting.</p>
   <div class="gallery" style="align-items:center">
-    <div class="shot" style="align-items:center"><span class="pithead-cell" id="pithero" style="width:280px;height:250px"></span><div class="cap" style="text-align:center"><b>Pit at rest.</b> Pearl-white round head, navy face screen, lit lens eyes.</div></div>
+    <div class="shot" style="align-items:center"><span class="pithead-cell" id="pithero" style="width:280px;height:250px"></span><div class="cap" style="text-align:center"><b>Pit at rest — chosen by the owner (2026-09-22).</b> Pearl-white round head, navy visor, lit lens eyes with a halo.</div></div>
     <div class="notes" style="flex:1;min-width:280px;margin:0">
       <div class="note"><h3>Anatomy</h3><ul><li><b>Head:</b> a sphere, pearl white with a soft top-left light and a hairline. In the utility layer the whole 56 pt circle is Pit's head: there is no glass disc behind it.</li><li><b>Face screen:</b> deep navy (the icon's dark fill), glossy highlight, faint blue glow behind the eyes.</li><li><b>Eyes:</b> the approved lens pair, lit in soft blue-white with a small highlight and a halo, no pupils; on a knock they turn cloud blue and the glow strengthens (REQ-PIT-023).</li><li><b>Face screen bezel:</b> a thin grey rim sets the screen into the shell, like a visor.</li></ul></div>
       <div class="note"><h3>Motion</h3><ul><li>The eyes carry every state of the motion table (ADR 0028), unchanged.</li><li>The head adds only two moves: a tilt of up to 6° (thinking rolls aside, knock leans in) and a lift of up to 3 pt (startle, knock). No bobbing or idle sway: the head is still unless a state asks.</li><li>Reduce Motion: poses change without animation, knock is the lifted, lit pose.</li></ul></div>
@@ -787,11 +785,12 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
     <tr><th>Where</th><th>Size</th><th>Notes</th></tr>
     <tr><td>Utility control</td><td>the 56 pt circle is the head</td><td>Balanced with Settings; label "Pit" unchanged; the head is decorative for VoiceOver.</td></tr>
     <tr><td>Pit sheet header</td><td>44 pt beside the moment title</td><td>Listening, thinking, knock, closed eyes as the capture moves.</td></tr>
-    <tr><td>App icon (proposed)</td><td>the head, face-on, on the cloud-blue fill</td><td>Replaces eyes-only; needs REQ-ICON-001 re-approval and an Icon Composer rebuild (ADR 0029).</td></tr>
+    <tr><td>App icon</td><td>eyes only, lens geometry</td><td>The icon keeps Pit's two eyes on the cloud-blue fill (REQ-ICON-001), redrawn with the lens shape.</td></tr>
+    <tr><td>Inside every other sheet</td><td>the same 56 pt head, bottom-trailing</td><td>Pit is always on screen (owner rule 2026-09-22): editors, Track several, Mark as done, Settings. Above the keyboard while typing. Tapping opens Pit over the sheet.</td></tr>
     <tr><td>Widgets, control</td><td>unchanged</td><td>Keep the capture glyph (ADR 0025).</td></tr>
   </table></div>
   <div class="notes">
-    <div class="note"><h3>Spec conflicts to resolve</h3><ul><li>product-design.md "Avoid: robot" and "Pit does not require a body": the head is not a body, but it is a robot-like object. Proposed wording: "a small companion head with a face screen; no body, mouth or hands; not a mechanic".</li><li>REQ-ICON-001 (approved: the icon's only motif is the two eyes) changes only if the owner also wants the head on the icon.</li></ul></div>
+
     <div class="note"><h3>Dark and Dynamic Type</h3><ul><li>Dark: the head stays pearl white (it is an object, not a surface); the hairline carries the edge on black.</li><li>The head keeps its size at every text size, like the utility circles.</li></ul></div>
   </div>
 </section>
@@ -800,10 +799,10 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
 <section class="sect" id="pit">
   <div class="eyebrow">pit-behavior-and-motion.md · capture-pipeline.md · ADR 0006, 0017, 0028</div>
   <h2>Pit capture sheet</h2>
-  <p>Pit's eyes are the only character. The sheet opens at the medium detent with the composer; one question at a time; every fact that will be written is shown before "Yes, save it"; never a chat history.</p>
+  <p>Pit's round head leads the sheet. The sheet opens at the medium detent with the composer; one question at a time; every fact that will be written is shown before "Yes, save it"; never a chat history.</p>
   <div class="gallery">
 
-  <div class="shot"><div class="phone sheetbg" data-util>
+  <div class="shot"><div class="phone sheetbg" data-util data-pitsheet>
     <div class="screen"><div class="sheet med"><div class="grab"></div>
       <div class="snav"><span class="a">Close</span><span></span><span></span></div>
       <div class="sbody">
@@ -818,7 +817,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
     </div></div>
   </div><div class="cap"><b>Composing.</b> Eyes in fixed gaze (listening), composer focused, mode picker, one primary action.</div></div>
 
-  <div class="shot"><div class="phone sheetbg" data-util>
+  <div class="shot"><div class="phone sheetbg" data-util data-pitsheet>
     <div class="screen"><div class="sheet large"><div class="grab"></div>
       <div class="snav"><span class="a">Close</span><span></span><span></span></div>
       <div class="sbody">
@@ -838,7 +837,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
     </div></div>
   </div><div class="cap"><b>Pit asked (knock).</b> The one pending question sits above the composer and can be answered, deferred or dismissed; the composer stays usable underneath (ADR 0017).</div></div>
 
-  <div class="shot"><div class="phone sheetbg" data-util>
+  <div class="shot"><div class="phone sheetbg" data-util data-pitsheet>
     <div class="screen"><div class="sheet large"><div class="grab"></div>
       <div class="snav"><span class="a">Close</span><span></span><span></span></div>
       <div class="sbody">
@@ -857,7 +856,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
     </div></div>
   </div><div class="cap"><b>Confirming.</b> Raw words quoted first, then the typed meaning and every fact to be written; the alternative keeps the words as a note (REQ-CAPTURE-016, REQ-PIT-015).</div></div>
 
-  <div class="shot"><div class="phone sheetbg" data-util>
+  <div class="shot"><div class="phone sheetbg" data-util data-pitsheet>
     <div class="screen"><div class="sheet large"><div class="grab"></div>
       <div class="snav"><span class="a">Close</span><span></span><span></span></div>
       <div class="sbody">
@@ -877,7 +876,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
     </div></div>
   </div><div class="cap"><b>Clarifying.</b> Exactly one question with plain choices and "I don't know" always offered; unknown is a valid answer (C2, C3, REQ-CAPTURE-020).</div></div>
 
-  <div class="shot"><div class="phone sheetbg" data-util>
+  <div class="shot"><div class="phone sheetbg" data-util data-pitsheet>
     <div class="screen"><div class="sheet med"><div class="grab"></div>
       <div class="snav"><span class="a">Close</span><span></span><span></span></div>
       <div class="sbody">
@@ -892,46 +891,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
   </div><div class="cap"><b>Saved.</b> Where it went in words, one link, one way to continue; the eyes glance, close and return to resting (ADR 0028).</div></div>
 
   </div>
-  <h3 style="margin-top:22px">Utility mark states</h3>
-  <p>The chosen lens geometry (owner decision 8, option A), drawn from the same shape as the regenerated app icon (REQ-ICON-002). Stillness is the default; a session may show no idle motion at all. Only the knock uses the accent (REQ-PIT-023).</p>
-  <div class="gallery" style="gap:14px;margin-top:10px">
-    <div class="shot" style="align-items:center"><span class="gl icon" style="width:56px;height:56px;border-radius:28px;background:var(--code);border-color:var(--line);box-shadow:none"><span class="eyes"><span class="eye"></span><span class="eye"></span></span></span><div class="cap" style="text-align:center">resting</div></div>
-    <div class="shot" style="align-items:center"><span class="gl icon" style="width:56px;height:56px;border-radius:28px;background:var(--code);border-color:var(--line);box-shadow:none"><span class="eyes closed"><span class="eye"></span><span class="eye"></span></span></span><div class="cap" style="text-align:center">blink / closed</div></div>
-    <div class="shot" style="align-items:center"><span class="gl icon" style="width:56px;height:56px;border-radius:28px;background:var(--code);border-color:var(--line);box-shadow:none"><span class="eyes look"><span class="eye"></span><span class="eye"></span></span></span><div class="cap" style="text-align:center">look right</div></div>
-    <div class="shot" style="align-items:center"><span class="gl icon" style="width:56px;height:56px;border-radius:28px;background:var(--code);border-color:var(--line);box-shadow:none"><span class="eyes up"><span class="eye"></span><span class="eye"></span></span></span><div class="cap" style="text-align:center">look up</div></div>
-    <div class="shot" style="align-items:center"><span class="gl icon" style="width:56px;height:56px;border-radius:28px;background:var(--code);border-color:var(--line);box-shadow:none"><span class="eyes side"><span class="eye"></span><span class="eye"></span></span></span><div class="cap" style="text-align:center">side gaze (thinking)</div></div>
-    <div class="shot" style="align-items:center"><span class="gl icon" style="width:56px;height:56px;border-radius:28px;background:var(--code);border-color:var(--line);box-shadow:none"><span class="eyes startle"><span class="eye"></span><span class="eye"></span></span></span><div class="cap" style="text-align:center">startle</div></div>
-    <div class="shot" style="align-items:center"><span class="gl icon" style="width:56px;height:56px;border-radius:28px;background:var(--code);border-color:var(--line);box-shadow:none"><span class="eyes knock"><span class="eye"></span><span class="eye"></span></span></span><div class="cap" style="text-align:center">knock (lifted, two bumps; accent colour in the redesign)</div></div>
-  </div>
-  <h3 style="margin-top:30px">Eye reference analysis <span class="tag">owner reference 2026-09-22</span></h3>
-  <p>The owner pointed at two Pixar robots as a reference for Pit's gaze: EVE (two lit shapes on a dark screen, expression by shape) and WALL-E (two separate binocular eyes, expression by tilt and by looking around). What follows borrows mechanics only. No head, visor, stalks, glow, colour or proportion of either character is copied; Pit stays two shapes with no body (product-design.md "Pit visual hypothesis").</p>
-  <div class="tablewrap"><table class="spec">
-    <tr><th>Trait</th><th>EVE-type (shape)</th><th>WALL-E-type (tilt and gaze)</th><th>Fits PitStop because</th></tr>
-    <tr><td>Where expression lives</td><td>The outline of each eye: arcs, ovals, crescents</td><td>The angle of each eye unit and where the lenses point</td><td>Pit "reacts before he explains": one pose change per state, readable without animation (Reduce Motion)</td></tr>
-    <tr><td>Reads at 15 pt and in the icon</td><td>Yes: two filled shapes survive at 40 px (REQ-ICON-005)</td><td>Partly: housings and stalks vanish; only the two lenses survive</td><td>The utility mark and the app icon must stay the same face (REQ-ICON-002)</td></tr>
-    <tr><td>Light-on-dark</td><td>Native: lit eyes on a dark field, like the icon's white eyes on blue</td><td>Dark lenses with reflections on a light body</td><td>"Pit lives behind the interface" reads as a small lit screen</td></tr>
-    <tr><td>Looking and noticing</td><td>Weak: EVE mostly changes shape, rarely direction</td><td>Strong: independent lenses turn, tilt, converge on an object</td><td>Idle looks, "glance at object" and "listening" are half the motion table</td></tr>
-    <tr><td>Risk</td><td>Over-emotional arcs; the inward "\ /" angle reads as anger, which Pit never shows (he does not evaluate the user)</td><td>Reads as a robot or a mechanic, both excluded by the design direction</td><td>Restraint is the contract: rare humour, no praise, stillness by default</td></tr>
-  </table></div>
-  <p><b>Recommendation: EVE's shape language with WALL-E's independence.</b> Each eye is a lit lens whose outline carries the state; the two lenses tilt and move independently by a few degrees (the delivered 25 ms trailing-eye offset already makes them two pieces, ADR 0028). Inward-top tilt is capped at 6° and used only for attention (knock), never for judgement. The closed state becomes a shallow upward arc, so "completion / leaving" reads as content rather than switched off. Nothing else in the motion table, the idle policy or the timings changes.</p>
-  <div class="gallery" style="gap:14px;margin-top:10px" id="eyestrip"></div>
-  <div class="tablewrap" style="margin-top:14px"><table class="spec">
-    <tr><th>State (pit-behavior-and-motion.md)</th><th>Current capsule glyph</th><th>Proposed lens glyph</th><th>Reduce Motion</th></tr>
-    <tr><td>resting</td><td>Two capsules, openness 0.92</td><td>Two lenses, tops leaning 6° outward: at ease, not staring</td><td>Same pose</td></tr>
-    <tr><td>blink / double blink</td><td>Lid drops to a 1 pt line, 0.07 s</td><td>Lens flattens to 20 % height, 0.07 s; no arc (a blink is not an emotion)</td><td>Not played</td></tr>
-    <tr><td>look left / right / up</td><td>Whole eye shifts 1.2 pt, highlight 2.4 pt</td><td>Same shift; the leading eye tilts 3° toward the direction, the other follows 25 ms later</td><td>Not played</td></tr>
-    <tr><td>glance at object</td><td>Look down toward the saved result</td><td>Both lenses tilt down 8° and converge 2° toward the result</td><td>Dropped (as today)</td></tr>
-    <tr><td>fixed gaze (listening)</td><td>Still, fewer blinks, micro-saccades</td><td>Tilt 0°, lenses 6 % taller: attentive; micro-saccades unchanged</td><td>Pose without life</td></tr>
-    <tr><td>side gaze (thinking)</td><td>Up and aside, slow drift</td><td>Up and aside, both lenses roll 10° the same way (one thought, not two eyes)</td><td>Pose without drift</td></tr>
-    <tr><td>startle</td><td>Lift 2 pt, openness 1.15</td><td>Lenses round out to near-circles and lift 2 pt</td><td>Skipped, knock alone</td></tr>
-    <tr><td>knock</td><td>Lift 3 pt plus two bumps</td><td>Lift 3 pt, tops leaning 6° inward (attention), two bumps</td><td>Lifted pose, no bumps</td></tr>
-    <tr><td>close eyes (completion, leaving)</td><td>Flat lid line 0.7 s</td><td>Shallow upward arc 0.7 s: content, then resting</td><td>Kept as a state change</td></tr>
-  </table></div>
-  <div class="notes">
-    <div class="note"><h3>Utility control options</h3><ul><li><b>A · Neutral glass — chosen (owner, 2026-09-22).</b> Lenses in contentPrimary on the glass circle, balanced with Settings. During a knock the lenses turn accentPrimary and return when the knock ends: "has a question" without a badge; with Reduce Motion it is a static colour change (REQ-PIT-023).</li><li><b>B · Icon face — rejected.</b> An accent disc reads as a floating action button, outweighs Settings, is loud on every screen, spends the one accent outside the stage and leaves no step for the knock.</li></ul></div>
-    <div class="note"><h3>Impact if approved</h3><ul><li>PitEyeShape geometry and a per-eye tilt input in PitEyeGeometry; the vocabulary test keeps one distinct geometry per state.</li><li>The app icon is regenerated from the new shape (REQ-ICON-002, ADR 0029 "Editing"); REQ-ICON-001 (two eyes, no text) still holds.</li><li>Widget and control keep the capture glyph (ADR 0025) unless the owner picks the eyes there too.</li><li>Card RD-011 in the work plan; ADR 0028 gets a follow-up ADR, not an edit.</li></ul></div>
-  </div>
-  <div class="notes">
+      <div class="notes">
     <div class="note"><h3>What changed</h3><ul><li>Pit's round head (44 pt) next to the title; the title changes with the moment ("Remember", "Is this right?", "One thing", "Saved.") so the sheet never needs a chat transcript.</li><li>The composer is a single field with an 18 pt radius on the secondary surface; the primary action is a prominent capsule at the sheet bottom, not in the toolbar.</li><li>Confirmation card quotes the raw words first, in a quiet quote style.</li></ul></div>
     <div class="note"><h3>Dynamic Type</h3><ul><li>The sheet opens at the large detent when text size is accessibility-large, so the composer and its button stay on screen above the keyboard.</li><li>Decline buttons stack vertically (delivered ViewThatFits rule).</li><li>Choice lists stay full-width rows; nothing becomes icon-only.</li></ul></div>
     <div class="note"><h3>Motion and Reduce Motion</h3><ul><li>Unchanged from ADR 0028: fixed gaze → blink → side gaze → knock; glance → closed → resting after a save.</li><li>Reduce Motion drops blink, glance and bumps and keeps state changes without animation; the knock is the lifted pose.</li></ul></div>
@@ -1122,7 +1082,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
   </div>
 </section>
 
-<p class="fn" style="font-size:13px;color:var(--muted);margin-top:40px">All names, dates, mileages and amounts are fictional. Spec deltas and implementation cards are in the repository proposal (docs/planning/ios27-redesign-proposal.md) and docs/planning/work-plan.md.</p>
+<p class="fn" style="font-size:13px;color:var(--muted);margin-top:40px">All names, dates, mileages and amounts are fictional. The approved decisions are in the requirement files; rationale in docs/planning/ios27-redesign-proposal.md, implementation cards in docs/planning/work-plan.md.</p>
 </div>
 
 <script>
@@ -1139,6 +1099,8 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
       if(!p.querySelector(':scope > .island')){p.appendChild(island());p.appendChild(statusBar());}
       var hasSheet=p.querySelector('.sheet');
       if(p.hasAttribute('data-util')&&!hasSheet&&!p.querySelector(':scope > .util')){p.appendChild(util());}
+      /* Pit is always on screen (owner rule 2026-09-22): inside a sheet he keeps the bottom-trailing spot; the Pit sheet shows him in its header instead. */
+      if(hasSheet&&!p.hasAttribute('data-pitsheet')&&!hasSheet.querySelector('.util')){var u=document.createElement('div');u.className='util sheetpit';u.innerHTML='<span></span><span class="gl icon pitbtn" aria-label="Pit"><span class="eyes"><span class="eye"></span><span class="eye"></span></span></span>';hasSheet.appendChild(u);}
       if(!p.querySelector(':scope > .homebar')){p.appendChild(home());}
       var next=p.nextElementSibling;
       if(!(next&&next.classList.contains('clone'))){var c=p.cloneNode(true);c.classList.add('dark','clone');c.setAttribute('aria-hidden','true');p.after(c);}
@@ -1157,34 +1119,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
   document.querySelectorAll('.seg').forEach(function(g){var b=g.querySelector('button');if(b.hasAttribute('data-mode'))setPressed(g,'data-mode',m);else setPressed(g,'data-text',t);});
 })();
 
-(function(){
-  var host=document.getElementById('eyestrip'); if(!host||host.children.length) return;
-  function lens(x,tilt,sy,sx,arc,hl){
-    var cx=x+5, cy=8;
-    if(arc) return '<path d="M'+(x+0.6)+' 10.6 Q'+cx+' 3.2 '+(x+9.4)+' 10.6" fill="none" stroke="var(--p-label)" stroke-width="2.4" stroke-linecap="round"/>';
-    var g='<g transform="translate('+cx+' '+cy+') rotate('+tilt+') scale('+sx+' '+sy+') translate('+(-cx)+' '+(-cy)+')">';
-    g+='<path d="M'+cx+' 0 C'+(x+8.2)+' 0 '+(x+10)+' 3.4 '+(x+10)+' 8 C'+(x+10)+' 12.6 '+(x+8.2)+' 16 '+cx+' 16 C'+(x+1.8)+' 16 '+x+' 12.6 '+x+' 8 C'+x+' 3.4 '+(x+1.8)+' 0 '+cx+' 0Z" fill="var(--p-label)"/>';
-    if(hl) g+='<circle cx="'+(x+6.4)+'" cy="4.6" r="1.7" fill="var(--p-surface)"/>';
-    return g+'</g>';
-  }
-  function cap(x,h,hl,dy){var y=8-h/2;var r=Math.min(4.5,h/2);var s='<rect x="'+x+'" y="'+(y+(dy||0))+'" width="9" height="'+h+'" rx="'+r+'" fill="var(--p-label)"/>';if(hl&&h>6)s+='<circle cx="'+(x+5.9)+'" cy="'+(5.4+(dy||0))+'" r="1.7" fill="var(--p-surface)"/>';return s;}
-  var states=[
-   {n:'resting',cur:function(){return cap(0,15,1)+cap(14,15,1)},pro:function(){return lens(0,-6,1,1,0,1)+lens(14,6,1,1,0,1)}},
-   {n:'blink',cur:function(){return cap(0,3,0)+cap(14,3,0)},pro:function(){return lens(0,-6,.2,1.08,0,0)+lens(14,6,.2,1.08,0,0)}},
-   {n:'look right',cur:function(){return '<g transform="translate(1.4 0)">'+cap(0,15,1)+cap(14,15,1)+'</g>'},pro:function(){return '<g transform="translate(1.4 0)">'+lens(0,-3,1,1,0,1)+lens(14,9,1,1,0,1)+'</g>'}},
-   {n:'listening',cur:function(){return cap(0,15,1)+cap(14,15,1)},pro:function(){return lens(0,0,1.06,1,0,1)+lens(14,0,1.06,1,0,1)}},
-   {n:'thinking',cur:function(){return '<g transform="translate(1.4 -1)">'+cap(0,15,1)+cap(14,15,1)+'</g>'},pro:function(){return '<g transform="translate(1.4 -1)">'+lens(0,10,1,1,0,1)+lens(14,10,1,1,0,1)+'</g>'}},
-   {n:'startle',cur:function(){return '<g transform="translate(0 -2)">'+cap(0,17,1)+cap(14,17,1)+'</g>'},pro:function(){return '<g transform="translate(0 -2)">'+lens(0,0,1.05,1.25,0,1)+lens(14,0,1.05,1.25,0,1)+'</g>'}},
-   {n:'knock',cur:function(){return '<g transform="translate(0 -3)">'+cap(0,15,1)+cap(14,15,1)+'</g>'},pro:function(){return '<g transform="translate(0 -3)">'+lens(0,6,1,1,0,1)+lens(14,-6,1,1,0,1)+'</g>'}},
-   {n:'closed',cur:function(){return '<rect x="0" y="7.2" width="9" height="1.6" rx="0.8" fill="var(--p-label)"/><rect x="14" y="7.2" width="9" height="1.6" rx="0.8" fill="var(--p-label)"/>'},pro:function(){return lens(0,0,1,1,1)+lens(14,0,1,1,1)}}
-  ];
-  function disc(inner,extra){return '<span class="eyedisc'+(extra||'')+'"><svg width="30" height="21" viewBox="-2 -3 27 22" style="overflow:visible">'+inner+'</svg></span>';}
-  var html='';
-  states.forEach(function(st){
-    html+='<div class="shot" style="align-items:center;gap:6px">'+disc(st.cur())+disc(st.pro(),st.n==='knock'?' knockA':'')+disc(st.pro(),' face')+'<div class="cap" style="text-align:center">'+st.n+'</div></div>';
-  });
-  host.innerHTML='<div class="cap" style="width:100%;max-width:none"><b>Rows per state:</b> current capsule glyph · chosen lens glyph on neutral glass (option A; knock in the accent) · rejected icon-face variant (option B), kept for comparison.</div>'+html;
-})();
+
 
 /* Pit character (owner request 2026-09-22): an original round head with a dark visor and the chosen lit lens eyes. */
 window.pitHead=function(state,opts){
@@ -1247,4 +1182,6 @@ window.pitHead=function(state,opts){
   var hero=document.getElementById('pithero');
   if(hero&&!hero.children.length){ hero.innerHTML=window.pitHead('resting',{w:200}); }
 })();
+
+
 </script>

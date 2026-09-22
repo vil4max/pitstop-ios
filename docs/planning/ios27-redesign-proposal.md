@@ -446,6 +446,20 @@ Spec conflicts the owner decides:
   Pit is resting or idle, When no motion-table state is active, Then the
   head neither tilts nor lifts; only the states in the motion table move it.
 
+### 3.6e Pit is always on screen (owner rule, 2026-09-22)
+
+Pit is the anchor point for talking to the app, so he is never hidden: the
+utility control on primary and detail screens, the same bottom-trailing spot
+inside every other sheet (above the keyboard while typing), and the header
+of the Pit sheet. Tapping him inside a sheet opens capture over it; closing
+returns to the sheet with its input intact. The owner kept the current head
+(pearl round head, navy visor, lit lens eyes with a halo) over three
+alternatives the same day. Applied to `pit-behavior-and-motion.md`
+(REQ-PIT-026), `bottom-utility-layer.md` (REQ-UTILITY-012 rewritten and
+approved) and `product-design.md`. ADR 0024's deferral of an external "Open
+Pit" request while an editor is open stays for Siri, Shortcuts and widgets;
+a tap on Pit inside the sheet is the owner's own action and opens at once.
+
 ### 3.7 `requirements/app-icon.md`
 
 - No change. The utility mark and the sheet eyes keep the icon geometry
@@ -485,9 +499,14 @@ Spec conflicts the owner decides:
   alternatives (glass tiles; a tab bar; a custom font; colour-only status; a
   single estimated date on Road). The implementing card numbers it after the
   newest ADR on `main` at that time.
-- ADR 0009 stays in full; the new ADR builds on it and supersedes nothing.
-  ADR 0009 "Tiles" covers only the Car Board descriptor and the AX reflow;
-  the new ADR adds the list-geometry rule for detail screens.
+- ADR 0009 stays, with one amendment. Its "Two layers: calm content, glass
+  controls" rule says only the utility layer uses Liquid Glass and names
+  `glassEffect(.regular.interactive(), in: .circle)` for both circles. The
+  round Pit head is the whole 56 pt control with no glass disc, so the
+  redesign ADR (written with RD-011) amends ADR 0009 for the Pit control;
+  Settings and the other floating controls stay glass. ADR 0009 "Tiles"
+  covers only the Car Board descriptor and the AX reflow; the new ADR adds
+  the list-geometry rule for detail screens and supersedes nothing there.
 
 ## 4. Owner decisions
 
