@@ -103,6 +103,16 @@ Question: What native-feeling mechanism returns a scrolled Road to default/curre
 
 No custom gesture without evidence.
 
+### ROAD-EST-001 Mileage-rate estimate for distance milestones
+
+Question: Can Road show a labelled date range for a distance milestone,
+derived from reading history, without breaking core C2 and REQ-ROAD-007?
+
+Record: [`investigations/road-est-001-mileage-rate-estimate.md`](investigations/road-est-001-mileage-rate-estimate.md)
+(investigated 2026-09-22; owner decisions pending). Recommends a conditional
+go for an annotation-only estimate that never places or orders a milestone,
+after a REQ-ROAD-007 wording change.
+
 ## Capture investigations
 
 ### INV-CAP-001 Semantic false classification
@@ -231,6 +241,17 @@ viable after core product validation, and under which gates?
 Record: [`investigations/mnt-int-001-maintenance-intelligence.md`](investigations/mnt-int-001-maintenance-intelligence.md)
 (investigated 2026-09-21; owner decisions pending). The full record lives in
 its own file because it cites external sources and proposes follow-up tasks.
+
+### MNT-VR-001 Vehicle-reported remaining value
+
+Question: How should an owner-entered dashboard countdown ("service in
+3,200 km / 45 days") act as a maintenance rule next to owner intervals and
+completions?
+
+Record: [`investigations/mnt-vr-001-vehicle-reported-remaining.md`](investigations/mnt-vr-001-vehicle-reported-remaining.md)
+(investigated 2026-09-22; owner decisions pending). Recommends a separate
+report record superseded by the next completion, earliest anchor wins, gated
+on owner precedence choice and evidence of demand.
 
 ## System investigations
 
