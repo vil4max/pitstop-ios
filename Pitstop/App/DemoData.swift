@@ -15,7 +15,7 @@
             }
             guard let vehicleID = try? await store.currentVehicle().id else { return }
             let commands: [DomainCommand] = [
-                .recordVehicleFact(.init(vehicleID: vehicleID, fact: VehicleFact(field: .name, value: "Arteon"))),
+                .recordVehicleFact(.init(vehicleID: vehicleID, fact: VehicleFact(field: .name, value: "Kestrel"))),
                 .recordOdometerReading(.init(reading: OdometerReading(
                     vehicleID: vehicleID,
                     value: 59200,

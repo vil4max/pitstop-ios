@@ -11,11 +11,12 @@ public enum DomainFixtures {
 
         public static let standard = Vehicle(
             id: defaultID,
-            name: "Golf GTI",
-            make: "Volkswagen",
-            model: "Golf GTI",
+            name: "Kestrel",
+            make: "Example Motors",
+            model: "Kestrel",
             year: 2019,
-            vin: "WVWZZZAUZKP000001"
+            // Fictional: a VIN never contains I, O or Q, so this can never match a real car.
+            vin: "XMKESTRELQ0000001"
         )
 
         public static let unconfigured = Vehicle(

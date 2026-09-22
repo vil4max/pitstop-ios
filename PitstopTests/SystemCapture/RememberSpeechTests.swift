@@ -38,7 +38,7 @@ struct RememberSpeechTests {
             .maintenancePolicy(operationID: .cabinFilter, distanceIntervalKm: 15000, timeIntervalMonths: nil),
             conflicts: []
         ),
-        .confirm(.vehicleFact(VehicleFact(field: .name, value: "Arteon")), conflicts: []),
+        .confirm(.vehicleFact(VehicleFact(field: .name, value: "Kestrel")), conflicts: []),
         .confirm(Self.dashboardReading, conflicts: []),
         .confirm(.note(text: "стук справа при повороте", contexts: []), conflicts: []),
         .clarify(.odometerKm),
@@ -95,7 +95,7 @@ struct RememberSpeechTests {
                 let speech = RememberSpeech(locale: Locale(identifier: language), isVoiceOnly: voiceOnly)
                 let text = spoken(speech.question(question))
                 #expect(!text.hasPrefix("intent.") && !text.isEmpty)
-                #expect(!text.contains("стук") && !text.contains("Arteon"))
+                #expect(!text.contains("стук") && !text.contains("Kestrel"))
             }
         }
     }

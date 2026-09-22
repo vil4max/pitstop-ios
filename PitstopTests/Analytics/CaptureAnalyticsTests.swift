@@ -200,7 +200,7 @@ struct CaptureAnalyticsMappingTests {
 @MainActor
 @Suite("Capture analytics end to end")
 struct CaptureAnalyticsEndToEndTests {
-    private let secret = "поменял масло на 85000, VIN WVWZZZ3HZKE012345"
+    private let secret = "поменял масло на 85000, VIN XMSECRETQIO012345"
 
     private func makeModel(_ harness: Harness, store: FakeCarMemoryStore) -> PitCaptureViewModel {
         PitCaptureViewModel(
@@ -229,7 +229,7 @@ struct CaptureAnalyticsEndToEndTests {
         #expect(harness.spy.last(.inputInterpretationCompleted)?[.intent] == "maintenance_completion")
         #expect(harness.spy.last(.draftSaved) == [.intent: "maintenance_completion", .edited: "false"])
         let dump = String(reflecting: harness.spy.events)
-        #expect(!dump.contains("WVWZZZ") && !dump.contains("масло") && !dump.contains("85000"))
+        #expect(!dump.contains("XMSECRET") && !dump.contains("масло") && !dump.contains("85000"))
     }
 
     @Test("ADR-0021: \"I don't know\" to a shown clarification ends the draft as cancelled and keeps the words")

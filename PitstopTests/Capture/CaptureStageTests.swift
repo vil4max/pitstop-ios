@@ -6,7 +6,7 @@ private let now = DomainFixtures.Odometers.baseDate
 
 @Suite("Capture pipeline observability")
 struct CaptureStageTests {
-    private let secret = "VIN WVWZZZ3HZKE012345, стук справа, 84200 км"
+    private let secret = "VIN XMSECRETQIO012345, стук справа, 84200 км"
 
     @Test(
         "REQ-CAPTURE-024: every stage of one capture carries the input's correlation ID",
@@ -34,7 +34,7 @@ struct CaptureStageTests {
 
         for event in spy.events {
             let dump = String(reflecting: event)
-            #expect(!dump.contains("WVWZZZ") && !dump.contains("стук") && !dump.contains("84200"))
+            #expect(!dump.contains("XMSECRET") && !dump.contains("стук") && !dump.contains("84200"))
             // Every stored field is an ID or a closed enum. A new field of any other type fails here,
             // so "no raw content by construction" is checked, not assumed.
             for child in Mirror(reflecting: event).children {

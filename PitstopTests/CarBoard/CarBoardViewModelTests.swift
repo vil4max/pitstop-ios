@@ -48,12 +48,12 @@ struct CarBoardViewModelTests {
         let model = TestViewModels.carBoard(store, now: now)
         await model.load()
 
-        let saved = await model.saveCar(name: "Arteon", odometerText: "  ")
+        let saved = await model.saveCar(name: "Kestrel", odometerText: "  ")
 
         #expect(saved)
         #expect(model.state.mileage == .unknown)
         #expect(await store.readings.isEmpty)
-        #expect(model.state.car.name == "Arteon")
+        #expect(model.state.car.name == "Kestrel")
         #expect(!model.state.car.isProvisional)
     }
 
@@ -160,7 +160,7 @@ struct CarBoardViewModelTests {
         await model.load()
         await store.failEverything()
 
-        let saved = await model.saveCar(name: "Arteon", odometerText: "84200")
+        let saved = await model.saveCar(name: "Kestrel", odometerText: "84200")
 
         #expect(!saved)
         #expect(model.state.failure == .saveFailed)
@@ -186,7 +186,7 @@ struct CarBoardViewModelTests {
         let model = TestViewModels.carBoard(store, now: now)
         await model.load()
 
-        #expect(await !model.saveCar(name: "Arteon", odometerText: "abc"))
+        #expect(await !model.saveCar(name: "Kestrel", odometerText: "abc"))
         #expect(model.state.failure == .invalidOdometer)
         #expect(await store.executed.isEmpty)
     }
@@ -198,11 +198,11 @@ struct CarBoardViewModelTests {
         await model.load()
         await store.failReadingCommands()
 
-        let saved = await model.saveCar(name: "Arteon", odometerText: "84200")
+        let saved = await model.saveCar(name: "Kestrel", odometerText: "84200")
 
         #expect(!saved)
         #expect(model.state.failure == .mileageNotSaved)
-        #expect(model.state.car.name == "Arteon")
+        #expect(model.state.car.name == "Kestrel")
         #expect(model.state.mileage == .unknown)
     }
 
@@ -228,22 +228,22 @@ struct CarBoardViewModelTests {
         let model = TestViewModels.carBoard(store, now: now)
         await model.load()
         #expect(model.state.isLoadFailed)
-        #expect(await !model.saveCar(name: "Arteon", odometerText: ""))
+        #expect(await !model.saveCar(name: "Kestrel", odometerText: ""))
         model.dismissFailure()
         // Dismissing the save alert must not remove the retry row.
         #expect(model.state.isLoadFailed)
 
         await store.recover()
-        #expect(await model.saveCar(name: "Arteon", odometerText: ""))
+        #expect(await model.saveCar(name: "Kestrel", odometerText: ""))
 
         #expect(model.state.failure == nil)
         #expect(!model.state.isLoadFailed)
-        #expect(model.state.car.name == "Arteon")
+        #expect(model.state.car.name == "Kestrel")
     }
 
     @Test("REQ-BOARD-002: a blank name over stale first-launch state never overwrites the stored name")
     func blankNameKeepsStoredName() async {
-        let store = FakeCarMemoryStore(vehicle: Vehicle(id: Vehicle.provisionalID, name: "Arteon"))
+        let store = FakeCarMemoryStore(vehicle: Vehicle(id: Vehicle.provisionalID, name: "Kestrel"))
         await store.failEverything()
         let model = TestViewModels.carBoard(store, now: now)
         await model.load()
@@ -252,8 +252,8 @@ struct CarBoardViewModelTests {
 
         #expect(await model.saveCar(name: "", odometerText: "84200"))
 
-        #expect(model.state.car.name == "Arteon")
-        #expect(await store.vehicle.name == "Arteon")
+        #expect(model.state.car.name == "Kestrel")
+        #expect(await store.vehicle.name == "Kestrel")
         #expect(model.state.mileage == .kilometers(84200))
     }
 }

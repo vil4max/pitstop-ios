@@ -10,9 +10,9 @@ struct DomainFixturesTests {
     @Test func vehicleConfigurationAndOdometerInvariants() {
         let vehicle = DomainFixtures.Vehicles.standard
         #expect(vehicle.id == DomainFixtures.Vehicles.defaultID)
-        #expect(vehicle.name == "Golf GTI")
-        #expect(vehicle.make == "Volkswagen")
-        #expect(vehicle.vin == "WVWZZZAUZKP000001")
+        #expect(vehicle.name == "Kestrel")
+        #expect(vehicle.make == "Example Motors")
+        #expect(vehicle.vin == "XMKESTRELQ0000001")
 
         // Odometer readings
         let kmReading = DomainFixtures.Odometers.reading84k

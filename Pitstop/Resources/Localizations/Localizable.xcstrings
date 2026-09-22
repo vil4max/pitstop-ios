@@ -250,19 +250,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "For example, Arteon"
+            "value" : "For example, Kestrel"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Например, Arteon"
+            "value" : "Например, Kestrel"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Наприклад, Arteon"
+            "value" : "Наприклад, Kestrel"
           }
         }
       }

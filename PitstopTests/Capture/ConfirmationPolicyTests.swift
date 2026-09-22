@@ -19,7 +19,7 @@ struct ConfirmationPolicyTests {
             rawText: capture.payload.rawContent,
             extractedOdometerKm: 85000,
             extractedOperationID: .engineOilService,
-            extractedVehicleFact: VehicleFact(field: .make, value: "Volkswagen"),
+            extractedVehicleFact: VehicleFact(field: .make, value: "Example Motors"),
             extractedDistanceIntervalKm: 7500,
             extractedEventKind: .service,
             extractedAmount: 100
@@ -87,7 +87,7 @@ struct ConfirmationPolicyTests {
         arguments: [VehicleFactField.make, .model, .year, .vin]
     )
     func applicabilityFactNeedsConfirmation(field: VehicleFactField) throws {
-        let capture = captureInput("у меня гольф 2019", vehicleID: DomainFixtures.Vehicles.secondaryID)
+        let capture = captureInput("у меня кестрел 2019", vehicleID: DomainFixtures.Vehicles.secondaryID)
         let proposal = MemoryProposal(
             sourceInputID: capture.id,
             kind: .vehicleFact,
@@ -115,7 +115,7 @@ struct ConfirmationPolicyTests {
 
         let result = try validated(proposal, input: capture)
 
-        #expect(result.conflicts == [.replacesVehicleFact(field: .name, existing: "Golf GTI")])
+        #expect(result.conflicts == [.replacesVehicleFact(field: .name, existing: "Kestrel")])
         #expect(policy.outcome(for: result) == .confirmCompact)
     }
 

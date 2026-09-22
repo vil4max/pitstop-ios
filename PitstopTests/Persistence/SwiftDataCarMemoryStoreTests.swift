@@ -121,14 +121,14 @@ struct SwiftDataCarMemoryStoreTests {
         let result = try await store.execute(
             .recordVehicleFact(RecordVehicleFactCommand(
                 vehicleID: vehicleID,
-                fact: VehicleFact(field: .name, value: " Arteon ")
+                fact: VehicleFact(field: .name, value: " Kestrel ")
             )),
             now: now
         )
 
         let vehicle = try await store.currentVehicle()
         #expect(result == .vehicleUpdated(vehicle))
-        #expect(vehicle.name == "Arteon")
+        #expect(vehicle.name == "Kestrel")
         #expect(!vehicle.isProvisional)
         #expect(vehicle.id == vehicleID)
     }
@@ -244,7 +244,7 @@ struct SwiftDataCarMemoryStoreTests {
         defer { TestStore.remove(at: url) }
         let store = try TestStore.carMemory(url: url)
         let vehicleID = try await store.currentVehicle().id
-        let rename = RecordVehicleFactCommand(vehicleID: vehicleID, fact: VehicleFact(field: .name, value: "Arteon"))
+        let rename = RecordVehicleFactCommand(vehicleID: vehicleID, fact: VehicleFact(field: .name, value: "Kestrel"))
 
         await store.failNextSave()
         await #expect(throws: CarMemoryStoreError.storageFailure) {
