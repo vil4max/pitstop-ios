@@ -17,6 +17,14 @@ struct PitEyePose: Hashable {
     var heightScale: CGFloat = 1
 }
 
+/// The colour the lenses are lit in.
+enum PitEyeTint: Hashable {
+    /// Soft blue-white (`PitColor.headEye`).
+    case lit
+    /// `PitColor.accentPrimary`: only while Pit knocks (REQ-PIT-023).
+    case accent
+}
+
 /// Pit drawn in one state, without animation. The view draws a pose; the vocabulary is checked on these values, so
 /// two states that look alike, or a pose outside the motion table's limits, fail a test instead of a review.
 struct PitPose: Hashable {
@@ -26,6 +34,11 @@ struct PitPose: Hashable {
     var eyeOffset: CGPoint = .zero
     var showsHighlight = true
     var dimmed = false
+    var eyeTint: PitEyeTint = .lit
+    /// Opacity of the glow behind the eyes.
+    var glow: Double = PitPose.restingGlow
+
+    static let restingGlow: Double = 0.45
 
     /// The lenses at rest: tops leaning outward (ADR 0037).
     static let resting = PitPose(
@@ -84,11 +97,14 @@ struct PitPose: Hashable {
                 $0.heightScale = 1.06
             }
         case .knock:
-            // Attention, never judgement: the tops lean inward by the 6° cap.
+            // Attention, never judgement: the tops lean inward by the 6° cap. The eyes turn to the accent and the
+            // glow strengthens; with Reduce Motion this is the whole knock (REQ-PIT-023).
             self = PitPose(
                 left: PitEyePose(rotation: PitHeadGeometry.restingOutwardTilt),
                 right: PitEyePose(rotation: -PitHeadGeometry.restingOutwardTilt)
             )
+            eyeTint = .accent
+            glow = 1
         case .closedEyes:
             // Shallow upward arcs; the flattened, upright lenses fade into them.
             let closed = PitEyePose(outline: .arc, rotation: 0, heightScale: 0.2)

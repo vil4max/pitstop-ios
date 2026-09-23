@@ -109,7 +109,7 @@ struct PitHead: View {
             if shownFinish.showsGlow {
                 Capsule()
                     .fill(EllipticalGradient(
-                        colors: [PitColor.headGlow.opacity(0.45), PitColor.headGlow.opacity(0)],
+                        colors: [PitColor.headGlow.opacity(pose.glow), PitColor.headGlow.opacity(0)],
                         center: Geometry.glowCenter,
                         startRadiusFraction: 0,
                         endRadiusFraction: Geometry.glowReach
@@ -145,6 +145,9 @@ struct PitHead: View {
             eye(pose.right, at: Geometry.rightEyeCenter, delay: leftTrails ? 0 : trailing)
         }
         .frame(width: size, height: size, alignment: .topLeading)
+        // The face screen is dark in both appearances, so the eyes resolve their roles as on a dark surface: the
+        // knock's `accentPrimary` is then the pale accent, which reads on navy where the light one would not.
+        .environment(\.colorScheme, .dark)
         // A breath scales the eyes about the point between them; the head itself never breathes (REQ-PIT-024).
         .scaleEffect(shownLife.breath, anchor: Geometry.eyesAnchor)
         .animation(reduceMotion ? nil : .easeInOut(duration: 1.2), value: shownLife.breath)
@@ -168,6 +171,13 @@ struct PitHead: View {
         }
     }
 
+    private var eyeColor: Color {
+        switch pose.eyeTint {
+        case .lit: PitColor.headEye
+        case .accent: PitColor.accentPrimary
+        }
+    }
+
     private func eye(_ eye: PitEyePose, at center: CGPoint, delay: TimeInterval) -> some View {
         let isLens = eye.outline == .lens
         let lens = Geometry.lensRadii
@@ -177,11 +187,11 @@ struct PitHead: View {
             ZStack {
                 if shownFinish.showsHalo {
                     Ellipse()
-                        .fill(PitColor.headEye.opacity(0.18))
+                        .fill(eyeColor.opacity(0.18))
                         .frame(width: 2 * halo.width * unit, height: 2 * halo.height * unit)
                 }
                 Ellipse()
-                    .fill(PitColor.headEye)
+                    .fill(eyeColor)
                     .frame(width: 2 * lens.width * unit, height: 2 * lens.height * unit)
                 Ellipse()
                     .fill(PitColor.headEyeHighlight)
@@ -194,7 +204,7 @@ struct PitHead: View {
             .opacity(isLens ? 1 : 0)
 
             PitClosedEyeArc()
-                .stroke(PitColor.headEye, style: StrokeStyle(lineWidth: Geometry.arcLineWidth * unit, lineCap: .round))
+                .stroke(eyeColor, style: StrokeStyle(lineWidth: Geometry.arcLineWidth * unit, lineCap: .round))
                 .frame(width: 2 * Geometry.arcHalfWidth * unit, height: Geometry.arcHeight * unit)
                 .offset(y: Geometry.arcCenterDrop * unit)
                 .opacity(isLens ? 0 : 1)

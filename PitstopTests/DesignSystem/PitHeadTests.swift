@@ -169,6 +169,12 @@ struct PitHeadTests {
 
     /// Premultiplied brightness (mean of the channels) of one pixel, so a transparent pixel reads as black.
     static func brightness(of image: CGImage, at point: CGPoint) -> CGFloat {
+        let colour = rgb(of: image, at: point)
+        return (colour.red + colour.green + colour.blue) / 3
+    }
+
+    /// Premultiplied red, green and blue of one pixel in 0...1.
+    static func rgb(of image: CGImage, at point: CGPoint) -> Components {
         let width = image.width, height = image.height
         var pixels = [UInt8](repeating: 0, count: width * height * 4)
         let drawn = pixels.withUnsafeMutableBytes { buffer -> Bool in
@@ -179,10 +185,15 @@ struct PitHeadTests {
             context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
             return true
         }
-        guard drawn else { return 0 }
+        guard drawn else { return Components(red: 0, green: 0, blue: 0, alpha: 0) }
         let column = min(max(Int(point.x), 0), width - 1)
         let row = min(max(Int(point.y), 0), height - 1)
         let offset = (row * width + column) * 4
-        return (CGFloat(pixels[offset]) + CGFloat(pixels[offset + 1]) + CGFloat(pixels[offset + 2])) / (3 * 255)
+        return Components(
+            red: CGFloat(pixels[offset]) / 255,
+            green: CGFloat(pixels[offset + 1]) / 255,
+            blue: CGFloat(pixels[offset + 2]) / 255,
+            alpha: CGFloat(pixels[offset + 3]) / 255
+        )
     }
 }
