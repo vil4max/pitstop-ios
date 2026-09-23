@@ -459,7 +459,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
 
 <!-- ================= ROAD ================= -->
 <section class="sect" id="road">
-  <div class="eyebrow">road-domain-and-ui.md · REQ-ROAD-001…021 · ADR 0008, 0032</div>
+  <div class="eyebrow">road-domain-and-ui.md · REQ-ROAD-001…029 · ADR 0008, 0032, 0034, 0038</div>
   <h2>Road</h2>
   <p>The lane is the identity surface; the list under it is the same milestones as text, so meaning never depends on the drawing. Overdue is attention, not danger.</p>
   <div class="gallery">
@@ -550,6 +550,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
     <div class="note"><h3>Dynamic Type</h3><ul><li>Lane slots widen with text; the lane is a horizontal scroll view, so nothing clips. At AX sizes the lane height grows and slot labels wrap to two lines.</li><li>Rows stack their three lines already; the more menu keeps a 44 pt target and moves under the text at AX sizes.</li><li>"Back to now" keeps its label; it never becomes icon-only.</li></ul></div>
     <div class="note"><h3>Dark</h3><ul><li>Lane card #1C1C1E, dashed road in tertiary label; markers keep a hairline so ahead rings read on the card.</li><li>The car silhouette gradient uses the light accent at 62–28 % in both modes; on black it reads as a lit shape rather than a hole.</li></ul></div>
     <div class="note"><h3>Contracts kept</h3><ul><li>The view adds, removes and reorders nothing the projection did not return (REQ-ROAD-004); the estimate line is shown only if the projection carries one.</li><li>No time-to-mileage conversion; "Placed by date only" wording remains (REQ-ROAD-007).</li><li>Semantic summary sentence stays above the lane for VoiceOver (REQ-ROAD-015).</li></ul></div>
+    <div class="note"><h3>As built (RD-002)</h3><ul><li>The lane card is the tinted stage (ADR 0038 puts the Road lane in the stage tier); the frames above draw it on the plain surface.</li><li>Milestones are the roadside signs described under "What changed" (a 26 pt plate on a 12 pt post), not the round markers the frames draw; the car is the abstract car until RD-012.</li><li>A row pairs the state glyph in the leading column with the coloured state word, as the frames do, rather than a boxed status chip.</li><li>"Back to now" sits in the flow under the lane, so the lane card grows by the pill's height while it shows (the delivered placement).</li><li>At accessibility sizes the plates stop growing at 36 pt and the lane's text stops at the first accessibility size, wrapping within its slot; the list and the summary keep every size.</li><li>The empty state and the load-failure banner are unchanged; RD-008 restyles the empty state.</li></ul></div>
   </div>
 </section>
 <!-- ================= SERVICE ================= -->

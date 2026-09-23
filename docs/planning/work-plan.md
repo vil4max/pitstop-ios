@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active since 2026-09-23 (owner unfroze it); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** RD-002 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
+**Next task:** RD-003 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -10,9 +10,9 @@
 ## Plan
 
 No implementation card is open outside the redesign section below. The
-redesign round is under way: RD-000 (design system, ADR 0038) and RD-001
-(Car Board) have landed on `redesign/ios27`, and RD-002 is next; the app icon
-already shows the redesigned Pit (ICON-002, ADR 0037) as its announcement.
+redesign round is under way: RD-000 (design system, ADR 0038), RD-001
+(Car Board) and RD-002 (Road) have landed on `redesign/ios27`, and RD-003 is
+next; the app icon already shows the redesigned Pit (ICON-002, ADR 0037) as its announcement.
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
 now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
@@ -43,15 +43,14 @@ light/dark and accessibility-extra-large previews, updates
 `docs/engineering/system-overview.md`. The redesign ADR is
 [0038](../decisions/0038-ios27-surface-tiers.md). Not part of these cards: the SYS-007 widgets; RD-003 restyles the delivered
 MNT-VR-002 row line, sheet and menu entries without changing their wording.
-ROAD-EST-002 has landed its estimate line on Road; RD-002 keeps it as
+ROAD-EST-002 has landed its estimate line on Road; RD-002 kept it as
 delivered. Text-clipping at accessibility
 sizes (REQ-GRAMMAR-003) is a manual check listed under "Not verified
 on screen" until a snapshot-testing card exists.
 
 | ID | Screen | Est | Depends on | Status | Acceptance (summary) |
 |---|---|---:|---|---|---|
-| RD-002 | Road: marker vocabulary, "Back to now" glass pill, grouped milestone list under "Ahead" and "Waiting for mileage", one-line past summary, estimate line kept tertiary | 2d | RD-000; MNT-VR-002 on `main` | next | REQ-ROAD-004, 008…015, 027, 028 pass; lane and list show identical milestones; Reduce Motion return without animation; overdue never red |
-| RD-003 | Service: one "Track" toolbar menu with the delivered "Track an operation" and "Track several" items and their disable rules, grouped "Next visit" and "Tracked" lists, status chips, remaining-share track, visible "Mark as done", more menu with the dashboard-reading entries | 2d | RD-000; MNT-VR-002 on `main` | planned | Existing Service tests pass unchanged; track drawn only with a known interval, a last completion and a mileage observation newer than 90 days; `unknown` and stale mileage draw no track; VoiceOver reads the fact line, not the bar |
+| RD-003 | Service: one "Track" toolbar menu with the delivered "Track an operation" and "Track several" items and their disable rules, grouped "Next visit" and "Tracked" lists, status chips, remaining-share track, visible "Mark as done", more menu with the dashboard-reading entries | 2d | RD-000; MNT-VR-002 on `main` | next | Existing Service tests pass unchanged; track drawn only with a known interval, a last completion and a mileage observation newer than 90 days; `unknown` and stale mileage draw no track; VoiceOver reads the fact line, not the bar |
 | RD-004 | Track several: step strip, tinted quick-pick chips, stacked Confirm and Back | 1d | RD-003 | planned | ADR 0033 tests pass unchanged; step labels never truncate; chip selected only when the field holds the value |
 | RD-005 | History: month groups, rail, distinct completions with "corrected on Service" line | 1d | RD-000 | planned | HistoryTests pass; grouping deterministic by calendar month; completions not editable here |
 | RD-006 | Notes: grouped rows, meta line, archive glyph plus swipe, wrapping chips at AX sizes | 1d | RD-000 | planned | NotesTests pass; unclassified notes stay under "All"; archive reachable by row action, swipe and VoiceOver action |

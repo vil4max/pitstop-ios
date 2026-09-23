@@ -1,7 +1,7 @@
 # PitStop — Project Status
 
 **Project State:** Active since 2026-09-23 (owner unfroze it); the iOS 27 redesign round runs on the local branch `redesign/ios27` ([`docs/tasks/redesign-ios27.md`](docs/tasks/redesign-ios27.md))  
-**Next task:** RD-002, the Road redesign card (RD-000 and RD-001 landed on `redesign/ios27`, ADR 0038) ([`docs/planning/work-plan.md`](docs/planning/work-plan.md)); the round ends with SYS-008 and TestFlight 1.2.0  
+**Next task:** RD-003, the Service redesign card (RD-000, RD-001 and RD-002 landed on `redesign/ios27`, ADR 0038) ([`docs/planning/work-plan.md`](docs/planning/work-plan.md)); the round ends with SYS-008 and TestFlight 1.2.0  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
 **TestFlight:** version 1.1.0 (tag `tf-1.1.0-3`); delivery is tag-gated (ADR 0013)
 
