@@ -60,7 +60,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | done | `8cdc992`…`286fcae`; `just verify` passed per step (writer); review: 0 high/medium, 4 low (2 repaired, `isCompact` dead code left to RD-002, bookkeeping fixed) |
 | RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | done | `0871525`…`087a3bd`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
 | RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | done | `ec7e63e`…`0386c0c`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
-| RD-004 Track several | ADR 0033 tests | RD-003 | planned | — |
+| RD-004 Track several | ADR 0033 tests | RD-003 | in progress | — |
 | RD-005 History | HistoryTests | RD-000 | planned | — |
 | RD-006 Notes | NotesTests | RD-000 | planned | — |
 | RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | planned | — |
@@ -178,6 +178,12 @@ dispatch commit; same output and integration as RD-001):
 - [x] Service docs: mockup deviations, system-overview row, work-plan row: diff review — 980fe84
 - [x] Review repair: one shared glyph-column row and more-menu label for Road and Service: `just verify` — f419bd4
 - [x] Review repair: Track menu rule stated as canTrackOne: ADR-0033 menu tests — 0386c0c
+
+RD-004 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001):
+
+- [ ] Track several sheet: step strip, tinted quick-pick chips, stacked Confirm and Back: ADR 0033 tests
+- [ ] Track several docs: mockup deviations, system-overview row, work-plan row: diff review
 
 ## Current checklist
 
