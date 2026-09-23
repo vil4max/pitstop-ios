@@ -33,9 +33,27 @@ private func road(_ states: [MaintenanceOperationState] = [], day: Double = 0) -
     RoadProjector().project(RoadContext(now: Fix.date(day), maintenanceStates: states, plannedEvents: []))
 }
 
+/// History after a successful load of an empty store: known to be empty, not merely not read yet.
+@MainActor
+private func loadedEmptyHistory() async -> HistoryViewState {
+    let model = TestViewModels.history(FakeCarMemoryStore(), now: Fix.date(0))
+    await model.load()
+    return model.state
+}
+
+/// Notes after a successful load of an empty store, in the given scope.
+@MainActor
+private func loadedEmptyNotes(scope: NoteStatus = .active) async -> NotesViewState {
+    let model = TestViewModels.notes(FakeCarMemoryStore(), now: Fix.date(0))
+    await model.load()
+    model.select(scope: scope)
+    return model.state
+}
+
+@MainActor
 @Suite("Sparse states")
 struct SparseStateTests {
-    private static let locales = ["en", "ru", "uk"]
+    private nonisolated static let locales = ["en", "ru", "uk"]
 
     @Test("REQ-GRAMMAR-004: an empty Road shows its glyph, headline, one sentence and the one Add a date action")
     func emptyRoad() throws {
@@ -87,9 +105,11 @@ struct SparseStateTests {
         #expect(ServiceViewState(operations: tracked, hasLoaded: true).sparseState == nil)
     }
 
-    @Test("REQ-GRAMMAR-004: an empty History shows its glyph, headline, one sentence and the one Add event action")
-    func emptyHistory() throws {
-        let sparse = try #require(HistoryViewState().sparseState)
+    @Test(
+        "REQ-GRAMMAR-004: a History loaded empty shows its glyph, headline, one sentence and the one Add event action"
+    )
+    func emptyHistory() async throws {
+        let sparse = try #require(await loadedEmptyHistory().sparseState)
 
         #expect(Composition(sparse) == Composition(
             glyph: "clock.arrow.circlepath",
@@ -107,9 +127,9 @@ struct SparseStateTests {
         #expect(state.sparseState == nil)
     }
 
-    @Test("REQ-GRAMMAR-004: empty active Notes show the glyph, headline, one sentence and the one New note action")
-    func emptyNotes() throws {
-        let sparse = try #require(NotesViewState().sparseState)
+    @Test("REQ-GRAMMAR-004: active Notes loaded empty show the glyph, headline, one sentence and the New note action")
+    func emptyNotes() async throws {
+        let sparse = try #require(await loadedEmptyNotes().sparseState)
 
         #expect(Composition(sparse) == Composition(
             glyph: "note.text",
@@ -120,25 +140,32 @@ struct SparseStateTests {
     }
 
     @Test("REQ-GRAMMAR-004: an empty archive keeps today's headline alone; notes in the other scope do not count")
-    func emptyArchive() throws {
-        let state = NotesViewState(notes: [DomainFixtures.Notes.rawThought], scope: .archived)
-        let sparse = try #require(state.sparseState)
+    func emptyArchive() async throws {
+        let model = TestViewModels.notes(FakeCarMemoryStore(), now: Fix.date(0))
+        await model.load()
+        #expect(await model.add(text: "Check the wiper blades"))
+        #expect(model.state.sparseState == nil)
+
+        model.select(scope: .archived)
+        let sparse = try #require(model.state.sparseState)
 
         #expect(Composition(sparse) == Composition<NotesEmptyAction>(
             glyph: "note.text",
             headline: "notes.archived.empty"
         ))
-        #expect(NotesViewState(notes: [DomainFixtures.Notes.rawThought]).sparseState == nil)
     }
 
     @Test("REQ-GRAMMAR-004: no sparse state offers more than two actions")
-    func atMostTwoActions() throws {
+    func atMostTwoActions() async throws {
+        let history = await loadedEmptyHistory()
+        let notes = await loadedEmptyNotes()
+        let archive = await loadedEmptyNotes(scope: .archived)
         let counts = try [
             #require(road().sparseState).actions.count,
             #require(ServiceViewState(hasLoaded: true).sparseState).actions.count,
-            #require(HistoryViewState().sparseState).actions.count,
-            #require(NotesViewState().sparseState).actions.count,
-            #require(NotesViewState(scope: .archived).sparseState).actions.count,
+            #require(history.sparseState).actions.count,
+            #require(notes.sparseState).actions.count,
+            #require(archive.sparseState).actions.count,
         ]
 
         #expect(counts.allSatisfy { $0 <= EmptyStateContent<Int>.actionLimit })
@@ -146,15 +173,18 @@ struct SparseStateTests {
 
     /// A metric needs a value in its text; every sparse line is a fixed sentence in every language.
     @Test("REQ-GRAMMAR-004: no sparse headline or sentence carries a value placeholder", arguments: locales)
-    func noPlaceholderMetric(locale: String) throws {
+    func noPlaceholderMetric(locale: String) async throws {
         let url = try #require(Bundle.main.url(forResource: locale, withExtension: "lproj"))
         let bundle = try #require(Bundle(url: url))
+        let history = await loadedEmptyHistory()
+        let notes = await loadedEmptyNotes()
+        let archive = await loadedEmptyNotes(scope: .archived)
         let lines = try [
             Self.lines(#require(road().sparseState)),
             Self.lines(#require(ServiceViewState(hasLoaded: true).sparseState)),
-            Self.lines(#require(HistoryViewState().sparseState)),
-            Self.lines(#require(NotesViewState().sparseState)),
-            Self.lines(#require(NotesViewState(scope: .archived).sparseState)),
+            Self.lines(#require(history.sparseState)),
+            Self.lines(#require(notes.sparseState)),
+            Self.lines(#require(archive.sparseState)),
         ].flatMap(\.self)
 
         for key in lines {
