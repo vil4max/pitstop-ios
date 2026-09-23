@@ -72,7 +72,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-004 Track several | ADR 0033 tests | RD-003 | done | `a7452ad`…`a1ae952`; `just verify` per step (writer); review: 1 medium + 4 low, then 2 medium + 2 low, then 0 high/medium + 3 low, all repaired |
 | RD-005 History | HistoryTests | RD-000 | done | `41f3697`…`b682104`; `just verify` per step; review: 0 high/medium, 2 low, both repaired |
 | RD-006 Notes | NotesTests | RD-000 | done | `0ea4f8a`…`eb45fd8`; `just verify` per step; review: 1 medium + 1 low, both repaired |
-| RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | planned | — |
+| RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | in progress | — |
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | planned | — |
 | RD-009 Widgets | WidgetEntryTests | RD-000 | planned | — |
 | RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | planned | — |
@@ -244,6 +244,15 @@ dispatch commit; same output and integration as RD-001):
 - [x] Notes: grouped rows, meta line, archive glyph plus swipe and VoiceOver action, wrapping context chips: NotesTests — 0ea4f8a
 - [x] Notes docs: mockup deviations, system-overview row, work-plan row: diff review — a3629a5
 - [x] Review repair (integrator): 44 pt archive target, whole-row tap opens the note: `just verify`, simulator — eb45fd8
+
+RD-007 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001; the eyes stay
+`PitCaptureEyes` until RD-011 draws the head):
+
+- [ ] Sheet opens at the large detent at accessibility text sizes: REQ-PIT-025 tests
+- [ ] One moment at a time: eyes beside the moment title, composer with mode picker and a prominent capsule action, the pending question card above the composer, Close cancels unsent words: REQ-PIT-021 tests, Capture and Pit tests unchanged
+- [ ] Confirmation quotes the raw words first, then every fact to be written; the saved state names the destination and offers one way to continue: Capture tests
+- [ ] Pit capture docs: mockup deviations, system-overview row, work-plan row: diff review
 
 ## Resume prompt
 
