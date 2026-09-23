@@ -27,9 +27,10 @@ struct CarBoardTileView: View {
                             .frame(height: 34)
                             .padding(.vertical, 2)
                     } else {
-                        // At accessibility sizes the labels cannot fit side by side: the markers stay, the
-                        // sentence below carries the words, and no label is clipped. The drawing itself stops
-                        // growing at the largest standard size so the plates never outgrow the car.
+                        // The lane stops growing at the largest standard size so the plates never outgrow the
+                        // car. Its labels share a quarter of the tile width each; at that capped size long names
+                        // truncate ("oil se…", checked at AX5), so at accessibility sizes the markers stay, the
+                        // labels go, and the sentence below carries the words.
                         CarBoardRoadLane(slots: content.roadSlots, showsLabels: !dynamicTypeSize.isAccessibilitySize)
                             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                     }
@@ -204,6 +205,8 @@ private struct CarBoardRoadLane: View {
                     .foregroundStyle(PitColor.contentPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
+                    // Without it a two-word name truncates on one line instead of taking its second line.
+                    .fixedSize(horizontal: false, vertical: true)
                 milestone.distanceText
                     .font(PitTypography.captionSmall)
                     .minimumScaleFactor(0.8)
