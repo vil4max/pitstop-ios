@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active since 2026-09-23 (owner unfroze it); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** RD-003 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
+**Next task:** RD-004 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -11,8 +11,8 @@
 
 No implementation card is open outside the redesign section below. The
 redesign round is under way: RD-000 (design system, ADR 0038), RD-001
-(Car Board) and RD-002 (Road) have landed on `redesign/ios27`, and RD-003 is
-next; the app icon already shows the redesigned Pit (ICON-002, ADR 0037) as its announcement.
+(Car Board), RD-002 (Road) and RD-003 (Service) have landed on
+`redesign/ios27`, and RD-004 is next; the app icon already shows the redesigned Pit (ICON-002, ADR 0037) as its announcement.
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
 now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
@@ -41,8 +41,8 @@ Each card is one screen, keeps that screen's behaviour and tests, adds
 light/dark and accessibility-extra-large previews, updates
 `docs/design/ios27-mockups.html` if the screen deviates from it, and updates the screen's row in
 `docs/engineering/system-overview.md`. The redesign ADR is
-[0038](../decisions/0038-ios27-surface-tiers.md). Not part of these cards: the SYS-007 widgets; RD-003 restyles the delivered
-MNT-VR-002 row line, sheet and menu entries without changing their wording.
+[0038](../decisions/0038-ios27-surface-tiers.md). Not part of these cards: the SYS-007 widgets; RD-003 restyled the delivered
+MNT-VR-002 row line and kept its sheet and menu entries without changing their wording.
 ROAD-EST-002 has landed its estimate line on Road; RD-002 kept it as
 delivered. Text-clipping at accessibility
 sizes (REQ-GRAMMAR-003) is a manual check listed under "Not verified
@@ -50,8 +50,7 @@ on screen" until a snapshot-testing card exists.
 
 | ID | Screen | Est | Depends on | Status | Acceptance (summary) |
 |---|---|---:|---|---|---|
-| RD-003 | Service: one "Track" toolbar menu with the delivered "Track an operation" and "Track several" items and their disable rules, grouped "Next visit" and "Tracked" lists, status chips, remaining-share track, visible "Mark as done", more menu with the dashboard-reading entries | 2d | RD-000; MNT-VR-002 on `main` | next | Existing Service tests pass unchanged; track drawn only with a known interval, a last completion and a mileage observation newer than 90 days; `unknown` and stale mileage draw no track; VoiceOver reads the fact line, not the bar |
-| RD-004 | Track several: step strip, tinted quick-pick chips, stacked Confirm and Back | 1d | RD-003 | planned | ADR 0033 tests pass unchanged; step labels never truncate; chip selected only when the field holds the value |
+| RD-004 | Track several: step strip, tinted quick-pick chips, stacked Confirm and Back | 1d | RD-003 | next | ADR 0033 tests pass unchanged; step labels never truncate; chip selected only when the field holds the value |
 | RD-005 | History: month groups, rail, distinct completions with "corrected on Service" line | 1d | RD-000 | planned | HistoryTests pass; grouping deterministic by calendar month; completions not editable here |
 | RD-006 | Notes: grouped rows, meta line, archive glyph plus swipe, wrapping chips at AX sizes | 1d | RD-000 | planned | NotesTests pass; unclassified notes stay under "All"; archive reachable by row action, swipe and VoiceOver action |
 | RD-007 | Pit capture sheet: eyes beside a moment title, composer with prominent action, question card above the composer, quoted raw words in confirmation, saved state | 2d | RD-000 | planned | Capture and Pit tests pass unchanged; REQ-PIT-021; large detent at AX sizes; one question at a time; Close cancels unsent words |

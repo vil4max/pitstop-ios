@@ -561,7 +561,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
 </section>
 <!-- ================= SERVICE ================= -->
 <section class="sect" id="service">
-  <div class="eyebrow">maintenance-engine.md · ADR 0010, 0031, 0033 · MNT-VR-002 planned</div>
+  <div class="eyebrow">maintenance-engine.md · ADR 0010, 0031, 0033, 0035, 0038</div>
   <h2>Service</h2>
   <p>What is approaching, what to plan, what was done. One grouped list for tracked operations, a status chip per row, and a thin remaining-share track drawn only when both the interval and the last completion are known. It is a share of the owner's own interval, never a health score.</p>
   <div class="gallery">
@@ -650,6 +650,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
     <div class="note"><h3>Dynamic Type</h3><ul><li>Chips wrap under the title; the row action and the more menu move to their own line at AX sizes.</li><li>The share track keeps 5 pt and full row width at all sizes.</li><li>Sheet forms are native; picker rows put value and label on two lines when needed.</li></ul></div>
     <div class="note"><h3>Dark</h3><ul><li>Grouped list #1C1C1E on black; track ground uses tertiary grouped fill so the empty part stays visible.</li><li>Amber pairs from PitColor dark; "Due" is never red.</li></ul></div>
     <div class="note"><h3>Contracts kept</h3><ul><li>Unknown stays unknown: no track, no numbers without facts (REQ-BOARD-014, 015; engine <code>unknown</code>).</li><li>Only confirmed work resets a cycle; undo and stop tracking keep their confirmations (ADR 0031).</li><li>No health score (REQ-BOARD-013): the track is a share of one interval and disappears with the interval.</li></ul></div>
+    <div class="note"><h3>As built (RD-003)</h3><ul><li>Built as drawn: the "+ Track" menu, "Next visit" with its footer under the container, and tracked rows with the chip, the fact line, the reading line, the track and a visible "Mark as done".</li><li>"Due" uses the filled glyph (<code>MaintenanceStatus.glyph</code>), not the filled-with-halo glyph the Brake fluid row draws: Service has no past-due state; Road does.</li><li>The track also needs a policy interval in the dimension that decided the status. A dashboard reading that decided a dimension the owner set no interval for draws no track, because its share would be of the car's own countdown. A time-only interval draws only while a mileage observation is newer than 90 days, as the acceptance states.</li><li>"Not enough facts" is drawn in the secondary label colour, as <code>.chip.unk</code> is; the Car Board chip shares it.</li><li>The more menu glyph sits inside a 44 pt target, so it stands a little in from the row edge; at accessibility sizes it moves under "Mark as done", whose label wraps to two lines.</li><li>The "Mark as done" and "Dashboard reading" sheets are the delivered native forms, unchanged: the confirmation is a form row, not the prominent capsule drawn, and the unit is a segmented km / mi control, not a pop-up.</li><li>The empty state is the delivered one (RD-008 restyles it) and appears only after the first successful load.</li></ul></div>
   </div>
 </section>
 
