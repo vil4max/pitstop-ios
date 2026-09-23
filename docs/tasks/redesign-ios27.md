@@ -9,7 +9,7 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000…RD-003 landed on `redesign/ios27`; RD-004 is next.
+Current outcome: RD-000…RD-004 landed on `redesign/ios27`; RD-005 is next.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -30,7 +30,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: RD-004 Writer steps (drafted when the card starts).
+Next step: RD-005 Writer steps (drafted when the card starts).
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -60,7 +60,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | done | `8cdc992`…`286fcae`; `just verify` passed per step (writer); review: 0 high/medium, 4 low (2 repaired, `isCompact` dead code left to RD-002, bookkeeping fixed) |
 | RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | done | `0871525`…`087a3bd`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
 | RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | done | `ec7e63e`…`0386c0c`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
-| RD-004 Track several | ADR 0033 tests | RD-003 | in progress | — |
+| RD-004 Track several | ADR 0033 tests | RD-003 | done | `a7452ad`…`a1ae952`; `just verify` per step (writer); review: 1 medium + 4 low, then 2 medium + 2 low, then 0 high/medium + 3 low, all repaired |
 | RD-005 History | HistoryTests | RD-000 | planned | — |
 | RD-006 Notes | NotesTests | RD-000 | planned | — |
 | RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | planned | — |
@@ -123,6 +123,18 @@ added here when the slice starts.
   90 days the track still draws, matching ADR 0008's staleness rule. Not seen
   on screen: VoiceOver, ru/uk, the old-reading line, the load-failure banner,
   the Track menu while loading.
+- 2026-09-23, RD-004 (slice-writer): `just verify` passed before each of its
+  six commits; new `ChipFlowLayout` (wrapping chips) with `ChipFlowLayoutTests`
+  and a pure quick-pick selection rule; screenshots in `rd-004/`. Review
+  round 1: 1 medium (measuring and placing could break chip lines
+  differently) + 4 low; round 2: 2 medium (the added 0.5 pt tolerance caused
+  new mismatches and an unguarded re-measure) + 2 low; round 3: no high or
+  medium, 3 low; all repaired, each fix shown to fail against a mutant of the
+  old logic. The integrator ran the integrated build on the simulator:
+  Service "Track" menu, Track several Choose and Intervals steps, chips wrap
+  without overlap, and tapping "7 500 km" fills the field and selects only
+  that chip. Not seen on screen: the disabled Confirm, the failed-save
+  Result, VoiceOver, ru/uk.
 
 ## Untested scope
 
@@ -182,8 +194,28 @@ dispatch commit; same output and integration as RD-001):
 RD-004 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001):
 
-- [ ] Track several sheet: step strip, tinted quick-pick chips, stacked Confirm and Back: ADR 0033 tests
-- [ ] Track several docs: mockup deviations, system-overview row, work-plan row: diff review
+- [x] Track several sheet: step strip, tinted quick-pick chips, stacked Confirm and Back: ADR 0033 tests — a7452ad
+- [x] Track several docs: mockup deviations, system-overview row, work-plan row: diff review — aa52eed
+- [x] Review repair: chip lines broken the same way in both layout passes: `ChipFlowLayoutTests` — 76fb3be
+- [x] Review repair: disabled Confirm keeps its dimming; strip index derived: `TrackSeveralTests` — b88d91e
+- [x] Round-2 repair: chip lines decided from the proposal in both passes, no tolerance: `ChipFlowLayoutTests`, mutant failed — df6e161
+- [x] Round-3 repair: reported width covers an unshrinkable chip; faster boundary sweep: `ChipFlowLayoutTests`, mutants failed — a1ae952
+
+## Resume prompt
+
+Pitstop session, task `docs/tasks/redesign-ios27.md` on branch
+`redesign/ios27`. Read `AGENTS.md`, this brief and the work-plan row of the
+next card only. Check `git status` (clean, on `redesign/ios27`, no leftover
+`.claude/worktrees/*` checkout; remove a finished writer worktree only after
+confirming its commits are on the branch) and `git log -1`. Then continue at
+"Next step" above: draft the next card's Writer steps in this brief, commit
+that dispatch, and hand the card to a `slice-writer` subagent with
+`agent-artifacts/2026-09-23/pitstop-ios27-redesign/work/writer-rules.md`.
+Integrate each card by cherry-pick after an independent `/code-review`, run
+`just verify`, record the evidence here, and push `redesign/ios27` (the
+owner's per-card backup decision). This prompt authorizes no merge into
+`main`, no push of `main` and no tag: those wait for the owner's word in the
+session.
 
 ## Current checklist
 
