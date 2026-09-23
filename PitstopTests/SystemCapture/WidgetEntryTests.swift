@@ -68,6 +68,55 @@ struct PitURLRoutingTests {
     }
 }
 
+/// The "Remember" widget's view and timeline live in the extension, which the test host cannot import, so its
+/// contracts are read from the source file, as `DesignRulesTests` reads the design rules.
+@Suite("Remember widget source")
+struct CaptureWidgetSourceTests {
+    private static let sourceFile = URL(filePath: #filePath)
+        .deletingLastPathComponent() // SystemCapture
+        .deletingLastPathComponent() // PitstopTests
+        .deletingLastPathComponent()
+        .appending(path: "PitstopWidgets/CaptureWidget.swift")
+
+    /// Code only: whole-line comments may explain what the widget does not do.
+    private func code() throws -> String {
+        try String(contentsOf: Self.sourceFile, encoding: .utf8)
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
+            .joined(separator: "\n")
+    }
+
+    @Test("ADR-0025: the Remember widget reads no data: one static entry that never reloads")
+    func readsNoData() throws {
+        let code = try code()
+        #expect(code.contains("Timeline(entries: [Entry(date: .now)], policy: .never)"))
+        let dataAccess = [
+            "SwiftData", "ModelContainer", "ModelContext", "NextServiceStoreReader", "NextServiceContent",
+            "StoreLocation", "UserDefaults", "FileManager", "containerURL", "AppGroup",
+        ]
+        #expect(dataAccess.filter { code.contains($0) }.isEmpty, "the widget reaches for data")
+    }
+
+    @Test("ADR-0025, REQ-CAPTURE-023: the Remember widget keeps its tap target, glyph and words")
+    func keepsContentAndLink() throws {
+        let code = try code()
+        #expect(code.contains(".widgetURL(CaptureSurface.pit.url)"))
+        #expect(code.contains(#"static let symbol = "square.and.pencil""#))
+        for key in ["widget.capture.action", "widget.capture.hint"] {
+            #expect(code.contains(#"Text("\#(key)")"#), "\(key) is not shown")
+        }
+        #expect(code.contains(".supportedFamilies([.systemSmall, .accessoryCircular])"))
+    }
+
+    @Test("ADR-0038: the Remember widget draws the shared glyph disc, accented in tinted mode")
+    func drawsSharedGlyphDisc() throws {
+        let code = try code()
+        #expect(code.contains("GlyphDisc(systemImage: CaptureWidget.symbol"))
+        #expect(code.contains(".widgetAccentable()"))
+        #expect(code.contains("#Preview(as: .systemSmall)"))
+    }
+}
+
 /// Checks the widget extension as the build embeds it in the test host (ADR 0025). The App Intents metadata
 /// is an undocumented build output (see `AppShortcutsTests`); a parsing failure may mean a format change.
 @Suite("Widget extension")

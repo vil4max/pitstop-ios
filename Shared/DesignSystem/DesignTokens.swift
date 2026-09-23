@@ -22,6 +22,9 @@ enum DesignTokens {
     static let statusGlyphSize: CGFloat = 9
     static let shareTrackHeight: CGFloat = 5
     static let emptyStateDiscSize: CGFloat = 64
+    /// The glyph disc on the small "Remember" widget: smaller than the empty state's, so the headline and the hint
+    /// keep their room in the widget at larger text sizes.
+    static let widgetGlyphDiscSize: CGFloat = 48
     static let hairline: CGFloat = 0.5
     /// The inset-grouped container (`GroupedSection`) and the horizontal padding of its rows.
     static let groupedCornerRadius: CGFloat = 20

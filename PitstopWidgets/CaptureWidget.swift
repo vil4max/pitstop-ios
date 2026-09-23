@@ -54,20 +54,37 @@ struct CaptureWidgetView: View {
             .accessibilityLabel(Text("widget.capture.action"))
             .containerBackground(for: .widget) {}
         default:
-            VStack(alignment: .leading, spacing: 8) {
-                Image(systemName: CaptureWidget.symbol)
-                    .font(.title)
+            VStack(alignment: .leading, spacing: 4) {
+                // The whole disc joins the accent group, so a tinted Home Screen keeps the disc behind the glyph.
+                GlyphDisc(systemImage: CaptureWidget.symbol, size: DesignTokens.widgetGlyphDiscSize)
                     .widgetAccentable()
                 Spacer(minLength: 0)
                 Text("widget.capture.action")
-                    .font(.headline)
+                    .font(PitTypography.headline)
+                    .foregroundStyle(PitColor.contentPrimary)
                 Text("widget.capture.hint")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(PitTypography.caption)
+                    .foregroundStyle(PitColor.contentSecondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .accessibilityElement(children: .combine)
-            .containerBackground(.fill.tertiary, for: .widget)
+            .containerBackground(for: .widget) {
+                PitColor.surfaceSecondary
+            }
         }
     }
 }
+
+#if DEBUG
+    #Preview(as: .systemSmall) {
+        CaptureWidget()
+    } timeline: {
+        CaptureTimelineProvider.Entry(date: .now)
+    }
+
+    #Preview(as: .accessoryCircular) {
+        CaptureWidget()
+    } timeline: {
+        CaptureTimelineProvider.Entry(date: .now)
+    }
+#endif
