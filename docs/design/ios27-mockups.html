@@ -357,6 +357,7 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
   <symbol id="i-hour" viewBox="0 0 24 24"><path d="M7 3h10M7 21h10M8 3c0 5 4 5 4 9s-4 4-4 9M16 3c0 5-4 5-4 9s4 4 4 9"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-list" viewBox="0 0 24 24"><path d="m4 7 1.5 1.5L8 6M4 13l1.5 1.5L8 12M4 19l1.5 1.5L8 18M11 7h9M11 13h9M11 19h9"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/><path d="M12 8v4.5"/><circle cx="12" cy="15.8" r=".6" fill="currentColor"/></symbol>
   <symbol id="i-dash" viewBox="0 0 24 24"><path d="M3 17a9 9 0 1 1 18 0"/><path d="M12 17 15.5 9"/><path d="M6 17h1M17 17h1"/></symbol>
  </defs>
 </svg>
@@ -518,6 +519,17 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
       </div>
     </div>
   </div><div class="cap"><b>Past due and stale mileage.</b> Overdue uses the deep amber with a ring, not red. Distance milestones that cannot be placed sit in "Waiting for mileage" with their reason (REQ-ROAD-006, 011, 012).</div></div>
+
+  <div class="shot"><div class="phone" data-util>
+    <div class="screen">
+      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Kestrel</span><span class="gl icon accent" aria-label="Add a date"><svg class="i"><use href="#i-cal"/></svg></span></div>
+      <div class="content">
+      <div class="hd"><div class="eb">Kestrel</div><div class="ti">Road</div></div>
+      <div class="fn" style="display:flex;gap:6px;align-items:center"><svg class="i" style="width:15px;height:15px;flex:0 0 auto"><use href="#i-retry"/></svg><span style="flex:1">Could not read the road.</span><span style="color:var(--p-accent);font-weight:600">Try again</span></div>
+      <div class="fade"></div>
+      </div>
+    </div>
+  </div><div class="cap"><b>Load failure.</b> The delivered <code>LoadFailureBanner</code>, unchanged: one footnote line in secondary text under the header with the circular-arrow glyph, and "Try again" at its trailing edge, which reloads in place. No red, no alert, no placeholder road. On a first load nothing else is drawn; when a reload fails, the last road stays under the banner. "Add a date" stays in the toolbar.</div></div>
 
   <div class="shot"><div class="phone sheetbg" data-util>
     <div class="screen">
