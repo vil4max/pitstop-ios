@@ -7,7 +7,8 @@ struct PitCaptureView: View {
     /// Pit's pending question, shown above the composer; it never replaces capture (ADR 0017).
     let question: PitQuestionViewModel
     let visible: VisibleFeature?
-    let onOpen: (PitDestination) -> Void
+    /// Nil over another sheet: opening a screen there would close that sheet and drop its input (REQ-PIT-026).
+    let onOpen: ((PitDestination) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -264,7 +265,7 @@ struct PitCaptureView: View {
             }
             .font(PitTypography.body)
             .fixedSize(horizontal: false, vertical: true)
-            if let link = link(for: destination) {
+            if let onOpen, let link = link(for: destination) {
                 Button {
                     dismiss()
                     onOpen(destination)

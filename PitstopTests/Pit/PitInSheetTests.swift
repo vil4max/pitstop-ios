@@ -77,6 +77,83 @@ struct PitInSheetTests {
         #expect(entry.host == sheet)
     }
 
+    @Test("REQ-PIT-026: a capture saved over Track several returns to it with its choices and intervals unchanged")
+    func captureOverASheetKeepsItsInput() async throws {
+        let store = FakeCarMemoryStore()
+        let service = TestViewModels.service(store, now: now)
+        await service.load()
+        let entry = try Self.entry(store)
+        let trackSeveral = service.makeTrackSeveral()
+        trackSeveral.toggle(.brakeFluid)
+        trackSeveral.toggle(.cabinFilter)
+        trackSeveral.continueToIntervals()
+        trackSeveral.setKilometers("30000", for: .brakeFluid)
+        trackSeveral.setMonths("24", for: .cabinFilter)
+        let sheet = PitCaptureEntry.Host.sheet(UUID())
+
+        #expect(entry.open(from: sheet))
+        entry.capture.text = "поменял масло на 85000"
+        await entry.capture.submit(from: .service)
+        await entry.capture.confirm()
+        #expect(entry.capture.phase == .saved(.service, preservedRaw: false))
+        entry.close(from: sheet)
+        // The root refreshes the surface under the sheets once capture closes.
+        await service.load()
+
+        #expect(entry.host == nil)
+        #expect(trackSeveral.step == .intervals)
+        #expect(trackSeveral.selected == [.brakeFluid, .cabinFilter])
+        #expect(trackSeveral.entry(for: .brakeFluid) == IntervalEntry(kilometers: "30000"))
+        #expect(trackSeveral.entry(for: .cabinFilter) == IntervalEntry(months: "24"))
+        #expect(await store.completions.count == 1)
+    }
+
+    @Test("REQ-PIT-026: closing capture over a sheet writes nothing unconfirmed and leaves a fresh composer")
+    func closingOverASheetCancels() async throws {
+        let store = FakeCarMemoryStore()
+        let entry = try Self.entry(store)
+        let sheet = PitCaptureEntry.Host.sheet(UUID())
+        entry.open(from: sheet)
+        entry.capture.text = "поменял масло на 85000"
+        await entry.capture.submit(from: .service)
+        guard case .confirming = entry.capture.phase else {
+            Issue.record("expected a confirmation, got \(entry.capture.phase)")
+            return
+        }
+
+        entry.close(from: sheet)
+
+        #expect(entry.capture.phase == .composing && entry.capture.text.isEmpty)
+        #expect(await store.executed.isEmpty)
+    }
+
+    @Test("REQ-PIT-026: over a sheet, the saved moment offers no screen to open, which would close that sheet")
+    func noDestinationOverASheet() throws {
+        let presenter = try Self.source("Pitstop/Features/Pit/PitInSheet.swift")
+        let capture = try #require(presenter.range(of: "PitCaptureView("))
+        #expect(presenter[capture.upperBound...].prefix(300).contains("onOpen: nil"))
+    }
+
+    @Test("REQ-PIT-026: an Open Pit request while capture is open over a sheet is met, not presented again")
+    func openRequestWhileCapturingOverASheet() throws {
+        let entry = try Self.entry()
+        let requests = CaptureSurfaceRequests()
+        let sheet = PitCaptureEntry.Host.sheet(UUID())
+        entry.open(from: sheet)
+
+        requests.request()
+        #expect(!entry.takeRequest(from: requests, isPresentationBlocked: false))
+        #expect(!requests.isPending)
+        #expect(entry.host == sheet)
+
+        // Blocked by an editor, the request still waits for it to close (ADR 0024).
+        entry.close(from: sheet)
+        requests.request()
+        #expect(!entry.takeRequest(from: requests, isPresentationBlocked: true))
+        #expect(requests.isPending)
+        #expect(entry.takeRequest(from: requests, isPresentationBlocked: false))
+    }
+
     private static func source(_ relativePath: String) throws -> String {
         try String(contentsOf: repositoryRoot.appending(path: relativePath), encoding: .utf8)
     }

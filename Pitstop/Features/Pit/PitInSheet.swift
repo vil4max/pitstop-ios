@@ -72,11 +72,13 @@ private struct PitStaysInSheet: ViewModifier {
                 }
             )) {
                 if let context {
+                    // The saved moment still names where the capture went, in words (REQ-CAPTURE-010).
                     PitCaptureView(
                         viewModel: context.entry.capture,
                         question: context.entry.question,
-                        visible: context.visible
-                    ) { _ in }
+                        visible: context.visible,
+                        onOpen: nil
+                    )
                 }
             }
     }

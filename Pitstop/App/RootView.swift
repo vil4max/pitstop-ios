@@ -195,9 +195,9 @@ struct RootView: View {
             }
             // "Open Pit" from Siri, Shortcuts, or Spotlight opens capture over the current surface, as a tap
             // on Pit would (REQ-PIT-013, REQ-CAPTURE-023). `initial` covers a request made during a cold launch;
-            // an open feature editor defers the request until it closes (ADR 0024).
+            // an open feature editor defers the request until it closes (ADR 0024), and capture already open meets it.
             .onChange(of: openPitGate, initial: true) { _, gate in
-                if captureRequests.take(isPresentationBlocked: gate.isBlocked) {
+                if pitEntry.takeRequest(from: captureRequests, isPresentationBlocked: gate.isBlocked) {
                     sheet = .pit
                 }
             }
