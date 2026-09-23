@@ -133,45 +133,49 @@ struct PitCaptureView: View {
     }
 
     private func confirmation(_ pending: PendingCapture) -> some View {
-        VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
-            TileCard(minHeight: 0) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(verbatim: pending.rawText)
-                        .font(.body)
-                        .foregroundStyle(PitColor.contentSecondary)
-                    summary(pending.content)
-                        .font(.headline)
-                    ForEach(Array(pending.conflicts.enumerated()), id: \.offset) { _, conflict in
-                        conflictText(conflict)
-                            .font(.footnote)
-                            .foregroundStyle(PitColor.statusDue)
-                    }
-                    // Every fact that will be written is shown before it is confirmed.
+        VStack(alignment: .leading, spacing: Self.spacing) {
+            PitSheetCard {
+                // The user's own words come first, then what PitStop made of them (REQ-CAPTURE-016).
+                PitQuotedWords(text: pending.rawText)
+                summary(pending.content)
+                    .font(PitTypography.headline)
+                    .fixedSize(horizontal: false, vertical: true)
+                ForEach(Array(pending.conflicts.enumerated()), id: \.offset) { _, conflict in
+                    conflictText(conflict)
+                        .font(PitTypography.supportingSmall)
+                        .foregroundStyle(PitColor.statusDue)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                // Every fact that will be written is shown before it is confirmed.
+                VStack(alignment: .leading, spacing: 6) {
                     ForEach(Array(facts(pending.content).enumerated()), id: \.offset) { _, fact in
-                        fact.font(.subheadline)
-                    }
-                    if let cycleNote = pending.content.cycleNote {
-                        Text(cycleNote)
-                            .font(.footnote)
+                        fact
+                            .font(PitTypography.supporting)
+                            .monospacedDigit()
                             .foregroundStyle(PitColor.contentSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
+                }
+                if let cycleNote = pending.content.cycleNote {
+                    Text(cycleNote)
+                        .font(PitTypography.supportingSmall)
+                        .foregroundStyle(PitColor.contentSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             Button {
                 Task { await viewModel.confirm() }
             } label: {
-                Text("pit.confirm.save").frame(maxWidth: .infinity)
+                PitActionLabel(title: "pit.confirm.save", prominent: true)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .pitPrimaryAction()
             .accessibilityIdentifier("pit.confirm")
             Button {
                 Task { await viewModel.keepWordsOnly() }
             } label: {
-                Text("pit.confirm.asNote").frame(maxWidth: .infinity)
+                PitActionLabel(title: "pit.confirm.asNote")
             }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
+            .pitSecondaryAction()
         }
     }
 
@@ -215,32 +219,35 @@ struct PitCaptureView: View {
     }
 
     private func saved(_ destination: PitDestination, preservedRaw: Bool) -> some View {
-        VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
-            // The header says "Saved."; saving the words as written is still told (REQ-CAPTURE-008).
-            if preservedRaw {
-                Text("pit.saved.note")
-                    .font(.headline)
-                    .foregroundStyle(PitColor.statusUpToDate)
+        VStack(alignment: .leading, spacing: Self.spacing) {
+            VStack(alignment: .leading, spacing: 4) {
+                // The header says "Saved."; saving the words as written is still told (REQ-CAPTURE-008).
+                if preservedRaw {
+                    Text("pit.saved.note")
+                        .foregroundStyle(PitColor.contentPrimary)
+                }
+                // Where it went, in words, even when there is no screen to open (REQ-CAPTURE-010).
+                Text(destinationName(destination))
+                    .foregroundStyle(PitColor.contentSecondary)
             }
-            // Where it went, in words, even when there is no screen to open (REQ-CAPTURE-010).
-            Text(destinationName(destination))
-                .font(.subheadline)
-                .foregroundStyle(PitColor.contentSecondary)
+            .font(PitTypography.body)
+            .fixedSize(horizontal: false, vertical: true)
             if let link = link(for: destination) {
                 Button {
                     dismiss()
                     onOpen(destination)
                 } label: {
-                    Text(link).frame(maxWidth: .infinity)
+                    PitActionLabel(title: link)
                 }
-                .buttonStyle(.bordered)
+                .pitSecondaryAction()
             }
+            // The one way to continue: a fresh composer in the same sheet, with nothing of this capture left.
             Button {
                 viewModel.reset()
             } label: {
-                Text("pit.saved.another").frame(maxWidth: .infinity)
+                PitActionLabel(title: "pit.saved.another", prominent: true)
             }
-            .buttonStyle(.borderedProminent)
+            .pitPrimaryAction()
         }
     }
 
