@@ -9,7 +9,7 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000…RD-004 landed on `redesign/ios27`; RD-005 is next.
+Current outcome: RD-000…RD-005 landed on `redesign/ios27`; RD-006 is next.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -30,7 +30,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: RD-005 Writer steps (drafted when the card starts).
+Next step: RD-006 Writer steps (drafted when the card starts).
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -61,7 +61,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | done | `0871525`…`087a3bd`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
 | RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | done | `ec7e63e`…`0386c0c`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
 | RD-004 Track several | ADR 0033 tests | RD-003 | done | `a7452ad`…`a1ae952`; `just verify` per step (writer); review: 1 medium + 4 low, then 2 medium + 2 low, then 0 high/medium + 3 low, all repaired |
-| RD-005 History | HistoryTests | RD-000 | in progress | — |
+| RD-005 History | HistoryTests | RD-000 | done | `41f3697`…`b682104`; `just verify` per step; review: 0 high/medium, 2 low, both repaired |
 | RD-006 Notes | NotesTests | RD-000 | planned | — |
 | RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | planned | — |
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | planned | — |
@@ -135,6 +135,19 @@ added here when the slice starts.
   without overlap, and tapping "7 500 km" fills the field and selects only
   that chip. Not seen on screen: the disabled Confirm, the failed-save
   Result, VoiceOver, ru/uk.
+- 2026-09-23, RD-005 (slice-writer, finished by the integrator):
+  `HistoryMonthTests` (month boundaries, time zone, same-day order, year
+  change; a mutant ignoring the time zone failed 5 of 8); screenshots in
+  `rd-005/`. Review: no high or medium; 2 low (the rail dot reused the
+  "due" glyph; the chevron vanished at accessibility sizes). The writer
+  stalled for about 35 minutes mid-repair, most likely on an unanswered
+  simulator-access prompt; the integrator stopped it, finished the repair
+  in its worktree, ran `just verify` there, integrated, and checked History
+  on the simulator at the default size and AX5 (plain rail dot, chevron under
+  the text). Unexplained: a `just run-sim` started from the writer worktree
+  showed the pre-RD-005 History, although earlier writers saw their own
+  builds that way; the check was redone after integration. Not seen on
+  screen: the event editor, VoiceOver, ru/uk.
 
 ## Untested scope
 
@@ -204,8 +217,9 @@ dispatch commit; same output and integration as RD-001):
 RD-005 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001):
 
-- [ ] History: month groups with a rail, distinct completions with a "corrected on Service" line: HistoryTests and a month-grouping test
-- [ ] History docs: mockup deviations, system-overview row, work-plan row: diff review
+- [x] History: month groups with a rail, distinct completions with a "corrected on Service" line: HistoryTests and a month-grouping test — 41f3697
+- [x] History docs: mockup deviations, system-overview row, work-plan row: diff review — ae7f3a1
+- [x] Review repair (finished by the integrator): plain rail dot, chevron kept at accessibility sizes: `just verify`, simulator — b682104
 
 ## Resume prompt
 
