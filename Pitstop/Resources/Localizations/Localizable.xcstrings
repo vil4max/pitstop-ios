@@ -6605,6 +6605,28 @@
         }
       }
     },
+    "service.trackMenu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Track"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отслеживать"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відстежувати"
+          }
+        }
+      }
+    },
     "service.trackSeveral" : {
       "localizations" : {
         "en" : {

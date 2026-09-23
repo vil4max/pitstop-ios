@@ -61,15 +61,28 @@ struct ServiceView: View {
 
     @ToolbarContentBuilder
     private var toolbarItems: some ToolbarContent {
+        // One menu, not a glass group: "Track several" waits for the first load, and a half-disabled group reads
+        // badly (redesign proposal §4, decision 4). Each item keeps its delivered rule.
         ToolbarItem(placement: .primaryAction) {
-            Button("service.trackSeveral", systemImage: "checklist") { sheet = .trackSeveral }
-                .disabled(!viewModel.state.canTrackSeveral)
-                .accessibilityIdentifier("service.trackSeveral")
-        }
-        ToolbarItem(placement: .primaryAction) {
-            Button("service.track", systemImage: "plus") { sheet = .track }
-                .disabled(viewModel.state.untrackedOperations.isEmpty)
-                .accessibilityIdentifier("service.track")
+            Menu {
+                Button("service.track", systemImage: "plus") { sheet = .track }
+                    .disabled(!viewModel.state.canTrackOne)
+                    .accessibilityIdentifier("service.track")
+                Button("service.trackSeveral", systemImage: "checklist") { sheet = .trackSeveral }
+                    .disabled(!viewModel.state.canTrackSeveral)
+                    .accessibilityIdentifier("service.trackSeveral")
+            } label: {
+                // The word stays beside the glyph: "+" alone would not say what is added (mockup #service). A
+                // toolbar draws a `Label` icon-only whatever its style, so the label is built from its parts.
+                HStack(spacing: 6) {
+                    Image(systemName: "plus")
+                        .accessibilityHidden(true)
+                    Text("service.trackMenu")
+                }
+            }
+            .tint(PitColor.accentPrimary)
+            .disabled(!viewModel.state.isTrackMenuEnabled)
+            .accessibilityIdentifier("service.trackMenu")
         }
     }
 
@@ -273,6 +286,8 @@ private struct OperationRow: View {
                 HStack {
                     Button("service.markDone", systemImage: "checkmark", action: onMarkDone)
                         .buttonStyle(.bordered)
+                        .buttonBorderShape(.capsule)
+                        .tint(PitColor.accentPrimary)
                         .accessibilityIdentifier("service.markDone.\(operation.id.rawValue)")
                     Spacer()
                     // Stored facts stay correctable: the interval, a confirmation made by mistake, and the tracking

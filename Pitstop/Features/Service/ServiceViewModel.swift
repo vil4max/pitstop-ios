@@ -38,6 +38,17 @@ struct ServiceViewState: Equatable {
     var canTrackSeveral: Bool {
         hasLoaded && !isLoadFailed && !untrackedOperations.isEmpty
     }
+
+    /// "Track an operation" needs something left to track (the delivered rule).
+    var canTrackOne: Bool {
+        !untrackedOperations.isEmpty
+    }
+
+    /// The one "Track" toolbar menu (redesign proposal §4, decision 4) stays available while either item is, so
+    /// "Track several" waiting for the first load reads as a disabled item rather than a missing control.
+    var isTrackMenuEnabled: Bool {
+        canTrackOne || canTrackSeveral
+    }
 }
 
 /// What the confirmation must say: with another rule left, the operation stays on Service under that rule.
