@@ -6,6 +6,8 @@ struct MarkDoneView: View {
     var isAlreadyRecorded = false
     /// Grows each time the sheet says so; every change is announced.
     var alreadyRecordedNotices = 0
+    /// The date or the odometer changed, so the message no longer speaks of what is entered.
+    var onEdit: () -> Void = {}
     /// The date, the odometer text, and whether the owner chose "Save anyway".
     let onConfirm: (Date, String, Bool) async -> Bool
 
@@ -49,6 +51,8 @@ struct MarkDoneView: View {
             .pitDisabledWhileSaving(isSaving)
             // VoiceOver focus stays on the confirmation and the message appears below it, so it is also spoken; "Save
             // anyway" is the next element after it (REQ-MAINT-040).
+            .onChange(of: date) { onEdit() }
+            .onChange(of: odometer) { onEdit() }
             .onChange(of: alreadyRecordedNotices) {
                 AccessibilityNotification.Announcement(String(localized: "service.done.alreadyRecorded")).post()
             }

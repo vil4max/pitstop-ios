@@ -180,8 +180,14 @@ final class ServiceViewModel {
         state.isMarkDoneAlreadyRecorded = false
     }
 
+    /// The owner changed the date or the odometer: the "already saved" message spoke of the previous entry.
+    func markDoneInputChanged() {
+        state.isMarkDoneAlreadyRecorded = false
+    }
+
     /// Called only after the user confirmed the work was actually performed (core C5). `anyway` is the owner's
-    /// "Save anyway" after the sheet said Pit already recorded this work for the date.
+    /// "Save anyway" after the sheet said Pit already recorded this work for the date; the entry is still
+    /// rechecked, because it may have been edited to match what Pit stored.
     func confirmDone(
         _ operation: MaintenanceOperationID,
         on date: Date,
@@ -196,29 +202,30 @@ final class ServiceViewModel {
         let odometerKm = odometer.intValue
         // Pit can record this work while the sheet is open (REQ-PIT-026), so what is stored is checked again now. Only
         // a completion recorded since the sheet opened counts: the owner's own earlier ones, even from the same day,
-        // do not (REQ-MAINT-031). What the owner typed is never dropped without a word.
-        if !anyway {
-            let recorded: [MaintenanceCompletion]
-            do {
-                recorded = try await recordedSinceOpening(operation)
-            } catch {
-                return fail(.notSaved)
-            }
-            switch MarkDoneRecheck(recorded: recorded, date: date, odometerKm: odometerKm) {
-            case .write:
-                break
-            case .alreadyRecorded:
-                // The same work on the same date, and nothing typed here that it lacks.
-                markDoneOpening = nil
-                await load()
-                state.failure = nil
-                return true
-            case .askOwner:
-                state.failure = nil
-                state.isMarkDoneAlreadyRecorded = true
-                state.markDoneAlreadyRecordedNotices += 1
-                return false
-            }
+        // do not (REQ-MAINT-031). What the owner typed is never dropped without a word (REQ-MAINT-040, proposed).
+        let recorded: [MaintenanceCompletion]
+        do {
+            recorded = try await recordedSinceOpening(operation)
+        } catch {
+            return fail(.notSaved)
+        }
+        switch MarkDoneRecheck(recorded: recorded, date: date, odometerKm: odometerKm) {
+        case .write:
+            break
+        case .alreadyRecorded:
+            // The same work on the same date, and nothing typed here that it lacks.
+            markDoneOpening = nil
+            await load()
+            state.failure = nil
+            state.isMarkDoneAlreadyRecorded = false
+            return true
+        case .askOwner where anyway:
+            break
+        case .askOwner:
+            state.failure = nil
+            state.isMarkDoneAlreadyRecorded = true
+            state.markDoneAlreadyRecordedNotices += 1
+            return false
         }
         let saved = await execute { vehicleID in
             .confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(

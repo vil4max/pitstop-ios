@@ -113,6 +113,37 @@ struct MarkDoneAfterCaptureTests {
             .contains("alreadyRecordedNotices: viewModel.state.markDoneAlreadyRecordedNotices"))
     }
 
+    @Test("REQ-MAINT-040: after the message, an entry edited to match Pit's is not recorded twice, even on Save anyway")
+    func editedEntryIsRechecked() async throws {
+        for edited in ["85000", ""] {
+            let store = FakeCarMemoryStore()
+            let service = await openedService(store)
+            await service.beginMarkDone(.engineOilService)
+            try await captureOilChange(store)
+            #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+            #expect(service.state.isMarkDoneAlreadyRecorded)
+
+            // The owner corrects the field: the message spoke of 86000, so it goes.
+            service.markDoneInputChanged()
+            #expect(!service.state.isMarkDoneAlreadyRecorded)
+            #expect(await service.confirmDone(.engineOilService, on: now, odometerText: edited, anyway: true))
+
+            #expect(await store.completions.count == 1, "\(edited.isEmpty ? "cleared" : edited) matches Pit's record")
+            #expect(!service.state.isMarkDoneAlreadyRecorded)
+        }
+    }
+
+    @Test("REQ-MAINT-040: the sheet reports every edit of the date or the odometer, so a stale message goes")
+    func editsClearTheMessage() throws {
+        let code = try PitInSheetTests.source("Pitstop/Features/Service/MarkDoneView.swift").split(separator: "\n")
+            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
+            .joined(separator: "\n")
+        #expect(code.contains(".onChange(of: date) { onEdit() }"))
+        #expect(code.contains(".onChange(of: odometer) { onEdit() }"))
+        #expect(try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift")
+            .contains("onEdit: viewModel.markDoneInputChanged"))
+    }
+
     @Test("REQ-MAINT-040: an odometer typed where Pit recorded none for the same date is never dropped silently")
     func odometerPitLackedAsksTheOwner() async throws {
         let store = FakeCarMemoryStore()

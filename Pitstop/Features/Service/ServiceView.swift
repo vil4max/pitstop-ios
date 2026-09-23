@@ -106,7 +106,8 @@ struct ServiceView: View {
             MarkDoneView(
                 operation: operation,
                 isAlreadyRecorded: viewModel.state.isMarkDoneAlreadyRecorded,
-                alreadyRecordedNotices: viewModel.state.markDoneAlreadyRecordedNotices
+                alreadyRecordedNotices: viewModel.state.markDoneAlreadyRecordedNotices,
+                onEdit: viewModel.markDoneInputChanged
             ) { date, odometer, anyway in
                 await viewModel.confirmDone(operation, on: date, odometerText: odometer, anyway: anyway)
             }
