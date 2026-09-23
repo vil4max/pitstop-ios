@@ -16,7 +16,8 @@ struct PitCaptureView: View {
     @FocusState private var isFocused: Bool
     @State private var answerText = ""
     @State private var isScrolling = false
-    /// The detent the user dragged to; until then the text size decides where the sheet opens (REQ-PIT-025).
+    /// The sheet's detent: fixed from the text size when the sheet opens (REQ-PIT-025), then only the user's drag
+    /// changes it; a text-size change while the sheet is open does not move it.
     @State private var chosenDetent: PresentationDetent?
 
     var body: some View {
@@ -68,6 +69,11 @@ struct PitCaptureView: View {
             eyes.update(to: input.moment, reduceMotion: input.reduceMotion)
         }
         .onChange(of: sheetActivity, initial: true) { _, activity in eyes.setActivity(activity) }
+        .onAppear {
+            if chosenDetent == nil {
+                chosenDetent = PitCaptureDetents.initial(for: dynamicTypeSize)
+            }
+        }
         .onDisappear { eyes.stop() }
     }
 
@@ -332,6 +338,7 @@ struct PitCaptureView: View {
         }
     }
 
+    /// The fallback only serves the first frame, before `onAppear` fixes the detent; it gives the same value.
     private var detent: Binding<PresentationDetent> {
         Binding(
             get: { chosenDetent ?? PitCaptureDetents.initial(for: dynamicTypeSize) },
