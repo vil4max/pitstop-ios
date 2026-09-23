@@ -129,6 +129,63 @@ struct TrackSeveralTests {
         ])
     }
 
+    @Test(
+        "ADR-0033: a quick pick is selected only while its field holds exactly that number",
+        arguments: [
+            ("", nil), ("10000", 10000), ("10 000", 10000), (" 7500 ", 7500), ("9000", nil),
+            ("1000", nil), ("100000", nil), ("10000.5", nil), ("abc", nil), ("-5000", nil),
+        ] as [(String, Int?)]
+    )
+    func quickPickSelectedOnlyForItsValue(fieldText: String, selected: Int?) {
+        let highlighted = IntervalQuickPicks.kilometers.filter {
+            IntervalQuickPicks.isSelected($0, fieldText: fieldText)
+        }
+        #expect(highlighted == (selected.map { [$0] } ?? []))
+    }
+
+    @Test("ADR-0033: after a pick only that chip is selected, and editing the field moves the selection away")
+    func pickedChipFollowsTheField() {
+        let model = makeModel(FakeCarMemoryStore())
+        model.toggle(.engineOilService)
+        model.continueToIntervals()
+        func selectedKilometers() -> [Int] {
+            IntervalQuickPicks.kilometers.filter {
+                IntervalQuickPicks.isSelected($0, fieldText: model.entry(for: .engineOilService).kilometers)
+            }
+        }
+        #expect(selectedKilometers().isEmpty)
+
+        model.pickKilometers(7500, for: .engineOilService)
+        #expect(selectedKilometers() == [7500])
+
+        model.setKilometers("75000", for: .engineOilService)
+        #expect(selectedKilometers().isEmpty)
+
+        model.pickMonths(24, for: .engineOilService)
+        #expect(IntervalQuickPicks.months.filter {
+            IntervalQuickPicks.isSelected($0, fieldText: model.entry(for: .engineOilService).months)
+        } == [24])
+    }
+
+    @Test("ADR-0033: the step strip marks the step on screen, in the order of the four steps")
+    func stepStripFollowsTheFlow() async {
+        let store = FakeCarMemoryStore()
+        let model = makeModel(store)
+        #expect(model.step.stripIndex == 0)
+
+        model.toggle(.brakeFluid)
+        model.continueToIntervals()
+        #expect(model.step.stripIndex == 1)
+
+        model.setMonths("24", for: .brakeFluid)
+        #expect(model.continueToReview())
+        #expect(model.step.stripIndex == 2)
+
+        await model.apply()
+        #expect(model.step.stripIndex == 3)
+        #expect(TrackSeveralStep.stripOrder.map(\.stripIndex) == [0, 1, 2, 3])
+    }
+
     @Test("REQ-MAINT-027: nothing is saved before the confirmation, which lists every operation and interval")
     func nothingSavedBeforeConfirm() async {
         let store = FakeCarMemoryStore()

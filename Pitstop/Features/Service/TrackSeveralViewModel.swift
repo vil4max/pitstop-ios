@@ -21,6 +21,12 @@ enum DriveAnswer: CaseIterable, Hashable {
 enum IntervalQuickPicks {
     static let kilometers = [5000, 7500, 10000, 15000]
     static let months = [6, 12, 24]
+
+    /// A pick is shown selected only while its field holds exactly that number, so a chip never claims a value
+    /// the owner has typed away from (ADR 0033).
+    static func isSelected(_ value: Int, fieldText: String) -> Bool {
+        WholeNumberInput.parse(fieldText, upTo: Int.max).intValue == value
+    }
 }
 
 /// The starter's order: operations the answers point to first, the catalog order otherwise, and operations
@@ -49,6 +55,19 @@ enum TrackSeveralStep: Equatable {
     case intervals
     case review
     case results
+
+    /// The steps as the sheet's step strip names them.
+    static let stripOrder: [TrackSeveralStep] = [.choose, .intervals, .review, .results]
+
+    /// This step's position in the step strip.
+    var stripIndex: Int {
+        switch self {
+        case .choose: 0
+        case .intervals: 1
+        case .review: 2
+        case .results: 3
+        }
+    }
 }
 
 enum TrackSeveralItemResult: Equatable {
