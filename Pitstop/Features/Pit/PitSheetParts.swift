@@ -99,10 +99,12 @@ struct PitChoice {
 }
 
 /// A full-width action label. The prominent one uses `contentOnAccent`, which stays legible on the pale dark-mode
-/// accent; a disabled button keeps the style's own dimmed label on its grey fill.
+/// accent; a disabled button keeps the style's own dimmed label on its grey fill. A compact label is for a pair of
+/// small side-by-side actions, such as the question card's decline buttons.
 struct PitActionLabel: View {
     let title: LocalizedStringKey
     var prominent = false
+    var compact = false
 
     @Environment(\.isEnabled) private var isEnabled
 
@@ -114,8 +116,36 @@ struct PitActionLabel: View {
                 Text(title)
             }
         }
-        .font(PitTypography.headline)
+        .font(compact ? PitTypography.supporting.weight(.semibold) : PitTypography.headline)
         .frame(maxWidth: .infinity)
+    }
+}
+
+/// Children side by side at equal widths. Its ideal width is the widest child's ideal width times the count, so a
+/// `ViewThatFits` moves on to a stacked layout before any label would have to wrap inside its equal share.
+struct PitEqualWidthRow: Layout {
+    var spacing: CGFloat = 10
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
+        guard !subviews.isEmpty else { return .zero }
+        let gaps = spacing * CGFloat(subviews.count - 1)
+        let widest = subviews.map { $0.sizeThatFits(.unspecified).width }.max() ?? 0
+        let width = proposal.width ?? widest * CGFloat(subviews.count) + gaps
+        let share = ProposedViewSize(width: (width - gaps) / CGFloat(subviews.count), height: nil)
+        let height = subviews.map { $0.sizeThatFits(share).height }.max() ?? 0
+        return CGSize(width: width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
+        guard !subviews.isEmpty else { return }
+        let gaps = spacing * CGFloat(subviews.count - 1)
+        let share = (bounds.width - gaps) / CGFloat(subviews.count)
+        for (index, subview) in subviews.enumerated() {
+            subview.place(
+                at: CGPoint(x: bounds.minX + CGFloat(index) * (share + spacing), y: bounds.minY),
+                proposal: ProposedViewSize(width: share, height: bounds.height)
+            )
+        }
     }
 }
 
@@ -128,11 +158,11 @@ extension View {
             .tint(PitColor.accentPrimary)
     }
 
-    /// Any other action in the sheet: the same capsule on a quiet fill.
-    func pitSecondaryAction() -> some View {
+    /// Any other action in the sheet: the same capsule on a quiet fill; `.regular` for a compact pair.
+    func pitSecondaryAction(size: ControlSize = .large) -> some View {
         buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
-            .controlSize(.large)
+            .controlSize(size)
             .tint(PitColor.accentPrimary)
     }
 }
