@@ -9,7 +9,7 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000 landed on `redesign/ios27` (ADR 0038); RD-001 is next.
+Current outcome: RD-000 and RD-001 landed on `redesign/ios27`; RD-002 is next.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -30,7 +30,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: RD-001 Writer steps (drafted when the card starts).
+Next step: RD-002 Writer steps (drafted when the card starts).
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -57,7 +57,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 |---|---|---|---|---|
 | Round opening (docs) | REQ-BOARD-017 wording | — | done | `f50cb7e`, `6b3d589` |
 | RD-000 design system | REQ-DESIGN-001…004 | — | done | `3674b52`…`c901d10` and the docs commit; `just verify` passed; review: 2 medium + 3 low, then 1 medium + 5 low, all repaired |
-| RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | in progress | — |
+| RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | done | `8cdc992`…`286fcae`; `just verify` passed per step (writer); review: 0 high/medium, 4 low (2 repaired, `isCompact` dead code left to RD-002, bookkeeping fixed) |
 | RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | planned | — |
 | RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | planned | — |
 | RD-004 Track several | ADR 0033 tests | RD-003 | planned | — |
@@ -91,6 +91,18 @@ added here when the slice starts.
   repaired, and the loop stopped because round 2 found as many as round 1.
   A planted `Color.blue` made REQ-DESIGN-004 fail. The per-step commits
   were not verified one by one. No simulator run: RD-000 changes no screen.
+- 2026-09-23, RD-001 (slice-writer): `just verify` passed before each of its
+  six commits; simulator screenshots light, dark, AX5 and first launch in the
+  evidence folder (`rd-001/`); VoiceOver order set in code but not read on the
+  simulator (accessibility inspector timed out). Independent `/code-review`:
+  no high or medium; 4 low. Repaired: Road tile labels (kept hidden at AX
+  sizes after an AX5 check showed truncation; titles now wrap) and one shared
+  `DashedRoadLine`. Left: `RoadLaneView.isCompact` has no caller, removed in
+  RD-002. The repair diff was read by the integrator, not re-reviewed by a
+  subagent (round 1 had no high or medium findings).
+- 2026-09-23, owner via the orchestrator: no rush to release; the iPhone Duo
+  on-screen check blocks no card. The Duo device type exists here but neither
+  installed runtime (iOS 27.0, 27.2 `24B5084k`) supports it.
 
 ## Untested scope
 
@@ -115,13 +127,15 @@ RD-000:
 - [x] ADR 0038 and the design-system, overview, plan and status docs: diff review — b898e56
 
 RD-001 (writer: a `slice-writer` subagent of this session in its own
-worktree from `b898e56`; output: step commits on its branch plus a report
-of checks and screenshots; the integrator fast-forwards `redesign/ios27`
-after an independent `/code-review`):
+worktree from `2520d77`; output: step commits on its branch plus a report
+of checks and screenshots; the integrator cherry-picks onto `redesign/ios27`
+after an independent `/code-review`; SHAs below are the integrated ones):
 
-- [x] Stage hero: mileage with recency from the newest observation date, glass pencil for edit: REQ-BOARD-027 tests — c463064, repair 2470e6d
-- [x] Tile anatomy: title row chevron, primary and secondary lines, status chip where a state exists, Road tile state markers: REQ-BOARD-028 tests — 1bfaf14
-- [ ] Car Board docs: mockup deviations, system-overview row, work-plan row: diff review
+- [x] Stage hero: mileage with recency from the newest observation date, glass pencil for edit: REQ-BOARD-027 tests — 8cdc992, repair 7acb6d2
+- [x] Tile anatomy: title row chevron, primary and secondary lines, status chip where a state exists, Road tile state markers: REQ-BOARD-028 tests — 123eb03
+- [x] Car Board docs: mockup deviations, system-overview row, work-plan row: diff review — ae76645
+- [x] Review repair: Road tile labels wrap, AX hiding justified: `just verify` — 428639f
+- [x] Review repair: one shared dashed road line: `just verify` — 286fcae
 
 ## Current checklist
 
