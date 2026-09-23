@@ -42,7 +42,7 @@ struct NotesView: View {
             Button("common.ok") { viewModel.dismissFailure() }
         }
         .pitActivity(.modalTask, while: editor != nil || listFailureBinding.wrappedValue)
-        .sheet(item: $editor) { target in
+        .pitSheet(item: $editor) { target in
             NoteEditorView(target: target) { text in
                 switch target {
                 case .new: await viewModel.add(text: text)

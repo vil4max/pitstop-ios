@@ -10,6 +10,8 @@ struct RootView: View {
     let road: RoadViewModel
     let pitCapture: PitCaptureViewModel
     let pitQuestion: PitQuestionViewModel
+    /// Where capture is open: over the layer or over a sheet, never both (REQ-PIT-026).
+    let pitEntry: PitCaptureEntry
     let analyticsSharing: AnalyticsSharing
     let captureRequests: CaptureSurfaceRequests
     let serviceRequests: ServiceLinkRequests
@@ -34,6 +36,9 @@ struct RootView: View {
         #endif
         return nil
     }
+
+    /// Capture opened from Pit inside a sheet reports apart from the root's own utility sheet.
+    private static let captureOverSheet = PitActivitySource.unique()
 
     /// The user settles on a surface before Pit may knock; arriving is not idleness.
     private static let questionSettleDelay: Duration = .seconds(2)
@@ -84,6 +89,8 @@ struct RootView: View {
     /// One modifier chain, split into slices only for length; the slices apply in the original order.
     private var content: some View {
         systemEntry(pitCoordination(boardNavigation))
+            // Outside `systemEntry`, so Settings, presented there, keeps Pit as feature sheets do (REQ-UTILITY-012).
+            .environment(\.pitInSheet, PitInSheetContext(entry: pitEntry, presence: pit, visible: visibleFeature))
     }
 
     private var boardNavigation: some View {
@@ -122,14 +129,22 @@ struct RootView: View {
                     Task { await refreshVisibleSurface() }
                 }
             }
-            // However Pit was closed — Close or a swipe — a pending capture is cancelled, never left half-done.
-            // An unanswered question is not: Pit keeps knocking until it is answered, deferred, or dismissed.
+            // However Pit was closed — Close or a swipe — the entry cancels a pending capture (REQ-PIT-026).
             .onChange(of: sheet == .pit) { wasPit, isPit in
-                if wasPit, !isPit {
-                    pitCapture.cancel()
-                    pitQuestion.acknowledge()
-                    // Pit leaves the sheet: its eyes close for a moment in the utility layer (ADR 0028).
-                    Task { await pit.leave() }
+                if isPit {
+                    pitEntry.open(from: .utilityLayer)
+                } else if wasPit {
+                    pitEntry.close(from: .utilityLayer)
+                }
+            }
+            .onChange(of: pitEntry.host) { oldHost, newHost in
+                pit.report(pitEntry.isOverSheet ? .capturing : [], from: Self.captureOverSheet)
+                guard let oldHost, newHost == nil else { return }
+                // Pit leaves the sheet: its eyes close for a moment where he waits (ADR 0028).
+                Task { await pit.leave() }
+                // The root's own sheet refreshes when it closes; a capture over another sheet refreshes here.
+                if oldHost != .utilityLayer {
+                    Task { await refreshVisibleSurface() }
                 }
             }
             // Pit may interrupt only where the question belongs and only once the user has settled there
@@ -203,6 +218,7 @@ struct RootView: View {
                 switch sheet {
                 case .settings:
                     SettingsView(isStorageTemporary: carBoard.state.isStorageTemporary, analytics: analyticsSharing)
+                        .pitStaysInSheet()
                 case .pit:
                     PitCaptureView(
                         viewModel: pitCapture, question: pitQuestion, visible: visibleFeature

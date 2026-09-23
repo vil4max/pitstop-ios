@@ -51,7 +51,7 @@ struct ServiceView: View {
         }
         .stopTrackingConfirmation(viewModel)
         .deleteReportConfirmation(viewModel)
-        .sheet(item: $sheet) { sheet in
+        .pitSheet(item: $sheet) { sheet in
             sheetContent(sheet)
                 .alert(failureTitle, isPresented: failureBinding) {
                     Button("common.ok") { viewModel.dismissFailure() }

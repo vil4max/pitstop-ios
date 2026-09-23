@@ -11,6 +11,7 @@ final class AppCoordinator {
     private let road: RoadViewModel
     private let pitCapture: PitCaptureViewModel
     private let pitQuestion: PitQuestionViewModel
+    private let pitEntry: PitCaptureEntry
     private let analyticsSharing: AnalyticsSharing
     private let captureRequests: CaptureSurfaceRequests
     private let serviceRequests: ServiceLinkRequests
@@ -48,6 +49,7 @@ final class AppCoordinator {
             registry: environment.registry,
             analytics: odometerAnalytics
         )
+        pitEntry = PitCaptureEntry(capture: pitCapture, question: pitQuestion)
     }
 
     /// The one interpreted capture path, shared by Pit and `RememberInPitStopIntent` (core C4).
@@ -83,6 +85,7 @@ final class AppCoordinator {
             road: road,
             pitCapture: pitCapture,
             pitQuestion: pitQuestion,
+            pitEntry: pitEntry,
             analyticsSharing: analyticsSharing,
             captureRequests: captureRequests,
             serviceRequests: serviceRequests,

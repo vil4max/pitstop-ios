@@ -24,23 +24,43 @@ struct UtilityLayer: View {
 
                 Spacer()
 
-                Button(action: onPit) {
-                    // The glyph animates itself and drops animation with Reduce Motion.
-                    PitEyesGlyph(state: pitState)
-                        .frame(width: DesignTokens.utilityButtonSize, height: DesignTokens.utilityButtonSize)
-                        .contentShape(.circle)
-                }
-                .glassEffect(.regular.interactive(), in: .circle)
-                .accessibilityLabel(Text("utility.pit"))
-                // A knock is a request, not motion: it is stated once as a value, not announced (REQ-PIT-019).
-                .accessibilityValue(pitState == .knock ? Text("utility.pit.asking") : Text(verbatim: ""))
-                .accessibilityHint(Text("utility.pit.hint"))
-                .accessibilityIdentifier("utility.pit")
+                PitUtilityButton(state: pitState, action: onPit)
             }
         }
         .buttonStyle(.plain)
         .foregroundStyle(PitColor.contentPrimary)
-        .padding(.horizontal, DesignTokens.screenPadding)
-        .padding(.bottom, 6)
+        .utilityInsets()
+    }
+}
+
+/// Pit's control. The utility layer and every sheet other than the capture surface show this one control at the
+/// same bottom-trailing spot, so Pit looks and reads the same wherever he is (REQ-UTILITY-012).
+struct PitUtilityButton: View {
+    let state: PitState
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            // The glyph animates itself and drops animation with Reduce Motion.
+            PitEyesGlyph(state: state)
+                .frame(width: DesignTokens.utilityButtonSize, height: DesignTokens.utilityButtonSize)
+                .contentShape(.circle)
+        }
+        .glassEffect(.regular.interactive(), in: .circle)
+        .buttonStyle(.plain)
+        .foregroundStyle(PitColor.contentPrimary)
+        .accessibilityLabel(Text("utility.pit"))
+        // A knock is a request, not motion: it is stated once as a value, not announced (REQ-PIT-019).
+        .accessibilityValue(state == .knock ? Text("utility.pit.asking") : Text(verbatim: ""))
+        .accessibilityHint(Text("utility.pit.hint"))
+        .accessibilityIdentifier("utility.pit")
+    }
+}
+
+extension View {
+    /// The layer's insets from the screen edges; Pit inside a sheet keeps the same ones.
+    func utilityInsets() -> some View {
+        padding(.horizontal, DesignTokens.screenPadding)
+            .padding(.bottom, 6)
     }
 }

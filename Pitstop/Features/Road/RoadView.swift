@@ -35,7 +35,7 @@ struct RoadView: View {
         .alert("road.failure.notSaved", isPresented: listFailureBinding) {
             Button("common.ok") { viewModel.dismissFailure() }
         }
-        .sheet(item: $editor) { target in
+        .pitSheet(item: $editor) { target in
             PlannedEventEditorView(
                 draft: target.event.map(viewModel.draft(for:)) ?? viewModel.newDraft(),
                 isNew: target == .new,

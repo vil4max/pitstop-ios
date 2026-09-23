@@ -33,7 +33,7 @@ struct CarBoardView: View {
         .background(PitColor.surfacePrimary)
         .task { await viewModel.load() }
         .pitActivity(.modalTask, while: isEditingCar)
-        .sheet(isPresented: $isEditingCar) {
+        .pitSheet(isPresented: $isEditingCar) {
             CarEditorView(car: viewModel.state.car) { name, odometer in
                 await viewModel.saveCar(name: name, odometerText: odometer)
             }
