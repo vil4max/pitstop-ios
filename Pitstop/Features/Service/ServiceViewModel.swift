@@ -110,8 +110,6 @@ final class ServiceViewModel {
 
     private let store: any CarMemoryStore
     private let now: @Sendable () -> Date
-    /// Each operation's completions as of the last load.
-    private var completionIDs: [MaintenanceOperationID: Set<UUID>] = [:]
     /// The open Mark as done sheet and its operation's completions when it opened (the ADR 0035 pattern).
     private var markDoneOpening: MarkDoneOpening?
 
@@ -123,7 +121,6 @@ final class ServiceViewModel {
     func load() async {
         do {
             let completions = try await store.maintenanceCompletions()
-            completionIDs = Dictionary(grouping: completions, by: \.operationID).mapValues { Set($0.map(\.id)) }
             let reports = try await store.vehicleServiceReports()
             let readings = try await store.odometerReadings()
             let context = MaintenanceContext(
@@ -165,19 +162,19 @@ final class ServiceViewModel {
     /// The Mark as done sheet opens for `operation`. What is stored for it now is kept, so a completion recorded
     /// while the sheet is open, by Pit over it, can be told apart from the owner's own earlier ones. It is read from
     /// the store, not the last load: Siri can save while Service stays on screen without reloading. If the store
-    /// cannot be read, the last load is the best record there is.
+    /// cannot be read, the sheet opens with no snapshot and saves as it did before Pit could open over it: a stale
+    /// list would make work saved since the last load look like Pit's.
     func beginMarkDone(_ operation: MaintenanceOperationID) async {
-        let known: Set<UUID>
+        state.isMarkDoneAlreadyRecorded = false
         do {
             let vehicleID = try await store.currentVehicle().id
-            known = try await Set(store.maintenanceCompletions()
+            let known = try await Set(store.maintenanceCompletions()
                 .filter { $0.vehicleID == vehicleID && $0.operationID == operation }
                 .map(\.id))
+            markDoneOpening = MarkDoneOpening(operation: operation, completionIDs: known)
         } catch {
-            known = completionIDs[operation] ?? []
+            markDoneOpening = nil
         }
-        markDoneOpening = MarkDoneOpening(operation: operation, completionIDs: known)
-        state.isMarkDoneAlreadyRecorded = false
     }
 
     /// The owner changed the date or the odometer: the "already saved" message spoke of the previous entry.

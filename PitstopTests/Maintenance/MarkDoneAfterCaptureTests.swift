@@ -144,6 +144,23 @@ struct MarkDoneAfterCaptureTests {
             .contains("onEdit: viewModel.markDoneInputChanged"))
     }
 
+    @Test("REQ-MAINT-040: a sheet opened while the store cannot be read saves as before, with no recheck")
+    func unreadableAtOpeningSavesWithoutRecheck() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        // Siri saves while Service stays on screen, so Service's last load does not have it.
+        try await pitRecords(store, on: now, odometerKm: 84000)
+        await store.failEverything()
+        await service.beginMarkDone(.engineOilService)
+        await store.recover()
+
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: ""))
+
+        // Without a trustworthy snapshot nothing is taken for Pit's: the owner's completion is recorded.
+        #expect(await store.completions.count == 2)
+        #expect(!service.state.isMarkDoneAlreadyRecorded)
+    }
+
     @Test("REQ-MAINT-040: an odometer typed where Pit recorded none for the same date is never dropped silently")
     func odometerPitLackedAsksTheOwner() async throws {
         let store = FakeCarMemoryStore()
