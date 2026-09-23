@@ -45,12 +45,7 @@ struct CarHeroView: View {
             .frame(maxWidth: .infinity, maxHeight: DesignTokens.heroCarMaxHeight)
             .padding(.top, 4)
             .background(alignment: .bottom) {
-                HorizonLine()
-                    .stroke(
-                        PitColor.contentTertiary,
-                        style: StrokeStyle(lineWidth: 1.5, lineCap: .round, dash: [3, 6])
-                    )
-                    .frame(height: 1.5)
+                DashedRoadLine(lineWidth: 1.5)
                     // Behind the car and level with the bottom of its wheels, so they stand on it.
                     .padding(.bottom, 1)
             }
@@ -124,15 +119,6 @@ struct CarHeroView: View {
             .accessibilityHint("carBoard.hero.editHint")
             .accessibilityIdentifier("carBoard.hero.edit")
         }
-    }
-}
-
-private struct HorizonLine: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
-        return path
     }
 }
 

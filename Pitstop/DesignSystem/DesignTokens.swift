@@ -10,6 +10,9 @@ enum DesignTokens {
     static let halfTileMinHeight: CGFloat = 120
     static let utilityButtonSize: CGFloat = 56
     static let heroCarMaxHeight: CGFloat = 88
+    /// The road line under the car: the Road lane, the Car Board tile and the stage horizon (`DashedRoadLine`).
+    static let roadLineWidth: CGFloat = 2
+    static let roadDash: [CGFloat] = [2, 8]
 
     /// Stage tint: accent 10–22 % in light and 14–28 % in dark (redesign proposal §1).
     static let stageTint = TintOpacity(light: 0.10, dark: 0.14, highContrastLight: 0.16, highContrastDark: 0.22)

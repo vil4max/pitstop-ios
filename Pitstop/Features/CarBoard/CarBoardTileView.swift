@@ -174,10 +174,8 @@ private struct CarBoardRoadLane: View {
             }
         }
         .background(alignment: .top) {
-            RoadLine()
-                .stroke(PitColor.contentTertiary, style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [2, 8]))
-                .frame(height: 2)
-                .padding(.top, roadY - 1)
+            DashedRoadLine()
+                .padding(.top, roadY - DesignTokens.roadLineWidth / 2)
         }
         .accessibilityHidden(true)
     }
@@ -225,26 +223,14 @@ private struct CarBoardRoadLane: View {
     }
 }
 
-private struct RoadLine: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
-        return path
-    }
-}
-
 /// The car at the left of an open road with no milestones drawn: nothing is invented.
 private struct RoadSparseLine: View {
     var body: some View {
         GeometryReader { proxy in
             let roadY = proxy.size.height * 0.72
             ZStack(alignment: .topLeading) {
-                Path { path in
-                    path.move(to: CGPoint(x: 0, y: roadY))
-                    path.addLine(to: CGPoint(x: proxy.size.width, y: roadY))
-                }
-                .stroke(PitColor.contentTertiary, style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [2, 8]))
+                DashedRoadLine()
+                    .offset(y: roadY - DesignTokens.roadLineWidth / 2)
                 AbstractCarView()
                     .frame(width: 58)
                     .offset(y: roadY - 24)

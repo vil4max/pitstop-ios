@@ -33,13 +33,7 @@ struct RoadLaneView: View {
             Rectangle()
                 .fill(.clear)
                 .frame(height: 2)
-                .overlay {
-                    Line()
-                        .stroke(
-                            PitColor.contentTertiary,
-                            style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [2, 8])
-                        )
-                }
+                .overlay { DashedRoadLine() }
                 .padding(.top, isCompact ? 22 : 30)
                 .accessibilityHidden(true)
         }
@@ -55,15 +49,6 @@ private struct ScrollTargets: ViewModifier {
         } else {
             content
         }
-    }
-}
-
-private struct Line: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
-        return path
     }
 }
 
