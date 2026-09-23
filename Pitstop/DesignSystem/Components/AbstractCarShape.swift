@@ -22,6 +22,9 @@ struct AbstractCarShape: Shape {
 }
 
 struct AbstractCarView: View {
+    /// Width over height. The wheels sit at the bottom of the frame, so a lane can stand them on its road line.
+    static let aspectRatio: CGFloat = 2.6
+
     var body: some View {
         GeometryReader { proxy in
             let wheel = proxy.size.width * 0.17
@@ -41,7 +44,7 @@ struct AbstractCarView: View {
                 }
             }
         }
-        .aspectRatio(2.6, contentMode: .fit)
+        .aspectRatio(Self.aspectRatio, contentMode: .fit)
         // Decorative: the name next to it already identifies the car (REQ-BOARD-024).
         .accessibilityHidden(true)
     }

@@ -98,27 +98,28 @@ struct RoadView: View {
         }
     }
 
+    /// The stage tier (ADR 0038): the car and its road on the tint, with "Back to now" as a glass pill inside
+    /// it once the lane has left the car (REQ-ROAD-028).
     private func lane(_ projection: RoadProjection) -> some View {
-        TileCard(minHeight: 0) {
-            VStack(alignment: .leading, spacing: 8) {
+        StageSurface {
+            VStack(alignment: .trailing, spacing: 8) {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    RoadLaneView(slots: projection.slots, isScrollTarget: true)
+                    RoadLaneView(slots: projection.slots)
                         .padding(.vertical, 4)
                 }
                 .scrollPosition(id: $position, anchor: .leading)
+                // The lane scrolls to the stage's rounded edge instead of stopping at its padding.
+                .scrollClipDisabled()
                 .pitReportsScrolling()
                 // The drawing is decoration for VoiceOver; the summary and the list carry the meaning.
                 .accessibilityHidden(true)
 
-                if position != RoadLaneView.carID {
-                    Button("road.backToNow", systemImage: "arrow.uturn.left") {
-                        if reduceMotion {
+                if RoadBackToNow.isShown(scrollPosition: position) {
+                    GlassPill(title: Text("road.backToNow"), systemImage: "arrow.uturn.backward") {
+                        withAnimation(RoadBackToNow.animation(reduceMotion: reduceMotion)) {
                             position = RoadLaneView.carID
-                        } else {
-                            withAnimation(.snappy) { position = RoadLaneView.carID }
                         }
                     }
-                    .font(.footnote.weight(.semibold))
                     .accessibilityIdentifier("road.backToNow")
                 }
             }

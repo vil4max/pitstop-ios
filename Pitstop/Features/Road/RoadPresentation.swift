@@ -43,10 +43,45 @@ extension RoadMilestone {
     /// The glyph to draw. A milestone waiting for mileage is dashed whatever its state: the projector files
     /// it as `.upcoming`, and a ring would claim it is ahead.
     var glyph: StatusGlyph {
+        isWaitingForMileage ? .dashed : state.glyph
+    }
+
+    /// The colour of its glyph and state word. Waiting for mileage is secondary, as an unknown state is:
+    /// the ahead accent would claim a place on the road it does not have.
+    var color: Color {
+        isWaitingForMileage ? PitColor.contentSecondary : state.color
+    }
+
+    private var isWaitingForMileage: Bool {
         if case .blocked = distanceLabel {
-            return .dashed
+            return true
         }
-        return state.glyph
+        return false
+    }
+}
+
+/// What the lane draws for one slot: its lead milestone on one roadside sign, with the count of the others
+/// that share its place, so labels never overlap (REQ-ROAD-013).
+struct RoadSign: Equatable {
+    let milestone: RoadMilestone
+    let alsoHere: Int
+}
+
+extension RoadSlot {
+    var sign: RoadSign? {
+        lead.map { RoadSign(milestone: $0, alsoHere: milestones.count - 1) }
+    }
+}
+
+/// The lane's return to the car (INV-ROAD-004): shown only once the lane has left the car (REQ-ROAD-028),
+/// and without animation under Reduce Motion (REQ-ROAD-014).
+enum RoadBackToNow {
+    static func isShown(scrollPosition: String?) -> Bool {
+        scrollPosition != RoadLaneView.carID
+    }
+
+    static func animation(reduceMotion: Bool) -> Animation? {
+        reduceMotion ? nil : .snappy
     }
 }
 
