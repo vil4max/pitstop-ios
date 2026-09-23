@@ -4,7 +4,8 @@ extension MaintenanceStatus {
     /// Status is always said in words (`statusLabel`); colour only supports it (non-colour status meaning).
     var color: Color {
         switch self {
-        case .unknown: PitColor.contentTertiary
+        // Secondary, not tertiary: the "Not enough facts" chip is text and must stay readable (mockup `.chip.unk`).
+        case .unknown: PitColor.contentSecondary
         case .upToDate: PitColor.statusUpToDate
         case .approaching: PitColor.statusApproaching
         // Due is attention, not danger.
@@ -54,6 +55,30 @@ extension MaintenanceOperationState {
             case let (nil, blocked?): return blocked
             case (nil, nil): return ProgressText.blocked(.mileageUnknown)
             }
+        }
+    }
+}
+
+extension MaintenanceOperationState {
+    /// The used share the row's remaining-share track draws, or nil when it draws none (ADR 0038; redesign
+    /// proposal §4 decision 2 and §6). Stale facts must not produce a confident-looking share, so the track needs
+    /// a last completion, a mileage observation newer than 90 days and a known status. It shows the dimension
+    /// that decided the status, and only when the policy sets an interval in that dimension: a reading the owner
+    /// set no interval for is measured against the car's own countdown, which is not the owner's interval. Past
+    /// 100 % the bar is full; the status word says overdue.
+    func drawnUsedShare(mileage: MileageKnowledge) -> Double? {
+        guard mileage == .known, lastCompletion != nil, status != .unknown,
+              let remainingFraction, let decidedBy, policy?.interval(in: decidedBy) != nil
+        else { return nil }
+        return RemainingShareTrack.clamped(1 - remainingFraction)
+    }
+}
+
+private extension MaintenancePolicy {
+    func interval(in dimension: MaintenanceDimension) -> Int? {
+        switch dimension {
+        case .distance: distanceIntervalKm
+        case .time: timeIntervalMonths
         }
     }
 }

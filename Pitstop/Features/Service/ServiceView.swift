@@ -14,7 +14,11 @@ struct ServiceView: View {
                     LoadFailureBanner(message: "service.load.failed") { await viewModel.load() }
                 }
                 if viewModel.state.operations.isEmpty {
-                    emptyState
+                    // Before the first load the list is empty only because nothing was read; "Nothing tracked"
+                    // would claim a fact the screen does not have (core C2).
+                    if viewModel.state.hasLoaded {
+                        emptyState
+                    }
                 } else {
                     if !viewModel.state.scope.isEmpty {
                         nextVisit
@@ -135,40 +139,24 @@ struct ServiceView: View {
 
     /// A suggestion only: nothing here is a plan or a record until the user marks work as done.
     private var nextVisit: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
-            sectionTitle("service.nextVisit")
-            TileCard(minHeight: 0) {
-                VStack(alignment: .leading, spacing: 10) {
-                    ForEach(viewModel.state.scope.due) { scopeLine($0, note: nil) }
-                    ForEach(viewModel.state.scope.dueNearby) { scopeLine($0, note: "service.nextVisit.nearby") }
-                    Text("service.nextVisit.footer")
-                        .font(.footnote)
-                        .foregroundStyle(PitColor.contentSecondary)
-                }
+        let scope = viewModel.state.scope
+        let lines = scope.due.map { NextVisitLine(operation: $0, note: nil) }
+            + scope.dueNearby.map { NextVisitLine(operation: $0, note: "service.nextVisit.nearby") }
+        return GroupedSection(title: "service.nextVisit", footer: "service.nextVisit.footer") {
+            ForEach(Array(lines.enumerated()), id: \.element.operation.id) { index, line in
+                NextVisitRow(line: line, showsSeparator: index > 0)
             }
         }
-    }
-
-    private func scopeLine(_ operation: MaintenanceOperationState, note: LocalizedStringKey?) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Image(systemName: operation.status.systemImage)
-                .foregroundStyle(operation.status.color)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                operation.id.titleText.font(.body.weight(.medium))
-                (note.map { Text($0) } ?? operation.progressText)
-                    .font(.footnote)
-                    .foregroundStyle(PitColor.contentSecondary)
-            }
-        }
-        .accessibilityElement(children: .combine)
     }
 
     private var tracked: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
-            sectionTitle("service.tracked")
-            ForEach(viewModel.state.operations) { operation in
-                OperationRow(operation: operation) {
+        GroupedSection(title: "service.tracked") {
+            ForEach(Array(viewModel.state.operations.enumerated()), id: \.element.id) { index, operation in
+                OperationRow(
+                    operation: operation,
+                    usedShare: operation.drawnUsedShare(mileage: viewModel.state.mileage),
+                    showsSeparator: index > 0
+                ) {
                     sheet = .done(operation.id)
                 } onChangeInterval: {
                     sheet = .interval(operation.id)
@@ -183,13 +171,6 @@ struct ServiceView: View {
                 }
             }
         }
-    }
-
-    private func sectionTitle(_ key: LocalizedStringKey) -> some View {
-        Text(key)
-            .font(.title3.weight(.semibold))
-            .foregroundStyle(PitColor.contentPrimary)
-            .accessibilityAddTraits(.isHeader)
     }
 
     private var listFailureBinding: Binding<Bool> {
@@ -251,82 +232,6 @@ enum ServiceSheet: Identifiable, Equatable {
         case let .interval(operation): "interval-\(operation.rawValue)"
         case let .done(operation): "done-\(operation.rawValue)"
         case let .report(operation): "report-\(operation.rawValue)"
-        }
-    }
-}
-
-private struct OperationRow: View {
-    let operation: MaintenanceOperationState
-    let onMarkDone: () -> Void
-    let onChangeInterval: () -> Void
-    let onUndo: () -> Void
-    let onStopTracking: () -> Void
-    let onEnterReport: () -> Void
-    let onDeleteReport: () -> Void
-
-    var body: some View {
-        TileCard(minHeight: 0) {
-            VStack(alignment: .leading, spacing: 8) {
-                operation.id.titleText
-                    .font(.headline)
-                    .foregroundStyle(PitColor.contentPrimary)
-                Label(operation.statusLabel, systemImage: operation.status.systemImage)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(operation.status.color)
-                operation.progressText
-                    .font(.footnote)
-                    .foregroundStyle(PitColor.contentSecondary)
-                // Secondary to the status: what the car said and when, never a second status (ADR 0035).
-                if let reportText = operation.reportText(now: .now) {
-                    reportText
-                        .font(.footnote)
-                        .foregroundStyle(PitColor.contentSecondary)
-                        .accessibilityIdentifier("service.report.\(operation.id.rawValue)")
-                }
-                HStack {
-                    Button("service.markDone", systemImage: "checkmark", action: onMarkDone)
-                        .buttonStyle(.bordered)
-                        .buttonBorderShape(.capsule)
-                        .tint(PitColor.accentPrimary)
-                        .accessibilityIdentifier("service.markDone.\(operation.id.rawValue)")
-                    Spacer()
-                    // Stored facts stay correctable: the interval, a confirmation made by mistake, and the tracking
-                    // itself.
-                    Menu("service.more", systemImage: "ellipsis.circle") {
-                        Button("service.changeInterval", systemImage: "slider.horizontal.3", action: onChangeInterval)
-                        if operation.lastCompletion != nil {
-                            Button(
-                                "service.undoDone",
-                                systemImage: "arrow.uturn.backward",
-                                role: .destructive,
-                                action: onUndo
-                            )
-                        }
-                        Button(
-                            "service.report.enter",
-                            systemImage: "gauge.with.dots.needle.33percent",
-                            action: onEnterReport
-                        )
-                        .accessibilityIdentifier("service.report.enter.\(operation.id.rawValue)")
-                        if operation.report != nil {
-                            Button("service.report.delete", systemImage: "gauge.badge.minus", role: .destructive,
-                                   action: onDeleteReport)
-                                .accessibilityIdentifier("service.report.delete.\(operation.id.rawValue)")
-                        }
-                        if operation.policy?.source == .userCustom {
-                            Button(
-                                "service.stopTracking",
-                                systemImage: "eye.slash",
-                                role: .destructive,
-                                action: onStopTracking
-                            )
-                            .accessibilityIdentifier("service.stopTracking.\(operation.id.rawValue)")
-                        }
-                    }
-                    .labelStyle(.iconOnly)
-                }
-                .font(.subheadline)
-            }
         }
     }
 }

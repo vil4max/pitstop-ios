@@ -16,7 +16,8 @@ struct RemainingShareTrack: View {
             .accessibilityHidden(true)
     }
 
-    static func clamped(_ share: Double) -> Double {
+    /// Pure arithmetic, so callers off the main actor (Service's draw rule, tests) can use it.
+    nonisolated static func clamped(_ share: Double) -> Double {
         guard share.isFinite else { return 0 }
         return min(max(share, 0), 1)
     }
