@@ -148,9 +148,13 @@ A blue car must not make `.statusDue` blue.
 -   `#Preview` per component through `PreviewMatrix`: light, dark, default
     and accessibility-extra-large text;
 -   `PitstopTests/DesignSystem/DesignRulesTests.swift` fails `just verify`
-    on colour literals under `Features/` and on glass outside
-    `DesignSystem/` (REQ-DESIGN-002, REQ-DESIGN-004); a test, because
-    `Tooling/` belongs to the shared Runtime (ADR 0038);
+    on glass outside `Pitstop/DesignSystem/` and on colour literals in
+    `Pitstop/Features/`, in `Shared/` outside `Shared/DesignSystem/` (the
+    one shared folder that defines roles, compiled into the app and the
+    widget extension), and in `PitstopWidgets/`, where the next-service
+    widget (`NextServiceWidget.swift`) is exempt by name until it is
+    redesigned (REQ-DESIGN-002, REQ-DESIGN-004); a test, because `Tooling/`
+    belongs to the shared Runtime (ADR 0038);
 -   colour-role tests for the stage tint and `contentOnAccent` contrast;
 -   accessibility labels where component owns semantics;
 -   snapshot testing only if a mature snapshot dependency is selected
@@ -175,3 +179,10 @@ Source: [Color API](#color-api)
 Given feature code
 When `just verify` runs
 Then it fails if a feature file contains a colour literal instead of a `PitColor` role
+
+Proposed amendment (pending owner approval): Given feature code, code in
+`Shared/` outside `Shared/DesignSystem/`, or widget code in
+`PitstopWidgets/` (the next-service widget exempt by name until it is
+redesigned), when `just verify` runs, then it fails if such a file
+contains a colour literal instead of a `PitColor` role. The tests already
+enforce this wider scope since RD-009.
