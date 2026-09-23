@@ -91,6 +91,10 @@ private struct PitStaysInSheet: ViewModifier {
                     PitInSheetControl(context: context, host: host, saving: saving)
                 }
             }
+            // Capture over this sheet does not make it disappear; its teardown does. SwiftUI need not call the
+            // capture binding's setter when the sheet under it goes away, and an entry left open would keep every
+            // Pit from opening capture, so the sheet closes its own capture as it leaves.
+            .onDisappear { context?.entry.close(from: host) }
             .sheet(isPresented: Binding(
                 get: { isCapturing },
                 set: { isPresented in
