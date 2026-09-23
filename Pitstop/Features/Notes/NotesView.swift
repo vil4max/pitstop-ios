@@ -215,16 +215,23 @@ private struct NoteRow: View {
         let layout = dynamicTypeSize.isAccessibilitySize
             ? AnyLayout(VStackLayout(alignment: .trailing, spacing: 4))
             : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
+        let isAccessibilitySize = dynamicTypeSize.isAccessibilitySize
         layout {
             Button(action: onOpen) {
+                // The row's padding is inside the button, so a tap anywhere on the row but the glyph opens the note.
                 details
+                    .padding(.top, 12)
+                    .padding(.bottom, isAccessibilitySize ? 0 : 12)
+                    .padding(.leading, DesignTokens.groupedRowPadding)
+                    .padding(.trailing, isAccessibilitySize ? DesignTokens.groupedRowPadding : 0)
             }
             .buttonStyle(.plain)
             .accessibilityAction(named: Text(toggle.title), onToggleArchive)
             archiveButton
+                .padding(.top, isAccessibilitySize ? 0 : 2)
+                .padding(.bottom, isAccessibilitySize ? 4 : 0)
+                .padding(.trailing, DesignTokens.groupedRowPadding - 12)
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, DesignTokens.groupedRowPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(.rect)
         .swipeActions(edge: .trailing) {
@@ -255,17 +262,17 @@ private struct NoteRow: View {
     }
 
     private var archiveButton: some View {
-        Button(toggle.title, systemImage: toggle.systemImage, action: onToggleArchive)
-            .labelStyle(.iconOnly)
-            .font(PitTypography.body)
-            .foregroundStyle(PitColor.accentPrimary)
-            .frame(minWidth: 44, minHeight: 44)
-            .contentShape(.rect)
-            .buttonStyle(.plain)
-            // Beside the text the target overhangs into the row padding, so the glyph lines up with the first line.
-            .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 0 : -10)
-            // VoiceOver reaches this through the row's named action instead.
-            .accessibilityHidden(true)
+        Button(action: onToggleArchive) {
+            // The 44 pt frame is inside the label, so the whole box is the tap target, not only the drawn glyph.
+            Image(systemName: toggle.systemImage)
+                .font(PitTypography.body)
+                .foregroundStyle(PitColor.accentPrimary)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        // VoiceOver reaches this through the row's named action instead.
+        .accessibilityHidden(true)
     }
 }
 
