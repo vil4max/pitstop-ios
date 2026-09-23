@@ -4825,6 +4825,28 @@
         }
       }
     },
+    "road.tile.horizon" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Showing the next six months or 5,000 km."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показаны ближайшие полгода или 5 000 км."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показано найближчі пів року або 5 000 км."
+          }
+        }
+      }
+    },
     "road.tile.nothingSoon" : {
       "localizations" : {
         "en" : {
