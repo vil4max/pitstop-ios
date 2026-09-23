@@ -16,18 +16,16 @@ struct NotesView: View {
                 if viewModel.state.visibleNotes.isEmpty {
                     emptyState
                 } else {
-                    ForEach(viewModel.state.visibleNotes) { note in
-                        NoteRow(note: note) {
-                            editor = .existing(note)
-                        } onToggleArchive: {
-                            Task {
-                                _ = await viewModel.setStatus(note.status == .active ? .archived : .active, for: note)
-                            }
-                        }
+                    NoteList(notes: viewModel.state.visibleNotes) { note in
+                        editor = .existing(note)
+                    } onToggleArchive: { note in
+                        Task { _ = await viewModel.setStatus(NoteArchiveToggle(note).targetStatus, for: note) }
                     }
                 }
             }
         }
+        // Rows in a scroll view, not a `List`: this keeps one row's swipe open at a time and closes it on scroll.
+        .swipeActionsContainer()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button("notes.add", systemImage: "square.and.pencil") { editor = .new }
@@ -60,32 +58,10 @@ struct NotesView: View {
             }
             .pickerStyle(.segmented)
 
-            if !viewModel.state.availableContexts.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        contextChip(nil)
-                        ForEach(viewModel.state.availableContexts, id: \.self) { contextChip($0) }
-                    }
-                }
-                .pitReportsScrolling()
+            NoteContextChips(chips: viewModel.state.contextChips, selection: viewModel.state.contextFilter) {
+                viewModel.select(context: $0)
             }
         }
-    }
-
-    private func contextChip(_ context: NoteContext?) -> some View {
-        let isSelected = viewModel.state.contextFilter == context
-        return Button {
-            viewModel.select(context: context)
-        } label: {
-            Text(context?.title ?? "notes.context.all")
-                .font(.subheadline.weight(.medium))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .foregroundStyle(isSelected ? PitColor.surfaceSecondary : PitColor.contentPrimary)
-                .background(isSelected ? PitColor.accentPrimary : PitColor.surfaceSecondary, in: .capsule)
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var emptyState: some View {
@@ -150,61 +126,173 @@ enum NoteEditorTarget: Identifiable, Equatable {
     }
 }
 
+/// The context filter as chips that wrap at every size, so each label stays whole at accessibility sizes instead
+/// of scrolling off screen (REQ-GRAMMAR-003). "All" leads and is the main list (REQ-BOARD-012).
+private struct NoteContextChips: View {
+    let chips: [NoteContext?]
+    let selection: NoteContext?
+    let onSelect: (NoteContext?) -> Void
+
+    var body: some View {
+        if !chips.isEmpty {
+            ChipFlowLayout(spacing: 8, lineSpacing: 4) {
+                ForEach(chips, id: \.self) { context in
+                    let isSelected = selection == context
+                    Button {
+                        onSelect(context)
+                    } label: {
+                        Text(context?.title ?? "notes.context.all")
+                    }
+                    .buttonStyle(NoteContextChipStyle(isSelected: isSelected))
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+/// A filter chip on the surface fill with a hairline; the selected one fills with the accent (mockup #notes).
+private struct NoteContextChipStyle: ButtonStyle {
+    let isSelected: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(PitTypography.supporting.weight(.medium))
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+            .foregroundStyle(isSelected ? PitColor.contentOnAccent : PitColor.contentPrimary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(isSelected ? PitColor.accentPrimary : PitColor.surfaceSecondary, in: .capsule)
+            .overlay {
+                if !isSelected {
+                    Capsule().strokeBorder(PitColor.separator, lineWidth: DesignTokens.hairline)
+                }
+            }
+            .opacity(configuration.isPressed ? 0.6 : 1)
+            // The chip looks about 36 pt tall; the target keeps the 44 pt minimum (REQ-GRAMMAR-003).
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(.rect)
+    }
+}
+
+/// The notes of the current scope and filter as rows of one grouped list (REQ-GRAMMAR-001).
+private struct NoteList: View {
+    let notes: [Note]
+    let onOpen: (Note) -> Void
+    let onToggleArchive: (Note) -> Void
+
+    var body: some View {
+        GroupedSection {
+            ForEach(Array(notes.enumerated()), id: \.element.id) { index, note in
+                NoteRow(note: note, showsSeparator: index > 0) {
+                    onOpen(note)
+                } onToggleArchive: {
+                    onToggleArchive(note)
+                }
+            }
+        }
+    }
+}
+
+/// The driver's words in body weight and a meta line with recency and context. Archiving is a main action of this
+/// list, so it is a visible glyph, a trailing swipe and a VoiceOver action, all calling `onToggleArchive`.
 private struct NoteRow: View {
     let note: Note
+    var showsSeparator = false
     let onOpen: () -> Void
     let onToggleArchive: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private var toggle: NoteArchiveToggle {
+        NoteArchiveToggle(note)
+    }
+
     var body: some View {
-        TileCard(minHeight: 0) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(note.rawText)
-                    .font(.body)
-                    .foregroundStyle(PitColor.contentPrimary)
-                    .multilineTextAlignment(.leading)
-                HStack(spacing: 8) {
-                    Text(note.createdAt, format: .relative(presentation: .named))
-                    ForEach(note.canonicalContexts.sorted { $0.rawValue < $1.rawValue }, id: \.self) { context in
-                        Text(context.title)
-                    }
-                    Spacer(minLength: 8)
-                    // Visible, not only in the context menu: archiving is a main action of this list.
-                    Button(
-                        note.status == .active ? "notes.archive" : "notes.restore",
-                        systemImage: note.status == .active ? "archivebox" : "arrow.uturn.backward",
-                        action: onToggleArchive
-                    )
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.borderless)
-                    .frame(minWidth: 44, minHeight: 32)
-                    // VoiceOver reaches this through the row's named action instead.
-                    .accessibilityHidden(true)
-                }
-                .font(.footnote)
-                .foregroundStyle(PitColor.contentSecondary)
+        // At accessibility sizes the glyph moves under the text on the trailing edge, so the text keeps the width.
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .trailing, spacing: 4))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
+        layout {
+            Button(action: onOpen) {
+                details
             }
+            .buttonStyle(.plain)
+            .accessibilityAction(named: Text(toggle.title), onToggleArchive)
+            archiveButton
         }
-        .onTapGesture(perform: onOpen)
+        .padding(.vertical, 12)
+        .padding(.horizontal, DesignTokens.groupedRowPadding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(.rect)
+        .swipeActions(edge: .trailing) {
+            Button(toggle.title, systemImage: toggle.systemImage, action: onToggleArchive)
+                .tint(PitColor.accentPrimary)
+        }
         .contextMenu {
             Button("common.edit", systemImage: "pencil", action: onOpen)
-            Button(
-                note.status == .active ? "notes.archive" : "notes.restore",
-                systemImage: note.status == .active ? "archivebox" : "arrow.uturn.backward",
-                action: onToggleArchive
-            )
+            Button(toggle.title, systemImage: toggle.systemImage, action: onToggleArchive)
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityAction(named: Text(note.status == .active ? "notes.archive" : "notes.restore"), onToggleArchive)
+        // Outside the swipe, so the hairline stays put while the row slides.
+        .groupedRowSeparator(showsSeparator)
+    }
+
+    private var details: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(note.rawText)
+                .font(PitTypography.body)
+                .foregroundStyle(PitColor.contentPrimary)
+            note.metaText
+                .font(PitTypography.supportingSmall)
+                .foregroundStyle(PitColor.contentSecondary)
+        }
+        .multilineTextAlignment(.leading)
+        .fixedSize(horizontal: false, vertical: true)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(.rect)
+    }
+
+    private var archiveButton: some View {
+        Button(toggle.title, systemImage: toggle.systemImage, action: onToggleArchive)
+            .labelStyle(.iconOnly)
+            .font(PitTypography.body)
+            .foregroundStyle(PitColor.accentPrimary)
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(.rect)
+            .buttonStyle(.plain)
+            // Beside the text the target overhangs into the row padding, so the glyph lines up with the first line.
+            .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 0 : -10)
+            // VoiceOver reaches this through the row's named action instead.
+            .accessibilityHidden(true)
     }
 }
 
-extension NoteContext {
-    var title: LocalizedStringKey {
-        switch self {
-        case .carWash: "notes.context.carWash"
-        case .service: "notes.context.service"
-        case .shopping: "notes.context.shopping"
+#if DEBUG
+    #Preview("Notes chips and rows") {
+        let now = Date.now
+        let notes = [
+            Note(
+                rawText: "Ask about the stain on the rear seat",
+                createdAt: now.addingTimeInterval(-2 * 3600),
+                canonicalContexts: [.carWash]
+            ),
+            Note(
+                rawText: "Left rear tyre loses a little air each week, check at the next visit",
+                createdAt: now.addingTimeInterval(-3 * 86400),
+                canonicalContexts: [.service]
+            ),
+            Note(
+                rawText: "Rattle from the glovebox over cobbles, only when cold",
+                createdAt: now.addingTimeInterval(-14 * 86400)
+            ),
+        ]
+        PreviewMatrix {
+            VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
+                NoteContextChips(chips: [nil, .carWash, .service, .shopping], selection: nil) { _ in }
+                NoteList(notes: notes) { _ in } onToggleArchive: { _ in }
+            }
         }
     }
-}
+#endif

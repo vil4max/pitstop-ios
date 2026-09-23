@@ -223,3 +223,40 @@ struct CarBoardNotesSummaryTests {
         #expect(board.state.notes.latest?.rawText == "проверить давление")
     }
 }
+
+@Suite("Notes presentation")
+struct NotesPresentationTests {
+    @Test("REQ-BOARD-012: the chip row leads with All and shows only while a note in the scope has a context")
+    func chipRowLeadsWithAll() {
+        let notes = [
+            DomainFixtures.Notes.rawThought,
+            DomainFixtures.Notes.contextualWash,
+            DomainFixtures.Notes.archivedNote,
+        ]
+        var state = NotesViewState(notes: notes)
+
+        #expect(state.contextChips == [nil, .carWash])
+        #expect(state.visibleNotes.contains(DomainFixtures.Notes.rawThought))
+
+        state.scope = .archived
+        #expect(state.contextChips == [nil, .shopping])
+
+        #expect(NotesViewState(notes: [DomainFixtures.Notes.rawThought]).contextChips.isEmpty)
+    }
+
+    @Test("REQ-DOMAIN-013: the row's archive toggle archives an active note and restores an archived one")
+    func archiveToggleTargetsTheOtherScope() {
+        #expect(NoteArchiveToggle(DomainFixtures.Notes.rawThought) == .archive)
+        #expect(NoteArchiveToggle.archive.targetStatus == .archived)
+        #expect(NoteArchiveToggle(DomainFixtures.Notes.archivedNote) == .restore)
+        #expect(NoteArchiveToggle.restore.targetStatus == .active)
+    }
+
+    @Test("REQ-CAPTURE-012: the meta line names a note's contexts in one fixed order, and none for a raw note")
+    func metaContextsKeepOneOrder() {
+        let note = Note(rawText: "wiper blades before the wash", canonicalContexts: [.shopping, .carWash])
+
+        #expect(note.metaContexts == [.carWash, .shopping])
+        #expect(DomainFixtures.Notes.rawThought.metaContexts.isEmpty)
+    }
+}

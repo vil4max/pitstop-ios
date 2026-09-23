@@ -4,7 +4,7 @@ import SwiftUI
 /// hairlines on one calm surface, not a card per row, and an optional footer under the container. It lives in a
 /// `ScrollView`, so screens that also draw a stage or a banner keep one scroll surface instead of a `List`.
 struct GroupedSection<Rows: View>: View {
-    let title: Text
+    let title: Text?
     var footer: LocalizedStringKey?
     @ViewBuilder let rows: Rows
 
@@ -19,12 +19,22 @@ struct GroupedSection<Rows: View>: View {
         self.rows = rows()
     }
 
+    /// For a screen's only list, when the controls above it already say what it holds, such as Notes under its
+    /// scope and context filters; an empty heading would still be announced as one.
+    init(footer: LocalizedStringKey? = nil, @ViewBuilder rows: () -> Rows) {
+        title = nil
+        self.footer = footer
+        self.rows = rows()
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            title
-                .font(PitTypography.title)
-                .foregroundStyle(PitColor.contentPrimary)
-                .accessibilityAddTraits(.isHeader)
+            if let title {
+                title
+                    .font(PitTypography.title)
+                    .foregroundStyle(PitColor.contentPrimary)
+                    .accessibilityAddTraits(.isHeader)
+            }
             VStack(alignment: .leading, spacing: 0) {
                 rows
             }
