@@ -54,7 +54,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 |---|---|---|---|---|
 | Round opening (docs) | REQ-BOARD-017 wording | — | done | `f50cb7e`, `6b3d589` |
 | RD-000 design system | REQ-DESIGN-001…004 | — | done | `3674b52`…`c901d10` and the docs commit; `just verify` passed; review: 2 medium + 3 low, then 1 medium + 5 low, all repaired |
-| RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | planned | — |
+| RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | in progress | — |
 | RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | planned | — |
 | RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | planned | — |
 | RD-004 Track several | ADR 0033 tests | RD-003 | planned | — |
@@ -109,7 +109,16 @@ RD-000:
 - [x] Status glyph vocabulary and status chip: `StatusGlyphTests`, `RoadProjectorTests` — d6aabc7
 - [x] Stage, empty state, glass pill, step strip, share track: `RemainingShareTrackTests`, previews build — aece984
 - [x] Design rules in `just verify`, Track several accent literals: `DesignRulesTests` — c901d10
-- [ ] ADR 0038 and the design-system, overview, plan and status docs: diff review
+- [x] ADR 0038 and the design-system, overview, plan and status docs: diff review — b898e56
+
+RD-001 (writer: a `slice-writer` subagent of this session in its own
+worktree from `b898e56`; output: step commits on its branch plus a report
+of checks and screenshots; the integrator fast-forwards `redesign/ios27`
+after an independent `/code-review`):
+
+- [ ] Stage hero: mileage with recency from the newest observation date, glass pencil for edit: REQ-BOARD-027 tests
+- [ ] Tile anatomy: title row chevron, primary and secondary lines, status chip where a state exists, Road tile state markers: REQ-BOARD-028 tests
+- [ ] Car Board docs: mockup deviations, system-overview row, work-plan row: diff review
 
 ## Current checklist
 
