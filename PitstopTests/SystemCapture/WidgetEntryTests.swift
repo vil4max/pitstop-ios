@@ -69,32 +69,53 @@ struct PitURLRoutingTests {
 }
 
 /// The "Remember" widget's view and timeline live in the extension, which the test host cannot import, so its
-/// contracts are read from the source file, as `DesignRulesTests` reads the design rules.
+/// contracts are read from the source files, as `DesignRulesTests` reads the design rules.
 @Suite("Remember widget source")
 struct CaptureWidgetSourceTests {
-    private static let sourceFile = URL(filePath: #filePath)
+    private static let repositoryRoot = URL(filePath: #filePath)
         .deletingLastPathComponent() // SystemCapture
         .deletingLastPathComponent() // PitstopTests
         .deletingLastPathComponent()
-        .appending(path: "PitstopWidgets/CaptureWidget.swift")
 
-    /// Code only: whole-line comments may explain what the widget does not do.
-    private func code() throws -> String {
-        try String(contentsOf: Self.sourceFile, encoding: .utf8)
+    /// The `Shared/` code the widget calls into: its link (`CaptureSurface`, `AppLink`) and the design roles.
+    private static let calledSharedFiles = [
+        "Shared/CaptureSurface.swift", "Shared/AppLink.swift", "Shared/DesignSystem/GlyphDisc.swift",
+        "Shared/DesignSystem/PitColor.swift", "Shared/DesignSystem/PitTypography.swift",
+        "Shared/DesignSystem/DesignTokens.swift",
+    ]
+
+    /// Code only: whole-line comments may explain what the code does not do.
+    private static func code(of relativePath: String) throws -> String {
+        try String(contentsOf: repositoryRoot.appending(path: relativePath), encoding: .utf8)
             .split(separator: "\n", omittingEmptySubsequences: false)
             .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
             .joined(separator: "\n")
     }
 
+    private func code() throws -> String {
+        try Self.code(of: "PitstopWidgets/CaptureWidget.swift")
+    }
+
+    /// The Home Screen family's branch of the view, from `default:` to the previews, so a check cannot be met by
+    /// the Lock Screen circular branch, which also names the action and is accentable.
+    private func smallFamilyCode() throws -> Substring {
+        let code = try code()
+        let start = try #require(code.range(of: "default:"), "no default branch in CaptureWidgetView")
+        let end = code.range(of: "#Preview", range: start.upperBound ..< code.endIndex)?.lowerBound ?? code.endIndex
+        return code[start.upperBound ..< end]
+    }
+
     @Test("ADR-0025: the Remember widget reads no data: one static entry that never reloads")
     func readsNoData() throws {
-        let code = try code()
-        #expect(code.contains("Timeline(entries: [Entry(date: .now)], policy: .never)"))
+        #expect(try code().contains("Timeline(entries: [Entry(date: .now)], policy: .never)"))
         let dataAccess = [
             "SwiftData", "ModelContainer", "ModelContext", "NextServiceStoreReader", "NextServiceContent",
             "StoreLocation", "UserDefaults", "FileManager", "containerURL", "AppGroup",
         ]
-        #expect(dataAccess.filter { code.contains($0) }.isEmpty, "the widget reaches for data")
+        for file in ["PitstopWidgets/CaptureWidget.swift"] + Self.calledSharedFiles {
+            let code = try Self.code(of: file)
+            #expect(dataAccess.filter { code.contains($0) }.isEmpty, "\(file) reaches for data")
+        }
     }
 
     @Test("ADR-0025, REQ-CAPTURE-023: the Remember widget keeps its tap target, glyph and words")
@@ -102,18 +123,20 @@ struct CaptureWidgetSourceTests {
         let code = try code()
         #expect(code.contains(".widgetURL(CaptureSurface.pit.url)"))
         #expect(code.contains(#"static let symbol = "square.and.pencil""#))
-        for key in ["widget.capture.action", "widget.capture.hint"] {
-            #expect(code.contains(#"Text("\#(key)")"#), "\(key) is not shown")
-        }
         #expect(code.contains(".supportedFamilies([.systemSmall, .accessoryCircular])"))
+        let small = try smallFamilyCode()
+        for key in ["widget.capture.action", "widget.capture.hint"] {
+            #expect(small.contains(#"Text("\#(key)")"#), "\(key) is not shown on the small widget")
+        }
     }
 
     @Test("ADR-0038: the Remember widget draws the shared glyph disc, accented in tinted mode")
     func drawsSharedGlyphDisc() throws {
-        let code = try code()
-        #expect(code.contains("GlyphDisc(systemImage: CaptureWidget.symbol"))
-        #expect(code.contains(".widgetAccentable()"))
-        #expect(code.contains("#Preview(as: .systemSmall)"))
+        let small = try smallFamilyCode()
+        // The accent modifier must sit on the disc itself, not elsewhere in the branch.
+        let accentedDisc = #/GlyphDisc\(systemImage: CaptureWidget\.symbol[^)]*\)\s*\.widgetAccentable\(\)/#
+        #expect(small.contains(accentedDisc))
+        #expect(try code().contains("#Preview(as: .systemSmall)"))
     }
 }
 
