@@ -18,7 +18,10 @@ SYS-008 "Harden on SDK 27.0" (keep the Xcode 27.0 toolchain, no iOS 27.1
 API; `ArrangementView` and the full-screen opt-in become a later card);
 REQ-BOARD-017 "Approve the new wording now"; push "Local only, ask at the
 end" (nothing leaves this Mac until the merge, then one question for
-pushing `main` and `tf-1.2.0-1`).
+pushing `main` and `tf-1.2.0-1`). Changed by the owner in this session on
+2026-09-23 ("Yes, push after each card"): `redesign/ios27` is pushed to
+origin as an off-machine backup after each card lands with `just verify`
+green and its review done; `main` and the tag still wait for the end.
 Blocking decisions: none
 Permitted deviations: RD-010 is re-estimated from 0.5d to about 2d because
 REQ-UTILITY-012 and REQ-PIT-026 are not implemented on `main` (every sheet
