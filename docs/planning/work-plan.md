@@ -60,7 +60,7 @@ on screen" until a snapshot-testing card exists.
 |---|---|---|
 | MNT-INT-003 | Private licence and terms review of one real maintenance source, outside this repository (MNT-INT-002 is done; needs a market decision) | [MNT-INT-001 record](investigations/mnt-int-001-maintenance-intelligence.md) |
 | DEV-SIRI | Device check list: Siri in ru and uk, reply language, locked phone, prompt time against the 30-second limit | ADR 0026 |
-| DEV-WIDGET | Widget gallery (capture and next-service widgets), Control Center, Lock Screen control and rectangular/inline widget, Action button, Shortcuts listing; TestFlight upgrade check of the store move; first Xcode Cloud archive carries the App Group in both profiles | ADR 0025, ADR 0026, ADR 0036 |
+| DEV-WIDGET | Widget gallery (capture and next-service widgets), the redesigned "Remember" widget's tinted and dark Home Screen appearances (RD-009: the whole glyph disc takes the tint, the disc and text stay legible in dark; not checked on a device), Control Center, Lock Screen control and rectangular/inline widget, Action button, Shortcuts listing; TestFlight upgrade check of the store move; first Xcode Cloud archive carries the App Group in both profiles | ADR 0025, ADR 0026, ADR 0036 |
 | DEV-ICON | Home Screen app icon on a device in dark, clear and tinted styles; glass tuning by eye in Icon Composer | ADR 0029, ADR 0037 |
 | DEV-FM | Device evaluation of English captures with Foundation Models; then close or keep CAP-005 open, decide the Release rollout gate and the `interpreter_version` value | ADR 0027 |
 
