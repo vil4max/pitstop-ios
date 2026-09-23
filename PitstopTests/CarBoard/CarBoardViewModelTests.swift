@@ -40,6 +40,28 @@ struct CarBoardViewModelTests {
         #expect(await store.executed.isEmpty)
     }
 
+    @Test("REQ-GRAMMAR-004, REQ-BOARD-018: a first-launch board shows no placeholder metric, only sparse lines")
+    func firstLaunchBoardHasNoPlaceholderMetric() async throws {
+        let model = TestViewModels.carBoard(FakeCarMemoryStore(), now: now)
+        await model.load()
+        let state = model.state
+
+        #expect(state.mileage == .unknown, "a label, never 0 km (REQ-BOARD-004)")
+        #expect(state.mileageRecency == nil, "no observation, so no age")
+        #expect(state.car.isProvisional, "the one useful action is naming the car")
+        let road = try #require(state.road)
+        #expect(road.isCompletelyEmpty)
+        for kind in CarBoardTileKind.allCases {
+            let tile = CarBoardTileContent(
+                kind: kind, notes: state.notes, history: state.history, service: state.service, road: state.road
+            )
+            #expect(tile.primary == .sparseHeadline(kind))
+            #expect(tile.secondary == .sparseDetail(kind))
+            #expect(tile.status == nil, "no state exists, so no chip")
+            #expect(tile.roadSlots.isEmpty, "no milestone is invented")
+        }
+    }
+
     @Test("REQ-BOARD-002: the provisional car shows its display name and no vehicle facts")
     func provisionalCarHasNoFacts() async {
         let model = TestViewModels.carBoard(FakeCarMemoryStore(), now: now)
