@@ -178,6 +178,23 @@ struct PitInSheetTests {
         #expect(!requests.isPending, "met by the capture, so no second capture opens once the sheet closes")
     }
 
+    @Test("REQ-PIT-026: a sheet that goes away closes the capture opened over it")
+    func hostTeardownClosesCapture() throws {
+        // Code lines only, so the comment explaining the rule does not satisfy it.
+        let code = try Self.source("Pitstop/Features/Pit/PitInSheet.swift").split(separator: "\n")
+            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
+            .joined(separator: "\n")
+        let modifier = try #require(code.range(of: "struct PitStaysInSheet"))
+        let body = code[modifier.upperBound...]
+        let close = try #require(
+            body.range(of: ".onDisappear { context?.entry.close(from: host) }"),
+            "PitStaysInSheet no longer closes its capture when the sheet goes away"
+        )
+        // On the host's content, not inside the capture sheet it presents.
+        let capture = try #require(body.range(of: ".sheet(isPresented:"))
+        #expect(close.upperBound < capture.lowerBound)
+    }
+
     static func source(_ relativePath: String) throws -> String {
         try String(contentsOf: repositoryRoot.appending(path: relativePath), encoding: .utf8)
     }
