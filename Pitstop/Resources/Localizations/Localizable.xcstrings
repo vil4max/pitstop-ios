@@ -4033,6 +4033,28 @@
         }
       }
     },
+    "road.ahead.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahead"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Впереди"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Попереду"
+          }
+        }
+      }
+    },
     "road.backToNow" : {
       "localizations" : {
         "en" : {

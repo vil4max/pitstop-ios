@@ -19,22 +19,13 @@ extension RoadMilestoneState {
         }
     }
 
-    /// The shared state glyph (REQ-DESIGN-001); it replaces `systemImage` as each screen card lands.
+    /// The shared state glyph (REQ-DESIGN-001), on the lane's signs and in the list's rows.
     var glyph: StatusGlyph {
         switch self {
         case .upcoming: .ring
         case .approaching: .half
         case .due: .filled
         case .overdue: .filledRing
-        }
-    }
-
-    var systemImage: String {
-        switch self {
-        case .upcoming: "circle"
-        case .approaching: "circle.lefthalf.filled"
-        case .due: "circle.fill"
-        case .overdue: "exclamationmark.circle.fill"
         }
     }
 }
@@ -70,6 +61,19 @@ struct RoadSign: Equatable {
 extension RoadSlot {
     var sign: RoadSign? {
         lead.map { RoadSign(milestone: $0, alsoHere: milestones.count - 1) }
+    }
+}
+
+/// The milestone list under the lane (REQ-ROAD-027). "Ahead" holds the lane's milestones slot by slot in
+/// lane order, clustered ones included, so each sign's lead starts its own run of rows; "Waiting for mileage"
+/// holds the ones the lane cannot place. It adds, removes and reorders nothing (REQ-ROAD-004).
+struct RoadMilestoneList: Equatable {
+    let ahead: [RoadMilestone]
+    let waiting: [RoadMilestone]
+
+    init(_ projection: RoadProjection) {
+        ahead = projection.slots.flatMap(\.milestones)
+        waiting = projection.waitingForMileage
     }
 }
 
