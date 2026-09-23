@@ -80,7 +80,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | done | `c426bfa`…`1944c46`; `just verify` per step; review: 1 medium + 2 low (one low out of scope, filed as a follow-up), then no findings |
 | RD-009 Widgets | WidgetEntryTests | RD-000 | done | `5f724f1`…`b49448b`; `just verify` per step; review: 0 high/medium + 3 low, repaired; then 0 high/medium + 3 low, accepted |
 | RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | done | `a161608`…`250b36e`; `just verify` per step; review: 1 high + 3 medium + 1 low; 1 medium + 3 low; 1 medium + 4 low; 1 medium + 1 low; then 0 high/medium + 1 pre-existing low (follow-up); four repair iterations, the third and fourth approved by the owner |
-| RD-011 Pit character | REQ-PIT-022…024 | RD-000 | planned | — |
+| RD-011 Pit character | REQ-PIT-022…024 | RD-000 | in progress | — |
 | RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | planned | — |
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | RD-012 | planned | — |
 | Release 1.2.0 | `just tf-check` Ready | SYS-008 | planned | — |
@@ -375,6 +375,18 @@ geometry and Settings stay unchanged):
 - [x] Round-2 repair: same-date rule keeps typed input (sheet stays open, "Save anyway"); snapshot from the store; waiting request met; teardown source check: `just verify` — 172c383, be521fc, 1d7fc6d, 3fa02b6
 - [x] Round-3 repair (owner-approved): REQ-MAINT-040 proposed; VoiceOver announcement; recheck on "Save anyway"; no snapshot on read failure; late sheet guard: `just verify`, mutation — 2f32a0d, 7165af2, f7ac37e, b52e8b1, f7d4efe
 - [x] Round-4 repair (owner: "Продолжай"): read and open split; no sheet on an unreadable store: `just verify`, failing-first — 09cb070, 250b36e
+
+RD-011 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001; the head keeps
+the delivered icon geometry of ADR 0037, so no icon is regenerated, and a
+needed geometry change stops the card for the owner):
+
+- [ ] Pit head component: pearl shell, bezel, navy visor and lit lens eyes, with Reduce Transparency and Increase Contrast variants, matching the ADR 0037 icon geometry: head geometry tests, previews
+- [ ] The head replaces the glass circle in the utility layer, in the Pit control inside sheets and in the capture sheet header, keeping the pressed-state feedback: `UtilityLayer` and `PitInSheet` tests, ADR 0028 tests unchanged
+- [ ] Every motion state has a distinct static pose with inward eye tilt at most 6°: REQ-PIT-022 tests
+- [ ] A knock turns the eyes to the accent and back, with or without Reduce Motion; no other state uses the accent: REQ-PIT-023 tests
+- [ ] The head tilts or lifts only in motion-table states and is still when resting or idle; Reduce Motion shows the poses without animation: REQ-PIT-024 tests
+- [ ] ADR amending ADR 0009 for the Pit control (no glass) and the Pit character docs: mockup deviations, system-overview rows, work-plan row: diff review
 
 ## Resume prompt
 
