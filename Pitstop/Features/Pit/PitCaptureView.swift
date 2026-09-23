@@ -34,8 +34,8 @@ struct PitCaptureView: View {
             // The composer's action stays at the sheet bottom, above the keyboard, at every text size: at the
             // largest sizes the field alone fills the space above the keyboard (REQ-PIT-025).
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                if case let .pinned(prominent) = moment.rememberPlacement(at: dynamicTypeSize) {
-                    rememberAction(prominent: prominent)
+                if let action = moment.rememberAction(at: dynamicTypeSize), action.placement == .pinned {
+                    rememberButton(prominent: action.isProminent)
                         .padding(.horizontal, DesignTokens.screenPadding)
                         .padding(.vertical, 12)
                         .background(PitColor.surfacePrimary)
@@ -117,7 +117,7 @@ struct PitCaptureView: View {
     }
 
     @ViewBuilder
-    private func rememberAction(prominent: Bool) -> some View {
+    private func rememberButton(prominent: Bool) -> some View {
         let button = Button {
             Task { await viewModel.submit(from: visible) }
         } label: {
@@ -153,8 +153,8 @@ struct PitCaptureView: View {
                     .foregroundStyle(PitColor.contentSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            if moment.rememberPlacement(at: dynamicTypeSize) == .inline {
-                rememberAction(prominent: true)
+            if let action = moment.rememberAction(at: dynamicTypeSize), action.placement == .inline {
+                rememberButton(prominent: action.isProminent)
             }
         }
         // With a question pending the keyboard would cover it; the user chooses where to type. Once the question is

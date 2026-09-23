@@ -80,44 +80,62 @@ struct PitSheetMomentTests {
     }
 
     @Test(
-        "REQ-PIT-025: while the user writes, Remember is pinned above the keyboard as the prominent action",
+        "REQ-PIT-025: while the user writes, Remember is pinned above the keyboard",
         arguments: DynamicTypeSize.allCases
     )
     func rememberIsPinnedWhileWriting(size: DynamicTypeSize) {
-        #expect(PitSheetMoment(capture: .composing, question: .silent).rememberPlacement(at: size)
-            == .pinned(prominent: true))
-        #expect(PitSheetMoment(capture: .composing, question: .answered(kilometers: 43100)).rememberPlacement(at: size)
-            == .pinned(prominent: true))
+        #expect(PitSheetMoment(capture: .composing, question: .silent).rememberAction(at: size)?.placement == .pinned)
+        #expect(PitSheetMoment(capture: .composing, question: .answered(kilometers: 43100)).rememberAction(at: size)?
+            .placement == .pinned)
     }
 
     @Test(
-        "REQ-PIT-025, ADR-0017: with Pit's question pending at an accessibility size, Remember stays pinned above the keyboard and the question's Save stays the only prominent action",
+        "REQ-PIT-025: with Pit's question pending or its answer saving at an accessibility size, Remember stays pinned above the keyboard",
         arguments: DynamicTypeSize.allCases.filter(\.isAccessibilitySize)
     )
     func rememberIsPinnedWithAQuestionAtAccessibilitySizes(size: DynamicTypeSize) {
         let asked = PitAskedQuestion.currentMileage(lastKnownKm: 42500)
 
-        #expect(PitSheetMoment(capture: .composing, question: .asking(asked)).rememberPlacement(at: size)
-            == .pinned(prominent: false))
-        #expect(PitSheetMoment(capture: .composing, question: .working(asked)).rememberPlacement(at: size)
-            == .pinned(prominent: false))
+        #expect(PitSheetMoment(capture: .composing, question: .asking(asked)).rememberAction(at: size)?
+            .placement == .pinned)
+        #expect(PitSheetMoment(capture: .composing, question: .working(asked)).rememberAction(at: size)?
+            .placement == .pinned)
     }
 
     @Test(
-        "ADR-0017: below the accessibility sizes, with Pit's question pending, Remember stays under the composer",
+        "REQ-PIT-025: below the accessibility sizes, with Pit's question pending or its answer saving, Remember stays under the composer, not pinned over the card",
         arguments: DynamicTypeSize.allCases.filter { !$0.isAccessibilitySize }
     )
     func rememberIsInlineWithAQuestion(size: DynamicTypeSize) {
         let asked = PitAskedQuestion.currentMileage(lastKnownKm: 42500)
 
-        #expect(PitSheetMoment(capture: .composing, question: .asking(asked)).rememberPlacement(at: size) == .inline)
+        #expect(PitSheetMoment(capture: .composing, question: .asking(asked)).rememberAction(at: size)?
+            .placement == .inline)
+        #expect(PitSheetMoment(capture: .composing, question: .working(asked)).rememberAction(at: size)?
+            .placement == .inline)
+    }
+
+    @Test(
+        "REQ-PIT-003: with Pit's question pending, its Save is the one prominent action and Remember is quiet; otherwise Remember is prominent",
+        arguments: DynamicTypeSize.allCases
+    )
+    func oneProminentAction(size: DynamicTypeSize) {
+        let asked = PitAskedQuestion.currentMileage(lastKnownKm: 42500)
+
+        #expect(PitSheetMoment(capture: .composing, question: .asking(asked)).rememberAction(at: size)?
+            .isProminent == false)
+        #expect(PitSheetMoment(capture: .composing, question: .working(asked)).rememberAction(at: size)?
+            .isProminent == false)
+        #expect(PitSheetMoment(capture: .composing, question: .silent).rememberAction(at: size)?.isProminent == true)
+        #expect(PitSheetMoment(capture: .composing, question: .answered(kilometers: 43100)).rememberAction(at: size)?
+            .isProminent == true)
     }
 
     @Test("REQ-PIT-021: outside the composing moment there is no Remember action")
     func noRememberOutsideComposing() {
-        #expect(PitSheetMoment(capture: .working, question: .silent).rememberPlacement(at: .large) == nil)
+        #expect(PitSheetMoment(capture: .working, question: .silent).rememberAction(at: .large) == nil)
         #expect(PitSheetMoment(capture: .saved(.notes, preservedRaw: true), question: .silent)
-            .rememberPlacement(at: .accessibility5) == nil)
+            .rememberAction(at: .accessibility5) == nil)
     }
 
     @Test("REQ-CAPTURE-005: Close on the composer cancels the unsent words and writes nothing")

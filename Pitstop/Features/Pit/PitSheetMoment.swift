@@ -22,18 +22,24 @@ enum PitSheetMoment: Equatable {
         }
     }
 
-    /// Where the composer's Remember action goes; `nil` outside the composing moment.
+    /// Where the composer's Remember action goes and how it looks; `nil` outside the composing moment.
     ///
-    /// While the user writes it is pinned to the sheet bottom, so it stays above the keyboard (REQ-PIT-025). With
-    /// Pit's question pending, the question's Save is the one prominent action (ADR 0017): below the accessibility
-    /// sizes Remember stays under the composer, so it does not cover the card at the medium detent; at accessibility
-    /// sizes the sheet is at the large detent and the composer alone fills the space above the keyboard, so
-    /// Remember stays pinned there, in the quiet style.
-    func rememberPlacement(at size: DynamicTypeSize) -> PitRememberPlacement? {
+    /// Placement: while the user writes, Remember is pinned to the sheet bottom, so it stays above the keyboard
+    /// (REQ-PIT-025). With Pit's question pending, below the accessibility sizes it stays under the composer, so it
+    /// does not cover the card at the medium detent; at accessibility sizes the sheet is at the large detent and the
+    /// composer alone fills the space above the keyboard, so it stays pinned.
+    ///
+    /// Style: the sheet has one prominent action (pit-behavior-and-motion.md, "Capture"; one question at a time,
+    /// REQ-PIT-003). With Pit's question pending, that is the question's Save, as the mockup's question frame draws
+    /// it, so Remember is quiet at every text size; otherwise Remember is the prominent action.
+    func rememberAction(at size: DynamicTypeSize) -> PitRememberAction? {
         switch self {
-        case .composing(.question): size.isAccessibilitySize ? .pinned(prominent: false) : .inline
-        case .composing: .pinned(prominent: true)
-        case .working, .confirming, .clarifying, .saved: nil
+        case .composing(.question):
+            PitRememberAction(placement: size.isAccessibilitySize ? .pinned : .inline, isProminent: false)
+        case .composing:
+            PitRememberAction(placement: .pinned, isProminent: true)
+        case .working, .confirming, .clarifying, .saved:
+            nil
         }
     }
 
@@ -48,11 +54,17 @@ enum PitSheetMoment: Equatable {
     }
 }
 
-enum PitRememberPlacement: Equatable {
-    /// At the sheet bottom, above the keyboard.
-    case pinned(prominent: Bool)
-    /// Under the composer, as the prominent action.
-    case inline
+/// The composer's Remember action: where it sits and whether it is the sheet's prominent action.
+struct PitRememberAction: Equatable {
+    enum Placement: Equatable {
+        /// At the sheet bottom, above the keyboard.
+        case pinned
+        /// Under the composer, in the scrolling content.
+        case inline
+    }
+
+    let placement: Placement
+    let isProminent: Bool
 }
 
 /// What sits above the composer while the user writes.
