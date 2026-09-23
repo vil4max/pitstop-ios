@@ -9,9 +9,7 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000…RD-009 landed on `redesign/ios27`; RD-010 is blocked
-after its last repair iteration (one medium open) and waits on its writer
-branch; the overnight run stopped at the RD-009 boundary.
+Current outcome: RD-000…RD-010 landed on `redesign/ios27`; RD-011 is next.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -33,17 +31,11 @@ review и backup push ветки, RD-012 не брать. Не спрашива�
 3 попыток или нужно что-то вне brief. … К 09:00 по Киеву остановись с
 актуальным Resume prompt." The owner also approved the context reset at the
 RD-006 boundary in the same message.
-Blocking decisions: RD-010 (owner): its branch `worktree-agent-a40f1ea888bd47c34`
-(worktree `.claude/worktrees/agent-a40f1ea888bd47c34`, head `76be13d`, local
-only) passed `just verify` on every commit, but review round 4 still found
-1 medium (two quick Mark-as-done taps: a late opening that loses the sheet
-guard clears the open sheet's snapshot, so Pit's same-day completion can be
-recorded twice) and 1 low (a store read failure at open saves without the
-recheck; REQ-MAINT-040 states no exception). The three repair iterations
-are used up, the third with the owner's approval in this session; options:
-authorize a fourth repair (fix: keep the opening token and store it only
-when the sheet is set; refuse to open on a read failure), accept the
-medium, or rework the card.
+Blocking decisions: none. Owner decisions pending for the end of the round:
+REQ-MAINT-040 (proposed), the REQ-UTILITY-012 status line, the
+REQ-DESIGN-004 amendment, follow-up cards (History/Notes empty before load;
+NextServiceWidget restyle; a Mark-as-done save still running after its
+sheet closed), and the device checks DEV-WIDGET and DEV-PIT-SHEET.
 Permitted deviations: RD-010 is re-estimated from 0.5d to about 2d because
 REQ-UTILITY-012 and REQ-PIT-026 are not implemented on `main` (every sheet
 covers the utility layer; `RootView.swift` ignores the keyboard for it).
@@ -51,9 +43,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: the owner's RD-010 decision; then integrate RD-010 (rebase its
-branch onto `redesign/ios27` first: the branch no longer fast-forwards) and
-continue with RD-011.
+Next step: RD-011 Writer steps (drafted when the card starts).
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -89,7 +79,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | done | `d0357c0`…`72c39cf`; `just verify` per step; review: 1 medium + 5 low, then 1 medium + 1 low, then 0 high/medium + 4 low; all repaired except two test-coverage lows (accepted) |
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | done | `c426bfa`…`1944c46`; `just verify` per step; review: 1 medium + 2 low (one low out of scope, filed as a follow-up), then no findings |
 | RD-009 Widgets | WidgetEntryTests | RD-000 | done | `5f724f1`…`b49448b`; `just verify` per step; review: 0 high/medium + 3 low, repaired; then 0 high/medium + 3 low, accepted |
-| RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | blocked (review) | `147473b`…`76be13d` on its writer branch, not integrated; `just verify` per step; review: 1 high + 3 medium + 1 low; 1 medium + 3 low; 1 medium + 4 low; 1 medium + 1 low open |
+| RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | done | `a161608`…`250b36e`; `just verify` per step; review: 1 high + 3 medium + 1 low; 1 medium + 3 low; 1 medium + 4 low; 1 medium + 1 low; then 0 high/medium + 1 pre-existing low (follow-up); four repair iterations, the third and fourth approved by the owner |
 | RD-011 Pit character | REQ-PIT-022…024 | RD-000 | planned | — |
 | RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | planned | — |
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | RD-012 | planned | — |
@@ -251,6 +241,15 @@ added here when the slice starts.
   Blocking decisions). Owner decisions from this card: REQ-MAINT-040
   (proposed) and the REQ-UTILITY-012 status-line update the writer
   proposed (the medium-detent result).
+- 2026-09-24, RD-010 resumed: the owner said "Продолжай" after the stop
+  report, taken as the fourth repair. The writer rebased its branch onto
+  452e4ea (only this brief differed) and split reading from opening Mark
+  as done (a losing read changes nothing; an unreadable store refuses to
+  open with the list's "not saved" alert), failing-first tests for both.
+  Round 5: 0 high/medium, 1 low that predates the card (a Mark-as-done
+  save still running after its sheet closed writes to the next sheet's
+  state), filed as a follow-up. The integrator fast-forwarded to 250b36e
+  and ran `just verify`: passed.
 
 ## Untested scope
 
@@ -367,30 +366,21 @@ RD-010 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001; the layer's
 geometry and Settings stay unchanged):
 
-- [ ] Pit stays on screen inside every sheet other than the capture surface, at the bottom-trailing spot and above the keyboard; Settings is not shown over a sheet; both return to the layer when the sheet closes: REQ-UTILITY-012 tests
-- [ ] Tapping Pit in a sheet opens the capture surface over it, and closing returns to the same sheet with its input unchanged: REQ-PIT-026 tests
-- [ ] Pit is disabled while Track several, the planned-date editor or the dashboard reading is saving: REQ-PIT-026 edge-case tests
-- [ ] A capture over "Mark as done" for the same operation leaves no duplicate completion when the editor then saves: completion tests
-- [ ] Utility layer docs: medium- and large-detent simulator result, system-overview rows, work-plan row: diff review
-
-RD-010 step commits exist only on the writer branch (147473b, 02b61ea,
-50b9354, cf14634, ad44e05) with repairs up to 76be13d; the boxes stay open
-until the card is integrated.
+- [x] Pit stays on screen inside every sheet other than the capture surface, at the bottom-trailing spot and above the keyboard; Settings is not shown over a sheet; both return to the layer when the sheet closes: REQ-UTILITY-012 tests — a161608
+- [x] Tapping Pit in a sheet opens the capture surface over it, and closing returns to the same sheet with its input unchanged: REQ-PIT-026 tests — cadc8b3
+- [x] Pit is disabled while Track several, the planned-date editor or the dashboard reading is saving: REQ-PIT-026 edge-case tests — 3f6be08
+- [x] A capture over "Mark as done" for the same operation leaves no duplicate completion when the editor then saves: completion tests — 9702b95
+- [x] Utility layer docs: medium- and large-detent simulator result, system-overview rows, work-plan row: diff review — 04eba5e
+- [x] Review repair: completion recorded while the editor is open; Open Pit while capture is open; falsifiable saving guard; DEV-PIT-SHEET row; close on teardown: `just verify`, failing-first — d9d2709, 940b738, d02ed1f, 6f28af9, b88fda3
+- [x] Round-2 repair: same-date rule keeps typed input (sheet stays open, "Save anyway"); snapshot from the store; waiting request met; teardown source check: `just verify` — 172c383, be521fc, 1d7fc6d, 3fa02b6
+- [x] Round-3 repair (owner-approved): REQ-MAINT-040 proposed; VoiceOver announcement; recheck on "Save anyway"; no snapshot on read failure; late sheet guard: `just verify`, mutation — 2f32a0d, 7165af2, f7ac37e, b52e8b1, f7d4efe
+- [x] Round-4 repair (owner: "Продолжай"): read and open split; no sheet on an unreadable store: `just verify`, failing-first — 09cb070, 250b36e
 
 ## Resume prompt
 
 Pitstop session, task `docs/tasks/redesign-ios27.md` on branch
-`redesign/ios27`. The overnight run stopped at the RD-009 boundary on
-2026-09-24 00:5x Kyiv: RD-010 is blocked (see Blocking decisions) and waits
-on its local writer branch and worktree, which must be kept. First ask the
-owner for the RD-010 decision. To integrate it later: in its worktree,
-`git rebase redesign/ios27` (only this brief differs), then an independent
-`/code-review` of the result, then the fast-forward steps below; RD-011
-follows RD-010. Owner decisions pending from the night: RD-010,
-REQ-MAINT-040 (proposed), the REQ-UTILITY-012 status line, the
-REQ-DESIGN-004 amendment, follow-up cards for the History/Notes
-empty-before-load issue and the NextServiceWidget restyle, and the device
-checks (DEV-WIDGET, DEV-PIT-SHEET). Read `AGENTS.md`, this brief and the
+`redesign/ios27`. Owner decisions pending for the end of the round are listed
+under Blocking decisions. Read `AGENTS.md`, this brief and the
 work-plan row of the next card only. Check `git status` (clean, on `redesign/ios27`, no leftover
 `.claude/worktrees/*` checkout; remove a finished writer worktree only after
 confirming its commits are on the branch) and `git log -1`. Then continue at
