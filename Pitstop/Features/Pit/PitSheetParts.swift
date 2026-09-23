@@ -1,21 +1,15 @@
 import SwiftUI
 
-/// Pit's eyes beside the title that names the sheet's one moment (pit-behavior-and-motion.md, "Capture"). The eyes
-/// stay `PitEyesGlyph` until the round head replaces them (RD-011).
+/// Pit's head beside the title that names the sheet's one moment (pit-behavior-and-motion.md, "Capture").
 struct PitMomentHeader: View {
     let title: PitMomentTitle
     let eyes: PitState
     var life: PitEyeLife = .still
 
-    /// The mockup draws the eyes at 2.2 times the utility-layer mark, in a 44 pt slot like the head that follows.
-    private static let eyeScale: CGFloat = 2.2
-    private static let eyeSlot = CGSize(width: 52, height: 44)
-
     var body: some View {
         HStack(spacing: 12) {
-            PitEyesGlyph(state: eyes, life: life)
-                .scaleEffect(Self.eyeScale)
-                .frame(width: Self.eyeSlot.width, height: Self.eyeSlot.height)
+            // Fixed size at every text size, like the utility circle.
+            PitHead(state: eyes, life: life, size: DesignTokens.pitHeaderHeadSize)
             Text(title.key)
                 .font(.title2.bold())
                 .foregroundStyle(title == .saved ? PitColor.statusUpToDate : PitColor.contentPrimary)

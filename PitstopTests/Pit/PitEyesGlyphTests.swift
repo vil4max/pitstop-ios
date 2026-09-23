@@ -6,28 +6,31 @@ import Testing
 struct PitEyeGeometryTests {
     @Test("ADR-0012: every semantic state is drawn differently from every other")
     func statesAreVisuallyDistinct() {
-        let drawn = Set(PitState.allCases.map(PitEyeGeometry.init))
+        let drawn = Set(PitState.allCases.map(PitPose.init))
         #expect(drawn.count == PitState.allCases.count)
     }
 
     @Test("ADR-0012: a closed eye shows no highlight outside the lid")
     func closedEyesHideThePupil() {
         for state in [PitState.blink, .closedEyes] {
-            let geometry = PitEyeGeometry(state)
-            #expect(!geometry.showsHighlight)
-            #expect(geometry.openness == 0)
+            let pose = PitPose(state)
+            #expect(!pose.showsHighlight)
+            #expect(pose.left.heightScale < 0.35 || pose.left.outline == .arc)
         }
-        #expect(PitEyeGeometry(.resting).showsHighlight)
+        #expect(PitPose(.resting).showsHighlight)
     }
 
     @Test("ADR-0028: a closing eye keeps a visible lid line and stays inside its box when open")
     func eyeShapeStaysDrawable() {
-        let box = CGRect(x: 0, y: 0, width: 9, height: 15)
-        let closed = PitEyeShape(openness: 0).path(in: box).boundingRect
-        #expect(closed.height >= 1 && closed.height < 3)
-        let open = PitEyeShape(openness: 1).path(in: box).boundingRect
-        #expect(open.minY >= -0.01 && open.maxY <= 15.01)
-        #expect(PitEyeShape(openness: 1.15).path(in: box).boundingRect.height > open.height)
+        let lens = PitHeadGeometry.lensRadii
+        // A blinking lens is still at least a point tall at the 44 pt header size, and a closed eye is a line.
+        let blink = PitPose(.blink)
+        #expect(2 * lens.height * blink.left.heightScale * 44 / PitHeadGeometry.viewBox >= 1)
+        #expect(PitPose(.closedEyes).left.outline == .arc && PitHeadGeometry.arcLineWidth >= 1)
+        let closed = PitClosedEyeArc().path(in: CGRect(x: 0, y: 0, width: 6.8, height: 2.1)).boundingRect
+        #expect(closed.height > 1 && closed.minY >= -0.01 && closed.maxY <= 2.11)
+        // A widened eye (startle) is larger than the open one.
+        #expect(PitPose(.startle).left.widthScale > PitPose(.resting).left.widthScale)
     }
 
     /// A random source that walks through fixed values, so a plan is reproducible.

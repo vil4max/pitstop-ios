@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// Settings bottom-leading, Pit bottom-trailing. Two separate glass controls with no selection
-/// state: a utility layer, not a tab bar (REQ-UTILITY-001).
+/// Settings bottom-leading, Pit bottom-trailing. Two separate controls with no selection state: a utility layer, not a
+/// tab bar (REQ-UTILITY-001). Settings is a glass circle; Pit's whole circle is his head, with no glass behind it
+/// (ADR 0039).
 struct UtilityLayer: View {
     let onSettings: () -> Void
     let onPit: () -> Void
@@ -41,14 +42,11 @@ struct PitUtilityButton: View {
 
     var body: some View {
         Button(action: action) {
-            // The glyph animates itself and drops animation with Reduce Motion.
-            PitEyesGlyph(state: state)
-                .frame(width: DesignTokens.utilityButtonSize, height: DesignTokens.utilityButtonSize)
+            // The head animates itself and drops animation with Reduce Motion.
+            PitHead(state: state, size: DesignTokens.utilityButtonSize)
                 .contentShape(.circle)
         }
-        .glassEffect(.regular.interactive(), in: .circle)
-        .buttonStyle(.plain)
-        .foregroundStyle(PitColor.contentPrimary)
+        .buttonStyle(PitHeadButtonStyle())
         .accessibilityLabel(Text("utility.pit"))
         // A knock is a request, not motion: it is stated once as a value, not announced (REQ-PIT-019).
         .accessibilityValue(state == .knock ? Text("utility.pit.asking") : Text(verbatim: ""))
@@ -62,5 +60,51 @@ extension View {
     func utilityInsets() -> some View {
         padding(.horizontal, DesignTokens.screenPadding)
             .padding(.bottom, 6)
+    }
+}
+
+/// The touch feedback interactive glass gave Pit's circle, kept now that the circle is his head: it shrinks a
+/// little and darkens while pressed (ADR 0039).
+enum PitHeadPress {
+    static let pressedScale: CGFloat = 0.92
+    /// A disabled Pit (a sheet saving) is shown dimmed, as a disabled plain button is.
+    static let disabledOpacity: Double = 0.45
+
+    static func scale(isPressed: Bool) -> CGFloat {
+        isPressed ? pressedScale : 1
+    }
+
+    static func highlightOpacity(isPressed: Bool) -> Double {
+        isPressed ? 1 : 0
+    }
+}
+
+struct PitHeadButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        PitHeadPressed(label: configuration.label, isPressed: configuration.isPressed)
+    }
+}
+
+private struct PitHeadPressed<Label: View>: View {
+    let label: Label
+    let isPressed: Bool
+
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        label
+            .overlay {
+                Circle()
+                    .fill(PitColor.headPressed)
+                    // The head fills 54 of the 56 units; the tint stays on the shell.
+                    .scaleEffect(2 * PitHeadGeometry.headRadius / PitHeadGeometry.viewBox)
+                    .opacity(PitHeadPress.highlightOpacity(isPressed: isPressed))
+                    .allowsHitTesting(false)
+            }
+            .scaleEffect(PitHeadPress.scale(isPressed: isPressed))
+            .opacity(isEnabled ? 1 : PitHeadPress.disabledOpacity)
+            // Feedback, not motion: with Reduce Motion it changes without a spring.
+            .animation(reduceMotion ? nil : .spring(duration: 0.2, bounce: 0.3), value: isPressed)
     }
 }

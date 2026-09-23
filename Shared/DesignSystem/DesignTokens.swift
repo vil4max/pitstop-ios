@@ -9,6 +9,8 @@ enum DesignTokens {
     static let fullTileMinHeight: CGFloat = 148
     static let halfTileMinHeight: CGFloat = 120
     static let utilityButtonSize: CGFloat = 56
+    /// Pit's head beside the moment title in the capture sheet.
+    static let pitHeaderHeadSize: CGFloat = 44
     static let heroCarMaxHeight: CGFloat = 88
     /// The road line under the car: the Road lane, the Car Board tile and the stage horizon (`DashedRoadLine`).
     static let roadLineWidth: CGFloat = 2
