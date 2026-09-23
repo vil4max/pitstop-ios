@@ -52,6 +52,12 @@ struct ServiceViewState: Equatable {
     }
 }
 
+/// An open Mark as done sheet: its operation and the completions stored for it when it opened.
+struct MarkDoneOpening: Equatable {
+    let operation: MaintenanceOperationID
+    let completionIDs: Set<UUID>
+}
+
 /// What the confirmation must say: with another rule left, the operation stays on Service under that rule.
 struct StopTrackingRequest: Equatable {
     let operation: MaintenanceOperationID
@@ -76,6 +82,10 @@ final class ServiceViewModel {
 
     private let store: any CarMemoryStore
     private let now: @Sendable () -> Date
+    /// Each operation's completions as of the last load.
+    private var completionIDs: [MaintenanceOperationID: Set<UUID>] = [:]
+    /// The open Mark as done sheet and its operation's completions when it opened (the ADR 0035 pattern).
+    private var markDoneOpening: MarkDoneOpening?
 
     init(store: any CarMemoryStore, now: @escaping @Sendable () -> Date = { Date() }) {
         self.store = store
@@ -85,6 +95,7 @@ final class ServiceViewModel {
     func load() async {
         do {
             let completions = try await store.maintenanceCompletions()
+            completionIDs = Dictionary(grouping: completions, by: \.operationID).mapValues { Set($0.map(\.id)) }
             let reports = try await store.vehicleServiceReports()
             let readings = try await store.odometerReadings()
             let context = MaintenanceContext(
@@ -123,6 +134,12 @@ final class ServiceViewModel {
         return await execute { vehicleID in .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: policy)) }
     }
 
+    /// The Mark as done sheet opens for `operation`. What is stored for it now is kept, so a completion recorded
+    /// while the sheet is open, by Pit over it, can be told apart from the owner's own earlier ones.
+    func beginMarkDone(_ operation: MaintenanceOperationID) {
+        markDoneOpening = MarkDoneOpening(operation: operation, completionIDs: completionIDs[operation] ?? [])
+    }
+
     /// Called only after the user confirmed the work was actually performed (core C5).
     func confirmDone(_ operation: MaintenanceOperationID, on date: Date, odometerText: String) async -> Bool {
         let odometer = InputParsing.kilometers(from: odometerText)
@@ -131,19 +148,21 @@ final class ServiceViewModel {
         }
         guard DomainCommandLimits.isNotFuture(date, now: now()) else { return fail(.futureDate) }
         let odometerKm = odometer.intValue
-        // Pit can record the same work while this sheet is open (REQ-PIT-026), so what is stored is checked again
-        // now: a completion of this operation on this day is the same completion and is not recorded twice.
-        switch await isRecorded(operation, on: date) {
+        // Pit can record this work while the sheet is open (REQ-PIT-026), so what is stored is checked again now: a
+        // completion of this operation recorded since the sheet opened is this one, and it is not recorded twice.
+        // The owner's own earlier completions, even from the same day, do not count (REQ-MAINT-031).
+        switch await isRecordedSinceOpening(operation) {
         case nil:
             return fail(.notSaved)
         case true?:
+            markDoneOpening = nil
             await load()
             state.failure = nil
             return true
         case false?:
             break
         }
-        return await execute { vehicleID in
+        let saved = await execute { vehicleID in
             .confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
                 vehicleID: vehicleID,
                 operationID: operation,
@@ -151,6 +170,10 @@ final class ServiceViewModel {
                 odometerKm: odometerKm
             )))
         }
+        if saved {
+            markDoneOpening = nil
+        }
+        return saved
     }
 
     /// Takes back the latest confirmation of an operation, for a tap or a number entered by mistake.
@@ -289,13 +312,14 @@ final class ServiceViewModel {
         state.listFailure = nil
     }
 
-    /// Nil when the store cannot be read.
-    private func isRecorded(_ operation: MaintenanceOperationID, on date: Date) async -> Bool? {
+    /// False without an open sheet for `operation`; nil when the store cannot be read.
+    private func isRecordedSinceOpening(_ operation: MaintenanceOperationID) async -> Bool? {
+        guard let opening = markDoneOpening, opening.operation == operation else { return false }
         do {
             let vehicleID = try await store.currentVehicle().id
             return try await store.maintenanceCompletions().contains { completion in
                 completion.vehicleID == vehicleID && completion.operationID == operation
-                    && Calendar.current.isDate(completion.performedAt, inSameDayAs: date)
+                    && !opening.completionIDs.contains(completion.id)
             }
         } catch {
             return nil

@@ -153,6 +153,7 @@ struct ServiceView: View {
                     usedShare: operation.drawnUsedShare(mileage: viewModel.state.mileage),
                     showsSeparator: index > 0
                 ) {
+                    viewModel.beginMarkDone(operation.id)
                     sheet = .done(operation.id)
                 } onChangeInterval: {
                     sheet = .interval(operation.id)
