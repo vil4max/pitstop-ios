@@ -20,18 +20,10 @@ struct EmptyState<Actions: View>: View {
         self.actions = actions()
     }
 
-    /// Fixed at every text size (mockup `#empty`): the disc is decoration, and a disc that grew with the text would
-    /// push the actions off screen at accessibility sizes.
-    private let discSize = DesignTokens.emptyStateDiscSize
-
     var body: some View {
         VStack(spacing: 8) {
-            Image(systemName: systemImage)
-                .font(.system(size: discSize * 0.45, weight: .medium))
-                .foregroundStyle(PitColor.accentPrimary)
-                .frame(width: discSize, height: discSize)
-                .background(PitColor.surfaceTint, in: .circle)
-                .accessibilityHidden(true)
+            // Fixed at every text size (mockup `#empty`), so the actions stay on screen at accessibility sizes.
+            GlyphDisc(systemImage: systemImage)
             title
                 .font(PitTypography.title.bold())
                 .foregroundStyle(PitColor.contentPrimary)

@@ -36,7 +36,7 @@ A feature maps domain meaning to design-system presentation.
 
 ## Color API
 
-Delivered as `PitColor` in `Pitstop/DesignSystem/PitColor.swift` (ADR 0038):
+Delivered as `PitColor` in `Shared/DesignSystem/PitColor.swift` (ADR 0038), compiled into the app and the widget extension:
 
 ``` text
 PitColor.surfacePrimary

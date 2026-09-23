@@ -38,6 +38,16 @@ struct DesignRulesTests {
         #expect(hits.isEmpty, "colour literals under Features/: \(hits)")
     }
 
+    /// `Shared/` is compiled into the app and the widget extension. Its `DesignSystem/` folder defines the roles the
+    /// widget needs (ADR 0038, RD-009), so it is the one shared place where a literal may appear.
+    @Test("REQ-DESIGN-004: code shared with the widget names PitColor roles outside the shared design system")
+    func sharedCodeUsesRoles() throws {
+        let files = try Self.swiftFiles(under: "Shared").filter { !$0.path.contains("/Shared/DesignSystem/") }
+        #expect(files.count >= 5, "the Shared sources were not found; the rule would pass vacuously")
+        let hits = try files.flatMap { try Self.matches(of: Self.colourLiteral, in: $0) }
+        #expect(hits.isEmpty, "colour literals under Shared/ outside DesignSystem/: \(hits)")
+    }
+
     @Test("REQ-DESIGN-002: Liquid Glass appears only inside the design system")
     func glassStaysInTheDesignSystem() throws {
         let files = try ["Pitstop", "Shared", "PitstopWidgets"].flatMap { try Self.swiftFiles(under: $0) }
