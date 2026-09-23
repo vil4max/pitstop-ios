@@ -116,7 +116,7 @@ struct TrackSeveralView: View {
                         operation.titleText.foregroundStyle(PitColor.contentPrimary)
                         Spacer()
                         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(isSelected ? Color.accentColor : PitColor.contentTertiary)
+                            .foregroundStyle(isSelected ? PitColor.accentPrimary : PitColor.contentTertiary)
                             .accessibilityHidden(true)
                     }
                     .contentShape(Rectangle())
@@ -283,7 +283,7 @@ private struct QuickPickRow: View {
                     }
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.capsule)
-                    .tint(isCurrent ? Color.accentColor : PitColor.contentSecondary)
+                    .tint(isCurrent ? PitColor.accentPrimary : PitColor.contentSecondary)
                     .accessibilityAddTraits(isCurrent ? .isSelected : [])
                     .accessibilityHint(Text("trackSeveral.pick.hint"))
                 }
