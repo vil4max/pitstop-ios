@@ -159,29 +159,28 @@ final class ServiceViewModel {
         return await execute { vehicleID in .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: policy)) }
     }
 
-    /// The Mark as done sheet opens for `operation`. What is stored for it now is kept, so a completion recorded
-    /// while the sheet is open, by Pit over it, can be told apart from the owner's own earlier ones. It is read from
-    /// the store, not the last load: Siri can save while Service stays on screen without reloading. If the store
-    /// cannot be read, the sheet opens with no snapshot and saves as it did before Pit could open over it: a stale
-    /// list would make work saved since the last load look like Pit's.
-    func beginMarkDone(_ operation: MaintenanceOperationID) async {
-        state.isMarkDoneAlreadyRecorded = false
+    /// What is stored for `operation` as its Mark as done sheet is about to open, so a completion recorded while the
+    /// sheet is open, by Pit over it, can be told apart from the owner's own earlier ones. It is read from the store,
+    /// not the last load: Siri can save while Service stays on screen without reloading. Nil when the store cannot be
+    /// read. Reading changes nothing: another sheet may open meanwhile, and a read that does not open its sheet must
+    /// not touch the open sheet's snapshot or message.
+    func readMarkDoneOpening(_ operation: MaintenanceOperationID) async -> MarkDoneOpening? {
         do {
             let vehicleID = try await store.currentVehicle().id
             let known = try await Set(store.maintenanceCompletions()
                 .filter { $0.vehicleID == vehicleID && $0.operationID == operation }
                 .map(\.id))
-            markDoneOpening = MarkDoneOpening(operation: operation, completionIDs: known)
+            return MarkDoneOpening(operation: operation, completionIDs: known)
         } catch {
-            markDoneOpening = nil
+            return nil
         }
     }
 
-    /// The Mark as done sheet for `operation` did not open after all (another sheet opened while its snapshot was
-    /// read), so its snapshot is dropped rather than left for a later save.
-    func cancelMarkDone(_ operation: MaintenanceOperationID) {
-        guard markDoneOpening?.operation == operation else { return }
-        markDoneOpening = nil
+    /// Service presents the Mark as done sheet with `opening`; saves are rechecked against it from now on. With no
+    /// opening (the store could not be read) the sheet saves as it did before Pit could open over it.
+    func openMarkDone(_ opening: MarkDoneOpening?) {
+        markDoneOpening = opening
+        state.isMarkDoneAlreadyRecorded = false
     }
 
     /// The owner changed the date or the odometer: the "already saved" message spoke of the previous entry.

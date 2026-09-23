@@ -158,14 +158,13 @@ struct ServiceView: View {
                     usedShare: operation.drawnUsedShare(mileage: viewModel.state.mileage),
                     showsSeparator: index > 0
                 ) {
-                    // The sheet opens once what is stored is known (REQ-PIT-026). Another sheet opened during the read
-                    // is not replaced, which would drop what was typed there.
+                    // The sheet opens once what is stored is known (REQ-PIT-026). A sheet that opened during the read,
+                    // this one included, is not replaced, and a read that loses is simply dropped: only the read that
+                    // opens the sheet becomes its snapshot.
                     Task {
-                        await viewModel.beginMarkDone(operation.id)
-                        guard sheet == nil || sheet == .done(operation.id) else {
-                            viewModel.cancelMarkDone(operation.id)
-                            return
-                        }
+                        let opening = await viewModel.readMarkDoneOpening(operation.id)
+                        guard sheet == nil else { return }
+                        viewModel.openMarkDone(opening)
                         sheet = .done(operation.id)
                     }
                 } onChangeInterval: {
