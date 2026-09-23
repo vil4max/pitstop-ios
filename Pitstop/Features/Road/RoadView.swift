@@ -137,11 +137,9 @@ struct RoadView: View {
     private func milestoneSection(_ title: LocalizedStringKey, _ milestones: [RoadMilestone]) -> some View {
         RoadListSection(title: title) {
             ForEach(Array(milestones.enumerated()), id: \.element.id) { index, milestone in
-                if index > 0 {
-                    RoadListSeparator()
-                }
                 MilestoneRow(
                     milestone: milestone,
+                    showsSeparator: index > 0,
                     planned: plannedEvent(for: milestone),
                     onEdit: { editor = .existing($0) },
                     onDelete: { viewModel.requestDelete($0) }
@@ -230,19 +228,10 @@ private enum RoadListMetrics {
     static let glyphSpacing: CGFloat = 12
 }
 
-/// Starts under the row text, past the glyph column, as a native inset list separator does.
-private struct RoadListSeparator: View {
-    var body: some View {
-        Rectangle()
-            .fill(PitColor.separator)
-            .frame(height: DesignTokens.hairline)
-            .padding(.leading, RoadListMetrics.rowPadding + RoadListMetrics.glyphColumn + RoadListMetrics.glyphSpacing)
-            .accessibilityHidden(true)
-    }
-}
-
 private struct MilestoneRow: View {
     let milestone: RoadMilestone
+    /// Every row but a section's first draws the hairline above it.
+    var showsSeparator = false
     /// Set for a planned date the owner stated; only those can be edited or deleted here (ADR 0032).
     var planned: PlannedDatedEvent?
     var onEdit: (PlannedDatedEvent) -> Void = { _ in }
@@ -267,6 +256,22 @@ private struct MilestoneRow: View {
         .padding(.vertical, 12)
         .padding(.horizontal, RoadListMetrics.rowPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(alignment: .top) {
+            if showsSeparator {
+                // Starts where the text starts, as a native inset list separator does. The inset comes from the
+                // same scaled glyph column the row lays out, so it holds at every text size.
+                Rectangle()
+                    .fill(PitColor.separator)
+                    .frame(height: DesignTokens.hairline)
+                    .padding(.leading, RoadListMetrics.rowPadding + glyphColumnWidth + RoadListMetrics.glyphSpacing)
+                    .accessibilityHidden(true)
+            }
+        }
+    }
+
+    /// The glyph column grows with the headline, so the text starts further in at larger sizes.
+    private var glyphColumnWidth: CGFloat {
+        max(RoadListMetrics.glyphColumn, glyphSize)
     }
 
     /// The text reads as one element; for a planned date the same actions are offered to VoiceOver on it.
@@ -276,7 +281,7 @@ private struct MilestoneRow: View {
         return HStack(alignment: .firstTextBaseline, spacing: RoadListMetrics.glyphSpacing) {
             StatusGlyphView(glyph: milestone.glyph, size: glyphSize)
                 .foregroundStyle(milestone.color)
-                .frame(width: max(RoadListMetrics.glyphColumn, glyphSize))
+                .frame(width: glyphColumnWidth)
                 .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + lift }
             VStack(alignment: .leading, spacing: 3) {
                 milestone.titleText
@@ -349,10 +354,7 @@ private struct MilestoneRow: View {
         PreviewMatrix {
             RoadListSection(title: "road.ahead.title") {
                 ForEach(Array(list.ahead.enumerated()), id: \.element.id) { index, milestone in
-                    if index > 0 {
-                        RoadListSeparator()
-                    }
-                    MilestoneRow(milestone: milestone)
+                    MilestoneRow(milestone: milestone, showsSeparator: index > 0)
                 }
             }
         }
