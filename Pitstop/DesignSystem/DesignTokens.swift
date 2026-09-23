@@ -23,6 +23,9 @@ enum DesignTokens {
     static let shareTrackHeight: CGFloat = 5
     static let emptyStateDiscSize: CGFloat = 64
     static let hairline: CGFloat = 0.5
+    /// The inset-grouped container (`GroupedSection`) and the horizontal padding of its rows.
+    static let groupedCornerRadius: CGFloat = 20
+    static let groupedRowPadding: CGFloat = 16
 
     struct TintOpacity: Equatable {
         let light: CGFloat

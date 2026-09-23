@@ -135,7 +135,7 @@ struct RoadView: View {
 
     /// The same milestones as text, in the same order: meaning never depends on the drawing (REQ-ROAD-027).
     private func milestoneSection(_ title: LocalizedStringKey, _ milestones: [RoadMilestone]) -> some View {
-        RoadListSection(title: title) {
+        GroupedSection(title: title) {
             ForEach(Array(milestones.enumerated()), id: \.element.id) { index, milestone in
                 MilestoneRow(
                     milestone: milestone,
@@ -196,34 +196,7 @@ enum PlannedEditorTarget: Identifiable, Equatable {
     }
 }
 
-/// One inset-grouped container per section (ADR 0038): a heading, then rows separated by hairlines on one
-/// calm surface, not a card per row.
-private struct RoadListSection<Rows: View>: View {
-    let title: LocalizedStringKey
-    @ViewBuilder let rows: Rows
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(PitTypography.title)
-                .foregroundStyle(PitColor.contentPrimary)
-                .accessibilityAddTraits(.isHeader)
-            VStack(alignment: .leading, spacing: 0) {
-                rows
-            }
-            .background(PitColor.surfaceSecondary, in: shape)
-            .overlay(shape.strokeBorder(PitColor.separator.opacity(0.35), lineWidth: DesignTokens.hairline))
-        }
-    }
-
-    private var shape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: RoadListMetrics.cornerRadius, style: .continuous)
-    }
-}
-
 private enum RoadListMetrics {
-    static let cornerRadius: CGFloat = 20
-    static let rowPadding: CGFloat = 16
     static let glyphColumn: CGFloat = 20
     static let glyphSpacing: CGFloat = 12
 }
@@ -254,19 +227,13 @@ private struct MilestoneRow: View {
             }
         }
         .padding(.vertical, 12)
-        .padding(.horizontal, RoadListMetrics.rowPadding)
+        .padding(.horizontal, DesignTokens.groupedRowPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(alignment: .top) {
-            if showsSeparator {
-                // Starts where the text starts, as a native inset list separator does. The inset comes from the
-                // same scaled glyph column the row lays out, so it holds at every text size.
-                Rectangle()
-                    .fill(PitColor.separator)
-                    .frame(height: DesignTokens.hairline)
-                    .padding(.leading, RoadListMetrics.rowPadding + glyphColumnWidth + RoadListMetrics.glyphSpacing)
-                    .accessibilityHidden(true)
-            }
-        }
+        // The inset comes from the same scaled glyph column the row lays out, so it holds at every text size.
+        .groupedRowSeparator(
+            showsSeparator,
+            leadingInset: DesignTokens.groupedRowPadding + glyphColumnWidth + RoadListMetrics.glyphSpacing
+        )
     }
 
     /// The glyph column grows with the headline, so the text starts further in at larger sizes.
@@ -352,7 +319,7 @@ private struct MilestoneRow: View {
         ))
         let list = RoadMilestoneList(road)
         PreviewMatrix {
-            RoadListSection(title: "road.ahead.title") {
+            GroupedSection(title: "road.ahead.title") {
                 ForEach(Array(list.ahead.enumerated()), id: \.element.id) { index, milestone in
                     MilestoneRow(milestone: milestone, showsSeparator: index > 0)
                 }
