@@ -5,10 +5,12 @@ struct HistoryView: View {
     let carName: String
 
     @State private var editor: HistoryEditorTarget?
+    @Environment(\.calendar) private var calendar
+    @Environment(\.timeZone) private var timeZone
 
     var body: some View {
         FeatureScaffold(carName: carName, title: String(localized: "tile.history.title")) {
-            VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
+            VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {
                 if viewModel.state.isLoadFailed {
                     LoadFailureBanner(message: "history.load.failed") { await viewModel.load() }
                 }
@@ -20,19 +22,9 @@ struct HistoryView: View {
                             .buttonStyle(.borderedProminent)
                     }
                 } else {
-                    ForEach(viewModel.state.timeline.entries) { entry in
-                        if case let .event(event) = entry {
-                            Button {
-                                editor = .existing(event)
-                            } label: {
-                                HistoryRow(entry: entry)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityHint("history.row.editHint")
-                        } else {
-                            // Completions are corrected where they were confirmed (Service), not here.
-                            HistoryRow(entry: entry)
-                        }
+                    let dates = HistoryDateStyle(calendar: calendar, timeZone: timeZone)
+                    ForEach(viewModel.state.timeline.months(calendar: calendar, timeZone: timeZone)) { month in
+                        HistoryMonthSection(month: month, dates: dates) { editor = .existing($0) }
                     }
                 }
             }
@@ -96,50 +88,129 @@ enum HistoryEditorTarget: Identifiable, Equatable {
     }
 }
 
-struct HistoryRow: View {
-    let entry: HistoryEntry
+/// How History writes its dates: in the calendar and time zone the months were grouped in, so a row's day never
+/// contradicts its month header.
+struct HistoryDateStyle {
+    let calendar: Calendar
+    let timeZone: TimeZone
+
+    var month: Date.FormatStyle {
+        Date.FormatStyle(calendar: calendar, timeZone: timeZone, capitalizationContext: .beginningOfSentence)
+            .month(.wide).year()
+    }
+
+    var day: Date.FormatStyle {
+        Date.FormatStyle(calendar: calendar, timeZone: timeZone).day().month(.wide).year()
+    }
+}
+
+/// One month of History as one grouped list with a rail through its rows (mockup #history). Recorded events open
+/// their editor; confirmed completions do not, because they are corrected on Service.
+struct HistoryMonthSection: View {
+    let month: HistoryMonth
+    let dates: HistoryDateStyle
+    let onEdit: (HistoryEvent) -> Void
 
     var body: some View {
-        TileCard(minHeight: 0) {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: entry.systemImage)
-                    .font(.title3)
-                    .foregroundStyle(PitColor.accentPrimary)
-                    .frame(width: 30)
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 4) {
-                    entry.titleText
-                        .font(.headline)
-                        .foregroundStyle(PitColor.contentPrimary)
-                    Text(entry.date, format: .dateTime.day().month(.wide).year())
-                        .font(.subheadline)
-                        .foregroundStyle(PitColor.contentSecondary)
-                    facts
-                    if case let .event(event) = entry, let note = event.note {
-                        Text(note)
-                            .font(.footnote)
-                            .foregroundStyle(PitColor.contentSecondary)
+        GroupedSection(title: Text(month.start, format: dates.month)) {
+            ForEach(Array(month.entries.enumerated()), id: \.element.id) { index, entry in
+                let row = HistoryRow(
+                    entry: entry,
+                    dayStyle: dates.day,
+                    showsSeparator: index > 0,
+                    rail: .joining(index: index, count: month.entries.count)
+                )
+                if let event = entry.editableEvent {
+                    Button {
+                        onEdit(event)
+                    } label: {
+                        row
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("history.row.editHint")
+                } else {
+                    row
                 }
             }
         }
+    }
+}
+
+/// One entry on its month's rail. A recorded event has the accent dot and a chevron; a confirmed completion has the
+/// up-to-date dot, no chevron, and a seal line saying where it is corrected.
+struct HistoryRow: View {
+    let entry: HistoryEntry
+    let dayStyle: Date.FormatStyle
+    var showsSeparator = false
+    var rail: GlyphColumnRail = []
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private var isEditable: Bool {
+        entry.editableEvent != nil
+    }
+
+    var body: some View {
+        // The dot is the rail's stop, not a status: the words and the seal say what a completion is.
+        GlyphColumnRow(
+            glyph: .filled,
+            color: isEditable ? PitColor.accentPrimary : PitColor.statusUpToDate,
+            showsSeparator: showsSeparator,
+            rail: rail
+        ) {
+            HStack(spacing: 8) {
+                details
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                // At accessibility sizes the text keeps the width (a date broke over three lines at AX5); the row
+                // stays a button with its hint, and a completion still differs by its seal line.
+                if isEditable, !dynamicTypeSize.isAccessibilitySize {
+                    Image(systemName: "chevron.right")
+                        .font(PitTypography.supportingSmall.weight(.semibold))
+                        .foregroundStyle(PitColor.contentTertiary)
+                        .accessibilityHidden(true)
+                }
+            }
+        }
+        .contentShape(.rect)
         .accessibilityElement(children: .combine)
     }
 
-    /// Missing facts are stated, not guessed and not silently omitted (charter, "Looking back").
-    private var facts: some View {
-        HStack(spacing: 10) {
-            if let kilometers = entry.odometerKm {
-                FeatureFormat.mileage(kilometers)
-            } else {
-                Text("history.mileage.unknown")
+    private var details: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            entry.titleText
+                .font(PitTypography.headline)
+                .foregroundStyle(PitColor.contentPrimary)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+            Text(entry.date, format: dayStyle)
+                .font(PitTypography.supporting)
+                .foregroundStyle(PitColor.contentSecondary)
+            facts
+                .font(PitTypography.supportingSmall)
+                .monospacedDigit()
+                .foregroundStyle(PitColor.contentSecondary)
+            if case let .event(event) = entry, let note = event.note {
+                Text(note)
+                    .font(PitTypography.supportingSmall)
+                    .foregroundStyle(PitColor.contentSecondary)
             }
-            if case let .event(event) = entry, let amount = event.amount {
-                Text(amount, format: FeatureFormat.amountStyle)
+            if !isEditable {
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .accessibilityHidden(true)
+                    Text("history.completion.correctedOnService")
+                }
+                .font(PitTypography.supportingSmall.weight(.semibold))
+                .foregroundStyle(PitColor.statusUpToDate)
             }
         }
-        .font(.footnote)
-        .foregroundStyle(PitColor.contentSecondary)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// Missing facts are stated, not guessed and not silently omitted (charter, "Looking back").
+    private var facts: Text {
+        let mileage = entry.odometerKm.map(FeatureFormat.mileage) ?? Text("history.mileage.unknown")
+        guard case let .event(event) = entry, let amount = event.amount else { return mileage }
+        return Text("history.facts.mileageAndAmount \(mileage) \(Text(amount, format: FeatureFormat.amountStyle))")
     }
 }
 
@@ -148,13 +219,6 @@ extension HistoryEntry {
         switch self {
         case let .event(event): Text(event.kind.title)
         case let .completion(completion): completion.operationID.titleText
-        }
-    }
-
-    var systemImage: String {
-        switch self {
-        case let .event(event): event.kind.systemImage
-        case .completion: "checkmark.seal"
         }
     }
 }
@@ -211,3 +275,32 @@ extension MaintenanceOperationID {
         }
     }
 }
+
+#if DEBUG
+    #Preview("History months") {
+        let vehicle = VehicleID()
+        let now = Date.now
+        let visitDay = now.addingTimeInterval(-80 * 86400)
+        let timeline = HistoryTimeline(
+            events: [
+                HistoryEvent(vehicleID: vehicle, kind: .carWash, date: now, amount: 18, note: "Underbody wash"),
+                HistoryEvent(vehicleID: vehicle, kind: .service, date: visitDay, odometerKm: 42500, amount: 240),
+            ],
+            completions: [
+                MaintenanceCompletion(
+                    vehicleID: vehicle, operationID: .engineOilService,
+                    performedAt: visitDay.addingTimeInterval(60), odometerKm: 42500
+                ),
+            ]
+        )
+        PreviewMatrix {
+            VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {
+                ForEach(timeline.months(calendar: .current, timeZone: .current)) { month in
+                    HistoryMonthSection(
+                        month: month, dates: HistoryDateStyle(calendar: .current, timeZone: .current)
+                    ) { _ in }
+                }
+            }
+        }
+    }
+#endif

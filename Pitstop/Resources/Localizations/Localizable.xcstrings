@@ -799,6 +799,28 @@
         }
       }
     },
+    "history.completion.correctedOnService" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmed done · corrected on Service"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмечено выполненным · исправляется на экране «Сервис»"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позначено виконаним · виправляється на екрані «Сервіс»"
+          }
+        }
+      }
+    },
     "history.editor.amount.placeholder" : {
       "localizations" : {
         "en" : {
@@ -993,6 +1015,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Що зроблено, де, все, що варто зберегти"
+          }
+        }
+      }
+    },
+    "history.facts.mileageAndAmount %@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
           }
         }
       }

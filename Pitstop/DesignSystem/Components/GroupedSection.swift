@@ -4,13 +4,24 @@ import SwiftUI
 /// hairlines on one calm surface, not a card per row, and an optional footer under the container. It lives in a
 /// `ScrollView`, so screens that also draw a stage or a banner keep one scroll surface instead of a `List`.
 struct GroupedSection<Rows: View>: View {
-    let title: LocalizedStringKey
+    let title: Text
     var footer: LocalizedStringKey?
     @ViewBuilder let rows: Rows
 
+    init(title: LocalizedStringKey, footer: LocalizedStringKey? = nil, @ViewBuilder rows: () -> Rows) {
+        self.init(title: Text(title), footer: footer, rows: rows)
+    }
+
+    /// For a heading built from data, such as History's month and year.
+    init(title: Text, footer: LocalizedStringKey? = nil, @ViewBuilder rows: () -> Rows) {
+        self.title = title
+        self.footer = footer
+        self.rows = rows()
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title)
+            title
                 .font(PitTypography.title)
                 .foregroundStyle(PitColor.contentPrimary)
                 .accessibilityAddTraits(.isHeader)
