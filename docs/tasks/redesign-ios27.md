@@ -119,8 +119,8 @@ worktree from `b898e56`; output: step commits on its branch plus a report
 of checks and screenshots; the integrator fast-forwards `redesign/ios27`
 after an independent `/code-review`):
 
-- [ ] Stage hero: mileage with recency from the newest observation date, glass pencil for edit: REQ-BOARD-027 tests
-- [ ] Tile anatomy: title row chevron, primary and secondary lines, status chip where a state exists, Road tile state markers: REQ-BOARD-028 tests
+- [x] Stage hero: mileage with recency from the newest observation date, glass pencil for edit: REQ-BOARD-027 tests — c463064, repair 2470e6d
+- [x] Tile anatomy: title row chevron, primary and secondary lines, status chip where a state exists, Road tile state markers: REQ-BOARD-028 tests — 1bfaf14
 - [ ] Car Board docs: mockup deviations, system-overview row, work-plan row: diff review
 
 ## Current checklist

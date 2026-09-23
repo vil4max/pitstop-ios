@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active since 2026-09-23 (owner unfroze it); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** RD-001 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
+**Next task:** RD-002 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -10,9 +10,9 @@
 ## Plan
 
 No implementation card is open outside the redesign section below. The
-redesign round is under way: RD-000 (design system, ADR 0038) has landed on
-`redesign/ios27`, and RD-001 is next; the app icon already shows the
-redesigned Pit (ICON-002, ADR 0037) as its announcement.
+redesign round is under way: RD-000 (design system, ADR 0038) and RD-001
+(Car Board) have landed on `redesign/ios27`, and RD-002 is next; the app icon
+already shows the redesigned Pit (ICON-002, ADR 0037) as its announcement.
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
 now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
@@ -50,8 +50,7 @@ on screen" until a snapshot-testing card exists.
 
 | ID | Screen | Est | Depends on | Status | Acceptance (summary) |
 |---|---|---:|---|---|---|
-| RD-001 | Car Board: tinted stage with mileage and recency, glass pencil, tile anatomy with chip and chevron, Road tile markers | 2d | RD-000 | next | REQ-BOARD-001…028 pass; recency derived only from the observation date; AX sizes stack half tiles; VoiceOver reads heading, hero action, tiles in order |
-| RD-002 | Road: marker vocabulary, "Back to now" glass pill, grouped milestone list under "Ahead" and "Waiting for mileage", one-line past summary, estimate line kept tertiary | 2d | RD-000; MNT-VR-002 on `main` | planned | REQ-ROAD-004, 008…015, 027, 028 pass; lane and list show identical milestones; Reduce Motion return without animation; overdue never red |
+| RD-002 | Road: marker vocabulary, "Back to now" glass pill, grouped milestone list under "Ahead" and "Waiting for mileage", one-line past summary, estimate line kept tertiary | 2d | RD-000; MNT-VR-002 on `main` | next | REQ-ROAD-004, 008…015, 027, 028 pass; lane and list show identical milestones; Reduce Motion return without animation; overdue never red |
 | RD-003 | Service: one "Track" toolbar menu with the delivered "Track an operation" and "Track several" items and their disable rules, grouped "Next visit" and "Tracked" lists, status chips, remaining-share track, visible "Mark as done", more menu with the dashboard-reading entries | 2d | RD-000; MNT-VR-002 on `main` | planned | Existing Service tests pass unchanged; track drawn only with a known interval, a last completion and a mileage observation newer than 90 days; `unknown` and stale mileage draw no track; VoiceOver reads the fact line, not the bar |
 | RD-004 | Track several: step strip, tinted quick-pick chips, stacked Confirm and Back | 1d | RD-003 | planned | ADR 0033 tests pass unchanged; step labels never truncate; chip selected only when the field holds the value |
 | RD-005 | History: month groups, rail, distinct completions with "corrected on Service" line | 1d | RD-000 | planned | HistoryTests pass; grouping deterministic by calendar month; completions not editable here |
