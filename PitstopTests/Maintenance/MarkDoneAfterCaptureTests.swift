@@ -6,7 +6,8 @@ private let now = DomainFixtures.Odometers.baseDate
 private let day: TimeInterval = 86400
 
 /// A capture over "Mark as done" keeps the duplicate rules: the editor rechecks what is stored before it saves
-/// (pit-behavior-and-motion.md, "Availability"; REQ-PIT-026). Only a completion recorded while the sheet is open is
+/// (pit-behavior-and-motion.md, "Availability"; REQ-PIT-026; proposed as REQ-MAINT-040). Only a completion recorded
+/// while the sheet is open is
 /// the same one, as a dashboard reading tells completions apart by what existed at its entry (ADR 0035).
 @MainActor
 @Suite("Mark as done after a capture")
@@ -38,7 +39,7 @@ struct MarkDoneAfterCaptureTests {
     }
 
     @Test(
-        "REQ-PIT-026: the same work, date and odometer captured over Mark as done is recorded once and nothing is lost"
+        "REQ-MAINT-040: the same work, date and odometer captured over Mark as done is recorded once and nothing is lost"
     )
     func sameEntryIsRecordedOnce() async throws {
         let store = FakeCarMemoryStore()
@@ -56,7 +57,7 @@ struct MarkDoneAfterCaptureTests {
         #expect(service.state.failure == nil && !service.state.isMarkDoneAlreadyRecorded)
     }
 
-    @Test("REQ-PIT-026: with no odometer typed, the same work and date captured over Mark as done is recorded once")
+    @Test("REQ-MAINT-040: with no odometer typed, the same work and date captured over Mark as done is recorded once")
     func emptyOdometerIsRecordedOnce() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -68,7 +69,7 @@ struct MarkDoneAfterCaptureTests {
         #expect(await store.completions.count == 1)
     }
 
-    @Test("REQ-PIT-026: a different odometer for the same work and date keeps the sheet open until the owner decides")
+    @Test("REQ-MAINT-040: a different odometer for the same work and date keeps the sheet open until the owner decides")
     func differentOdometerAsksTheOwner() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -86,7 +87,7 @@ struct MarkDoneAfterCaptureTests {
         #expect(!service.state.isMarkDoneAlreadyRecorded)
     }
 
-    @Test("REQ-PIT-026: an odometer typed where Pit recorded none for the same date is never dropped silently")
+    @Test("REQ-MAINT-040: an odometer typed where Pit recorded none for the same date is never dropped silently")
     func odometerPitLackedAsksTheOwner() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -99,7 +100,7 @@ struct MarkDoneAfterCaptureTests {
         #expect(await store.completions.count == 1)
     }
 
-    @Test("REQ-PIT-026: work Pit recorded for another date while Mark as done is open does not replace the owner's")
+    @Test("REQ-MAINT-040: work Pit recorded for another date while Mark as done is open does not replace the owner's")
     func captureOnAnotherDayIsNotTheSameWork() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -117,7 +118,7 @@ struct MarkDoneAfterCaptureTests {
         ) })
     }
 
-    @Test("REQ-PIT-026: a completion stored after Service last loaded but before the sheet opened is not Pit's")
+    @Test("REQ-MAINT-040: a completion stored after Service last loaded but before the sheet opened is not Pit's")
     func completionBeforeOpeningIsNotPits() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -131,7 +132,7 @@ struct MarkDoneAfterCaptureTests {
         #expect(!service.state.isMarkDoneAlreadyRecorded)
     }
 
-    @Test("REQ-PIT-026: without a capture, a second Mark as done on the same day is recorded as the owner asked")
+    @Test("REQ-MAINT-040: without a capture, a second Mark as done on the same day is recorded as the owner asked")
     func deliberateRepeatIsRecorded() async {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -167,7 +168,7 @@ struct MarkDoneAfterCaptureTests {
         #expect(afterReading.state.operations.first?.isReportSuperseded == true)
     }
 
-    @Test("REQ-PIT-026: other work is still recorded: the same operation on another day, or another operation")
+    @Test("REQ-MAINT-040: other work is still recorded: the same operation on another day, or another operation")
     func otherWorkIsStillRecorded() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -183,7 +184,7 @@ struct MarkDoneAfterCaptureTests {
         #expect(completions.count { $0.operationID == .engineOilService } == 2)
     }
 
-    @Test("REQ-PIT-026: when the recheck cannot read the store, Mark as done reports not saved and writes nothing")
+    @Test("REQ-MAINT-040: when the recheck cannot read the store, Mark as done reports not saved and writes nothing")
     func unreadableStoreIsNotSaved() async {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)

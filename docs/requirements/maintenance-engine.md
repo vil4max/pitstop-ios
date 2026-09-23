@@ -605,3 +605,11 @@ Source: [ADR 0006](../decisions/0006-capture-confirmation-policy.md), [ADR 0035]
 Given a capture such as "dashboard says service in 3200 km and 45 days"
 When it passes through the Remember pipeline
 Then it becomes a dashboard reading proposal only when the display is named and a countdown marker ("in", "через", "до ТО", "overdue by", "просрочено на") precedes the value or "left" / "overdue" follows its unit, never from a number after "пробег", "odometer" or a bare "на" or followed by "пробега", an "overdue" capture without a readable countdown keeps only its words and never becomes a mileage, and never instead of a completion the same words report; the proposal is never auto-accepted; the operation is asked first and never guessed, the odometer is asked when a distance is given, a proposal with no remaining value is incomplete; nothing is written before confirmation, cancelling writes nothing, and "I don't know" keeps only the words
+
+### REQ-MAINT-040 — Mark as done after Pit recorded the same work never records it twice and never drops the owner's entry
+Status: proposed
+Core: C2, C5
+Source: [Pit availability](pit-behavior-and-motion.md#availability), [REQ-PIT-026](pit-behavior-and-motion.md), [ADR 0035](../decisions/0035-dashboard-service-reading.md)
+Given the Mark as done sheet is open for an operation, and Pit records a completion of that operation while it is open
+When the owner confirms the sheet
+Then a completion Pit recorded for another date is kept and the owner's completion is recorded separately; for the same date with the odometer left empty or equal to Pit's, nothing more is recorded and the sheet closes as saved; otherwise the sheet stays open, says in place (and to VoiceOver) that Pit already saved this work for that date, and records the owner's entry only on "Save anyway", which rechecks the entry first; editing the date or the odometer removes the message; completions stored before the sheet opened, the same day included, do not count (REQ-MAINT-031)
