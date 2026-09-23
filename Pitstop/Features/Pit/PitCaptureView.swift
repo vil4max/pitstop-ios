@@ -11,10 +11,13 @@ struct PitCaptureView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var eyes = PitCaptureEyes()
     @FocusState private var isFocused: Bool
     @State private var answerText = ""
     @State private var isScrolling = false
+    /// The detent the user dragged to; until then the text size decides where the sheet opens (REQ-PIT-025).
+    @State private var chosenDetent: PresentationDetent?
 
     var body: some View {
         @Bindable var model = viewModel
@@ -46,7 +49,7 @@ struct PitCaptureView: View {
                 Button("common.ok") { viewModel.dismissFailure() }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents(PitCaptureDetents.available, selection: detent)
         // Neither a save in flight nor unsent words can be swiped away. Close cancels unsent words and
         // pending proposals, and waits for a save in flight.
         .interactiveDismissDisabled(
@@ -290,6 +293,13 @@ struct PitCaptureView: View {
         case .service: "pit.saved.to.service"
         case .carBoard: "pit.saved.to.car"
         }
+    }
+
+    private var detent: Binding<PresentationDetent> {
+        Binding(
+            get: { chosenDetent ?? PitCaptureDetents.initial(for: dynamicTypeSize) },
+            set: { chosenDetent = $0 }
+        )
     }
 
     private var isQuestionWorking: Bool {
