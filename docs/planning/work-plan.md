@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active since 2026-09-23 (owner unfroze it); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** RD-009 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
+**Next task:** RD-010 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -12,7 +12,7 @@
 No implementation card is open outside the redesign section below. The
 redesign round is under way: RD-000 (design system, ADR 0038), RD-001
 (Car Board), RD-002 (Road), RD-003 (Service), RD-004 (Track several),
-RD-005 (History), RD-006 (Notes), RD-007 (Pit capture sheet) and RD-008 (sparse states) have landed on `redesign/ios27`, and RD-009 is next; the app icon already shows the redesigned Pit (ICON-002, ADR 0037) as its announcement.
+RD-005 (History), RD-006 (Notes), RD-007 (Pit capture sheet), RD-008 (sparse states) and RD-009 (widgets) have landed on `redesign/ios27`, and RD-010 is next; the app icon already shows the redesigned Pit (ICON-002, ADR 0037) as its announcement.
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
 now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
@@ -41,7 +41,7 @@ Each card is one screen, keeps that screen's behaviour and tests, adds
 light/dark and accessibility-extra-large previews, updates
 `docs/design/ios27-mockups.html` if the screen deviates from it, and updates the screen's row in
 `docs/engineering/system-overview.md`. The redesign ADR is
-[0038](../decisions/0038-ios27-surface-tiers.md). Not part of these cards: the SYS-007 widgets; RD-003 restyled the delivered
+[0038](../decisions/0038-ios27-surface-tiers.md). Not part of these cards: the SYS-007 widgets (the next-service widget keeps its delivered look; the mockup's small "Next service" and medium "Road" frames are the input for a later card that restyles it, not yet scheduled); RD-003 restyled the delivered
 MNT-VR-002 row line and kept its sheet and menu entries without changing their wording.
 ROAD-EST-002 has landed its estimate line on Road; RD-002 kept it as
 delivered. Text-clipping at accessibility
@@ -50,8 +50,7 @@ on screen" until a snapshot-testing card exists.
 
 | ID | Screen | Est | Depends on | Status | Acceptance (summary) |
 |---|---|---:|---|---|---|
-| RD-009 | Widgets: delivered widget restyled with the shared glyph disc and tokens; SYS-007 frames become that card's input | 0.5d | RD-000 | next | WidgetEntryTests pass; no data read; tinted and dark appearances checked in the gallery (DEV-WIDGET) |
-| RD-010 | Utility layer and Settings: no geometry change; REQ-UTILITY-012 test; Settings unchanged | 0.5d | RD-000 | planned | Layer position identical on Car Board and every detail screen; Pit stays on screen inside every sheet and above the keyboard (REQ-UTILITY-012, REQ-PIT-026), checked on the simulator at the medium and large detents; tapping Pit in a sheet opens capture over it and returns with the input intact; edge cases checked: a capture over "Mark as done" for the same operation leaves no duplicate completion when the editor then saves; Pit is disabled while Track several, the planned date editor or the dashboard reading is saving; above the keyboard Pit covers neither a sheet's trailing controls nor a keyboard accessory, at AX sizes (and in landscape if the app supports it) |
+| RD-010 | Utility layer and Settings: no geometry change; REQ-UTILITY-012 test; Settings unchanged | 0.5d | RD-000 | next | Layer position identical on Car Board and every detail screen; Pit stays on screen inside every sheet and above the keyboard (REQ-UTILITY-012, REQ-PIT-026), checked on the simulator at the medium and large detents; tapping Pit in a sheet opens capture over it and returns with the input intact; edge cases checked: a capture over "Mark as done" for the same operation leaves no duplicate completion when the editor then saves; Pit is disabled while Track several, the planned date editor or the dashboard reading is saving; above the keyboard Pit covers neither a sheet's trailing controls nor a keyboard accessory, at AX sizes (and in landscape if the app supports it) |
 | RD-011 | Pit character: round head (the utility circle itself) with a navy visor and lit lens eyes (owner request, proposal §3.6d), per-eye tilt, head tilt and lift only in motion-table states, accent eyes on knock; the head matches the delivered icon geometry (ADR 0037), and a geometry change regenerates the icon in this card | 2d | RD-000 | planned | Every motion state has a distinct static pose (REQ-PIT-022); inward tilt ≤ 6°; knock uses the accent (REQ-PIT-023); head still when idle (REQ-PIT-024); ADR 0028 tests pass; Reduce Motion poses checked; the head keeps the pressed-state feedback the glass circle gave (scale and highlight on touch); Reduce Transparency and Increase Contrast variants of the shell, bezel and visor; contrast and separation of the head checked over light and dark scrolling content; the ADR amends ADR 0009 for the Pit control (no glass) |
 | RD-012 | Car profile: `PhotosPicker` in the car editor (no camera), on-device subject lift onto the stage, the owner's side-view placeholders facing right, SUV (default) or sedan chosen in the car editor, replacing `AbstractCarView` (AI-generated by the owner, provenance in `docs/design/assets/README.md`), 28 / 44 pt avatar in headers, Road "Now" and Pit; the next schema version after the newest on `main`, previous one frozen; car-profile ADR | 3d | RD-001 | planned | REQ-BOARD-029…031, REQ-DESIGN-005 and the REQ-BOARD-017 wording change; migration tests from every shipped schema version; photo stored as a file, never in a row, analytics, logs, a widget timeline entry or the repository; placeholder source and licence recorded; failed lift falls back to the masked photo; deleting the photo removes the file; widget avatar waits for SYS-007 |
 
