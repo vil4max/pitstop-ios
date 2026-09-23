@@ -387,7 +387,7 @@ When Car Board renders
 Then the History tile shows no latest event
 
 ### REQ-BOARD-017 — Car Hero shows visual and name without specifications
-Status: proposed (wording changed by the owner on 2026-09-22: the name moved to the screen title)
+Status: approved (owner, 2026-09-23; wording changed by the owner on 2026-09-22: the name moved to the screen title)
 Core: P5
 Source: [Car Hero](#car-hero)
 Given any car context
