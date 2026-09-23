@@ -9,7 +9,7 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000…RD-006 landed on `redesign/ios27`; RD-007 is next.
+Current outcome: RD-000…RD-007 landed on `redesign/ios27`; RD-008 is next.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -39,7 +39,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: RD-007 Writer steps (drafted when the card starts), then RD-008…RD-011 overnight.
+Next step: RD-008 Writer steps (drafted when the card starts), then RD-009…RD-011 overnight.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -72,7 +72,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-004 Track several | ADR 0033 tests | RD-003 | done | `a7452ad`…`a1ae952`; `just verify` per step (writer); review: 1 medium + 4 low, then 2 medium + 2 low, then 0 high/medium + 3 low, all repaired |
 | RD-005 History | HistoryTests | RD-000 | done | `41f3697`…`b682104`; `just verify` per step; review: 0 high/medium, 2 low, both repaired |
 | RD-006 Notes | NotesTests | RD-000 | done | `0ea4f8a`…`eb45fd8`; `just verify` per step; review: 1 medium + 1 low, both repaired |
-| RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | in progress | — |
+| RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | done | `d0357c0`…`72c39cf`; `just verify` per step; review: 1 medium + 5 low, then 1 medium + 1 low, then 0 high/medium + 4 low; all repaired except two test-coverage lows (accepted) |
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | planned | — |
 | RD-009 Widgets | WidgetEntryTests | RD-000 | planned | — |
 | RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | planned | — |
@@ -165,6 +165,24 @@ added here when the slice starts.
   repaired both, ran `just verify`, and checked Notes on the simulator: rows,
   archive glyphs, and a trailing swipe revealing Archive. Not checked on
   screen: the VoiceOver action, the editor, restore, ru/uk.
+- 2026-09-23, RD-007 (slice-writer): `just verify` passed before each commit
+  (the two simulator fixes were verified together); `PitCaptureDetentsTests`,
+  `PitSheetMomentTests`, `PitEqualWidthRowTests`, a new REQ-CAPTURE-005 Close
+  test; existing Capture and Pit tests unchanged; screenshots in `rd-007/`.
+  Review round 1: 1 medium (Remember under the keyboard at accessibility
+  sizes with Pit's question pending, REQ-PIT-025) + 5 low; round 2: 1 medium
+  (Remember prominent beside the question's Save below accessibility sizes)
+  + 1 low; round 3: 0 high/medium + 4 low (citations, a contradicting mockup
+  note, stale comments, a commit body narrating the process); all repaired
+  by the writer, except the round-1 lows that the REQ-PIT-021/025 tests check
+  pure logic, not the view (backed by the simulator), and a commit-pairing
+  note. Decision within the mockup: while Pit's question is pending, Remember
+  is quiet at every text size, so the question's Save is the one prominent
+  action. The integrator ran `just verify` after the fast-forward: passed.
+  Not checked on screen: typing with the question pending at AX sizes, the
+  composer refocus after an answer, the quiet inline Remember below AX sizes,
+  the working spinner, the stacked decline pair, VoiceOver, ru/uk. Owner
+  candidate: the Capture section's "one prominent action" rule has no REQ ID.
 
 ## Untested scope
 
@@ -249,10 +267,14 @@ RD-007 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001; the eyes stay
 `PitCaptureEyes` until RD-011 draws the head):
 
-- [ ] Sheet opens at the large detent at accessibility text sizes: REQ-PIT-025 tests
-- [ ] One moment at a time: eyes beside the moment title, composer with mode picker and a prominent capsule action, the pending question card above the composer, Close cancels unsent words: REQ-PIT-021 tests, Capture and Pit tests unchanged
-- [ ] Confirmation quotes the raw words first, then every fact to be written; the saved state names the destination and offers one way to continue: Capture tests
-- [ ] Pit capture docs: mockup deviations, system-overview row, work-plan row: diff review
+- [x] Sheet opens at the large detent at accessibility text sizes: REQ-PIT-025 tests — d0357c0
+- [x] One moment at a time: eyes beside the moment title, composer with mode picker and a prominent capsule action, the pending question card above the composer, Close cancels unsent words: REQ-PIT-021 tests, Capture and Pit tests unchanged — 5e8e961
+- [x] Confirmation quotes the raw words first, then every fact to be written; the saved state names the destination and offers one way to continue: Capture tests — 6171c71
+- [x] Simulator repair: Remember above the keyboard at accessibility sizes; equal-width decline pair: `just verify`, simulator — ca9104a, e587cc7
+- [x] Pit capture docs: mockup deviations, system-overview row, work-plan row: diff review — cce5e08
+- [x] Review repair: Remember pinned at accessibility sizes with the question pending; detent fixed at open; composer refocus after an answer; equal-width row guards: `just verify`, `PitEqualWidthRowTests` — 7356892, f2058ac, 03111ea, 009a8e5
+- [x] Round-2 repair: Remember quiet at every text size while the question is pending: `PitSheetMomentTests` — 93f1e3c
+- [x] Round-3 repair: citations, mockup notes and comments match the rule: `just verify` — 72c39cf
 
 ## Resume prompt
 
