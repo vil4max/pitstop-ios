@@ -73,7 +73,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-005 History | HistoryTests | RD-000 | done | `41f3697`…`b682104`; `just verify` per step; review: 0 high/medium, 2 low, both repaired |
 | RD-006 Notes | NotesTests | RD-000 | done | `0ea4f8a`…`eb45fd8`; `just verify` per step; review: 1 medium + 1 low, both repaired |
 | RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | done | `d0357c0`…`72c39cf`; `just verify` per step; review: 1 medium + 5 low, then 1 medium + 1 low, then 0 high/medium + 4 low; all repaired except two test-coverage lows (accepted) |
-| RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | planned | — |
+| RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | in progress | — |
 | RD-009 Widgets | WidgetEntryTests | RD-000 | planned | — |
 | RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | planned | — |
 | RD-011 Pit character | REQ-PIT-022…024 | RD-000 | planned | — |
@@ -275,6 +275,13 @@ dispatch commit; same output and integration as RD-001; the eyes stay
 - [x] Review repair: Remember pinned at accessibility sizes with the question pending; detent fixed at open; composer refocus after an answer; equal-width row guards: `just verify`, `PitEqualWidthRowTests` — 7356892, f2058ac, 03111ea, 009a8e5
 - [x] Round-2 repair: Remember quiet at every text size while the question is pending: `PitSheetMomentTests` — 93f1e3c
 - [x] Round-3 repair: citations, mockup notes and comments match the rule: `just verify` — 72c39cf
+
+RD-008 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001):
+
+- [ ] Road, Service, History and Notes empty states use the design-system `EmptyState` (tinted glyph disc, headline, at most one sentence, one or two actions, top third), wording unchanged: REQ-GRAMMAR-004 tests, existing empty-state tests unchanged
+- [ ] First-launch Car Board against the "First minute" frame: no placeholder metric on a surface without records: REQ-GRAMMAR-004 and REQ-BOARD tests
+- [ ] Sparse states docs: mockup deviations, system-overview rows, work-plan row: diff review
 
 ## Resume prompt
 
