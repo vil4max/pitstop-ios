@@ -131,6 +131,18 @@ final class ServiceViewModel {
         }
         guard DomainCommandLimits.isNotFuture(date, now: now()) else { return fail(.futureDate) }
         let odometerKm = odometer.intValue
+        // Pit can record the same work while this sheet is open (REQ-PIT-026), so what is stored is checked again
+        // now: a completion of this operation on this day is the same completion and is not recorded twice.
+        switch await isRecorded(operation, on: date) {
+        case nil:
+            return fail(.notSaved)
+        case true?:
+            await load()
+            state.failure = nil
+            return true
+        case false?:
+            break
+        }
         return await execute { vehicleID in
             .confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
                 vehicleID: vehicleID,
@@ -275,6 +287,19 @@ final class ServiceViewModel {
     func dismissFailure() {
         state.failure = nil
         state.listFailure = nil
+    }
+
+    /// Nil when the store cannot be read.
+    private func isRecorded(_ operation: MaintenanceOperationID, on date: Date) async -> Bool? {
+        do {
+            let vehicleID = try await store.currentVehicle().id
+            return try await store.maintenanceCompletions().contains { completion in
+                completion.vehicleID == vehicleID && completion.operationID == operation
+                    && Calendar.current.isDate(completion.performedAt, inSameDayAs: date)
+            }
+        } catch {
+            return nil
+        }
     }
 
     private func execute(_ makeCommand: (VehicleID) -> DomainCommand) async -> Bool {
