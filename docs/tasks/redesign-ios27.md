@@ -9,7 +9,7 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000…RD-002 landed on `redesign/ios27`; RD-003 is next.
+Current outcome: RD-000…RD-003 landed on `redesign/ios27`; RD-004 is next.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -30,7 +30,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: RD-003 Writer steps (drafted when the card starts).
+Next step: RD-004 Writer steps (drafted when the card starts).
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -59,7 +59,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-000 design system | REQ-DESIGN-001…004 | — | done | `3674b52`…`c901d10` and the docs commit; `just verify` passed; review: 2 medium + 3 low, then 1 medium + 5 low, all repaired |
 | RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | done | `8cdc992`…`286fcae`; `just verify` passed per step (writer); review: 0 high/medium, 4 low (2 repaired, `isCompact` dead code left to RD-002, bookkeeping fixed) |
 | RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | done | `0871525`…`087a3bd`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
-| RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | in progress | — |
+| RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | done | `ec7e63e`…`0386c0c`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
 | RD-004 Track several | ADR 0033 tests | RD-003 | planned | — |
 | RD-005 History | HistoryTests | RD-000 | planned | — |
 | RD-006 Notes | NotesTests | RD-000 | planned | — |
@@ -111,6 +111,18 @@ added here when the slice starts.
   inset at AX sizes; a tautological REQ-ROAD-029 test), both repaired, the
   new test shown to fail on a mutated post height. Not seen on screen:
   VoiceOver, ru/uk, the Reduce Motion setting, a lane cluster.
+- 2026-09-23, RD-003 (slice-writer): `just verify` passed before each of its
+  seven commits; `ServiceShareTrackTests` (11 tests, 12 cases) and
+  `ServiceTrackMenuTests` (4); a planted removal of the freshness check made
+  the stale-mileage and 90-day tests fail; screenshots in `rd-003/`.
+  Decisions: the track also needs an owner interval in the deciding
+  dimension; the empty state waits for the first successful load; "Not
+  enough facts" moved to `contentSecondary` (Car Board chip too). Review: no
+  high or medium; 2 low (duplicated glyph-column row, redundant menu rule),
+  both repaired, Road and Service re-checked at default and AX5. At exactly
+  90 days the track still draws, matching ADR 0008's staleness rule. Not seen
+  on screen: VoiceOver, ru/uk, the old-reading line, the load-failure banner,
+  the Track menu while loading.
 
 ## Untested scope
 
@@ -159,10 +171,13 @@ dispatch commit; same output and integration as RD-001):
 RD-003 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001):
 
-- [ ] Draw the missing Service frames (dashboard "old reading" row; "Track" menu with "Track several" disabled while loading): diff review
-- [ ] One "Track" toolbar menu with the delivered items and disable rules; visible "Mark as done"; more menu with the dashboard-reading entries: existing Service tests
-- [ ] Grouped "Next visit" and "Tracked" lists with status chips and the remaining-share track under its freshness rule: share-track tests
-- [ ] Service docs: mockup deviations, system-overview row, work-plan row: diff review
+- [x] Draw the missing Service frames (dashboard "old reading" row; "Track" menu with "Track several" disabled while loading): diff review — ec7e63e
+- [x] One "Track" toolbar menu with the delivered items and disable rules; visible "Mark as done"; more menu with the dashboard-reading entries: existing Service tests — ce7028f
+- [x] Share Road's grouped list section: `just verify` — fd91156
+- [x] Grouped "Next visit" and "Tracked" lists with status chips and the remaining-share track under its freshness rule: share-track tests — be60cff
+- [x] Service docs: mockup deviations, system-overview row, work-plan row: diff review — 980fe84
+- [x] Review repair: one shared glyph-column row and more-menu label for Road and Service: `just verify` — f419bd4
+- [x] Review repair: Track menu rule stated as canTrackOne: ADR-0033 menu tests — 0386c0c
 
 ## Current checklist
 
