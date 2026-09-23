@@ -58,7 +58,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | Round opening (docs) | REQ-BOARD-017 wording | — | done | `f50cb7e`, `6b3d589` |
 | RD-000 design system | REQ-DESIGN-001…004 | — | done | `3674b52`…`c901d10` and the docs commit; `just verify` passed; review: 2 medium + 3 low, then 1 medium + 5 low, all repaired |
 | RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | done | `8cdc992`…`286fcae`; `just verify` passed per step (writer); review: 0 high/medium, 4 low (2 repaired, `isCompact` dead code left to RD-002, bookkeeping fixed) |
-| RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | planned | — |
+| RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | in progress | — |
 | RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | planned | — |
 | RD-004 Track several | ADR 0033 tests | RD-003 | planned | — |
 | RD-005 History | HistoryTests | RD-000 | planned | — |
@@ -136,6 +136,14 @@ after an independent `/code-review`; SHAs below are the integrated ones):
 - [x] Car Board docs: mockup deviations, system-overview row, work-plan row: diff review — ae76645
 - [x] Review repair: Road tile labels wrap, AX hiding justified: `just verify` — 428639f
 - [x] Review repair: one shared dashed road line: `just verify` — 286fcae
+
+RD-002 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001):
+
+- [ ] Draw the missing Road load-failure frame in the mockup page: diff review
+- [ ] Road lane: roadside signs with state glyphs on one road line, "Back to now" glass pill, no compact mode: REQ-ROAD-028, 029 tests
+- [ ] Grouped milestone list under "Ahead" and "Waiting for mileage" mirroring the lane, one-line past summary, tertiary estimate: REQ-ROAD-027 tests
+- [ ] Road docs: mockup deviations, system-overview row, work-plan row: diff review
 
 ## Current checklist
 
