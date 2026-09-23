@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active since 2026-09-23 (owner unfroze it); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** RD-005 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
+**Next task:** RD-006 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -11,8 +11,8 @@
 
 No implementation card is open outside the redesign section below. The
 redesign round is under way: RD-000 (design system, ADR 0038), RD-001
-(Car Board), RD-002 (Road), RD-003 (Service) and RD-004 (Track several)
-have landed on `redesign/ios27`, and RD-005 is next; the app icon already shows the redesigned Pit (ICON-002, ADR 0037) as its announcement.
+(Car Board), RD-002 (Road), RD-003 (Service), RD-004 (Track several) and
+RD-005 (History) have landed on `redesign/ios27`, and RD-006 is next; the app icon already shows the redesigned Pit (ICON-002, ADR 0037) as its announcement.
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
 now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
@@ -50,8 +50,7 @@ on screen" until a snapshot-testing card exists.
 
 | ID | Screen | Est | Depends on | Status | Acceptance (summary) |
 |---|---|---:|---|---|---|
-| RD-005 | History: month groups, rail, distinct completions with "corrected on Service" line | 1d | RD-000 | next | HistoryTests pass; grouping deterministic by calendar month; completions not editable here |
-| RD-006 | Notes: grouped rows, meta line, archive glyph plus swipe, wrapping chips at AX sizes | 1d | RD-000 | planned | NotesTests pass; unclassified notes stay under "All"; archive reachable by row action, swipe and VoiceOver action |
+| RD-006 | Notes: grouped rows, meta line, archive glyph plus swipe, wrapping chips at AX sizes | 1d | RD-000 | next | NotesTests pass; unclassified notes stay under "All"; archive reachable by row action, swipe and VoiceOver action |
 | RD-007 | Pit capture sheet: eyes beside a moment title, composer with prominent action, question card above the composer, quoted raw words in confirmation, saved state | 2d | RD-000 | planned | Capture and Pit tests pass unchanged; REQ-PIT-021; large detent at AX sizes; one question at a time; Close cancels unsent words |
 | RD-008 | Sparse states: EmptyState on Road, Service, History, Notes and the first-launch board | 1d | RD-000 | planned | REQ-GRAMMAR-004; no placeholder metric; wording unchanged; one or two actions |
 | RD-009 | Widgets: delivered widget restyled with the shared glyph disc and tokens; SYS-007 frames become that card's input | 0.5d | RD-000 | planned | WidgetEntryTests pass; no data read; tinted and dark appearances checked in the gallery (DEV-WIDGET) |
