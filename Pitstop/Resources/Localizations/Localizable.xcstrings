@@ -3615,6 +3615,28 @@
         }
       }
     },
+    "pit.moment.clarifying" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One thing"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Один вопрос"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одне питання"
+          }
+        }
+      }
+    },
     "pit.placeholder" : {
       "localizations" : {
         "en" : {

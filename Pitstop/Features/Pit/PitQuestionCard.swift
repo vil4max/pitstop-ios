@@ -37,10 +37,9 @@ struct PitQuestionCard: View {
             Button {
                 Task { await model.answer() }
             } label: {
-                Text("pit.question.save").frame(maxWidth: .infinity)
+                PitActionLabel(title: "pit.question.save", prominent: true)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .pitPrimaryAction()
             .disabled(model.answerText.isBlank || isWorking)
             .accessibilityIdentifier("pit.question.save")
             // Side by side while they fit; stacked at large text sizes, so neither label is truncated.
@@ -48,7 +47,7 @@ struct PitQuestionCard: View {
                 HStack(spacing: DesignTokens.tileSpacing) { declineButtons }
                 VStack(spacing: DesignTokens.tileSpacing) { declineButtons }
             }
-            .buttonStyle(.bordered)
+            .pitSecondaryAction()
             .disabled(isWorking)
         }
         .onChange(of: model.answerText) {
@@ -63,13 +62,13 @@ struct PitQuestionCard: View {
         Button {
             Task { await model.deferAnswer() }
         } label: {
-            Text("pit.question.notKnown").frame(maxWidth: .infinity)
+            PitActionLabel(title: "pit.question.notKnown")
         }
         .accessibilityIdentifier("pit.question.notKnown")
         Button {
             Task { await model.dismiss() }
         } label: {
-            Text("pit.question.dismiss").frame(maxWidth: .infinity)
+            PitActionLabel(title: "pit.question.dismiss")
         }
         .accessibilityIdentifier("pit.question.dismiss")
     }

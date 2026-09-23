@@ -23,12 +23,8 @@ struct PitCaptureView: View {
         @Bindable var model = viewModel
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {
-                    HStack(spacing: 12) {
-                        PitEyesGlyph(state: eyes.state, life: eyes.life).scaleEffect(1.6)
-                            .frame(width: 44, height: 36)
-                        Text("pit.title").font(.title2.bold())
-                    }
+                VStack(alignment: .leading, spacing: Self.spacing) {
+                    PitMomentHeader(title: moment.title, eyes: eyes.state, life: eyes.life)
                     content(model: $model.text, mode: $model.mode)
                 }
                 .padding(DesignTokens.screenPadding)
@@ -65,26 +61,32 @@ struct PitCaptureView: View {
         .onDisappear { eyes.stop() }
     }
 
+    /// The one moment the sheet shows; earlier turns are never drawn (REQ-PIT-021).
+    private var moment: PitSheetMoment {
+        PitSheetMoment(capture: viewModel.phase, question: question.phase)
+    }
+
+    private static let spacing: CGFloat = 16
+
     @ViewBuilder
     private func content(model text: Binding<String>, mode: Binding<RememberMode>) -> some View {
-        switch viewModel.phase {
-        case .composing:
+        switch moment {
+        case let .composing(notice):
             // Remember stays the primary surface (REQ-PIT-013). A pending question sits above it and can be
             // answered or declined here, but the user may write a note without touching it (ADR 0017).
-            switch question.phase {
-            case let .asking(asked), let .working(asked):
-                TileCard(minHeight: 0) {
+            switch notice {
+            case let .question(asked):
+                PitSheetCard {
                     PitQuestionCard(model: question, question: asked)
                 }
-                composer(text: text, mode: mode)
             case let .answered(kilometers):
                 Label("pit.question.answered \(kilometers)", systemImage: "checkmark.circle.fill")
-                    .font(.subheadline)
+                    .font(PitTypography.supporting)
                     .foregroundStyle(PitColor.statusUpToDate)
-                composer(text: text, mode: mode)
-            case .silent:
-                composer(text: text, mode: mode)
+            case .none:
+                EmptyView()
             }
+            composer(text: text, mode: mode)
         case .working:
             ProgressView()
                 .frame(maxWidth: .infinity)
@@ -99,28 +101,30 @@ struct PitCaptureView: View {
     }
 
     private func composer(text: Binding<String>, mode: Binding<RememberMode>) -> some View {
-        VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
+        VStack(alignment: .leading, spacing: Self.spacing) {
             TextField("pit.placeholder", text: text, axis: .vertical)
                 .lineLimit(3 ... 8)
                 .focused($isFocused)
                 .padding(DesignTokens.tilePadding)
                 .background(PitColor.surfaceSecondary, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .accessibilityIdentifier("pit.text")
-            Picker("pit.title", selection: mode) {
-                Text("pit.mode.interpreted").tag(RememberMode.interpreted)
-                Text("pit.mode.raw").tag(RememberMode.raw)
+            VStack(alignment: .leading, spacing: 8) {
+                Picker("pit.title", selection: mode) {
+                    Text("pit.mode.interpreted").tag(RememberMode.interpreted)
+                    Text("pit.mode.raw").tag(RememberMode.raw)
+                }
+                .pickerStyle(.segmented)
+                Text("pit.mode.footer")
+                    .font(PitTypography.supportingSmall)
+                    .foregroundStyle(PitColor.contentSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .pickerStyle(.segmented)
-            Text("pit.mode.footer")
-                .font(.footnote)
-                .foregroundStyle(PitColor.contentSecondary)
             Button {
                 Task { await viewModel.submit(from: visible) }
             } label: {
-                Text("pit.save").frame(maxWidth: .infinity)
+                PitActionLabel(title: "pit.save", prominent: true)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .pitPrimaryAction()
             .disabled(!viewModel.canSubmit)
             .accessibilityIdentifier("pit.save")
         }
@@ -130,7 +134,6 @@ struct PitCaptureView: View {
 
     private func confirmation(_ pending: PendingCapture) -> some View {
         VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
-            Text("pit.confirm.title").font(.headline)
             TileCard(minHeight: 0) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(verbatim: pending.rawText)
@@ -173,10 +176,13 @@ struct PitCaptureView: View {
     }
 
     private func clarification(_ request: ClarificationRequest) -> some View {
-        VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
-            Text(verbatim: request.rawText)
-                .foregroundStyle(PitColor.contentSecondary)
-            Text(question(request.question, kind: request.kind)).font(.headline)
+        VStack(alignment: .leading, spacing: Self.spacing) {
+            PitQuotedWords(text: request.rawText)
+            // The capture's one question (REQ-PIT-003); the header already says "One thing".
+            Text(question(request.question, kind: request.kind))
+                .font(PitTypography.headline)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
             switch request.question {
             case .odometerKm, .amount:
                 TextField("pit.clarify.answer", text: $answerText)
@@ -186,17 +192,13 @@ struct PitCaptureView: View {
                 Button {
                     Task { await viewModel.answer(text: answerText) }
                 } label: {
-                    Text("pit.clarify.answer").frame(maxWidth: .infinity)
+                    PitActionLabel(title: "pit.clarify.answer", prominent: true)
                 }
-                .buttonStyle(.borderedProminent)
+                .pitPrimaryAction()
                 .disabled(answerText.isBlank)
-            case .operationID:
-                ForEach(MaintenanceOperationID.catalog, id: \.self) { operation in
-                    choice(operation.titleText) { await viewModel.answer(.operation(operation)) }
-                }
-            case .eventKind:
-                ForEach(HistoryEventKind.userSelectable, id: \.self) { kind in
-                    choice(Text(kind.title)) { await viewModel.answer(.eventKind(kind)) }
+            case .operationID, .eventKind:
+                PitChoiceList(choices: choices(for: request.question)) { answer in
+                    Task { await viewModel.answer(answer) }
                 }
             case .vehicleFact, .policyInterval, .remainingValue:
                 // Not answerable in a single step here; the wording can always be kept.
@@ -206,17 +208,20 @@ struct PitCaptureView: View {
             Button {
                 Task { await viewModel.answer(.unknown) }
             } label: {
-                Text("pit.clarify.unknown").frame(maxWidth: .infinity)
+                PitActionLabel(title: "pit.clarify.unknown")
             }
-            .buttonStyle(.bordered)
+            .pitSecondaryAction()
         }
     }
 
     private func saved(_ destination: PitDestination, preservedRaw: Bool) -> some View {
         VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
-            Label(preservedRaw ? "pit.saved.note" : "pit.saved.interpreted", systemImage: "checkmark.circle.fill")
-                .font(.headline)
-                .foregroundStyle(PitColor.statusUpToDate)
+            // The header says "Saved."; saving the words as written is still told (REQ-CAPTURE-008).
+            if preservedRaw {
+                Text("pit.saved.note")
+                    .font(.headline)
+                    .foregroundStyle(PitColor.statusUpToDate)
+            }
             // Where it went, in words, even when there is no screen to open (REQ-CAPTURE-010).
             Text(destinationName(destination))
                 .font(.subheadline)
@@ -239,13 +244,15 @@ struct PitCaptureView: View {
         }
     }
 
-    private func choice(_ label: Text, action: @escaping () async -> Void) -> some View {
-        Button {
-            Task { await action() }
-        } label: {
-            label.frame(maxWidth: .infinity)
+    private func choices(for field: ProposalField) -> [PitChoice] {
+        switch field {
+        case .operationID:
+            MaintenanceOperationID.catalog.map { PitChoice(label: $0.titleText, answer: .operation($0)) }
+        case .eventKind:
+            HistoryEventKind.userSelectable.map { PitChoice(label: Text($0.title), answer: .eventKind($0)) }
+        case .odometerKm, .amount, .vehicleFact, .policyInterval, .remainingValue:
+            []
         }
-        .buttonStyle(.bordered)
     }
 
     // MARK: - Words
