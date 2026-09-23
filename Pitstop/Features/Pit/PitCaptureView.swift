@@ -157,8 +157,10 @@ struct PitCaptureView: View {
                 rememberAction(prominent: true)
             }
         }
-        // With a question pending the keyboard would cover it; the user chooses where to type.
+        // With a question pending the keyboard would cover it; the user chooses where to type. Once the question is
+        // answered, deferred or dismissed, the composer takes the focus again, as when it first appears.
         .onAppear { isFocused = !question.isAsking }
+        .onChange(of: question.isAsking) { _, isAsking in isFocused = !isAsking }
     }
 
     private func confirmation(_ pending: PendingCapture) -> some View {
