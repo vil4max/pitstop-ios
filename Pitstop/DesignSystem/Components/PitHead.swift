@@ -137,9 +137,12 @@ struct PitHead: View {
 
     private var eyes: some View {
         let unit = unit
+        // The eye on the side Pit looks toward leads; the other follows.
+        let trailing = PitEyeAnimation.trailingEyeDelay
+        let leftTrails = state == .lookRight
         return ZStack(alignment: .topLeading) {
-            eye(pose.left, at: Geometry.leftEyeCenter, delay: 0)
-            eye(pose.right, at: Geometry.rightEyeCenter, delay: PitEyeAnimation.trailingEyeDelay)
+            eye(pose.left, at: Geometry.leftEyeCenter, delay: leftTrails ? trailing : 0)
+            eye(pose.right, at: Geometry.rightEyeCenter, delay: leftTrails ? 0 : trailing)
         }
         .frame(width: size, height: size, alignment: .topLeading)
         // A breath scales the eyes about the point between them; the head itself never breathes (REQ-PIT-024).

@@ -33,54 +33,80 @@ struct PitPose: Hashable {
         right: PitEyePose(rotation: PitHeadGeometry.restingOutwardTilt)
     )
 
-    /// The eye vocabulary of ADR 0028 on the head's lenses: the lid's openness becomes the lens height, the gaze an
-    /// offset, the lift a vertical offset.
+    /// How far both eye tops lean toward each other, in degrees: half the angle between the two eyes, positive when
+    /// they converge, negative when they splay. A roll of both eyes the same way leaves it unchanged, so this is the
+    /// angle that could read as judgement, and it is capped at 6° (REQ-PIT-022).
+    var inwardTilt: Double {
+        (left.rotation - right.rotation) / 2
+    }
+
+    /// How far both eyes turn the same way, in degrees, clockwise positive.
+    var roll: Double {
+        (left.rotation + right.rotation) / 2
+    }
+
+    /// The Poses table of pit-behavior-and-motion.md, drawn without animation. Offsets are in head units; the
+    /// head's own tilt and lift are separate.
     init(_ state: PitState) {
-        let openness: CGFloat = switch state {
-        case .blink, .closedEyes: 0.2
-        case .startle: 1.06
-        case .sideGaze: 0.87
-        case .glance: 0.92
-        case .resting, .hidden, .lookLeft, .lookRight: 1
-        case .lookUp, .fixedGaze, .knock: 1.04
+        switch state {
+        case .resting, .hidden:
+            self = .resting
+            dimmed = state == .hidden
+        case .blink:
+            // The lenses flatten to 20 % of their height.
+            self = PitPose.resting.eyes { $0.heightScale = 0.2 }
+            showsHighlight = false
+        case .lookLeft, .lookRight:
+            // Both eyes shift toward the side and turn 3° toward it; the trailing eye follows 25 ms later
+            // (`PitEyeAnimation.trailingEyeDelay`).
+            let side: Double = state == .lookRight ? 1 : -1
+            self = PitPose.resting.eyes { $0.rotation += 3 * side }
+            eyeOffset = CGPoint(x: 2.2 * side, y: 0)
+        case .lookUp:
+            self = PitPose.resting.eyes { $0.heightScale = 1.04 }
+            eyeOffset = CGPoint(x: 0, y: -1.6)
+        case .glance:
+            // Down toward the saved result below the sheet header: both eyes roll 8° toward it and converge 2°.
+            self = PitPose(left: PitEyePose(rotation: 10), right: PitEyePose(rotation: 6))
+            eyeOffset = CGPoint(x: 0.6, y: 1.4)
+        case .fixedGaze:
+            // Listening: upright and 6 % taller.
+            let upright = PitEyePose(rotation: 0, heightScale: 1.06)
+            self = PitPose(left: upright, right: upright)
+        case .sideGaze:
+            // Thinking: up and aside, both eyes rolled 10° the same way.
+            self = PitPose(left: PitEyePose(rotation: 10), right: PitEyePose(rotation: 10))
+            eyeOffset = CGPoint(x: 2, y: -1.3)
+        case .startle:
+            // The lenses round out.
+            self = PitPose.resting.eyes {
+                $0.widthScale = 1.16
+                $0.heightScale = 1.06
+            }
+        case .knock:
+            // Attention, never judgement: the tops lean inward by the 6° cap.
+            self = PitPose(
+                left: PitEyePose(rotation: PitHeadGeometry.restingOutwardTilt),
+                right: PitEyePose(rotation: -PitHeadGeometry.restingOutwardTilt)
+            )
+        case .closedEyes:
+            // Shallow upward arcs; the flattened, upright lenses fade into them.
+            let closed = PitEyePose(outline: .arc, rotation: 0, heightScale: 0.2)
+            self = PitPose(left: closed, right: closed)
+            showsHighlight = false
         }
-        let gaze: CGPoint = switch state {
-        case .lookLeft: CGPoint(x: -1, y: 0.1)
-        case .lookRight: CGPoint(x: 1, y: 0.1)
-        case .lookUp: CGPoint(x: 0.15, y: -1)
-        case .glance: CGPoint(x: 0.5, y: 0.9)
-        case .fixedGaze: CGPoint(x: 0, y: 0.15)
-        case .sideGaze: CGPoint(x: -0.9, y: -0.6)
-        case .startle: CGPoint(x: 0, y: -0.25)
-        case .knock: CGPoint(x: 0, y: -0.1)
-        case .hidden: CGPoint(x: 0, y: 0.1)
-        case .resting, .blink, .closedEyes: .zero
-        }
-        let lift: CGFloat = switch state {
-        case .knock: -3
-        case .startle: -2
-        case .closedEyes: 1
-        default: 0
-        }
-        let eye = PitEyePose(
-            outline: state == .closedEyes ? .arc : .lens,
-            rotation: 0,
-            widthScale: state == .startle ? 1.16 : 1,
-            heightScale: openness
-        )
-        var left = eye
-        left.rotation = -PitHeadGeometry.restingOutwardTilt
-        var right = eye
-        right.rotation = PitHeadGeometry.restingOutwardTilt
-        self.left = left
-        self.right = right
-        eyeOffset = CGPoint(x: gaze.x * 2.2, y: gaze.y * 1.6 + lift)
-        showsHighlight = openness > 0.35
-        dimmed = state == .hidden
     }
 
     init(left: PitEyePose, right: PitEyePose) {
         self.left = left
         self.right = right
+    }
+
+    /// This pose with both eyes changed the same way.
+    private func eyes(_ change: (inout PitEyePose) -> Void) -> PitPose {
+        var pose = self
+        change(&pose.left)
+        change(&pose.right)
+        return pose
     }
 }
