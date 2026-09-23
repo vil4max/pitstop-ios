@@ -7,8 +7,8 @@ private let day: TimeInterval = 86400
 
 /// A capture over "Mark as done" keeps the duplicate rules: the editor rechecks what is stored before it saves
 /// (pit-behavior-and-motion.md, "Availability"; REQ-PIT-026; proposed as REQ-MAINT-040). Only a completion recorded
-/// while the sheet is open is
-/// the same one, as a dashboard reading tells completions apart by what existed at its entry (ADR 0035).
+/// while the sheet is open can be the same one, as a dashboard reading tells completions apart by what existed at its
+/// entry (ADR 0035).
 @MainActor
 @Suite("Mark as done after a capture")
 struct MarkDoneAfterCaptureTests {
@@ -159,6 +159,34 @@ struct MarkDoneAfterCaptureTests {
         // Without a trustworthy snapshot nothing is taken for Pit's: the owner's completion is recorded.
         #expect(await store.completions.count == 2)
         #expect(!service.state.isMarkDoneAlreadyRecorded)
+    }
+
+    @Test("REQ-MAINT-040: Mark as done that did not open because another sheet did leaves no snapshot behind")
+    func markDoneThatDidNotOpenIsDropped() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        await service.beginMarkDone(.engineOilService)
+        // Another operation's cancel leaves this snapshot alone.
+        service.cancelMarkDone(.cabinFilter)
+        try await pitRecords(store, on: now, odometerKm: 85000)
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: ""))
+        #expect(await store.completions.count == 1, "the snapshot still applied")
+
+        await service.beginMarkDone(.engineOilService)
+        service.cancelMarkDone(.engineOilService)
+        try await pitRecords(store, on: now, odometerKm: 86000)
+        // A later save without its own opening is not rechecked against the dropped snapshot.
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: ""))
+        #expect(await store.completions.count == 3)
+
+        // Service opens Mark as done only when no other sheet opened during the read, and drops it otherwise.
+        let code = try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift").split(separator: "\n")
+            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
+            .joined(separator: "\n")
+        let begin = try #require(code.range(of: "await viewModel.beginMarkDone(operation.id)"))
+        let after = code[begin.upperBound...].prefix(300)
+        #expect(after.contains("guard sheet == nil || sheet == .done(operation.id) else {"))
+        #expect(after.contains("viewModel.cancelMarkDone(operation.id)"))
     }
 
     @Test("REQ-MAINT-040: an odometer typed where Pit recorded none for the same date is never dropped silently")

@@ -177,6 +177,13 @@ final class ServiceViewModel {
         }
     }
 
+    /// The Mark as done sheet for `operation` did not open after all (another sheet opened while its snapshot was
+    /// read), so its snapshot is dropped rather than left for a later save.
+    func cancelMarkDone(_ operation: MaintenanceOperationID) {
+        guard markDoneOpening?.operation == operation else { return }
+        markDoneOpening = nil
+    }
+
     /// The owner changed the date or the odometer: the "already saved" message spoke of the previous entry.
     func markDoneInputChanged() {
         state.isMarkDoneAlreadyRecorded = false
