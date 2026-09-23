@@ -128,24 +128,47 @@ struct PitEqualWidthRow: Layout {
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
         guard !subviews.isEmpty else { return .zero }
-        let gaps = spacing * CGFloat(subviews.count - 1)
-        let widest = subviews.map { $0.sizeThatFits(.unspecified).width }.max() ?? 0
-        let width = proposal.width ?? widest * CGFloat(subviews.count) + gaps
-        let share = ProposedViewSize(width: (width - gaps) / CGFloat(subviews.count), height: nil)
+        let width = Self.width(
+            proposed: proposal.width,
+            idealWidths: subviews.map { $0.sizeThatFits(.unspecified).width },
+            spacing: spacing
+        )
+        let share = ProposedViewSize(width: Self.share(of: width, count: subviews.count, spacing: spacing), height: nil)
         let height = subviews.map { $0.sizeThatFits(share).height }.max() ?? 0
         return CGSize(width: width, height: height)
     }
 
     func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
         guard !subviews.isEmpty else { return }
-        let gaps = spacing * CGFloat(subviews.count - 1)
-        let share = (bounds.width - gaps) / CGFloat(subviews.count)
+        let share = Self.share(of: bounds.width, count: subviews.count, spacing: spacing)
         for (index, subview) in subviews.enumerated() {
             subview.place(
                 at: CGPoint(x: bounds.minX + CGFloat(index) * (share + spacing), y: bounds.minY),
                 proposal: ProposedViewSize(width: share, height: bounds.height)
             )
         }
+    }
+
+    /// The widest child's ideal width times the count, plus the gaps: the narrowest row in which no child is squeezed
+    /// below its ideal width.
+    static func idealWidth(of idealWidths: [CGFloat], spacing: CGFloat) -> CGFloat {
+        guard let widest = idealWidths.max() else { return 0 }
+        return widest * CGFloat(idealWidths.count) + spacing * CGFloat(idealWidths.count - 1)
+    }
+
+    /// A finite proposal is taken as given; no proposal or an infinite one gets the ideal width, so the row never
+    /// reports an infinite size.
+    static func width(proposed: CGFloat?, idealWidths: [CGFloat], spacing: CGFloat) -> CGFloat {
+        if let proposed, proposed.isFinite {
+            return max(0, proposed)
+        }
+        return idealWidth(of: idealWidths, spacing: spacing)
+    }
+
+    /// Each child's equal share, never negative when the row is narrower than its gaps.
+    static func share(of width: CGFloat, count: Int, spacing: CGFloat) -> CGFloat {
+        guard count > 0 else { return 0 }
+        return max(0, (width - spacing * CGFloat(count - 1)) / CGFloat(count))
     }
 }
 
