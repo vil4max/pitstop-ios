@@ -31,7 +31,8 @@ struct ChipFlowLayout: Layout {
         }
     }
 
-    /// What `sizeThatFits` reports. Never wider than a finite proposal.
+    /// What `sizeThatFits` reports: the width the placed chips use. Never wider than a finite proposal unless a
+    /// chip cannot shrink to it, and never narrower than what `placements` draws.
     func measuredSize(proposal: ProposedViewSize, chips: Chips) -> CGSize {
         plan(proposedWidth: proposal.width, chips: chips).size
     }
@@ -52,39 +53,40 @@ struct ChipFlowLayout: Layout {
             return ideal.width > maxWidth ? chips.sizeAtWidth(index, maxWidth) : ideal
         }
 
-        var lines: [[Int]] = []
-        var current: [Int] = []
+        // Each chip's x and line come from the same sums the break decision compares, so a chip's trailing edge
+        // is exactly the line width that was checked against `maxWidth`.
+        var xs = Array(repeating: CGFloat.zero, count: sizes.count)
+        var lineOf = Array(repeating: 0, count: sizes.count)
+        var lineHeights: [CGFloat] = []
+        var width: CGFloat = 0
         var lineWidth: CGFloat = 0
         for (index, size) in sizes.enumerated() {
-            if !current.isEmpty, lineWidth + spacing + size.width > maxWidth {
-                lines.append(current)
-                current = []
+            let extended = lineWidth + spacing + size.width
+            if lineHeights.isEmpty || extended > maxWidth {
+                lineHeights.append(size.height)
+                lineWidth = size.width
+            } else {
+                xs[index] = lineWidth + spacing
+                lineWidth = extended
+                lineHeights[lineHeights.count - 1] = max(lineHeights[lineHeights.count - 1], size.height)
             }
-            lineWidth = current.isEmpty ? size.width : lineWidth + spacing + size.width
-            current.append(index)
-        }
-        if !current.isEmpty {
-            lines.append(current)
+            lineOf[index] = lineHeights.count - 1
+            width = max(width, lineWidth)
         }
 
-        var frames = Array(repeating: CGRect.zero, count: sizes.count)
-        var width: CGFloat = 0
+        var lineTops: [CGFloat] = []
         var y: CGFloat = 0
-        for (lineIndex, line) in lines.enumerated() {
-            let height: CGFloat = line.reduce(0) { max($0, sizes[$1].height) }
-            var x: CGFloat = 0
-            for index in line {
-                let size = sizes[index]
-                frames[index] = CGRect(origin: CGPoint(x: x, y: y + (height - size.height) / 2), size: size)
-                width = max(width, x + size.width)
-                x += size.width + spacing
-            }
-            y += height
-            if lineIndex < lines.count - 1 {
-                y += lineSpacing
-            }
+        for height in lineHeights {
+            lineTops.append(y)
+            y += height + lineSpacing
         }
-        return (frames, CGSize(width: min(width, maxWidth), height: y))
+        let height = (lineTops.last ?? 0) + (lineHeights.last ?? 0)
+        let frames = sizes.indices.map { index in
+            let line = lineOf[index]
+            let top = lineTops[line] + (lineHeights[line] - sizes[index].height) / 2
+            return CGRect(origin: CGPoint(x: xs[index], y: top), size: sizes[index])
+        }
+        return (frames, CGSize(width: width, height: height))
     }
 
     private func chips(_ subviews: Subviews, _ idealSizes: [CGSize]) -> Chips {
