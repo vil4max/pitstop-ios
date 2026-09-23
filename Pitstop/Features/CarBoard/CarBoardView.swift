@@ -10,16 +10,16 @@ struct CarBoardView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
                 notices
-                // The header stays outside the button so VoiceOver reads a heading, then an action.
+                // VoiceOver reads the heading, the hero's mileage and its one action, then the tiles
+                // (REQ-BOARD-022); the car drawing itself is decorative.
                 ScreenHeader(eyebrow: String(localized: "carBoard.eyebrow"), title: viewModel.state.car.name)
-                Button {
+                CarHeroView(
+                    car: viewModel.state.car,
+                    mileage: viewModel.state.mileage,
+                    recency: viewModel.state.mileageRecency
+                ) {
                     isEditingCar = true
-                } label: {
-                    CarHeroView(car: viewModel.state.car, mileage: viewModel.state.mileage)
                 }
-                .buttonStyle(.plain)
-                .accessibilityHint("carBoard.hero.editHint")
-                .accessibilityIdentifier("carBoard.hero")
                 .padding(.bottom, DesignTokens.sectionSpacing - DesignTokens.tileSpacing)
 
                 ForEach(CarBoardTileDescriptor.rows(), id: \.first?.kind) { row in

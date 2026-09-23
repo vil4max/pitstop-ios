@@ -4,6 +4,8 @@ import Observation
 struct CarBoardViewState: Equatable {
     var car: ProvisionalCarContext = .firstLaunch
     var mileage: CarBoardMileage = .unknown
+    /// The age of the observation behind `mileage`; nil exactly when no observation exists (REQ-BOARD-027).
+    var mileageRecency: MileageRecency?
     var notes: NotesSummary = .empty
     var history: HistoryTimeline = .empty
     /// Most urgent first; empty when nothing is tracked.
@@ -69,6 +71,9 @@ final class CarBoardViewModel {
             isMileageCurrent = context.mileage == .known
             state.car = ProvisionalCarContext(vehicle: vehicle, observedKm: context.observedKm)
             state.mileage = CarBoardMileage(odometerKm: state.car.odometerKm)
+            state.mileageRecency = context.observedAt.map {
+                MileageRecency(observedAt: $0, now: moment, calendar: calendar)
+            }
             state.notes = try await NotesSummary(notes: store.notes())
             state.history = try await HistoryTimeline(events: store.historyEvents(), completions: completions)
             state.service = try await MaintenanceEngine().states(

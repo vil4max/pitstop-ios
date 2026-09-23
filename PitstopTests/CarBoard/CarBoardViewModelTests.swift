@@ -20,6 +20,12 @@ private final class TestClock: @unchecked Sendable {
 @MainActor
 @Suite("Car Board view model")
 struct CarBoardViewModelTests {
+    private static let utc: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+        return calendar
+    }()
+
     @Test("REQ-BOARD-001: Car Board has a usable state before and after the first load, with no setup step")
     func firstLaunchNeedsNoSetup() async {
         let store = FakeCarMemoryStore()
@@ -111,6 +117,74 @@ struct CarBoardViewModelTests {
         #expect(await model.saveCar(name: "", odometerText: "84200"))
 
         #expect(await store.readings.map(\.valueInKilometers) == [84200])
+    }
+
+    @Test("REQ-BOARD-027: the hero shows the age of the newest reading, from the reading's own date")
+    func recencyFollowsReadingDate() async throws {
+        let store = FakeCarMemoryStore()
+        let vehicleID = try await store.currentVehicle().id
+        let reading = OdometerReading(
+            vehicleID: vehicleID,
+            value: 47560,
+            recordedAt: now.addingTimeInterval(-9 * 86400)
+        )
+        _ = try await store.execute(.recordOdometerReading(.init(reading: reading)), now: now)
+        let model = CarBoardViewModel(store: store, now: { now }, calendar: Self.utc)
+
+        await model.load()
+
+        #expect(model.state.mileage == .kilometers(47560))
+        #expect(model.state.mileageRecency == .days(9))
+    }
+
+    @Test("REQ-BOARD-027: a completion saved with its mileage dates the mileage with its own date")
+    func recencyFollowsCompletionDate() async throws {
+        let store = FakeCarMemoryStore()
+        let vehicleID = try await store.currentVehicle().id
+        let reading = OdometerReading(
+            vehicleID: vehicleID,
+            value: 80000,
+            recordedAt: now.addingTimeInterval(-40 * 86400)
+        )
+        _ = try await store.execute(.recordOdometerReading(.init(reading: reading)), now: now)
+        let withMileage = MaintenanceCompletion(
+            vehicleID: vehicleID, operationID: .engineOilService,
+            performedAt: now.addingTimeInterval(-3 * 86400), odometerKm: 84200
+        )
+        _ = try await store.execute(.confirmMaintenanceCompletion(.init(completion: withMileage)), now: now)
+        // A newer completion without mileage says nothing about where the car is, so it dates nothing.
+        let withoutMileage = MaintenanceCompletion(
+            vehicleID: vehicleID, operationID: .cabinFilter,
+            performedAt: now.addingTimeInterval(-1 * 86400), odometerKm: nil
+        )
+        _ = try await store.execute(.confirmMaintenanceCompletion(.init(completion: withoutMileage)), now: now)
+        let model = CarBoardViewModel(store: store, now: { now }, calendar: Self.utc)
+
+        await model.load()
+
+        #expect(model.state.mileage == .kilometers(84200))
+        #expect(model.state.mileageRecency == .days(3))
+    }
+
+    @Test("REQ-BOARD-027: without a mileage observation there is no age, and the mileage stays unknown")
+    func noObservationHasNoRecency() async {
+        let model = CarBoardViewModel(store: FakeCarMemoryStore(), now: { now }, calendar: Self.utc)
+
+        await model.load()
+
+        #expect(model.state.mileage == .unknown)
+        #expect(model.state.mileageRecency == nil)
+    }
+
+    @Test("REQ-BOARD-027: a reading saved in the editor is dated today")
+    func savedReadingIsToday() async {
+        let store = FakeCarMemoryStore()
+        let model = CarBoardViewModel(store: store, now: { now }, calendar: Self.utc)
+        await model.load()
+
+        #expect(await model.saveCar(name: "", odometerText: "47560"))
+
+        #expect(model.state.mileageRecency == .today)
     }
 
     @Test("ADR-0007: an unchanged editor executes no command")
