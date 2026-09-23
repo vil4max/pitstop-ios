@@ -43,7 +43,7 @@ struct MarkDoneAfterCaptureTests {
     func sameEntryIsRecordedOnce() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
-        service.beginMarkDone(.engineOilService)
+        await service.beginMarkDone(.engineOilService)
         try await captureOilChange(store)
         let captured = await store.completions
         #expect(captured.count == 1 && captured.first?.odometerKm == 85000)
@@ -60,7 +60,7 @@ struct MarkDoneAfterCaptureTests {
     func emptyOdometerIsRecordedOnce() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
-        service.beginMarkDone(.engineOilService)
+        await service.beginMarkDone(.engineOilService)
         try await captureOilChange(store)
 
         #expect(await service.confirmDone(.engineOilService, on: now, odometerText: ""))
@@ -72,7 +72,7 @@ struct MarkDoneAfterCaptureTests {
     func differentOdometerAsksTheOwner() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
-        service.beginMarkDone(.engineOilService)
+        await service.beginMarkDone(.engineOilService)
         try await captureOilChange(store)
 
         #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
@@ -90,7 +90,7 @@ struct MarkDoneAfterCaptureTests {
     func odometerPitLackedAsksTheOwner() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
-        service.beginMarkDone(.engineOilService)
+        await service.beginMarkDone(.engineOilService)
         try await pitRecords(store, on: now, odometerKm: nil)
 
         #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "85000"))
@@ -103,7 +103,7 @@ struct MarkDoneAfterCaptureTests {
     func captureOnAnotherDayIsNotTheSameWork() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
-        service.beginMarkDone(.engineOilService)
+        await service.beginMarkDone(.engineOilService)
         // "Changed the oil in March", told to Pit over the sheet.
         try await pitRecords(store, on: now - 60 * day, odometerKm: nil)
 
@@ -117,15 +117,29 @@ struct MarkDoneAfterCaptureTests {
         ) })
     }
 
+    @Test("REQ-PIT-026: a completion stored after Service last loaded but before the sheet opened is not Pit's")
+    func completionBeforeOpeningIsNotPits() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        // Siri saves while the app stays on Service, so Service is not reloaded.
+        try await pitRecords(store, on: now, odometerKm: 84000)
+
+        await service.beginMarkDone(.engineOilService)
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "85000"))
+
+        #expect(await store.completions.count == 2)
+        #expect(!service.state.isMarkDoneAlreadyRecorded)
+    }
+
     @Test("REQ-PIT-026: without a capture, a second Mark as done on the same day is recorded as the owner asked")
     func deliberateRepeatIsRecorded() async {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
-        service.beginMarkDone(.engineOilService)
+        await service.beginMarkDone(.engineOilService)
         #expect(await service.confirmDone(.engineOilService, on: now, odometerText: ""))
 
         // The owner opens it again the same day to add the odometer.
-        service.beginMarkDone(.engineOilService)
+        await service.beginMarkDone(.engineOilService)
         #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "85000"))
 
         let completions = await store.completions
@@ -137,7 +151,7 @@ struct MarkDoneAfterCaptureTests {
     func sameDayMarkDoneSupersedesAReading() async {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
-        service.beginMarkDone(.engineOilService)
+        await service.beginMarkDone(.engineOilService)
         #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "84000"))
         let later = now + 0.02 * day
         let afterReading = TestViewModels.service(store, now: later)
@@ -146,7 +160,7 @@ struct MarkDoneAfterCaptureTests {
         ))
         #expect(afterReading.state.operations.first?.countingReport != nil)
 
-        afterReading.beginMarkDone(.engineOilService)
+        await afterReading.beginMarkDone(.engineOilService)
         #expect(await afterReading.confirmDone(.engineOilService, on: later, odometerText: "84050"))
 
         #expect(await store.completions.count == 2)
@@ -157,11 +171,11 @@ struct MarkDoneAfterCaptureTests {
     func otherWorkIsStillRecorded() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
-        service.beginMarkDone(.cabinFilter)
+        await service.beginMarkDone(.cabinFilter)
         try await captureOilChange(store)
 
         #expect(await service.confirmDone(.cabinFilter, on: now, odometerText: ""))
-        service.beginMarkDone(.engineOilService)
+        await service.beginMarkDone(.engineOilService)
         #expect(await service.confirmDone(.engineOilService, on: now - 30 * day, odometerText: ""))
 
         let completions = await store.completions
@@ -173,7 +187,7 @@ struct MarkDoneAfterCaptureTests {
     func unreadableStoreIsNotSaved() async {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
-        service.beginMarkDone(.engineOilService)
+        await service.beginMarkDone(.engineOilService)
         await store.failEverything()
 
         #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: ""))

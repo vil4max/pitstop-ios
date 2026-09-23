@@ -160,9 +160,20 @@ final class ServiceViewModel {
     }
 
     /// The Mark as done sheet opens for `operation`. What is stored for it now is kept, so a completion recorded
-    /// while the sheet is open, by Pit over it, can be told apart from the owner's own earlier ones.
-    func beginMarkDone(_ operation: MaintenanceOperationID) {
-        markDoneOpening = MarkDoneOpening(operation: operation, completionIDs: completionIDs[operation] ?? [])
+    /// while the sheet is open, by Pit over it, can be told apart from the owner's own earlier ones. It is read from
+    /// the store, not the last load: Siri can save while Service stays on screen without reloading. If the store
+    /// cannot be read, the last load is the best record there is.
+    func beginMarkDone(_ operation: MaintenanceOperationID) async {
+        let known: Set<UUID>
+        do {
+            let vehicleID = try await store.currentVehicle().id
+            known = try await Set(store.maintenanceCompletions()
+                .filter { $0.vehicleID == vehicleID && $0.operationID == operation }
+                .map(\.id))
+        } catch {
+            known = completionIDs[operation] ?? []
+        }
+        markDoneOpening = MarkDoneOpening(operation: operation, completionIDs: known)
         state.isMarkDoneAlreadyRecorded = false
     }
 
