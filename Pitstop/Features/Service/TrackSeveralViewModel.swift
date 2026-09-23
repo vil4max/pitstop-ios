@@ -59,14 +59,9 @@ enum TrackSeveralStep: Equatable {
     /// The steps as the sheet's step strip names them.
     static let stripOrder: [TrackSeveralStep] = [.choose, .intervals, .review, .results]
 
-    /// This step's position in the step strip.
+    /// This step's position in the step strip. Every step is in `stripOrder`, so the fallback is never used.
     var stripIndex: Int {
-        switch self {
-        case .choose: 0
-        case .intervals: 1
-        case .review: 2
-        case .results: 3
-        }
+        Self.stripOrder.firstIndex(of: self) ?? 0
     }
 }
 

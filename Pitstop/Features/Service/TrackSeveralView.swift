@@ -192,9 +192,7 @@ struct TrackSeveralView: View {
             Button {
                 Task { await model.apply() }
             } label: {
-                Text("trackSeveral.confirm \(model.reviewPolicies.count)")
-                    .foregroundStyle(PitColor.contentOnAccent)
-                    .frame(maxWidth: .infinity)
+                ProminentLabel(Text("trackSeveral.confirm \(model.reviewPolicies.count)"))
             }
             .buttonStyle(.borderedProminent)
             .disabled(model.isSaving)
@@ -267,6 +265,28 @@ private struct StackedActions<Content: View>: View {
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
         }
+    }
+}
+
+/// A full-width prominent button's label in `contentOnAccent`, which stays legible on the pale dark-mode accent.
+/// A disabled button keeps the style's own dimmed label, since on-accent text would sit on its grey fill.
+private struct ProminentLabel: View {
+    let text: Text
+    @Environment(\.isEnabled) private var isEnabled
+
+    init(_ text: Text) {
+        self.text = text
+    }
+
+    var body: some View {
+        Group {
+            if isEnabled {
+                text.foregroundStyle(PitColor.contentOnAccent)
+            } else {
+                text
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -433,11 +453,14 @@ extension DriveAnswer {
                 } onPick: { _ in }
                 StackedActions {
                     Button {} label: {
-                        Text("trackSeveral.confirm \(3)")
-                            .foregroundStyle(PitColor.contentOnAccent)
-                            .frame(maxWidth: .infinity)
+                        ProminentLabel(Text("trackSeveral.confirm \(3)"))
                     }
                     .buttonStyle(.borderedProminent)
+                    Button {} label: {
+                        ProminentLabel(Text("trackSeveral.confirm \(3)"))
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(true)
                     BackButton {}
                 }
             }
