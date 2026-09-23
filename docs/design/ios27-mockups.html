@@ -207,6 +207,12 @@ body[data-text="ax"] .tile{grid-column:1/-1}
 .share{height:5px;border-radius:3px;background:var(--p-elev);overflow:hidden;margin-top:6px;width:100%}
 .share i{display:block;height:100%;background:var(--c,var(--p-up));border-radius:3px}
 .foot{font-size:calc(13px*var(--dt));color:var(--p-sec);padding:8px 16px 0}
+/* native pull-down menu from a toolbar control; a disabled item keeps its place in tertiary label */
+.menu{position:absolute;top:104px;right:12px;width:252px;border-radius:22px;background:var(--p-glass);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:.5px solid var(--p-glass-line);box-shadow:0 18px 44px -14px var(--p-shadow);overflow:hidden;z-index:8}
+.menu .mi{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;font-size:calc(17px*var(--dt));color:var(--p-label)}
+.menu .mi + .mi{border-top:.5px solid var(--p-sep)}
+.menu .mi.off{color:var(--p-ter)}
+.menu .mi .i{width:20px;height:20px}
 .grp{font-size:calc(13px*var(--dt));font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--p-sec);margin:18px 16px 6px}
 .timeline .row .ic.dot::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--p-accent)}
 .timeline .row.done .ic.dot::before{background:var(--p-up)}
@@ -582,6 +588,35 @@ svg.car:not(.carsvg){aspect-ratio:260/110;height:auto;display:block;overflow:vis
       </div>
     </div>
   </div><div class="cap"><b>Populated.</b> Next visit as a grouped suggestion with its footer; tracked rows with chip, fact line, share track and a visible "Mark as done". The second row shows the MNT-VR-002 dashboard line <span class="tag delivered">delivered</span>; "Not enough facts" draws no track.</div></div>
+
+  <div class="shot"><div class="phone" data-util>
+    <div class="screen">
+      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Kestrel</span><span class="gl accent" aria-label="Track"><svg class="i"><use href="#i-plus"/></svg>Track</span></div>
+      <div class="content">
+      <div class="hd"><div class="eb">Kestrel</div><div class="ti">Service</div></div>
+      <div class="sec" style="margin-top:4px">Tracked</div>
+      <div class="list">
+        <div class="row"><div class="b"><div class="t">Engine oil service</div><span class="chip appr"><span class="d"></span>Approaching</span><div class="f">In 1 150 km</div><div class="f">Car said 15 000 km · Mar 14, an old reading</div><div class="share"><i style="width:92%;--c:var(--p-appr)"></i></div><div class="acts"><span class="btn"><svg class="i"><use href="#i-check"/></svg>Mark as done</span><span class="tr" style="margin-left:auto"><svg class="i"><use href="#i-more"/></svg></span></div></div></div>
+        <div class="row"><div class="b"><div class="t">Spark plugs</div><span class="chip unk"><span class="d"></span>Not enough facts</span><div class="f">Marked done after the dashboard reading, so nothing is counted. Track an interval or delete the reading.</div><div class="acts"><span class="btn"><svg class="i"><use href="#i-check"/></svg>Mark as done</span><span class="tr" style="margin-left:auto"><svg class="i"><use href="#i-more"/></svg></span></div></div></div>
+      </div>
+      <div class="fade"></div>
+      </div>
+    </div>
+  </div><div class="cap"><b>Old and superseded dashboard readings</b> <span class="tag delivered">MNT-VR-002</span>. After 180 days the reading line says so ("Car said 15 000 km · Mar 14, an old reading") and stays a secondary line under the fact; it never disappears on its own and never becomes a second status. A reading still counts while no newer completion exists, so the track shows the share of the dimension that decided the status. Once work is marked done after the reading, the row says nothing is counted, shows "Not enough facts" and draws no track. Wording is the catalog's, unchanged.</div></div>
+
+  <div class="shot"><div class="phone" data-util>
+    <div class="screen">
+      <div class="nav"><span class="back"><svg class="i"><use href="#i-chevl"/></svg>Kestrel</span><span class="gl accent" aria-label="Track"><svg class="i"><use href="#i-plus"/></svg>Track</span></div>
+      <div class="content">
+      <div class="hd"><div class="eb">Kestrel</div><div class="ti">Service</div></div>
+      <div class="fade"></div>
+      </div>
+      <div class="menu" role="menu" aria-label="Track">
+        <div class="mi" role="menuitem"><span>Track an operation</span><svg class="i"><use href="#i-plus"/></svg></div>
+        <div class="mi off" role="menuitem" aria-disabled="true"><span>Track several</span><svg class="i"><use href="#i-list"/></svg></div>
+      </div>
+    </div>
+  </div><div class="cap"><b>Track menu while Service loads.</b> One glass "Track" control opens a native menu with the two delivered items. "Track several" stays in the menu but is disabled until Service has loaded (and after a failed load), because before that every operation would look untracked (ADR 0033); "Track an operation" follows its own rule and is disabled only when nothing is left to track. When both are disabled the "Track" control itself is disabled. Nothing is drawn under the header until the first load finishes, so the screen never claims "Nothing tracked" before it has read the facts.</div></div>
 
   <div class="shot"><div class="phone sheetbg" data-util>
     <div class="screen">
