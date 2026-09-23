@@ -106,6 +106,14 @@ struct RoadProjectorTests {
         #expect(road.horizon == .waitingForMileage)
     }
 
+    @Test("REQ-DESIGN-001: a milestone waiting for mileage is drawn dashed, never as ahead")
+    func waitingMilestoneIsDashed() throws {
+        let road = project([Fix.oil10k], [Fix.completion(.engineOilService, km: 50000)], currentKm: nil, day: 200)
+        let waiting = try #require(road.waitingForMileage.first)
+        #expect(waiting.state == .upcoming)
+        #expect(waiting.glyph == .dashed)
+    }
+
     @Test("REQ-ROAD-007: a distance-or-time milestone is labelled by its deciding dimension and never converted")
     func noConversionBetweenDimensions() throws {
         let policy = DomainFixtures.Maintenance.standardOilPolicy

@@ -11,6 +11,17 @@ extension MaintenanceStatus {
         case .due: PitColor.statusDue
         }
     }
+
+    /// The shared state glyph (REQ-DESIGN-001); "Not enough facts" is dashed like a Road milestone waiting for
+    /// mileage.
+    var glyph: StatusGlyph {
+        switch self {
+        case .unknown: .dashed
+        case .upToDate: .ring
+        case .approaching: .half
+        case .due: .filled
+        }
+    }
 }
 
 extension MaintenanceOperationState {

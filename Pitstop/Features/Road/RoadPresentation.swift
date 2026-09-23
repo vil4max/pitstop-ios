@@ -19,6 +19,16 @@ extension RoadMilestoneState {
         }
     }
 
+    /// The shared state glyph (REQ-DESIGN-001); it replaces `systemImage` as each screen card lands.
+    var glyph: StatusGlyph {
+        switch self {
+        case .upcoming: .ring
+        case .approaching: .half
+        case .due: .filled
+        case .overdue: .filledRing
+        }
+    }
+
     var systemImage: String {
         switch self {
         case .upcoming: "circle"
@@ -26,6 +36,17 @@ extension RoadMilestoneState {
         case .due: "circle.fill"
         case .overdue: "exclamationmark.circle.fill"
         }
+    }
+}
+
+extension RoadMilestone {
+    /// The glyph to draw. A milestone waiting for mileage is dashed whatever its state: the projector files
+    /// it as `.upcoming`, and a ring would claim it is ahead.
+    var glyph: StatusGlyph {
+        if case .blocked = distanceLabel {
+            return .dashed
+        }
+        return state.glyph
     }
 }
 
