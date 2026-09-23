@@ -159,6 +159,25 @@ struct PitInSheetTests {
         #expect(entry.takeRequest(from: requests, isPresentationBlocked: false))
     }
 
+    @Test("REQ-PIT-026: a request waiting behind a sheet is met when the owner opens capture from Pit in that sheet")
+    func waitingRequestIsMetByCaptureOverTheSheet() throws {
+        let entry = try Self.entry()
+        let requests = CaptureSurfaceRequests()
+        let sheet = PitCaptureEntry.Host.sheet(UUID())
+        // Mark as done is open, so the root is blocked and the request waits (ADR 0024).
+        requests.request()
+        #expect(!entry.takeRequest(from: requests, isPresentationBlocked: true))
+        let waiting = entry.requestGate(for: requests, isPresentationBlocked: true)
+
+        entry.open(from: sheet)
+
+        // The root re-runs the request only when the gate changes, so opening capture must change it.
+        let capturing = entry.requestGate(for: requests, isPresentationBlocked: true)
+        #expect(capturing != waiting)
+        #expect(!entry.takeRequest(from: requests, isPresentationBlocked: true))
+        #expect(!requests.isPending, "met by the capture, so no second capture opens once the sheet closes")
+    }
+
     static func source(_ relativePath: String) throws -> String {
         try String(contentsOf: repositoryRoot.appending(path: relativePath), encoding: .utf8)
     }

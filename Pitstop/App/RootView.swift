@@ -234,8 +234,8 @@ struct RootView: View {
         let isBlocked: Bool
     }
 
-    private var openPitGate: RequestGate {
-        RequestGate(isPending: captureRequests.isPending, isBlocked: pit.isFeatureTaskPresented)
+    private var openPitGate: PitCaptureEntry.RequestGate {
+        pitEntry.requestGate(for: captureRequests, isPresentationBlocked: pit.isFeatureTaskPresented)
     }
 
     private var serviceLinkGate: RequestGate {

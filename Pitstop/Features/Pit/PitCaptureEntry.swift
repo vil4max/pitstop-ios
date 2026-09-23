@@ -58,6 +58,19 @@ final class PitCaptureEntry {
         return requests.take(isPresentationBlocked: isPresentationBlocked)
     }
 
+    /// What the root watches to take an "Open Pit" request again: any change re-runs `takeRequest`. It includes
+    /// whether capture is open, so a request waiting behind a sheet is met as soon as the owner opens capture from
+    /// Pit in that sheet, instead of opening a second capture once the sheet closes.
+    struct RequestGate: Equatable {
+        let isPending: Bool
+        let isBlocked: Bool
+        let isCaptureOpen: Bool
+    }
+
+    func requestGate(for requests: CaptureSurfaceRequests, isPresentationBlocked: Bool) -> RequestGate {
+        RequestGate(isPending: requests.isPending, isBlocked: isPresentationBlocked, isCaptureOpen: isOpen)
+    }
+
     /// However the surface closed, by Close or a swipe: an unsent capture is cancelled, never left half-done, and
     /// an answered question is acknowledged. An unanswered question is not: Pit keeps knocking (ADR 0017).
     func close(from host: Host) {
