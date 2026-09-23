@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active since 2026-09-23 (owner unfroze it); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** RD-000 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
+**Next task:** RD-001 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -10,8 +10,9 @@
 ## Plan
 
 No implementation card is open outside the redesign section below. The
-next step is the redesign, starting with RD-000; the app icon already shows
-the redesigned Pit (ICON-002, ADR 0037) as its announcement.
+redesign round is under way: RD-000 (design system, ADR 0038) has landed on
+`redesign/ios27`, and RD-001 is next; the app icon already shows the
+redesigned Pit (ICON-002, ADR 0037) as its announcement.
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
 now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
@@ -31,17 +32,16 @@ wait for a follow-up card once Xcode 27.1 ships.
 Proposal: [`ios27-redesign-proposal.md`](ios27-redesign-proposal.md),
 approved by the owner on 2026-09-22; the mockup page lives in
 [`../design/ios27-mockups.html`](../design/ios27-mockups.html) until the
-redesign is implemented (no Figma screens by owner decision). RD-000 goes first because
-every screen card uses its components; it is `next`, and nobody starts it
-until the owner opens the session for it. The cards run strictly one at a time
+redesign is implemented (no Figma screens by owner decision). RD-000 went first because
+every screen card uses its components. The cards run strictly one at a time
 on one redesign branch (`redesign/ios27`), because they share the design
 system, the string catalog and the same screens; `main` stays releasable to
 TestFlight throughout, and the branch merges when the last card lands.
 Each card is one screen, keeps that screen's behaviour and tests, adds
 light/dark and accessibility-extra-large previews, updates
 `docs/design/ios27-mockups.html` if the screen deviates from it, and updates the screen's row in
-`docs/engineering/system-overview.md`. The redesign ADR is written with RD-000
-and numbered after the newest ADR on `main` at that time. Not part of these cards: the SYS-007 widgets; RD-003 restyles the delivered
+`docs/engineering/system-overview.md`. The redesign ADR is
+[0038](../decisions/0038-ios27-surface-tiers.md). Not part of these cards: the SYS-007 widgets; RD-003 restyles the delivered
 MNT-VR-002 row line, sheet and menu entries without changing their wording.
 ROAD-EST-002 has landed its estimate line on Road; RD-002 keeps it as
 delivered. Text-clipping at accessibility
@@ -50,8 +50,7 @@ on screen" until a snapshot-testing card exists.
 
 | ID | Screen | Est | Depends on | Status | Acceptance (summary) |
 |---|---|---:|---|---|---|
-| RD-000 | Design system: `surfaceTint`, `contentOnAccent`, `StatusChip`, `StageSurface`, `EmptyState`, `RemainingShareTrack`, `GlassPill`, `StepStrip`; typography role table; preview matrix; redesign ADR; colour-literal check in `just verify` | 2d | — | next | Components render in light, dark and AX text previews; a SwiftLint custom rule or script in `just verify` fails on any colour literal or `Color.blue`-style use under `Features/` (REQ-DESIGN-004 is checked, not wished); REQ-DESIGN-001…003 tests |
-| RD-001 | Car Board: tinted stage with mileage and recency, glass pencil, tile anatomy with chip and chevron, Road tile markers | 2d | RD-000 | planned | REQ-BOARD-001…028 pass; recency derived only from the observation date; AX sizes stack half tiles; VoiceOver reads heading, hero action, tiles in order |
+| RD-001 | Car Board: tinted stage with mileage and recency, glass pencil, tile anatomy with chip and chevron, Road tile markers | 2d | RD-000 | next | REQ-BOARD-001…028 pass; recency derived only from the observation date; AX sizes stack half tiles; VoiceOver reads heading, hero action, tiles in order |
 | RD-002 | Road: marker vocabulary, "Back to now" glass pill, grouped milestone list under "Ahead" and "Waiting for mileage", one-line past summary, estimate line kept tertiary | 2d | RD-000; MNT-VR-002 on `main` | planned | REQ-ROAD-004, 008…015, 027, 028 pass; lane and list show identical milestones; Reduce Motion return without animation; overdue never red |
 | RD-003 | Service: one "Track" toolbar menu with the delivered "Track an operation" and "Track several" items and their disable rules, grouped "Next visit" and "Tracked" lists, status chips, remaining-share track, visible "Mark as done", more menu with the dashboard-reading entries | 2d | RD-000; MNT-VR-002 on `main` | planned | Existing Service tests pass unchanged; track drawn only with a known interval, a last completion and a mileage observation newer than 90 days; `unknown` and stale mileage draw no track; VoiceOver reads the fact line, not the bar |
 | RD-004 | Track several: step strip, tinted quick-pick chips, stacked Confirm and Back | 1d | RD-003 | planned | ADR 0033 tests pass unchanged; step labels never truncate; chip selected only when the field holds the value |

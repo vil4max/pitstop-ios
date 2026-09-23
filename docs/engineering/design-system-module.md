@@ -36,41 +36,47 @@ A feature maps domain meaning to design-system presentation.
 
 ## Color API
 
+Delivered as `PitColor` in `Pitstop/DesignSystem/PitColor.swift` (ADR 0038):
+
 ``` text
-PitStopColor.surfacePrimary
-PitStopColor.surfaceSecondary
-PitStopColor.surfaceElevated
+PitColor.surfacePrimary
+PitColor.surfaceSecondary
+PitColor.surfaceElevated
 
-PitStopColor.contentPrimary
-PitStopColor.contentSecondary
+PitColor.contentPrimary
+PitColor.contentSecondary
+PitColor.contentTertiary
+PitColor.separator
 
-PitStopColor.accentPrimary
-PitStopColor.surfaceTint        (accent at a token-defined opacity; stage tier only)
-PitStopColor.contentOnAccent
+PitColor.accentPrimary
+PitColor.surfaceTint          (accent at DesignTokens.stageTint; stage tier only)
+PitColor.surfaceTintStrong    (accent at DesignTokens.stageTintStrong; top of the stage gradient)
+PitColor.contentOnAccent      (text and glyphs on an accentPrimary fill)
 
-PitStopColor.statusPositive
-PitStopColor.statusApproaching
-PitStopColor.statusDue
-PitStopColor.statusDanger
+PitColor.statusUpToDate       (the delivered name for statusPositive)
+PitColor.statusApproaching
+PitColor.statusDue
+PitColor.statusDanger
 ```
 
-Backed by semantic asset colors with Light/Dark variants.
+System roles come from UIKit semantic colours; custom roles are trait-resolved
+light/dark values, and the tint also resolves Increase Contrast.
 
 No generic runtime `Theme` protocol in P0.
 
 ## Typography
 
-Prefer Dynamic Type/system fonts.
-
-Roles:
+Prefer Dynamic Type/system fonts. Roles are `PitTypography` (ADR 0038):
 
 ``` text
-display
-title
-headline
-body
-supporting
-caption
+display          largeTitle bold
+title            title3 semibold
+headline         headline
+body             body
+supporting       subheadline
+supportingSmall  footnote
+caption          caption
+captionSmall     caption2
 ```
 
 Do not hardcode a custom font before a brand decision.
@@ -99,19 +105,20 @@ RD-011, RD-012 in the work plan):
 ``` text
 StageSurface         tinted stage for the Car Hero
 CarVisual            owner photo (lifted) or the placeholder for the chosen body
-StatusChip           word + state glyph + colour
+StatusChip           word + state glyph (StatusGlyph) + colour
 RoadSign             milestone plate on a post, state glyph on the plate
 RemainingShareTrack  share of the owner's own interval; drawn only with fresh facts
 EmptyState           glyph disc, headline, one sentence, one or two actions
 GlassPill            floating labelled glass control ("Back to now")
 StepStrip            named steps of a multi-step sheet
-PitHead              capsule head, face screen, lens eyes (poses per pit-behavior-and-motion.md)
+PitHead              round head, face screen, lens eyes (poses per pit-behavior-and-motion.md; RD-011)
 ScreenHeader, TileCard, UtilityLayer (exist)
+pitGlass(in:)        the only route to Liquid Glass for feature code
 ```
 
-Typography roles map to SwiftUI text styles: display → largeTitle bold;
-title → title3 semibold; headline → headline; body → body; supporting →
-subheadline or footnote; caption → caption or caption2.
+Delivered in RD-000: `StageSurface`, `StatusChip`, `EmptyState`,
+`RemainingShareTrack`, `GlassPill`, `StepStrip`, `pitGlass(in:)`. `CarVisual`,
+`RoadSign` and `PitHead` land with RD-012, RD-002 and RD-011.
 
 Do not create a wrapper for every SwiftUI control.
 
@@ -138,10 +145,13 @@ A blue car must not make `.statusDue` blue.
 
 ## Design-system tests
 
--   previews for Light/Dark and default and accessibility-extra-large text;
--   `just verify` fails on colour literals under `Features/` and on
-    `glassEffect` outside `DesignSystem/` (REQ-DESIGN-002, REQ-DESIGN-004);
--   Dynamic Type preview matrix for critical components;
+-   `#Preview` per component through `PreviewMatrix`: light, dark, default
+    and accessibility-extra-large text;
+-   `PitstopTests/DesignSystem/DesignRulesTests.swift` fails `just verify`
+    on colour literals under `Features/` and on glass outside
+    `DesignSystem/` (REQ-DESIGN-002, REQ-DESIGN-004); a test, because
+    `Tooling/` belongs to the shared Runtime (ADR 0038);
+-   colour-role tests for the stage tint and `contentOnAccent` contrast;
 -   accessibility labels where component owns semantics;
 -   snapshot testing only if a mature snapshot dependency is selected
     after research.

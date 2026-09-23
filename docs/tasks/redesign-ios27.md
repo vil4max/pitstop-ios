@@ -9,7 +9,7 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: round opened; RD-000 is next. No card has landed.
+Current outcome: RD-000 landed on `redesign/ios27` (ADR 0038); RD-001 is next.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -27,7 +27,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: RD-000 Writer steps below.
+Next step: RD-001 Writer steps (drafted when the card starts).
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -52,8 +52,8 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 
 | Slice | Requirements | Depends on | State | Evidence |
 |---|---|---|---|---|
-| Round opening (docs) | REQ-BOARD-017 wording | — | in progress | — |
-| RD-000 design system | REQ-DESIGN-001…004 | — | planned | — |
+| Round opening (docs) | REQ-BOARD-017 wording | — | done | `f50cb7e`, `6b3d589` |
+| RD-000 design system | REQ-DESIGN-001…004 | — | done | `3674b52`…`c901d10` and the docs commit; `just verify` passed; review: 2 medium + 3 low, then 1 medium + 5 low, all repaired |
 | RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | planned | — |
 | RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | planned | — |
 | RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | planned | — |
@@ -77,6 +77,17 @@ added here when the slice starts.
 
 - 2026-09-23, `redesign/ios27` from `ab6b60c`: owner approved the plan in this
   session; kit git sync OK.
+- 2026-09-23, RD-000: `just verify` passed on the combined tree three times
+  (before review, after round 1, after round 2); independent `/code-review`
+  round 1 found 2 medium + 3 low (Road waiting milestones drawn as ahead;
+  implicit colours after `?`/`:`/`,` not caught; glass button types not
+  caught; step labels could not wrap; ADR contrast figure), round 2 found
+  1 medium + 5 low (implicit colours at line start, after `{`, `return`,
+  `in`; halo outside the glyph box; `pitGlass` ignoring Increase Contrast;
+  over-broad glass type match; `.quaternary`; ADR preview claim); all
+  repaired, and the loop stopped because round 2 found as many as round 1.
+  A planted `Color.blue` made REQ-DESIGN-004 fail. The per-step commits
+  were not verified one by one. No simulator run: RD-000 changes no screen.
 
 ## Untested scope
 
@@ -89,12 +100,20 @@ added here when the slice starts.
 
 Round opening:
 
-- [ ] Unfreeze the status docs, record SYS-008 scope and this brief: diff review
-- [ ] Approve the REQ-BOARD-017 title wording: diff review
+- [x] Unfreeze the status docs, record SYS-008 scope and this brief: diff review — f50cb7e
+- [x] Approve the REQ-BOARD-017 title wording: diff review — 6b3d589
+
+RD-000:
+
+- [x] Stage tint, on-accent colour and typography roles: `PitColorTests` — 3674b52
+- [x] Status glyph vocabulary and status chip: `StatusGlyphTests`, `RoadProjectorTests` — d6aabc7
+- [x] Stage, empty state, glass pill, step strip, share track: `RemainingShareTrackTests`, previews build — aece984
+- [x] Design rules in `just verify`, Track several accent literals: `DesignRulesTests` — c901d10
+- [ ] ADR 0038 and the design-system, overview, plan and status docs: diff review
 
 ## Current checklist
 
-- [ ] Round opening committed
+- [x] Round opening committed
 - [ ] RD-000…RD-012 and SYS-008 committed with `just verify` and review evidence
 - [ ] `redesign/ios27` merged into `main`, version 1.2.0, `just release --check`
 - [ ] Owner authorized the push; `tests.yml` green; `just tf-check` Ready; `tf-1.2.0-1` pushed
