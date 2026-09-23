@@ -20,7 +20,9 @@ struct EmptyState<Actions: View>: View {
         self.actions = actions()
     }
 
-    @ScaledMetric(relativeTo: .title3) private var discSize = DesignTokens.emptyStateDiscSize
+    /// Fixed at every text size (mockup `#empty`): the disc is decoration, and a disc that grew with the text would
+    /// push the actions off screen at accessibility sizes.
+    private let discSize = DesignTokens.emptyStateDiscSize
 
     var body: some View {
         VStack(spacing: 8) {
