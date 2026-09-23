@@ -75,7 +75,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | done | `d0357c0`…`72c39cf`; `just verify` per step; review: 1 medium + 5 low, then 1 medium + 1 low, then 0 high/medium + 4 low; all repaired except two test-coverage lows (accepted) |
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | done | `c426bfa`…`1944c46`; `just verify` per step; review: 1 medium + 2 low (one low out of scope, filed as a follow-up), then no findings |
 | RD-009 Widgets | WidgetEntryTests | RD-000 | done | `5f724f1`…`b49448b`; `just verify` per step; review: 0 high/medium + 3 low, repaired; then 0 high/medium + 3 low, accepted |
-| RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | planned | — |
+| RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | in progress | — |
 | RD-011 Pit character | REQ-PIT-022…024 | RD-000 | planned | — |
 | RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | planned | — |
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | RD-012 | planned | — |
@@ -330,6 +330,16 @@ now delivered as the next-service widget (ADR 0036), out of these cards):
 - [x] "Remember" widget restyled with the shared glyph disc and tokens; content, intent and tap target unchanged; no data read: `WidgetEntryTests` — 9f93613
 - [x] Widgets docs: mockup deviations, system-overview row, work-plan row (SYS-007 frames recorded as that card's input): diff review — 06e3aac
 - [x] Review repair: small-family source checks, DEV-WIDGET row names the gallery check, colour-literal rule scope in the design-system doc: `just verify`, mutation — 2b55522, e405a09, b49448b
+
+RD-010 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001; the layer's
+geometry and Settings stay unchanged):
+
+- [ ] Pit stays on screen inside every sheet other than the capture surface, at the bottom-trailing spot and above the keyboard; Settings is not shown over a sheet; both return to the layer when the sheet closes: REQ-UTILITY-012 tests
+- [ ] Tapping Pit in a sheet opens the capture surface over it, and closing returns to the same sheet with its input unchanged: REQ-PIT-026 tests
+- [ ] Pit is disabled while Track several, the planned-date editor or the dashboard reading is saving: REQ-PIT-026 edge-case tests
+- [ ] A capture over "Mark as done" for the same operation leaves no duplicate completion when the editor then saves: completion tests
+- [ ] Utility layer docs: medium- and large-detent simulator result, system-overview rows, work-plan row: diff review
 
 ## Resume prompt
 
