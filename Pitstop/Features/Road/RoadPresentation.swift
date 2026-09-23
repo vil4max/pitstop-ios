@@ -77,6 +77,27 @@ struct RoadMilestoneList: Equatable {
     }
 }
 
+/// What an empty Road offers: the toolbar's "Add a date", once more where the eye lands.
+enum RoadEmptyAction: Hashable {
+    case addDate
+}
+
+extension RoadProjection {
+    /// Road's sparse state (REQ-GRAMMAR-004), only when nothing at all is known (REQ-ROAD-009). A road with
+    /// something tracked but nothing placeable is not empty: its summary sentence says why.
+    var sparseState: EmptyStateContent<RoadEmptyAction>? {
+        guard isCompletelyEmpty else {
+            return nil
+        }
+        return EmptyStateContent(
+            systemImage: "road.lanes",
+            headline: "tile.road.empty.headline",
+            sentence: "tile.road.empty.detail",
+            actions: [.addDate]
+        )
+    }
+}
+
 /// The lane's return to the car (INV-ROAD-004): shown only once the lane has left the car (REQ-ROAD-028),
 /// and without animation under Reduce Motion (REQ-ROAD-014).
 enum RoadBackToNow {

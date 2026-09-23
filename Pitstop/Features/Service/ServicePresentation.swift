@@ -140,3 +140,25 @@ extension DistanceUnit {
         }
     }
 }
+
+/// What an empty Service offers: the two entrances of the toolbar menu, the single one first (mockup `#empty`).
+enum ServiceEmptyAction: Hashable {
+    case track
+    case trackSeveral
+}
+
+extension ServiceViewState {
+    /// Service's sparse state (REQ-GRAMMAR-004). Nil before the first load, when an empty list is only what was
+    /// not read and "Nothing tracked" would claim a fact the screen does not have (core C2).
+    var sparseState: EmptyStateContent<ServiceEmptyAction>? {
+        guard hasLoaded, operations.isEmpty else {
+            return nil
+        }
+        return EmptyStateContent(
+            systemImage: "wrench.and.screwdriver",
+            headline: "tile.service.empty.headline",
+            sentence: "service.empty.detail",
+            actions: [.track, .trackSeveral]
+        )
+    }
+}

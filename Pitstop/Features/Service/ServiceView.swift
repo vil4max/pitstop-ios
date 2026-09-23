@@ -13,13 +13,9 @@ struct ServiceView: View {
                 if viewModel.state.isLoadFailed {
                     LoadFailureBanner(message: "service.load.failed") { await viewModel.load() }
                 }
-                if viewModel.state.operations.isEmpty {
-                    // Before the first load the list is empty only because nothing was read; "Nothing tracked"
-                    // would claim a fact the screen does not have (core C2).
-                    if viewModel.state.hasLoaded {
-                        emptyState
-                    }
-                } else {
+                if let sparse = viewModel.state.sparseState {
+                    emptyState(sparse)
+                } else if !viewModel.state.operations.isEmpty {
                     if !viewModel.state.scope.isEmpty {
                         nextVisit
                     }
@@ -124,16 +120,16 @@ struct ServiceView: View {
         }
     }
 
-    private var emptyState: some View {
-        FeatureEmptyState(title: "tile.service.empty.headline", systemImage: "wrench.and.screwdriver") {
-            Text("service.empty.detail")
-        } actions: {
-            Button("service.track") { sheet = .track }
-                .buttonStyle(.borderedProminent)
-            Button("service.trackSeveral") { sheet = .trackSeveral }
-                .buttonStyle(.bordered)
-                .disabled(!viewModel.state.canTrackSeveral)
-                .accessibilityIdentifier("service.empty.trackSeveral")
+    private func emptyState(_ sparse: EmptyStateContent<ServiceEmptyAction>) -> some View {
+        EmptyState(sparse) { action in
+            switch action {
+            case .track:
+                Button("service.track") { sheet = .track }
+            case .trackSeveral:
+                Button("service.trackSeveral") { sheet = .trackSeveral }
+                    .disabled(!viewModel.state.canTrackSeveral)
+                    .accessibilityIdentifier("service.empty.trackSeveral")
+            }
         }
     }
 
@@ -289,3 +285,18 @@ struct TrackOperationView: View {
         }
     }
 }
+
+#if DEBUG
+    #Preview("Service empty") {
+        PreviewMatrix {
+            if let sparse = ServiceViewState(hasLoaded: true).sparseState {
+                EmptyState(sparse) { action in
+                    switch action {
+                    case .track: Button("service.track") {}
+                    case .trackSeveral: Button("service.trackSeveral") {}
+                    }
+                }
+            }
+        }
+    }
+#endif

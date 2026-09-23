@@ -7,6 +7,26 @@ struct HistoryViewState: Equatable {
     var failure: HistoryFailure?
 }
 
+/// What an empty History offers: the toolbar's "Add event", once more where the eye lands.
+enum HistoryEmptyAction: Hashable {
+    case add
+}
+
+extension HistoryViewState {
+    /// History's sparse state (REQ-GRAMMAR-004): nothing has happened to the car yet, as far as it knows.
+    var sparseState: EmptyStateContent<HistoryEmptyAction>? {
+        guard timeline.entries.isEmpty else {
+            return nil
+        }
+        return EmptyStateContent(
+            systemImage: "clock.arrow.circlepath",
+            headline: "tile.history.empty.headline",
+            sentence: "tile.history.empty.detail",
+            actions: [.add]
+        )
+    }
+}
+
 enum HistoryFailure: Equatable {
     case notSaved
     case invalidOdometer

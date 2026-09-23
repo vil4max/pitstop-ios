@@ -67,21 +67,19 @@ struct RoadView: View {
 
     @ViewBuilder
     private func content(_ projection: RoadProjection) -> some View {
-        if !projection.isCompletelyEmpty {
+        if let sparse = projection.sparseState {
+            EmptyState(sparse) { action in
+                switch action {
+                case .addDate: Button("road.addDate") { editor = .new }
+                }
+            }
+        } else {
             projection.summaryText
                 .font(.body)
                 .foregroundStyle(PitColor.contentSecondary)
-        }
-
-        if projection.isCompletelyEmpty {
-            FeatureEmptyState(title: "tile.road.empty.headline", systemImage: "road.lanes", topPadding: 0) {
-                Text("tile.road.empty.detail")
-            } actions: {
-                Button("road.addDate") { editor = .new }
-                    .buttonStyle(.borderedProminent)
+            if !projection.slots.isEmpty {
+                lane(projection)
             }
-        } else if !projection.slots.isEmpty {
-            lane(projection)
         }
         let list = RoadMilestoneList(projection)
         if !list.ahead.isEmpty {

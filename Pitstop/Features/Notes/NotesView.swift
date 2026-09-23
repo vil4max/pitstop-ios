@@ -13,8 +13,13 @@ struct NotesView: View {
                 if viewModel.state.isLoadFailed {
                     LoadFailureBanner(message: "notes.load.failed") { await viewModel.load() }
                 }
-                if viewModel.state.visibleNotes.isEmpty {
-                    emptyState
+                if let sparse = viewModel.state.sparseState {
+                    // Below the scope control, which stays so "Archived" is discoverable (mockup `#empty`).
+                    EmptyState(sparse) { action in
+                        switch action {
+                        case .add: Button("notes.add") { editor = .new }
+                        }
+                    }
                 } else {
                     NoteList(notes: viewModel.state.visibleNotes) { note in
                         editor = .existing(note)
@@ -60,22 +65,6 @@ struct NotesView: View {
 
             NoteContextChips(chips: viewModel.state.contextChips, selection: viewModel.state.contextFilter) {
                 viewModel.select(context: $0)
-            }
-        }
-    }
-
-    private var emptyState: some View {
-        FeatureEmptyState(
-            title: viewModel.state.scope == .active ? "tile.notes.empty.headline" : "notes.archived.empty",
-            systemImage: "note.text"
-        ) {
-            if viewModel.state.scope == .active {
-                Text("tile.notes.empty.detail")
-            }
-        } actions: {
-            if viewModel.state.scope == .active {
-                Button("notes.add") { editor = .new }
-                    .buttonStyle(.borderedProminent)
             }
         }
     }

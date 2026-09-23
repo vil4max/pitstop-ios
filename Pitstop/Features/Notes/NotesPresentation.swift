@@ -38,6 +38,27 @@ extension NotesViewState {
     var contextChips: [NoteContext?] {
         availableContexts.isEmpty ? [] : [nil] + availableContexts
     }
+
+    /// Notes' sparse state (REQ-GRAMMAR-004). The archive keeps its delivered headline alone: it has no
+    /// sentence, and a new note would not land in it.
+    var sparseState: EmptyStateContent<NotesEmptyAction>? {
+        guard visibleNotes.isEmpty else {
+            return nil
+        }
+        return scope == .active
+            ? EmptyStateContent(
+                systemImage: "note.text",
+                headline: "tile.notes.empty.headline",
+                sentence: "tile.notes.empty.detail",
+                actions: [.add]
+            )
+            : EmptyStateContent(systemImage: "note.text", headline: "notes.archived.empty")
+    }
+}
+
+/// What empty active Notes offer: the toolbar's "New note", once more where the eye lands.
+enum NotesEmptyAction: Hashable {
+    case add
 }
 
 extension Note {

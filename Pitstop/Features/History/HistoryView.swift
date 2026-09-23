@@ -14,12 +14,11 @@ struct HistoryView: View {
                 if viewModel.state.isLoadFailed {
                     LoadFailureBanner(message: "history.load.failed") { await viewModel.load() }
                 }
-                if viewModel.state.timeline.entries.isEmpty {
-                    FeatureEmptyState(title: "tile.history.empty.headline", systemImage: "clock.arrow.circlepath") {
-                        Text("tile.history.empty.detail")
-                    } actions: {
-                        Button("history.add") { editor = .new }
-                            .buttonStyle(.borderedProminent)
+                if let sparse = viewModel.state.sparseState {
+                    EmptyState(sparse) { action in
+                        switch action {
+                        case .add: Button("history.add") { editor = .new }
+                        }
                     }
                 } else {
                     let dates = HistoryDateStyle(calendar: calendar, timeZone: timeZone)
