@@ -80,7 +80,7 @@ struct PitSheetMomentTests {
     }
 
     @Test(
-        "REQ-PIT-025: while the user writes, Remember is pinned above the keyboard",
+        "Capture section, REQ-PIT-025: while the user writes, Remember is pinned above the keyboard at every text size",
         arguments: DynamicTypeSize.allCases
     )
     func rememberIsPinnedWhileWriting(size: DynamicTypeSize) {
@@ -103,7 +103,7 @@ struct PitSheetMomentTests {
     }
 
     @Test(
-        "REQ-PIT-025: below the accessibility sizes, with Pit's question pending or its answer saving, Remember stays under the composer, not pinned over the card",
+        "Capture section: below the accessibility sizes, with Pit's question pending or its answer saving, Remember stays under the composer, not pinned over the question card",
         arguments: DynamicTypeSize.allCases.filter { !$0.isAccessibilitySize }
     )
     func rememberIsInlineWithAQuestion(size: DynamicTypeSize) {
@@ -116,7 +116,7 @@ struct PitSheetMomentTests {
     }
 
     @Test(
-        "REQ-PIT-003: with Pit's question pending, its Save is the one prominent action and Remember is quiet; otherwise Remember is prominent",
+        "Capture section (one prominent action): with Pit's question pending, its Save is the prominent action and Remember is quiet; otherwise Remember is prominent",
         arguments: DynamicTypeSize.allCases
     )
     func oneProminentAction(size: DynamicTypeSize) {

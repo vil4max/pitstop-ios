@@ -173,7 +173,8 @@ struct PitEqualWidthRow: Layout {
 }
 
 extension View {
-    /// The moment's one prominent action: a filled capsule at the bottom of the sheet (mockup #pit).
+    /// The moment's one prominent action as a filled capsule (mockup #pit), wherever it sits: for example Remember
+    /// while the user writes, the question card's Save, or the confirmation's "Yes, save it".
     func pitPrimaryAction() -> some View {
         buttonStyle(.borderedProminent)
             .buttonBorderShape(.capsule)

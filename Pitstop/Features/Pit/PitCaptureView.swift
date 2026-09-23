@@ -31,8 +31,9 @@ struct PitCaptureView: View {
                 .padding(DesignTokens.screenPadding)
             }
             .onScrollPhaseChange { _, phase in isScrolling = phase != .idle }
-            // The composer's action stays at the sheet bottom, above the keyboard, at every text size: at the
-            // largest sizes the field alone fills the space above the keyboard (REQ-PIT-025).
+            // Remember is pinned here, above the keyboard, while the user writes; with Pit's question pending only at
+            // accessibility sizes, where the field alone fills the space above the keyboard (REQ-PIT-025). The rule
+            // is `PitSheetMoment.rememberAction(at:)`.
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if let action = moment.rememberAction(at: dynamicTypeSize), action.placement == .pinned {
                     rememberButton(prominent: action.isProminent)
