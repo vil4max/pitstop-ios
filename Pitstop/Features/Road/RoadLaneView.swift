@@ -4,6 +4,8 @@ import SwiftUI
 /// car's wheels rest on it and every sign post stands on it; labels start under it (REQ-ROAD-029).
 struct RoadLaneGeometry: Equatable {
     static let basePlateSize: CGFloat = 26
+    /// Plates stop growing here: a sign is a marker, and at accessibility sizes the list carries the words.
+    static let maxPlateSize: CGFloat = 36
     static let postHeight: CGFloat = 12
     static let carWidth: CGFloat = 56
     static let carColumnWidth: CGFloat = 96
@@ -11,6 +13,10 @@ struct RoadLaneGeometry: Equatable {
     static let labelGap: CGFloat = 8
 
     let plateSize: CGFloat
+
+    init(plateSize: CGFloat) {
+        self.plateSize = min(plateSize, Self.maxPlateSize)
+    }
 
     var carHeight: CGFloat {
         Self.carWidth / AbstractCarView.aspectRatio

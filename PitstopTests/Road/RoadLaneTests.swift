@@ -40,7 +40,8 @@ struct RoadLaneTests {
         for plateSize: CGFloat in [18, RoadLaneGeometry.basePlateSize, 40, 64, 90] {
             let lane = RoadLaneGeometry(plateSize: plateSize)
             #expect(lane.plateTop >= 0 && lane.carTop >= 0)
-            #expect(lane.plateTop + plateSize + RoadLaneGeometry.postHeight == lane.roadY)
+            #expect(lane.plateSize <= RoadLaneGeometry.maxPlateSize)
+            #expect(lane.plateTop + lane.plateSize + RoadLaneGeometry.postHeight == lane.roadY)
             #expect(lane.carTop + lane.carHeight == lane.roadY)
         }
     }

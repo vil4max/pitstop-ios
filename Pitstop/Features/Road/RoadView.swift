@@ -109,6 +109,9 @@ struct RoadView: View {
             VStack(alignment: .trailing, spacing: 8) {
                 ScrollView(.horizontal, showsIndicators: false) {
                     RoadLaneView(slots: projection.slots)
+                        // Labels keep growing to the first accessibility size and then wrap in their slot;
+                        // past it one slot would outgrow the screen. The list below keeps every size.
+                        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
                         .padding(.vertical, 4)
                 }
                 .scrollPosition(id: $position, anchor: .leading)
