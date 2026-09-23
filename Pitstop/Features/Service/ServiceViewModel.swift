@@ -28,6 +28,9 @@ struct ServiceViewState: Equatable {
     /// The open Mark as done sheet's input differs from what Pit recorded for the same work and date while the
     /// sheet was open. The sheet stays open and says so; only "Save anyway" records it (REQ-PIT-026).
     var isMarkDoneAlreadyRecorded = false
+    /// Grows each time the sheet has to say so, so it is announced to VoiceOver even when the message is already
+    /// shown: focus stays on the confirmation, and the message appears below it.
+    var markDoneAlreadyRecordedNotices = 0
 
     /// Only operations tracked by a rule count here: one kept on Service by a dashboard reading alone can
     /// still be tracked with the owner's own interval.
@@ -213,6 +216,7 @@ final class ServiceViewModel {
             case .askOwner:
                 state.failure = nil
                 state.isMarkDoneAlreadyRecorded = true
+                state.markDoneAlreadyRecordedNotices += 1
                 return false
             }
         }

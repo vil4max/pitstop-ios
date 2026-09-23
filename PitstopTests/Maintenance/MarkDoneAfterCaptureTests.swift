@@ -87,6 +87,32 @@ struct MarkDoneAfterCaptureTests {
         #expect(!service.state.isMarkDoneAlreadyRecorded)
     }
 
+    @Test("REQ-MAINT-040: every time the sheet has to say Pit already saved the work, it is announced to VoiceOver")
+    func alreadyRecordedIsAnnounced() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        await service.beginMarkDone(.engineOilService)
+        try await captureOilChange(store)
+        #expect(service.state.markDoneAlreadyRecordedNotices == 0)
+
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+        #expect(service.state.markDoneAlreadyRecordedNotices == 1)
+        // Confirming again with another odometer says it again, although the message is already shown.
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "87000"))
+        #expect(service.state.markDoneAlreadyRecordedNotices == 2)
+
+        // The sheet speaks each notice, and its view reads the count Service passes in.
+        let code = try PitInSheetTests.source("Pitstop/Features/Service/MarkDoneView.swift").split(separator: "\n")
+            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
+            .joined(separator: "\n")
+        let change = try #require(code.range(of: ".onChange(of: alreadyRecordedNotices)"))
+        #expect(code[change.upperBound...].prefix(200).contains(
+            "AccessibilityNotification.Announcement(String(localized: \"service.done.alreadyRecorded\")).post()"
+        ))
+        #expect(try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift")
+            .contains("alreadyRecordedNotices: viewModel.state.markDoneAlreadyRecordedNotices"))
+    }
+
     @Test("REQ-MAINT-040: an odometer typed where Pit recorded none for the same date is never dropped silently")
     func odometerPitLackedAsksTheOwner() async throws {
         let store = FakeCarMemoryStore()
