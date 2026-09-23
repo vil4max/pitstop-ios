@@ -47,10 +47,15 @@ final class PitCaptureEntry {
 
     /// An "Open Pit" request from Siri, Shortcuts, Spotlight or the widget (ADR 0024). Returns whether the root
     /// should present capture now. With capture already open, here or over a sheet, the request is met and
-    /// cleared: presenting it again would replace the sheet under it, Settings included, and lose its input.
+    /// cleared: presenting it again would replace the sheet under it, Settings included, and lose its input. It is
+    /// cleared even while an editor blocks the root, which is always the case over a feature sheet; left pending, it
+    /// would reopen capture unasked once that sheet closed.
     func takeRequest(from requests: CaptureSurfaceRequests, isPresentationBlocked: Bool) -> Bool {
-        guard requests.take(isPresentationBlocked: isPresentationBlocked) else { return false }
-        return !isOpen
+        guard !isOpen else {
+            _ = requests.take(isPresentationBlocked: false)
+            return false
+        }
+        return requests.take(isPresentationBlocked: isPresentationBlocked)
     }
 
     /// However the surface closed, by Close or a swipe: an unsent capture is cancelled, never left half-done, and

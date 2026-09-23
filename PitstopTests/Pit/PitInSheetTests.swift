@@ -141,10 +141,15 @@ struct PitInSheetTests {
         let sheet = PitCaptureEntry.Host.sheet(UUID())
         entry.open(from: sheet)
 
+        // Over a feature sheet the root's gate is blocked: the feature reports a modal task while its sheet is open.
+        requests.request()
+        #expect(!entry.takeRequest(from: requests, isPresentationBlocked: true))
+        #expect(!requests.isPending, "met by the open capture, so it does not reopen capture once the sheet closes")
+        #expect(entry.host == sheet)
+        // Over Settings the gate is not blocked; the request is met the same way.
         requests.request()
         #expect(!entry.takeRequest(from: requests, isPresentationBlocked: false))
         #expect(!requests.isPending)
-        #expect(entry.host == sheet)
 
         // Blocked by an editor, the request still waits for it to close (ADR 0024).
         entry.close(from: sheet)
