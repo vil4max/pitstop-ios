@@ -22,6 +22,17 @@ enum PitSheetMoment: Equatable {
         }
     }
 
+    /// Remember is pinned to the sheet bottom while the user writes, so it stays above the keyboard at every text
+    /// size (REQ-PIT-025). With Pit's question pending the question card holds the moment's prominent action (its
+    /// Save), so Remember stays inline under the composer instead of covering that card at the medium detent.
+    var pinsRememberAction: Bool {
+        switch self {
+        case .composing(.question): false
+        case .composing: true
+        case .working, .confirming, .clarifying, .saved: false
+        }
+    }
+
     /// The title names the moment, so the sheet needs no transcript to say where the user is.
     var title: PitMomentTitle {
         switch self {

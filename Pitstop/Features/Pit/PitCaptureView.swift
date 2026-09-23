@@ -30,6 +30,16 @@ struct PitCaptureView: View {
                 .padding(DesignTokens.screenPadding)
             }
             .onScrollPhaseChange { _, phase in isScrolling = phase != .idle }
+            // The composer's action stays at the sheet bottom, above the keyboard, at every text size: at the
+            // largest sizes the field alone fills the space above the keyboard (REQ-PIT-025).
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if moment.pinsRememberAction {
+                    rememberAction
+                        .padding(.horizontal, DesignTokens.screenPadding)
+                        .padding(.vertical, 12)
+                        .background(PitColor.surfacePrimary)
+                }
+            }
             .background(PitColor.surfacePrimary)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -100,6 +110,17 @@ struct PitCaptureView: View {
         }
     }
 
+    private var rememberAction: some View {
+        Button {
+            Task { await viewModel.submit(from: visible) }
+        } label: {
+            PitActionLabel(title: "pit.save", prominent: true)
+        }
+        .pitPrimaryAction()
+        .disabled(!viewModel.canSubmit)
+        .accessibilityIdentifier("pit.save")
+    }
+
     private func composer(text: Binding<String>, mode: Binding<RememberMode>) -> some View {
         VStack(alignment: .leading, spacing: Self.spacing) {
             TextField("pit.placeholder", text: text, axis: .vertical)
@@ -119,14 +140,9 @@ struct PitCaptureView: View {
                     .foregroundStyle(PitColor.contentSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Button {
-                Task { await viewModel.submit(from: visible) }
-            } label: {
-                PitActionLabel(title: "pit.save", prominent: true)
+            if !moment.pinsRememberAction {
+                rememberAction
             }
-            .pitPrimaryAction()
-            .disabled(!viewModel.canSubmit)
-            .accessibilityIdentifier("pit.save")
         }
         // With a question pending the keyboard would cover it; the user chooses where to type.
         .onAppear { isFocused = !question.isAsking }

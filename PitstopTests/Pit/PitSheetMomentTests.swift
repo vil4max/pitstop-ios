@@ -78,6 +78,20 @@ struct PitSheetMomentTests {
         #expect(PitSheetMoment(capture: .working, question: .asking(asked)) == .working)
     }
 
+    @Test(
+        "REQ-PIT-025, ADR-0017: Remember is pinned above the keyboard unless Pit's question holds the prominent action"
+    )
+    func rememberIsPinnedWhileWriting() {
+        let asked = PitAskedQuestion.currentMileage(lastKnownKm: 42500)
+
+        #expect(PitSheetMoment(capture: .composing, question: .silent).pinsRememberAction)
+        #expect(PitSheetMoment(capture: .composing, question: .answered(kilometers: 43100)).pinsRememberAction)
+        #expect(!PitSheetMoment(capture: .composing, question: .asking(asked)).pinsRememberAction)
+        #expect(!PitSheetMoment(capture: .composing, question: .working(asked)).pinsRememberAction)
+        #expect(!PitSheetMoment(capture: .working, question: .silent).pinsRememberAction)
+        #expect(!PitSheetMoment(capture: .saved(.notes, preservedRaw: true), question: .silent).pinsRememberAction)
+    }
+
     @Test("REQ-CAPTURE-005: Close on the composer cancels the unsent words and writes nothing")
     func closeCancelsUnsentWords() async {
         let store = FakeCarMemoryStore()
