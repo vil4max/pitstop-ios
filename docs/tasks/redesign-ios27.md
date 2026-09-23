@@ -9,7 +9,7 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000 and RD-001 landed on `redesign/ios27`; RD-002 is next.
+Current outcome: RD-000…RD-002 landed on `redesign/ios27`; RD-003 is next.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -30,7 +30,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: RD-002 Writer steps (drafted when the card starts).
+Next step: RD-003 Writer steps (drafted when the card starts).
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -58,7 +58,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | Round opening (docs) | REQ-BOARD-017 wording | — | done | `f50cb7e`, `6b3d589` |
 | RD-000 design system | REQ-DESIGN-001…004 | — | done | `3674b52`…`c901d10` and the docs commit; `just verify` passed; review: 2 medium + 3 low, then 1 medium + 5 low, all repaired |
 | RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | done | `8cdc992`…`286fcae`; `just verify` passed per step (writer); review: 0 high/medium, 4 low (2 repaired, `isCompact` dead code left to RD-002, bookkeeping fixed) |
-| RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | in progress | — |
+| RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | done | `0871525`…`087a3bd`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
 | RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | planned | — |
 | RD-004 Track several | ADR 0033 tests | RD-003 | planned | — |
 | RD-005 History | HistoryTests | RD-000 | planned | — |
@@ -103,6 +103,14 @@ added here when the slice starts.
 - 2026-09-23, owner via the orchestrator: no rush to release; the iPhone Duo
   on-screen check blocks no card. The Duo device type exists here but neither
   installed runtime (iOS 27.0, 27.2 `24B5084k`) supports it.
+- 2026-09-23, RD-002 (slice-writer): `just verify` passed before each of its
+  seven commits; screenshots in `rd-002/` (populated light and dark, "Back to
+  now" after scrolling, AX5 lane, list and separators, empty, waiting for
+  mileage, planned-date editor); the load-failure state was not reachable on
+  screen. Independent `/code-review`: no high or medium; 2 low (separator
+  inset at AX sizes; a tautological REQ-ROAD-029 test), both repaired, the
+  new test shown to fail on a mutated post height. Not seen on screen:
+  VoiceOver, ru/uk, the Reduce Motion setting, a lane cluster.
 
 ## Untested scope
 
@@ -140,10 +148,13 @@ after an independent `/code-review`; SHAs below are the integrated ones):
 RD-002 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001):
 
-- [ ] Draw the missing Road load-failure frame in the mockup page: diff review
-- [ ] Road lane: roadside signs with state glyphs on one road line, "Back to now" glass pill, no compact mode: REQ-ROAD-028, 029 tests
-- [ ] Grouped milestone list under "Ahead" and "Waiting for mileage" mirroring the lane, one-line past summary, tertiary estimate: REQ-ROAD-027 tests
-- [ ] Road docs: mockup deviations, system-overview row, work-plan row: diff review
+- [x] Draw the missing Road load-failure frame in the mockup page: diff review — 0871525
+- [x] Road lane: roadside signs with state glyphs on one road line, "Back to now" glass pill, no compact mode: REQ-ROAD-028, 029 tests — 5d8b7f2
+- [x] Grouped milestone list under "Ahead" and "Waiting for mileage" mirroring the lane, one-line past summary, tertiary estimate: REQ-ROAD-027 tests — c5aca16
+- [x] Simulator repair: lane signs in proportion at accessibility sizes: `just verify` — 1bda0a5
+- [x] Road docs: mockup deviations, system-overview row, work-plan row: diff review — 9662778
+- [x] Review repair: list separators start at the row text at every size: `just verify` — 7b9624f
+- [x] Review repair: falsifiable REQ-ROAD-029 geometry test: `just verify`, mutant failed — 087a3bd
 
 ## Current checklist
 
