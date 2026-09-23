@@ -159,7 +159,7 @@ struct PitInSheetTests {
         #expect(entry.takeRequest(from: requests, isPresentationBlocked: false))
     }
 
-    private static func source(_ relativePath: String) throws -> String {
+    static func source(_ relativePath: String) throws -> String {
         try String(contentsOf: repositoryRoot.appending(path: relativePath), encoding: .utf8)
     }
 

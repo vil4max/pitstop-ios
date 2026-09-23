@@ -68,6 +68,38 @@ struct PitSavingGuardTests {
         #expect(!saving.isSaving)
     }
 
+    @Test("REQ-PIT-026: every sheet with a save reports it to Pit, and Pit in the sheet follows the report")
+    func savingSheetsReportToPit() throws {
+        /// Code lines only, so a comment naming the modifier does not satisfy the rule.
+        func code(_ path: String) throws -> String {
+            try PitInSheetTests.source(path).split(separator: "\n")
+                .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
+                .joined(separator: "\n")
+        }
+        let reporters = [
+            "Pitstop/Features/Shared/SaveSheetScaffold.swift": ".pitDisabledWhileSaving(saving.isSaving)",
+            "Pitstop/Features/Service/TrackSeveralView.swift": ".pitDisabledWhileSaving(model.isSaving)",
+            "Pitstop/Features/Service/MarkDoneView.swift": ".pitDisabledWhileSaving(isSaving)",
+        ]
+        for (path, report) in reporters {
+            #expect(try code(path).contains(report), "\(path) does not report its save to Pit")
+        }
+        // The planned date editor and the dashboard reading save through the scaffold.
+        let scaffolded = [
+            "Pitstop/Features/Road/PlannedEventEditorView.swift", "Pitstop/Features/Service/DashboardReadingView.swift",
+        ]
+        for path in scaffolded {
+            #expect(try code(path).contains("SaveSheetScaffold("), "\(path) no longer saves through the scaffold")
+        }
+        let sheet = try code("Pitstop/Features/Pit/PitInSheet.swift")
+        for wiring in [
+            ".environment(\\.pitSheetSaving, saving)", "saving?.isSaving = isSaving",
+            "open(from: host, isSaving: saving.isSaving)", ".disabled(saving.isSaving)",
+        ] {
+            #expect(sheet.contains(wiring), "PitInSheet.swift lost `\(wiring)`")
+        }
+    }
+
     /// Runs `save` through the editor scaffold's `SheetSave`, as the Save button does, and tries Pit mid-save.
     private func expectPitWaits(
         _ store: FakeCarMemoryStore,
