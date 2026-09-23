@@ -104,19 +104,11 @@ struct EmptyStateActions<Action: Hashable, ActionButton: View>: View {
     let actions: [Action]
     let button: (Action) -> ActionButton
 
-    @Environment(\.isEnabled) private var isEnabled
-
     var body: some View {
         VStack(spacing: 16) {
             ForEach(Array(actions.enumerated()), id: \.element) { index, action in
-                if index == 0, isEnabled {
-                    // White on the pale dark-mode accent is unreadable; `contentOnAccent` stays legible in both.
-                    button(action)
-                        .buttonStyle(.borderedProminent)
-                        .foregroundStyle(PitColor.contentOnAccent)
-                } else if index == 0 {
-                    // Disabled keeps the style's own dimmed label, since on-accent text would sit on its grey fill.
-                    button(action).buttonStyle(.borderedProminent)
+                if index == 0 {
+                    button(action).buttonStyle(EmptyStatePrimaryButtonStyle())
                 } else {
                     button(action).buttonStyle(.bordered)
                 }
@@ -124,6 +116,32 @@ struct EmptyStateActions<Action: Hashable, ActionButton: View>: View {
         }
         // The role, not `Color.accentColor`, which can resolve to the navy asset instead (ADR 0038).
         .tint(PitColor.accentPrimary)
+    }
+}
+
+/// The prominent first action. White on the pale dark-mode accent is unreadable, so an enabled label is
+/// `contentOnAccent`; a disabled one keeps the style's own dimmed label, since on-accent text would sit on its
+/// grey fill. The enabled state is read inside the button, so a `.disabled` the screen puts on the button it
+/// passes in counts as much as one from outside.
+struct EmptyStatePrimaryButtonStyle: PrimitiveButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        StyledButton(configuration: configuration)
+    }
+
+    private struct StyledButton: View {
+        let configuration: PrimitiveButtonStyleConfiguration
+        @Environment(\.isEnabled) private var isEnabled
+
+        var body: some View {
+            if isEnabled {
+                Button(configuration)
+                    .buttonStyle(.borderedProminent)
+                    .foregroundStyle(PitColor.contentOnAccent)
+            } else {
+                Button(configuration)
+                    .buttonStyle(.borderedProminent)
+            }
+        }
     }
 }
 
@@ -137,6 +155,21 @@ struct EmptyStateActions<Action: Hashable, ActionButton: View>: View {
             ) {
                 Button(action: {}, label: { Text(verbatim: "Mark as done") })
                     .buttonStyle(.borderedProminent)
+            }
+        }
+    }
+
+    #Preview("Empty state, first action disabled inside") {
+        PreviewMatrix {
+            EmptyState(
+                EmptyStateContent(
+                    systemImage: "wrench.and.screwdriver",
+                    headline: "tile.service.empty.headline",
+                    actions: [0, 1]
+                )
+            ) { action in
+                Button(action: {}, label: { Text(verbatim: action == 0 ? "Disabled first" : "Enabled second") })
+                    .disabled(action == 0)
             }
         }
     }
