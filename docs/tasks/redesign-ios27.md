@@ -255,9 +255,15 @@ confirming its commits are on the branch) and `git log -1`. Then continue at
 "Next step" above: draft the next card's Writer steps in this brief, commit
 that dispatch, and hand the card to a `slice-writer` subagent with
 `agent-artifacts/2026-09-23/pitstop-ios27-redesign/work/writer-rules.md`.
-Integrate each card by cherry-pick after an independent `/code-review`, run
-`just verify`, record the evidence here, and push `redesign/ios27` (the
-owner's per-card backup decision). Overnight (see Authorized scope): run
+Integrate each card after an independent `/code-review`: with one writer at a
+time and nothing committed to `redesign/ios27` between its dispatch commit
+and integration, run `git merge --ff-only worktree-agent-<id>`, then
+`git worktree remove <path>` (no `--force`) and `git branch -d
+worktree-agent-<id>`; none of these prompt the owner. If the fast-forward
+fails, stop at that boundary; never fall back to `git branch -D` overnight.
+Then run `just verify`, commit the "record integration" brief update after
+the merge, and push `redesign/ios27` (the owner's per-card backup
+decision). Overnight (see Authorized scope): run
 RD-007…RD-011 in order without asking the owner, decide within the brief and
 the mockup and record deviations, mark on-screen checks that need an access
 prompt "not checked", skip RD-012, and stop at the last clean card boundary
