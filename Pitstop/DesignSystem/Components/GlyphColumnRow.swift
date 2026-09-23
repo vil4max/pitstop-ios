@@ -1,24 +1,54 @@
 import SwiftUI
 
-/// A `GroupedSection` row led by a state glyph (ADR 0038): the glyph sits in a scaled leading column, centred on
-/// the title's first line, and the hairline above the row starts where the text starts at every text size. An
-/// optional trailing accessory (a more menu) sits beside the text, and under it at accessibility sizes so the text
-/// keeps the row's width. Road milestones, Service's "Next visit" and History's timeline share it.
+/// A `GroupedSection` row led by a state glyph (ADR 0038), or by History's plain rail dot: the mark sits in a scaled
+/// leading column, centred on the title's first line, and the hairline above the row starts where the text starts
+/// at every text size. An optional trailing accessory (a more menu, a chevron) sits beside the text, and under it at
+/// accessibility sizes so the text keeps the row's width. Road milestones, Service's "Next visit" and History's
+/// timeline share it.
 struct GlyphColumnRow<Content: View, Accessory: View>: View {
-    let glyph: StatusGlyph
+    let mark: GlyphColumnMark
     let color: Color
     /// Every row but a section's first draws the hairline above it.
     var showsSeparator = false
-    /// Where a timeline rail leaves the glyph toward the neighbouring rows; empty draws none.
+    /// Where a timeline rail leaves the mark toward the neighbouring rows; empty draws none.
     var rail: GlyphColumnRail = []
-    /// The text column. The glyph is hidden from VoiceOver, so accessibility modifiers belong on this content.
-    @ViewBuilder let content: Content
-    @ViewBuilder let accessory: Accessory
+    /// The text column. The mark is hidden from VoiceOver, so accessibility modifiers belong on this content.
+    let content: Content
+    let accessory: Accessory
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ScaledMetric(relativeTo: .headline) private var glyphSize: CGFloat = GlyphColumnMetrics.glyphSize
+    @ScaledMetric(relativeTo: .headline) private var railDotSize: CGFloat = GlyphColumnMetrics.railDotSize
     /// Half the headline's cap height: it centres the glyph on the title's first line.
     @ScaledMetric(relativeTo: .headline) private var glyphLift: CGFloat = GlyphColumnMetrics.glyphLift
+
+    init(
+        mark: GlyphColumnMark,
+        color: Color,
+        showsSeparator: Bool = false,
+        rail: GlyphColumnRail = [],
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder accessory: () -> Accessory
+    ) {
+        self.mark = mark
+        self.color = color
+        self.showsSeparator = showsSeparator
+        self.rail = rail
+        self.content = content()
+        self.accessory = accessory()
+    }
+
+    init(
+        glyph: StatusGlyph,
+        color: Color,
+        showsSeparator: Bool = false,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder accessory: () -> Accessory
+    ) {
+        self.init(
+            mark: .status(glyph), color: color, showsSeparator: showsSeparator, content: content, accessory: accessory
+        )
+    }
 
     var body: some View {
         let layout = dynamicTypeSize.isAccessibilitySize
@@ -28,7 +58,7 @@ struct GlyphColumnRow<Content: View, Accessory: View>: View {
         let lift = glyphLift
         layout {
             HStack(alignment: .firstTextBaseline, spacing: GlyphColumnMetrics.glyphSpacing) {
-                StatusGlyphView(glyph: glyph, size: glyphSize)
+                markView
                     .foregroundStyle(color)
                     .frame(width: glyphColumnWidth)
                     .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + lift }
@@ -58,6 +88,14 @@ struct GlyphColumnRow<Content: View, Accessory: View>: View {
         )
     }
 
+    @ViewBuilder
+    private var markView: some View {
+        switch mark {
+        case let .status(glyph): StatusGlyphView(glyph: glyph, size: glyphSize)
+        case .railDot: RailDot(size: railDotSize)
+        }
+    }
+
     /// The glyph column grows with the headline, so the text starts further in at larger sizes.
     private var glyphColumnWidth: CGFloat {
         max(GlyphColumnMetrics.glyphColumn, glyphSize)
@@ -70,13 +108,34 @@ private enum GlyphColumnMetrics {
     static let glyphSpacing: CGFloat = 12
     static let glyphSize: CGFloat = 13
     static let glyphLift: CGFloat = 6
+    /// The rail dot of the History mockup; smaller than a state glyph so the two never read as one shape.
+    static let railDotSize: CGFloat = 10
     /// The rail keeps its weight at every text size (mockup #history).
     static let railWidth: CGFloat = 1.5
     /// Air between the glyph and the rail, so the glyph reads as a stop on the line, not a bead threaded on it.
     static let railGap: CGFloat = 3
 }
 
-/// The sides of a row's glyph a timeline rail runs from: up to the row above, down to the row below. Decorative:
+/// What leads a glyph-column row. A state glyph means a state (REQ-DESIGN-001); the rail dot means nothing but "an
+/// entry on this timeline", so History never borrows a state's shape for its entries.
+enum GlyphColumnMark: Hashable, Sendable {
+    case status(StatusGlyph)
+    case railDot
+}
+
+/// History's timeline stop: a plain filled dot, decorative and hidden from VoiceOver. It is not a `StatusGlyph`
+/// and carries no state; the row's words do.
+struct RailDot: View {
+    var size: CGFloat
+
+    var body: some View {
+        Circle()
+            .frame(width: size, height: size)
+            .accessibilityHidden(true)
+    }
+}
+
+/// The sides of a row's mark a timeline rail runs from: up to the row above, down to the row below. Decorative:
 /// the rows' order already says the sequence.
 struct GlyphColumnRail: OptionSet, Hashable, Sendable {
     let rawValue: Int
@@ -130,16 +189,8 @@ private struct GlyphRailShape: Shape {
 }
 
 extension GlyphColumnRow where Accessory == EmptyView {
-    init(
-        glyph: StatusGlyph,
-        color: Color,
-        showsSeparator: Bool = false,
-        rail: GlyphColumnRail = [],
-        @ViewBuilder content: () -> Content
-    ) {
-        self.init(glyph: glyph, color: color, showsSeparator: showsSeparator, rail: rail, content: content) {
-            EmptyView()
-        }
+    init(glyph: StatusGlyph, color: Color, showsSeparator: Bool = false, @ViewBuilder content: () -> Content) {
+        self.init(glyph: glyph, color: color, showsSeparator: showsSeparator, content: content) { EmptyView() }
     }
 }
 

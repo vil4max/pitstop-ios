@@ -137,7 +137,8 @@ struct HistoryMonthSection: View {
 }
 
 /// One entry on its month's rail. A recorded event has the accent dot and a chevron; a confirmed completion has the
-/// up-to-date dot, no chevron, and a seal line saying where it is corrected.
+/// up-to-date dot, no chevron, and a seal line saying where it is corrected. The dot is the plain rail dot, never a
+/// state glyph: "due" on Service is a filled glyph in the same column (REQ-DESIGN-001).
 struct HistoryRow: View {
     let entry: HistoryEntry
     let dayStyle: Date.FormatStyle
@@ -151,24 +152,22 @@ struct HistoryRow: View {
     }
 
     var body: some View {
-        // The dot is the rail's stop, not a status: the words and the seal say what a completion is.
         GlyphColumnRow(
-            glyph: .filled,
+            mark: .railDot,
             color: isEditable ? PitColor.accentPrimary : PitColor.statusUpToDate,
             showsSeparator: showsSeparator,
             rail: rail
         ) {
-            HStack(spacing: 8) {
-                details
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                // At accessibility sizes the text keeps the width (a date broke over three lines at AX5); the row
-                // stays a button with its hint, and a completion still differs by its seal line.
-                if isEditable, !dynamicTypeSize.isAccessibilitySize {
-                    Image(systemName: "chevron.right")
-                        .font(PitTypography.supportingSmall.weight(.semibold))
-                        .foregroundStyle(PitColor.contentTertiary)
-                        .accessibilityHidden(true)
-                }
+            details
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } accessory: {
+            // As the row's accessory the chevron moves under the text at accessibility sizes, so the text keeps
+            // the width and a sighted user still sees the row opens.
+            if isEditable {
+                Image(systemName: "chevron.right")
+                    .font(PitTypography.supportingSmall.weight(.semibold))
+                    .foregroundStyle(PitColor.contentTertiary)
+                    .accessibilityHidden(true)
             }
         }
         .contentShape(.rect)
