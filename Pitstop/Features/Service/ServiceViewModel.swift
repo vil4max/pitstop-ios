@@ -176,11 +176,18 @@ final class ServiceViewModel {
         }
     }
 
-    /// Service presents the Mark as done sheet with `opening`; saves are rechecked against it from now on. With no
-    /// opening (the store could not be read) the sheet saves as it did before Pit could open over it.
-    func openMarkDone(_ opening: MarkDoneOpening?) {
+    /// Service is about to present the Mark as done sheet with `opening`; saves are rechecked against it from now on.
+    /// Returns whether the sheet may open. Without an opening (the store could not be read) it does not: a sheet with
+    /// no snapshot could record Pit's work twice, and nothing has been typed yet, so the list says it did not work.
+    @discardableResult
+    func openMarkDone(_ opening: MarkDoneOpening?) -> Bool {
+        guard let opening else {
+            state.listFailure = .notSaved
+            return false
+        }
         markDoneOpening = opening
         state.isMarkDoneAlreadyRecorded = false
+        return true
     }
 
     /// The owner changed the date or the odometer: the "already saved" message spoke of the previous entry.

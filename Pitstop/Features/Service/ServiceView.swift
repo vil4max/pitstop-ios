@@ -163,8 +163,7 @@ struct ServiceView: View {
                     // opens the sheet becomes its snapshot.
                     Task {
                         let opening = await viewModel.readMarkDoneOpening(operation.id)
-                        guard sheet == nil else { return }
-                        viewModel.openMarkDone(opening)
+                        guard sheet == nil, viewModel.openMarkDone(opening) else { return }
                         sheet = .done(operation.id)
                     }
                 } onChangeInterval: {

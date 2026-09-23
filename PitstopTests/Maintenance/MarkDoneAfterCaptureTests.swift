@@ -149,21 +149,20 @@ struct MarkDoneAfterCaptureTests {
             .contains("onEdit: viewModel.markDoneInputChanged"))
     }
 
-    @Test("REQ-MAINT-040: a sheet opened while the store cannot be read saves as before, with no recheck")
-    func unreadableAtOpeningSavesWithoutRecheck() async throws {
+    @Test("REQ-MAINT-040: Mark as done does not open while the store cannot be read, and says it was not saved")
+    func unreadableAtOpeningDoesNotOpen() async {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
-        // Siri saves while Service stays on screen, so Service's last load does not have it.
-        try await pitRecords(store, on: now, odometerKm: 84000)
         await store.failEverything()
-        await openMarkDone(service, .engineOilService)
+        let opening = await service.readMarkDoneOpening(.engineOilService)
         await store.recover()
 
-        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: ""))
+        #expect(opening == nil)
+        #expect(!service.openMarkDone(opening), "Service does not present the sheet")
 
-        // Without a trustworthy snapshot nothing is taken for Pit's: the owner's completion is recorded.
-        #expect(await store.completions.count == 2)
-        #expect(!service.state.isMarkDoneAlreadyRecorded)
+        // Nothing was typed yet, so refusing to open loses nothing; the list says it did not work.
+        #expect(service.state.listFailure == .notSaved)
+        #expect(await store.executed.isEmpty)
     }
 
     @Test(
@@ -193,9 +192,8 @@ struct MarkDoneAfterCaptureTests {
             .joined(separator: "\n")
         let read = try #require(code.range(of: "let opening = await viewModel.readMarkDoneOpening(operation.id)"))
         let after = code[read.upperBound...].prefix(200)
-        let guardRange = try #require(after.range(of: "guard sheet == nil else { return }"))
-        let open = try #require(after.range(of: "viewModel.openMarkDone(opening)"))
-        #expect(guardRange.upperBound <= open.lowerBound)
+        // The sheet is presented only when no sheet is open and the read could be committed.
+        #expect(after.contains("guard sheet == nil, viewModel.openMarkDone(opening) else { return }"))
         #expect(!code.contains("cancelMarkDone"))
     }
 
