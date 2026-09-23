@@ -9,7 +9,7 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000…RD-008 landed on `redesign/ios27`; RD-009 is next.
+Current outcome: RD-000…RD-009 landed on `redesign/ios27`; RD-010 is next.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -39,7 +39,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: RD-009 Writer steps (drafted when the card starts), then RD-010…RD-011 overnight.
+Next step: RD-010 Writer steps (drafted when the card starts), then RD-011 overnight.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -74,7 +74,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-006 Notes | NotesTests | RD-000 | done | `0ea4f8a`…`eb45fd8`; `just verify` per step; review: 1 medium + 1 low, both repaired |
 | RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | done | `d0357c0`…`72c39cf`; `just verify` per step; review: 1 medium + 5 low, then 1 medium + 1 low, then 0 high/medium + 4 low; all repaired except two test-coverage lows (accepted) |
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | done | `c426bfa`…`1944c46`; `just verify` per step; review: 1 medium + 2 low (one low out of scope, filed as a follow-up), then no findings |
-| RD-009 Widgets | WidgetEntryTests | RD-000 | in progress | — |
+| RD-009 Widgets | WidgetEntryTests | RD-000 | done | `5f724f1`…`b49448b`; `just verify` per step; review: 0 high/medium + 3 low, repaired; then 0 high/medium + 3 low, accepted |
 | RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | planned | — |
 | RD-011 Pit character | REQ-PIT-022…024 | RD-000 | planned | — |
 | RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | planned | — |
@@ -200,6 +200,25 @@ added here when the slice starts.
   (pre-existing, out of scope): History and Notes show their empty state
   before the first load and beside the load-failure banner, which claims an
   unread fact (core C2); Service already waits for `hasLoaded`.
+- 2026-09-23, RD-009 (slice-writer): `just verify` passed before each commit;
+  `PitColor`, `DesignTokens` and `PitTypography` moved to `Shared/DesignSystem/`
+  and `GlyphDisc` extracted, with no project change; `CaptureWidgetSourceTests`
+  (content, link, accented disc, no data read) and `DesignRulesTests` now
+  also cover `Shared/` and `PitstopWidgets/` (named exemption:
+  `NextServiceWidget.swift`); item 1 repair verified by mutation. Review
+  round 1: 3 low (tests matched the Lock Screen branch; the gallery check
+  was untracked; the design-system doc stated the old rule scope), all
+  repaired; round 2: 3 low, accepted (the small-family scope anchors on the
+  first `default:`; `readsNoData` scans a hand-kept file list; ADR 0038
+  still states the original Features-only scope — a decision record, left
+  as written). The integrator ran `just verify` after the fast-forward:
+  passed. Not checked: the gallery in tinted and dark (DEV-WIDGET, now
+  named in that row); the screenshots in `rd-009/` are a layout replica.
+  Incident: the writer called the Xcode MCP `XcodeOpenWorkspace`, which left
+  an approval request in Xcode for the owner (reported; writer rules now
+  forbid Xcode MCP tools). Owner decisions: the REQ-DESIGN-004 proposed
+  amendment (tests already enforce the wider scope; approve it or relabel
+  the tests) and a follow-up card to restyle `NextServiceWidget` (SYS-007).
 
 ## Untested scope
 
@@ -307,9 +326,10 @@ dispatch commit; same output and integration as RD-001; scope is the
 delivered "Remember" widget only: the work plan keeps the SYS-007 widgets,
 now delivered as the next-service widget (ADR 0036), out of these cards):
 
-- [ ] The design tokens and glyph disc the widget needs compile into the widget target through `Shared/`, with no project-setting change and the app unchanged: `DesignRulesTests`, `just verify`
-- [ ] "Remember" widget restyled with the shared glyph disc and tokens; content, intent and tap target unchanged; no data read: `WidgetEntryTests`
-- [ ] Widgets docs: mockup deviations, system-overview row, work-plan row (SYS-007 frames recorded as that card's input): diff review
+- [x] The design tokens and glyph disc the widget needs compile into the widget target through `Shared/`, with no project-setting change and the app unchanged: `DesignRulesTests`, `just verify` — 5f724f1
+- [x] "Remember" widget restyled with the shared glyph disc and tokens; content, intent and tap target unchanged; no data read: `WidgetEntryTests` — 9f93613
+- [x] Widgets docs: mockup deviations, system-overview row, work-plan row (SYS-007 frames recorded as that card's input): diff review — 06e3aac
+- [x] Review repair: small-family source checks, DEV-WIDGET row names the gallery check, colour-literal rule scope in the design-system doc: `just verify`, mutation — 2b55522, e405a09, b49448b
 
 ## Resume prompt
 
