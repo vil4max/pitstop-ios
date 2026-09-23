@@ -61,7 +61,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | done | `0871525`…`087a3bd`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
 | RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | done | `ec7e63e`…`0386c0c`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
 | RD-004 Track several | ADR 0033 tests | RD-003 | done | `a7452ad`…`a1ae952`; `just verify` per step (writer); review: 1 medium + 4 low, then 2 medium + 2 low, then 0 high/medium + 3 low, all repaired |
-| RD-005 History | HistoryTests | RD-000 | planned | — |
+| RD-005 History | HistoryTests | RD-000 | in progress | — |
 | RD-006 Notes | NotesTests | RD-000 | planned | — |
 | RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | planned | — |
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | planned | — |
@@ -200,6 +200,12 @@ dispatch commit; same output and integration as RD-001):
 - [x] Review repair: disabled Confirm keeps its dimming; strip index derived: `TrackSeveralTests` — b88d91e
 - [x] Round-2 repair: chip lines decided from the proposal in both passes, no tolerance: `ChipFlowLayoutTests`, mutant failed — df6e161
 - [x] Round-3 repair: reported width covers an unshrinkable chip; faster boundary sweep: `ChipFlowLayoutTests`, mutants failed — a1ae952
+
+RD-005 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001):
+
+- [ ] History: month groups with a rail, distinct completions with a "corrected on Service" line: HistoryTests and a month-grouping test
+- [ ] History docs: mockup deviations, system-overview row, work-plan row: diff review
 
 ## Resume prompt
 
