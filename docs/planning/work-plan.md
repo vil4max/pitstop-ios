@@ -14,8 +14,13 @@ next step is the redesign, starting with RD-000; the app icon already shows
 the redesigned Pit (ICON-002, ADR 0037) as its announcement.
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
-now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
-external entry; needs a voice capture path in Pit).
+now per ADR 0023, decision 6), INV-CAP-004 (microphone start from an
+external entry; needs a voice capture path in Pit), and SYS-008 (iPhone Duo
+foldable layout support: check and adapt every screen across fold angles in
+the iPhone Duo Simulator, evaluating the `ArrangementView` API before
+scoping; depends on the redesign round completing, RD-000…RD-012; claimed
+source for the simulator and the API are secondary write-ups, unverified
+against Apple's own release notes and documentation).
 
 ## Redesign (iOS 27)
 
