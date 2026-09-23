@@ -59,7 +59,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-000 design system | REQ-DESIGN-001…004 | — | done | `3674b52`…`c901d10` and the docs commit; `just verify` passed; review: 2 medium + 3 low, then 1 medium + 5 low, all repaired |
 | RD-001 Car Board | REQ-BOARD-001…028 | RD-000 | done | `8cdc992`…`286fcae`; `just verify` passed per step (writer); review: 0 high/medium, 4 low (2 repaired, `isCompact` dead code left to RD-002, bookkeeping fixed) |
 | RD-002 Road | REQ-ROAD-004, 008…015, 027…029 | RD-000 | done | `0871525`…`087a3bd`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
-| RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | planned | — |
+| RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | in progress | — |
 | RD-004 Track several | ADR 0033 tests | RD-003 | planned | — |
 | RD-005 History | HistoryTests | RD-000 | planned | — |
 | RD-006 Notes | NotesTests | RD-000 | planned | — |
@@ -155,6 +155,14 @@ dispatch commit; same output and integration as RD-001):
 - [x] Road docs: mockup deviations, system-overview row, work-plan row: diff review — 9662778
 - [x] Review repair: list separators start at the row text at every size: `just verify` — 7b9624f
 - [x] Review repair: falsifiable REQ-ROAD-029 geometry test: `just verify`, mutant failed — 087a3bd
+
+RD-003 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001):
+
+- [ ] Draw the missing Service frames (dashboard "old reading" row; "Track" menu with "Track several" disabled while loading): diff review
+- [ ] One "Track" toolbar menu with the delivered items and disable rules; visible "Mark as done"; more menu with the dashboard-reading entries: existing Service tests
+- [ ] Grouped "Next visit" and "Tracked" lists with status chips and the remaining-share track under its freshness rule: share-track tests
+- [ ] Service docs: mockup deviations, system-overview row, work-plan row: diff review
 
 ## Current checklist
 
