@@ -25,6 +25,9 @@ struct ServiceViewState: Equatable {
     /// Today's odometer reading, if one exists: the dashboard sheet prefills it (ADR 0035). An older
     /// reading is not offered, because the car has moved since.
     var sameDayOdometerKm: Int?
+    /// The open Mark as done sheet's input differs from what Pit recorded for the same work and date while the
+    /// sheet was open. The sheet stays open and says so; only "Save anyway" records it (REQ-PIT-026).
+    var isMarkDoneAlreadyRecorded = false
 
     /// Only operations tracked by a rule count here: one kept on Service by a dashboard reading alone can
     /// still be tracked with the owner's own interval.
@@ -56,6 +59,28 @@ struct ServiceViewState: Equatable {
 struct MarkDoneOpening: Equatable {
     let operation: MaintenanceOperationID
     let completionIDs: Set<UUID>
+}
+
+/// What Mark as done does when completions of its operation were recorded while the sheet was open (REQ-PIT-026).
+enum MarkDoneRecheck: Equatable {
+    /// Nothing recorded for this date: the owner's completion is new work and is written.
+    case write
+    /// The same work on the same date, and the typed odometer is empty or the one recorded: writing would duplicate.
+    case alreadyRecorded
+    /// The same work on the same date, but the typed odometer differs or the recorded one has none: writing would
+    /// duplicate and skipping would drop the input, so the owner decides.
+    case askOwner
+
+    init(recorded: [MaintenanceCompletion], date: Date, odometerKm: Int?, calendar: Calendar = .current) {
+        let sameDate = recorded.filter { calendar.isDate($0.performedAt, inSameDayAs: date) }
+        if sameDate.isEmpty {
+            self = .write
+        } else if odometerKm == nil || sameDate.contains(where: { $0.odometerKm == odometerKm }) {
+            self = .alreadyRecorded
+        } else {
+            self = .askOwner
+        }
+    }
 }
 
 /// What the confirmation must say: with another rule left, the operation stays on Service under that rule.
@@ -138,29 +163,47 @@ final class ServiceViewModel {
     /// while the sheet is open, by Pit over it, can be told apart from the owner's own earlier ones.
     func beginMarkDone(_ operation: MaintenanceOperationID) {
         markDoneOpening = MarkDoneOpening(operation: operation, completionIDs: completionIDs[operation] ?? [])
+        state.isMarkDoneAlreadyRecorded = false
     }
 
-    /// Called only after the user confirmed the work was actually performed (core C5).
-    func confirmDone(_ operation: MaintenanceOperationID, on date: Date, odometerText: String) async -> Bool {
+    /// Called only after the user confirmed the work was actually performed (core C5). `anyway` is the owner's
+    /// "Save anyway" after the sheet said Pit already recorded this work for the date.
+    func confirmDone(
+        _ operation: MaintenanceOperationID,
+        on date: Date,
+        odometerText: String,
+        anyway: Bool = false
+    ) async -> Bool {
         let odometer = InputParsing.kilometers(from: odometerText)
         if case .invalid = odometer {
             return fail(.invalidOdometer)
         }
         guard DomainCommandLimits.isNotFuture(date, now: now()) else { return fail(.futureDate) }
         let odometerKm = odometer.intValue
-        // Pit can record this work while the sheet is open (REQ-PIT-026), so what is stored is checked again now: a
-        // completion of this operation recorded since the sheet opened is this one, and it is not recorded twice.
-        // The owner's own earlier completions, even from the same day, do not count (REQ-MAINT-031).
-        switch await isRecordedSinceOpening(operation) {
-        case nil:
-            return fail(.notSaved)
-        case true?:
-            markDoneOpening = nil
-            await load()
-            state.failure = nil
-            return true
-        case false?:
-            break
+        // Pit can record this work while the sheet is open (REQ-PIT-026), so what is stored is checked again now. Only
+        // a completion recorded since the sheet opened counts: the owner's own earlier ones, even from the same day,
+        // do not (REQ-MAINT-031). What the owner typed is never dropped without a word.
+        if !anyway {
+            let recorded: [MaintenanceCompletion]
+            do {
+                recorded = try await recordedSinceOpening(operation)
+            } catch {
+                return fail(.notSaved)
+            }
+            switch MarkDoneRecheck(recorded: recorded, date: date, odometerKm: odometerKm) {
+            case .write:
+                break
+            case .alreadyRecorded:
+                // The same work on the same date, and nothing typed here that it lacks.
+                markDoneOpening = nil
+                await load()
+                state.failure = nil
+                return true
+            case .askOwner:
+                state.failure = nil
+                state.isMarkDoneAlreadyRecorded = true
+                return false
+            }
         }
         let saved = await execute { vehicleID in
             .confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
@@ -172,6 +215,7 @@ final class ServiceViewModel {
         }
         if saved {
             markDoneOpening = nil
+            state.isMarkDoneAlreadyRecorded = false
         }
         return saved
     }
@@ -312,17 +356,13 @@ final class ServiceViewModel {
         state.listFailure = nil
     }
 
-    /// False without an open sheet for `operation`; nil when the store cannot be read.
-    private func isRecordedSinceOpening(_ operation: MaintenanceOperationID) async -> Bool? {
-        guard let opening = markDoneOpening, opening.operation == operation else { return false }
-        do {
-            let vehicleID = try await store.currentVehicle().id
-            return try await store.maintenanceCompletions().contains { completion in
-                completion.vehicleID == vehicleID && completion.operationID == operation
-                    && !opening.completionIDs.contains(completion.id)
-            }
-        } catch {
-            return nil
+    /// Completions of `operation` stored since its Mark as done sheet opened; none without an open sheet for it.
+    private func recordedSinceOpening(_ operation: MaintenanceOperationID) async throws -> [MaintenanceCompletion] {
+        guard let opening = markDoneOpening, opening.operation == operation else { return [] }
+        let vehicleID = try await store.currentVehicle().id
+        return try await store.maintenanceCompletions().filter { completion in
+            completion.vehicleID == vehicleID && completion.operationID == operation
+                && !opening.completionIDs.contains(completion.id)
         }
     }
 

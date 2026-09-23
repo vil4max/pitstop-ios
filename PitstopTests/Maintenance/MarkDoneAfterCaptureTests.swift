@@ -29,37 +29,92 @@ struct MarkDoneAfterCaptureTests {
         return service
     }
 
-    @Test("REQ-PIT-026: a capture over Mark as done for the same operation leaves one completion when it saves")
-    func sameWorkIsRecordedOnce() async throws {
+    /// What Pit writes while the sheet is open: its own completion of the work, as the store holds a confirmed capture.
+    private func pitRecords(_ store: FakeCarMemoryStore, on date: Date, odometerKm: Int?) async throws {
+        let vehicleID = await store.vehicle.id
+        try await store.execute(.confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
+            vehicleID: vehicleID, operationID: .engineOilService, performedAt: date, odometerKm: odometerKm
+        ))), now: now)
+    }
+
+    @Test(
+        "REQ-PIT-026: the same work, date and odometer captured over Mark as done is recorded once and nothing is lost"
+    )
+    func sameEntryIsRecordedOnce() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
         service.beginMarkDone(.engineOilService)
         try await captureOilChange(store)
         let captured = await store.completions
-        #expect(captured.count == 1)
+        #expect(captured.count == 1 && captured.first?.odometerKm == 85000)
 
-        // Success closes the sheet: the work is recorded, once.
-        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "85000"))
+        // The sheet holds what Pit already stored, so success closes it with nothing dropped.
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "85 000"))
 
         #expect(await store.completions == captured)
         #expect(await store.executed.count == 1, "the editor wrote nothing")
-        #expect(service.state.failure == nil)
+        #expect(service.state.failure == nil && !service.state.isMarkDoneAlreadyRecorded)
     }
 
-    @Test("REQ-PIT-026: a capture dated another day while Mark as done is open is still the same completion")
-    func captureOnAnotherDayIsRecordedOnce() async throws {
+    @Test("REQ-PIT-026: with no odometer typed, the same work and date captured over Mark as done is recorded once")
+    func emptyOdometerIsRecordedOnce() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
         service.beginMarkDone(.engineOilService)
-        // What Pit writes for "changed the oil yesterday": the capture's own completion, dated the day before.
-        let vehicleID = await store.vehicle.id
-        try await store.execute(.confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: .engineOilService, performedAt: now - day
-        ))), now: now)
+        try await captureOilChange(store)
 
         #expect(await service.confirmDone(.engineOilService, on: now, odometerText: ""))
 
         #expect(await store.completions.count == 1)
+    }
+
+    @Test("REQ-PIT-026: a different odometer for the same work and date keeps the sheet open until the owner decides")
+    func differentOdometerAsksTheOwner() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        service.beginMarkDone(.engineOilService)
+        try await captureOilChange(store)
+
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+        #expect(service.state.isMarkDoneAlreadyRecorded)
+        #expect(service.state.failure == nil)
+        #expect(await store.completions.count == 1, "nothing written before the owner decides")
+
+        // "Save anyway": the owner's entry is recorded as well.
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "86000", anyway: true))
+        #expect(await store.completions.map(\.odometerKm).sorted { ($0 ?? 0) < ($1 ?? 0) } == [85000, 86000])
+        #expect(!service.state.isMarkDoneAlreadyRecorded)
+    }
+
+    @Test("REQ-PIT-026: an odometer typed where Pit recorded none for the same date is never dropped silently")
+    func odometerPitLackedAsksTheOwner() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        service.beginMarkDone(.engineOilService)
+        try await pitRecords(store, on: now, odometerKm: nil)
+
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "85000"))
+
+        #expect(service.state.isMarkDoneAlreadyRecorded)
+        #expect(await store.completions.count == 1)
+    }
+
+    @Test("REQ-PIT-026: work Pit recorded for another date while Mark as done is open does not replace the owner's")
+    func captureOnAnotherDayIsNotTheSameWork() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        service.beginMarkDone(.engineOilService)
+        // "Changed the oil in March", told to Pit over the sheet.
+        try await pitRecords(store, on: now - 60 * day, odometerKm: nil)
+
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "85000"))
+
+        let completions = await store.completions
+        #expect(completions.count == 2)
+        #expect(completions.contains { $0.odometerKm == 85000 && Calendar.current.isDate(
+            $0.performedAt,
+            inSameDayAs: now
+        ) })
     }
 
     @Test("REQ-PIT-026: without a capture, a second Mark as done on the same day is recorded as the owner asked")

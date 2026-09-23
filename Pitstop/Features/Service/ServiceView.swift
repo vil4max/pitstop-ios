@@ -103,8 +103,9 @@ struct ServiceView: View {
                 await viewModel.track(operation, kilometersText: kilometers, monthsText: months)
             }
         case let .done(operation):
-            MarkDoneView(operation: operation) { date, odometer in
-                await viewModel.confirmDone(operation, on: date, odometerText: odometer)
+            MarkDoneView(operation: operation, isAlreadyRecorded: viewModel.state.isMarkDoneAlreadyRecorded) {
+                date, odometer, anyway in
+                await viewModel.confirmDone(operation, on: date, odometerText: odometer, anyway: anyway)
             }
         case let .report(operation):
             DashboardReadingView(

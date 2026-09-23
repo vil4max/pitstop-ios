@@ -5023,6 +5023,28 @@
         }
       }
     },
+    "service.done.alreadyRecorded" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pit has already saved this work for this date, without what you entered here. \"Save anyway\" records it again with your entry."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пит уже сохранил эту работу на эту дату, но без того, что вы ввели здесь. «Всё равно сохранить» запишет её ещё раз с вашими данными."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Піт уже зберіг цю роботу на цю дату, але без того, що ви ввели тут. «Усе одно зберегти» запише її ще раз із вашими даними."
+          }
+        }
+      }
+    },
     "service.done.confirm" : {
       "localizations" : {
         "en" : {
@@ -5085,6 +5107,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Підтверджуйте лише справді виконану роботу. Вона почне новий цикл для цієї операції і ні для якої іншої."
+          }
+        }
+      }
+    },
+    "service.done.saveAnyway" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save anyway"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всё равно сохранить"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Усе одно зберегти"
           }
         }
       }

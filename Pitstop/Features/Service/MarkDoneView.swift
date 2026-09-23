@@ -2,7 +2,10 @@ import SwiftUI
 
 struct MarkDoneView: View {
     let operation: MaintenanceOperationID
-    let onConfirm: (Date, String) async -> Bool
+    /// Pit recorded this work for the entered date while the sheet was open, without what was typed here.
+    var isAlreadyRecorded = false
+    /// The date, the odometer text, and whether the owner chose "Save anyway".
+    let onConfirm: (Date, String, Bool) async -> Bool
 
     @Environment(\.dismiss) private var dismiss
     @State private var date = Date()
@@ -25,18 +28,20 @@ struct MarkDoneView: View {
                 }
                 Section {
                     // The explicit confirmation: only performed work resets a cycle (core C5).
-                    Button("service.done.confirm") {
-                        Task {
-                            isSaving = true
-                            let saved = await onConfirm(date, odometer)
-                            isSaving = false
-                            if saved {
-                                dismiss()
-                            }
-                        }
+                    Button("service.done.confirm") { confirm(anyway: false) }
+                        .disabled(isSaving)
+                        .accessibilityIdentifier("service.done.confirm")
+                }
+                if isAlreadyRecorded {
+                    // Said in place, next to the input, so nothing typed is lost without a word (REQ-PIT-026).
+                    Section {
+                        Button("service.done.saveAnyway") { confirm(anyway: true) }
+                            .disabled(isSaving)
+                            .accessibilityIdentifier("service.done.saveAnyway")
+                    } header: {
+                        Text("service.done.alreadyRecorded")
+                            .textCase(nil)
                     }
-                    .disabled(isSaving)
-                    .accessibilityIdentifier("service.done.confirm")
                 }
             }
             .pitDisabledWhileSaving(isSaving)
@@ -46,6 +51,17 @@ struct MarkDoneView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("common.cancel", role: .cancel) { dismiss() }
                 }
+            }
+        }
+    }
+
+    private func confirm(anyway: Bool) {
+        Task {
+            isSaving = true
+            let saved = await onConfirm(date, odometer, anyway)
+            isSaving = false
+            if saved {
+                dismiss()
             }
         }
     }
