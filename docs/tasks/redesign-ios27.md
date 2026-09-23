@@ -74,7 +74,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-006 Notes | NotesTests | RD-000 | done | `0ea4f8a`…`eb45fd8`; `just verify` per step; review: 1 medium + 1 low, both repaired |
 | RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | done | `d0357c0`…`72c39cf`; `just verify` per step; review: 1 medium + 5 low, then 1 medium + 1 low, then 0 high/medium + 4 low; all repaired except two test-coverage lows (accepted) |
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | done | `c426bfa`…`1944c46`; `just verify` per step; review: 1 medium + 2 low (one low out of scope, filed as a follow-up), then no findings |
-| RD-009 Widgets | WidgetEntryTests | RD-000 | planned | — |
+| RD-009 Widgets | WidgetEntryTests | RD-000 | in progress | — |
 | RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | planned | — |
 | RD-011 Pit character | REQ-PIT-022…024 | RD-000 | planned | — |
 | RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | planned | — |
@@ -301,6 +301,15 @@ dispatch commit; same output and integration as RD-001):
 - [x] Sparse states docs: mockup deviations, system-overview rows, work-plan row: diff review — 3b25a67
 - [x] Review repair: 64 pt disc at every text size; a disabled first action dims its label; sparse tests from a loaded empty store: `just verify` — cccdb90, 4dc7bc6, 1944c46
 - [x] REQ-PIT-027 approved by the owner; the RD-007 prominence test renamed: `just verify` — 62c6830
+
+RD-009 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001; scope is the
+delivered "Remember" widget only: the work plan keeps the SYS-007 widgets,
+now delivered as the next-service widget (ADR 0036), out of these cards):
+
+- [ ] The design tokens and glyph disc the widget needs compile into the widget target through `Shared/`, with no project-setting change and the app unchanged: `DesignRulesTests`, `just verify`
+- [ ] "Remember" widget restyled with the shared glyph disc and tokens; content, intent and tap target unchanged; no data read: `WidgetEntryTests`
+- [ ] Widgets docs: mockup deviations, system-overview row, work-plan row (SYS-007 frames recorded as that card's input): diff review
 
 ## Resume prompt
 
