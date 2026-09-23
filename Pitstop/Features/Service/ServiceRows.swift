@@ -6,29 +6,16 @@ struct NextVisitLine {
     let note: LocalizedStringKey?
 }
 
-enum ServiceListMetrics {
-    static let glyphColumn: CGFloat = 20
-    static let glyphSpacing: CGFloat = 12
-}
-
 /// A suggested operation: the state glyph, the title and why it is in the visit. The Tracked row below says the
 /// status in words.
 struct NextVisitRow: View {
     let line: NextVisitLine
     var showsSeparator = false
 
-    @ScaledMetric(relativeTo: .headline) private var glyphSize: CGFloat = 13
-    /// Half the headline's cap height: it centres the glyph on the title's first line.
-    @ScaledMetric(relativeTo: .headline) private var glyphLift: CGFloat = 6
-
     var body: some View {
-        // Read on the main actor: the alignment closure below is Sendable.
-        let lift = glyphLift
-        HStack(alignment: .firstTextBaseline, spacing: ServiceListMetrics.glyphSpacing) {
-            StatusGlyphView(glyph: line.operation.status.glyph, size: glyphSize)
-                .foregroundStyle(line.operation.status.color)
-                .frame(width: glyphColumnWidth)
-                .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + lift }
+        GlyphColumnRow(
+            glyph: line.operation.status.glyph, color: line.operation.status.color, showsSeparator: showsSeparator
+        ) {
             VStack(alignment: .leading, spacing: 3) {
                 line.operation.id.titleText
                     .font(PitTypography.headline)
@@ -37,19 +24,8 @@ struct NextVisitRow: View {
                     .font(PitTypography.supportingSmall)
                     .foregroundStyle(PitColor.contentSecondary)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityElement(children: .combine)
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, DesignTokens.groupedRowPadding)
-        .accessibilityElement(children: .combine)
-        .groupedRowSeparator(
-            showsSeparator,
-            leadingInset: DesignTokens.groupedRowPadding + glyphColumnWidth + ServiceListMetrics.glyphSpacing
-        )
-    }
-
-    private var glyphColumnWidth: CGFloat {
-        max(ServiceListMetrics.glyphColumn, glyphSize)
     }
 }
 
@@ -146,13 +122,7 @@ struct OperationRow: View {
                     .accessibilityIdentifier("service.stopTracking.\(operation.id.rawValue)")
             }
         } label: {
-            Label("service.more", systemImage: "ellipsis.circle")
-                .labelStyle(.iconOnly)
-                .font(PitTypography.headline)
-                .foregroundStyle(PitColor.accentPrimary)
-                // The glyph is small; the target keeps the 44 pt minimum (REQ-GRAMMAR-003).
-                .frame(minWidth: 44, minHeight: 44)
-                .contentShape(.rect)
+            MoreMenuLabel()
         }
     }
 }

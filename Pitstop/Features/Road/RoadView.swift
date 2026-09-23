@@ -196,11 +196,6 @@ enum PlannedEditorTarget: Identifiable, Equatable {
     }
 }
 
-private enum RoadListMetrics {
-    static let glyphColumn: CGFloat = 20
-    static let glyphSpacing: CGFloat = 12
-}
-
 private struct MilestoneRow: View {
     let milestone: RoadMilestone
     /// Every row but a section's first draws the hairline above it.
@@ -211,68 +206,40 @@ private struct MilestoneRow: View {
     var onDelete: (PlannedDatedEvent) -> Void = { _ in }
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @ScaledMetric(relativeTo: .headline) private var glyphSize: CGFloat = 13
-    /// Half the headline's cap height: it centres the glyph on the title's first line.
-    @ScaledMetric(relativeTo: .headline) private var glyphLift: CGFloat = 6
 
     var body: some View {
-        // At accessibility sizes the more menu moves under the text, so the text keeps the row's width.
-        let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
-            : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
-        layout {
+        GlyphColumnRow(glyph: milestone.glyph, color: milestone.color, showsSeparator: showsSeparator) {
             details
+        } accessory: {
             if let planned {
                 moreMenu(planned)
             }
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, DesignTokens.groupedRowPadding)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        // The inset comes from the same scaled glyph column the row lays out, so it holds at every text size.
-        .groupedRowSeparator(
-            showsSeparator,
-            leadingInset: DesignTokens.groupedRowPadding + glyphColumnWidth + RoadListMetrics.glyphSpacing
-        )
-    }
-
-    /// The glyph column grows with the headline, so the text starts further in at larger sizes.
-    private var glyphColumnWidth: CGFloat {
-        max(RoadListMetrics.glyphColumn, glyphSize)
     }
 
     /// The text reads as one element; for a planned date the same actions are offered to VoiceOver on it.
     private var details: some View {
-        // Read on the main actor: the alignment closure below is Sendable.
-        let lift = glyphLift
-        return HStack(alignment: .firstTextBaseline, spacing: RoadListMetrics.glyphSpacing) {
-            StatusGlyphView(glyph: milestone.glyph, size: glyphSize)
-                .foregroundStyle(milestone.color)
-                .frame(width: glyphColumnWidth)
-                .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + lift }
-            VStack(alignment: .leading, spacing: 3) {
-                milestone.titleText
-                    .font(PitTypography.headline)
-                    .foregroundStyle(PitColor.contentPrimary)
-                // The state word is the chip pattern's word: the colour and the glyph beside it say the same.
-                if milestone.remainingKm != nil || milestone.remainingDays != nil {
-                    Text(milestone.state.label)
-                        .font(PitTypography.supporting.weight(.semibold))
-                        .foregroundStyle(milestone.color)
-                }
-                milestone.distanceText
+        VStack(alignment: .leading, spacing: 3) {
+            milestone.titleText
+                .font(PitTypography.headline)
+                .foregroundStyle(PitColor.contentPrimary)
+            // The state word is the chip pattern's word: the colour and the glyph beside it say the same.
+            if milestone.remainingKm != nil || milestone.remainingDays != nil {
+                Text(milestone.state.label)
+                    .font(PitTypography.supporting.weight(.semibold))
+                    .foregroundStyle(milestone.color)
+            }
+            milestone.distanceText
+                .font(PitTypography.supportingSmall)
+                .foregroundStyle(PitColor.contentSecondary)
+            if let estimate = milestone.estimate {
+                RoadEstimateLine(range: estimate)
+            }
+            if milestone.mileageDependency != nil, milestone.remainingDays != nil {
+                Text("road.milestone.byDateOnly")
                     .font(PitTypography.supportingSmall)
                     .foregroundStyle(PitColor.contentSecondary)
-                if let estimate = milestone.estimate {
-                    RoadEstimateLine(range: estimate)
-                }
-                if milestone.mileageDependency != nil, milestone.remainingDays != nil {
-                    Text("road.milestone.byDateOnly")
-                        .font(PitTypography.supportingSmall)
-                        .foregroundStyle(PitColor.contentSecondary)
-                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .accessibilityElement(children: .combine)
         .accessibilityActions {
@@ -292,13 +259,7 @@ private struct MilestoneRow: View {
             }
             .accessibilityIdentifier("road.planned.delete")
         } label: {
-            Label("service.more", systemImage: "ellipsis.circle")
-                .labelStyle(.iconOnly)
-                .font(PitTypography.headline)
-                .foregroundStyle(PitColor.accentPrimary)
-                // The glyph is small; the target keeps the 44 pt minimum (REQ-GRAMMAR-003).
-                .frame(minWidth: 44, minHeight: 44)
-                .contentShape(.rect)
+            MoreMenuLabel()
         }
         // Beside the text the target overhangs into the row padding, so the glyph lines up with the title.
         .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 0 : -10)
