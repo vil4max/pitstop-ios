@@ -9,7 +9,7 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000…RD-005 landed on `redesign/ios27`; RD-006 is next.
+Current outcome: RD-000…RD-006 landed on `redesign/ios27`; RD-007 is next.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -22,6 +22,15 @@ pushing `main` and `tf-1.2.0-1`). Changed by the owner in this session on
 2026-09-23 ("Yes, push after each card"): `redesign/ios27` is pushed to
 origin as an off-machine backup after each card lands with `just verify`
 green and its review done; `main` and the tag still wait for the end.
+Overnight run, owner in this session on 2026-09-23: "Одобряю ночной план
+целиком: RD-007…RD-011 по одному writer, после каждой карточки just verify,
+review и backup push ветки, RD-012 не брать. Не спрашивай меня: решения в
+рамках brief и mockup принимай сам и записывай отклонения. Проверки на
+экране, которые требуют запроса доступа, пропускай и отмечай «not checked».
+Остановись на последней чистой границе, только если gate не проходит после
+3 попыток или нужно что-то вне brief. … К 09:00 по Киеву остановись с
+актуальным Resume prompt." The owner also approved the context reset at the
+RD-006 boundary in the same message.
 Blocking decisions: none
 Permitted deviations: RD-010 is re-estimated from 0.5d to about 2d because
 REQ-UTILITY-012 and REQ-PIT-026 are not implemented on `main` (every sheet
@@ -30,7 +39,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: RD-006 Writer steps (drafted when the card starts).
+Next step: RD-007 Writer steps (drafted when the card starts), then RD-008…RD-011 overnight.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -62,7 +71,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-003 Service | Service tests, REQ-DESIGN-001 | RD-000 | done | `ec7e63e`…`0386c0c`; `just verify` per step (writer); review: 0 high/medium, 2 low, both repaired |
 | RD-004 Track several | ADR 0033 tests | RD-003 | done | `a7452ad`…`a1ae952`; `just verify` per step (writer); review: 1 medium + 4 low, then 2 medium + 2 low, then 0 high/medium + 3 low, all repaired |
 | RD-005 History | HistoryTests | RD-000 | done | `41f3697`…`b682104`; `just verify` per step; review: 0 high/medium, 2 low, both repaired |
-| RD-006 Notes | NotesTests | RD-000 | in progress | — |
+| RD-006 Notes | NotesTests | RD-000 | done | `0ea4f8a`…`eb45fd8`; `just verify` per step; review: 1 medium + 1 low, both repaired |
 | RD-007 Pit capture sheet | REQ-PIT-021, 025 | RD-000 | planned | — |
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | planned | — |
 | RD-009 Widgets | WidgetEntryTests | RD-000 | planned | — |
@@ -148,6 +157,14 @@ added here when the slice starts.
   showed the pre-RD-005 History, although earlier writers saw their own
   builds that way; the check was redone after integration. Not seen on
   screen: the event editor, VoiceOver, ru/uk.
+- 2026-09-23, RD-006 (slice-writer): `just verify` passed before each commit;
+  `NotesPresentationTests`; swipe inside the scroll view via iOS 27
+  `swipeActionsContainer()`; screenshots in `rd-006/`. Review: 1 medium (the
+  archive glyph's 44 pt frame sat outside its button, so only the symbol took
+  taps) + 1 low (row padding no longer opened the note); the integrator
+  repaired both, ran `just verify`, and checked Notes on the simulator: rows,
+  archive glyphs, and a trailing swipe revealing Archive. Not checked on
+  screen: the VoiceOver action, the editor, restore, ru/uk.
 
 ## Untested scope
 
@@ -224,8 +241,9 @@ dispatch commit; same output and integration as RD-001):
 RD-006 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001):
 
-- [ ] Notes: grouped rows, meta line, archive glyph plus swipe and VoiceOver action, wrapping context chips: NotesTests
-- [ ] Notes docs: mockup deviations, system-overview row, work-plan row: diff review
+- [x] Notes: grouped rows, meta line, archive glyph plus swipe and VoiceOver action, wrapping context chips: NotesTests — 0ea4f8a
+- [x] Notes docs: mockup deviations, system-overview row, work-plan row: diff review — a3629a5
+- [x] Review repair (integrator): 44 pt archive target, whole-row tap opens the note: `just verify`, simulator — eb45fd8
 
 ## Resume prompt
 
@@ -239,9 +257,16 @@ that dispatch, and hand the card to a `slice-writer` subagent with
 `agent-artifacts/2026-09-23/pitstop-ios27-redesign/work/writer-rules.md`.
 Integrate each card by cherry-pick after an independent `/code-review`, run
 `just verify`, record the evidence here, and push `redesign/ios27` (the
-owner's per-card backup decision). This prompt authorizes no merge into
-`main`, no push of `main` and no tag: those wait for the owner's word in the
-session.
+owner's per-card backup decision). Overnight (see Authorized scope): run
+RD-007…RD-011 in order without asking the owner, decide within the brief and
+the mockup and record deviations, mark on-screen checks that need an access
+prompt "not checked", skip RD-012, and stop at the last clean card boundary
+by 09:00 Kyiv (06:00 UTC), or earlier if the gate fails after three repairs
+or a card needs something outside the brief. Keep the registry next_step
+current (`features/session/registry.py set <session id> --next-step`). SYS-008
+depends on RD-012 and is not started overnight. This prompt authorizes no
+merge into `main`, no push of `main` and no tag: those wait for the owner's
+word in the session.
 
 ## Current checklist
 
