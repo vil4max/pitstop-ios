@@ -29,9 +29,9 @@ enum PitSheetMoment: Equatable {
     /// does not cover the card at the medium detent; at accessibility sizes the sheet is at the large detent and the
     /// composer alone fills the space above the keyboard, so it stays pinned.
     ///
-    /// Style: the sheet has one prominent action (pit-behavior-and-motion.md, "Capture"; the rule has no
-    /// requirement ID). With Pit's question pending, that is the question's Save, as the mockup's "Pit asked" frame
-    /// draws it, so Remember is quiet at every text size; otherwise Remember is the prominent action.
+    /// Style: the sheet has one prominent action (REQ-PIT-027). With Pit's question pending, that is the question's
+    /// Save, as the mockup's "Pit asked" frame draws it, so Remember is quiet at every text size; otherwise Remember
+    /// is the prominent action.
     func rememberAction(at size: DynamicTypeSize) -> PitRememberAction? {
         switch self {
         case .composing(.question):

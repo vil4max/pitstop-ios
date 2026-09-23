@@ -116,7 +116,7 @@ struct PitSheetMomentTests {
     }
 
     @Test(
-        "Capture section (one prominent action): with Pit's question pending, its Save is the prominent action and Remember is quiet; otherwise Remember is prominent",
+        "REQ-PIT-027: with Pit's question pending, its Save is the prominent action and Remember is quiet; otherwise Remember is prominent",
         arguments: DynamicTypeSize.allCases
     )
     func oneProminentAction(size: DynamicTypeSize) {

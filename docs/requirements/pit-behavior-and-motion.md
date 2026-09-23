@@ -498,3 +498,11 @@ Source: [Capture](#capture)
 Given an accessibility Dynamic Type size
 When the Pit Capture Surface opens
 Then it opens at the large detent, so the composer and its action stay visible above the keyboard
+
+### REQ-PIT-027 — One prominent action in the capture sheet
+Status: approved (owner, 2026-09-23)
+Core: C3
+Source: [Capture](#capture)
+Given the capture sheet is composing
+When Pit's question is pending (asking or saving its answer)
+Then the question's Save is the one prominent action and Remember is quiet at every text size; otherwise Remember is the prominent action
