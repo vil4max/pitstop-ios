@@ -1,9 +1,9 @@
 # PitStop — Project Status
 
-**Project State:** Frozen temporarily since 2026-09-22 (owner decision); no work starts until the owner unfreezes it  
-**Next task:** RD-000, the first iOS 27 redesign card (`next`; starts in a new session after the owner unfreezes the project, [`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
+**Project State:** Active since 2026-09-23 (owner unfroze it); the iOS 27 redesign round runs on the local branch `redesign/ios27` ([`docs/tasks/redesign-ios27.md`](docs/tasks/redesign-ios27.md))  
+**Next task:** RD-000, the first iOS 27 redesign card ([`docs/planning/work-plan.md`](docs/planning/work-plan.md)); the round ends with SYS-008 and TestFlight 1.2.0  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
-**TestFlight:** version 1.1.0 (tag `tf-1.1.0-2`); delivery is tag-gated (ADR 0013)
+**TestFlight:** version 1.1.0 (tag `tf-1.1.0-3`); delivery is tag-gated (ADR 0013)
 
 Work follows the spec pyramid ([`docs/core.md`](docs/core.md)) and the agent
 development loop ([`docs/engineering/agent-loop-and-gitflow.md`](docs/engineering/agent-loop-and-gitflow.md)).

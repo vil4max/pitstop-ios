@@ -1,7 +1,7 @@
 # Work Plan
 
-**Status:** Frozen temporarily since 2026-09-22 (owner decision); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** RD-000 (`next`); starts in a new session after the owner unfreezes the project  
+**Status:** Active since 2026-09-23 (owner unfroze it); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
+**Next task:** RD-000 (`next`); the round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  
@@ -14,13 +14,17 @@ next step is the redesign, starting with RD-000; the app icon already shows
 the redesigned Pit (ICON-002, ADR 0037) as its announcement.
 
 Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
-now per ADR 0023, decision 6), INV-CAP-004 (microphone start from an
-external entry; needs a voice capture path in Pit), and SYS-008 (iPhone Duo
-foldable layout support: check and adapt every screen across fold angles in
-the iPhone Duo Simulator, evaluating the `ArrangementView` API before
-scoping; depends on the redesign round completing, RD-000…RD-012; claimed
-source for the simulator and the API are secondary write-ups, unverified
-against Apple's own release notes and documentation).
+now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
+external entry; needs a voice capture path in Pit).
+
+SYS-008 (iPhone Duo layout hardening) closes the redesign round, after
+RD-012. Owner decision (2026-09-23): harden the layouts on the iOS 27.0 SDK
+and keep the Xcode 27.0 toolchain; no iOS 27.1 API. Apple's
+[Xcode 27.1 beta release notes](https://developer.apple.com/documentation/xcode-release-notes/xcode-27_1-release-notes)
+list the iPhone Duo Simulator runtime, and
+[`ArrangementView`](https://developer.apple.com/documentation/swiftui/arrangementview)
+is iOS 27.1 beta API. Adopting it, the full-screen opt-in and the hinge APIs
+wait for a follow-up card once Xcode 27.1 ships.
 
 ## Redesign (iOS 27)
 
@@ -41,7 +45,7 @@ and numbered after the newest ADR on `main` at that time. Not part of these card
 MNT-VR-002 row line, sheet and menu entries without changing their wording.
 ROAD-EST-002 has landed its estimate line on Road; RD-002 keeps it as
 delivered. Text-clipping at accessibility
-sizes (proposed REQ-GRAMMAR-003) is a manual check listed under "Not verified
+sizes (REQ-GRAMMAR-003) is a manual check listed under "Not verified
 on screen" until a snapshot-testing card exists.
 
 | ID | Screen | Est | Depends on | Status | Acceptance (summary) |
@@ -117,7 +121,7 @@ correcting, archiving and restoring notes; the dashboard reading sheet, the
 "from dashboard" suffix and the Pit dashboard capture (MNT-VR-002); VoiceOver order, AX5 text size,
 Reduce Transparency and ru/uk strings on screen; question returns that need
 days of clock time; after each RD card lands, text clipping at the
-largest Dynamic Type size on that screen (proposed REQ-GRAMMAR-003, manual).
+largest Dynamic Type size on that screen (REQ-GRAMMAR-003, manual).
 
 ## Delivered
 
@@ -197,4 +201,4 @@ indexed in [`../README.md`](../README.md) under `decisions/`.
   non-destructive move of the store into the group container, and a
   read-only "Next service" widget that shows Service's first operation
   through the shared engine and opens Service (ADR 0036).
-- TestFlight: 1.0.0 and 1.1.0 rounds (tags `tf-1.0.0-1`, `tf-1.1.0-1`).
+- TestFlight: 1.0.0 and 1.1.0 rounds (tags `tf-1.0.0-1`, `tf-1.1.0-1` to `tf-1.1.0-3`).
