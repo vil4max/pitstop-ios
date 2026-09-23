@@ -18,12 +18,14 @@ struct CarHeroView: View {
                     HStack(alignment: .center, spacing: 10) {
                         mileageLine(isStacked: false)
                         Spacer(minLength: 8)
-                        editAction
+                        // The action keeps its one line; the mileage gives way first.
+                        editAction.layoutPriority(1)
                     }
                     HStack(alignment: .center, spacing: 10) {
                         mileageLine(isStacked: true)
                         Spacer(minLength: 8)
-                        editAction
+                        // The action keeps its one line; the mileage gives way first.
+                        editAction.layoutPriority(1)
                     }
                     VStack(alignment: .leading, spacing: 10) {
                         mileageLine(isStacked: true)
