@@ -36,10 +36,11 @@ final class PitCaptureEntry {
         }
     }
 
-    /// Returns whether the capture surface opened for `host`. It never replaces a capture open elsewhere.
+    /// Returns whether the capture surface opened for `host`. It never replaces a capture open elsewhere, and it
+    /// does not open while the sheet under it saves, so a capture never interleaves with a partial save.
     @discardableResult
-    func open(from host: Host) -> Bool {
-        guard self.host == nil else { return false }
+    func open(from host: Host, isSaving: Bool = false) -> Bool {
+        guard self.host == nil, !isSaving else { return false }
         self.host = host
         return true
     }

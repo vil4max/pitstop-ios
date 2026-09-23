@@ -39,6 +39,7 @@ struct MarkDoneView: View {
                     .accessibilityIdentifier("service.done.confirm")
                 }
             }
+            .pitDisabledWhileSaving(isSaving)
             .navigationTitle("service.markDone")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -43,6 +43,7 @@ struct TrackSeveralView: View {
         }
         // Typed intervals are lost on dismissal, so only the explicit Cancel closes the sheet mid-way.
         .interactiveDismissDisabled(model.step == .intervals || model.step == .review || model.isSaving)
+        .pitDisabledWhileSaving(model.isSaving)
     }
 
     private func cancel() {

@@ -16,8 +16,16 @@ struct PitInSheetContext: Equatable {
     }
 }
 
+/// Whether the sheet Pit sits in is saving. One per sheet; its content reports through `pitDisabledWhileSaving(_:)`.
+@MainActor
+@Observable
+final class PitSheetSaving {
+    var isSaving = false
+}
+
 extension EnvironmentValues {
     @Entry var pitInSheet: PitInSheetContext?
+    @Entry var pitSheetSaving: PitSheetSaving?
 }
 
 extension View {
@@ -43,24 +51,44 @@ extension View {
     func pitStaysInSheet() -> some View {
         modifier(PitStaysInSheet())
     }
+
+    /// Pit in this sheet is shown disabled while `isSaving` (Track several, the planned date editor, the dashboard
+    /// reading and every other save), so a capture never interleaves with a partial save (REQ-PIT-026).
+    func pitDisabledWhileSaving(_ isSaving: Bool) -> some View {
+        modifier(PitSavingReport(isSaving: isSaving))
+    }
+}
+
+private struct PitSavingReport: ViewModifier {
+    let isSaving: Bool
+
+    @Environment(\.pitSheetSaving) private var saving
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: isSaving, initial: true) { _, isSaving in saving?.isSaving = isSaving }
+            .onDisappear { saving?.isSaving = false }
+    }
 }
 
 private struct PitStaysInSheet: ViewModifier {
     @Environment(\.pitInSheet) private var context
     /// This sheet as a capture host; a new sheet is a new host.
     @State private var id = UUID()
+    @State private var saving = PitSheetSaving()
 
     func body(content: Content) -> some View {
         let host = PitCaptureEntry.Host.sheet(id)
         // Read here, not inside the binding, so the sheet follows the entry.
         let isCapturing = context?.entry.host == host
         content
+            .environment(\.pitSheetSaving, saving)
             // A safe-area inset, not an overlay: the sheet's rows scroll clear of Pit, so he never covers a
             // trailing control, and it keeps the keyboard's safe area, so he rides above the keyboard and any
             // accessory bar instead of over them.
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if let context {
-                    PitInSheetControl(context: context, host: host)
+                    PitInSheetControl(context: context, host: host, saving: saving)
                 }
             }
             .sheet(isPresented: Binding(
@@ -88,13 +116,15 @@ private struct PitStaysInSheet: ViewModifier {
 private struct PitInSheetControl: View {
     let context: PitInSheetContext
     let host: PitCaptureEntry.Host
+    let saving: PitSheetSaving
 
     var body: some View {
         HStack {
             Spacer()
             PitUtilityButton(state: context.presence.state) {
-                context.entry.open(from: host)
+                context.entry.open(from: host, isSaving: saving.isSaving)
             }
+            .disabled(saving.isSaving)
         }
         .utilityInsets()
     }
