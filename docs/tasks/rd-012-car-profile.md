@@ -36,7 +36,7 @@ Permitted deviations: none.
 Material assumptions: the simulator's Vision may return no foreground
 instance, so the lifted path is checked on a device (What to Test); checked
 at card `car-visual` by running the fake and the Vision path in tests.
-Next step: integrate card `car-editor-profile` after repair 1 and its round 2 review.
+Next step: integrate card `car-editor-profile` after repair 2 and its round 3 review.
 Requirements: REQ-BOARD-017, REQ-BOARD-029, REQ-BOARD-030, REQ-BOARD-031,
 REQ-BOARD-032, REQ-BOARD-033, REQ-BOARD-034, REQ-DESIGN-005
 Acceptance specs: tests citing each requirement above in their display name,
@@ -285,8 +285,9 @@ Output: the writer report, filed under
 
 Objective: Make the car editor lock Cancel and swipe while a save runs, make
 a failed photo load clear the staged photo, say so in the Photo row and allow
-the same item to be picked again, and keep the view model's photo id in step
-with a successful photo command.
+the same item to be picked again. The low at `CarBoardViewModel.swift:159`
+was dropped from this repair on the orchestrator's relay of the kit rule
+(lows go to the backlog) and is in the backlog.
 
 Sources: REQ-BOARD-029, REQ-BOARD-033; round 1 review findings
 `CarEditorView.swift:70` (medium), `CarEditorView.swift:144` (medium) and
@@ -304,6 +305,27 @@ failing test first.
 
 Output: an updated writer report (READY or BLOCKED, the repair commits,
 gate, `Conflicts found`) appended to
+`agent-artifacts/2026-09-24/pitstop-rd-012/outputs/car-editor-profile/writer-report.md`.
+
+### car-editor-profile repair 2 dispatch — A failed pick keeps a staged remove (2026-09-25)
+
+Objective: A photo load that fails or returns nothing resets only a staged
+replacement; a staged remove stays staged, so Save still removes the photo.
+
+Sources: REQ-BOARD-033; round 2 review finding `CarEditorView.swift:58`
+(medium, a regression from repair 1) and the round 1 finding
+`CarEditorView.swift:144` it must keep closed.
+
+Intended deviations: none
+
+Boundaries: the writer's branch rebased onto the round head first
+(KIT-D-024); owned `Pitstop/Features/CarBoard/CarEditorView.swift` and
+`PitstopTests/CarBoard/CarEditorTests.swift` (correct
+`failedLoadKeepsTheSavedPhoto`, which asserts the regression, and add the
+remove-then-failed-pick case). One commit, failing test first. The two round
+2 lows are not repaired (backlog).
+
+Output: a Repair 2 section appended to the writer report in
 `agent-artifacts/2026-09-24/pitstop-rd-012/outputs/car-editor-profile/writer-report.md`.
 
 ## Evidence history
@@ -351,6 +373,11 @@ gate, `Conflicts found`) appended to
   photo row as the mockup draws it. The writer added a partial-save message
   (`carEditor.failure.profileOnly`) and its own ru and uk wording, both for
   the owner's review. Round 1 review: 2 medium; repair 1 dispatched.
+  Repair 1 READY at `e3f878b` after a clean rebase onto `4e23751` (steps
+  now `070ef30`, `972b699`; repairs `ccf6654`, `e3f878b`); the round 1 low
+  at `CarBoardViewModel.swift:159` was dropped from it before it started
+  (lows go to the backlog). Round 2 review: 1 medium, a regression from
+  repair 1; repair 2 dispatched (second of three).
 
 ### Round 1 review — car-profile-data (2026-09-24)
 
@@ -380,9 +407,17 @@ Review SHA: 5f853ba
 
 - [medium][blocking][new] Pitstop/Features/CarBoard/CarEditorView.swift:70 — the editor's `SaveSheetScaffold` does not lock while saving, so Cancel or a swipe during a multi-second photo save closes the sheet while the save runs on: the photo the owner cancelled is stored and the old files are deleted, and a late failure alert appears the next time the editor opens (`PlannedEventEditorView`, ADR 0032, locks for this reason)
 - [medium][blocking][new] Pitstop/Features/CarBoard/CarEditorView.swift:144 — when `loadTransferable` fails or returns nil, the previous draft photo silently stays staged with nothing on screen to show it; Save then stores a photo the owner replaced, or reports success when the chosen photo was not saved; picking the same item again does not retry the load
-- [low][non-blocking][new] Pitstop/Features/CarBoard/CarBoardViewModel.swift:159 — the view model's photo id is refreshed only by a successful `load()`; after a replace followed by a failed reload, the next remove discards the old id and leaves the new files on disk (REQ-BOARD-033) (repaired in repair 1)
+- [low][non-blocking][new] Pitstop/Features/CarBoard/CarBoardViewModel.swift:159 — the view model's photo id is refreshed only by a successful `load()`; after a replace followed by a failed reload, the next remove discards the old id and leaves the new files on disk (REQ-BOARD-033) (backlog at close; lows are not repaired, `defect-first-before-commit`)
 - [low][non-blocking][new] Pitstop/Features/CarBoard/CarBoardViewModel.swift:240 — when the mileage fails after the name saved, the message does not say the body and photo were not saved either; a retry resends everything (accepted: the sheet stays open)
 - [low][non-blocking][new] Pitstop/Features/CarBoard/CarEditorView.swift:42 — an undecodable pick gives only the generic save failure; the in-sheet way out is "Remove photo", which removes the saved photo too (backlog at close)
+
+### Round 2 review — car-editor-profile (2026-09-25)
+
+Review SHA: e3f878b
+
+- [medium][blocking][new] Pitstop/Features/CarBoard/CarEditorView.swift:58 — a failed load resets the staged photo to "unchanged" whatever it was, so "Remove photo" followed by a pick that fails to load and Save keeps the saved photo and its files the owner removed (REQ-BOARD-033); a repair regression of round-1-correct behaviour, and `CarEditorTests.swift:143` asserts it
+- [low][non-blocking][new] Pitstop/Features/CarBoard/CarEditorView.swift:114 — the load-failure line is not announced to VoiceOver, unlike `MarkDoneView` and `TrackSeveralView` (backlog at close)
+- [low][non-blocking][new] PitstopTests/CarBoard/CarEditorTests.swift:56 — the lock test is tagged REQ-BOARD-029, which says nothing about locking; the matrix counts it as that requirement's coverage (backlog at close)
 
 ## Untested scope
 
@@ -409,7 +444,7 @@ Card `car-editor-profile` (dispatched 2026-09-25):
 - [ ] The car editor: a Photo row (`PhotosPicker`, "Choose photo", "Remove photo", footer "Stays on this iPhone…"), a Body control (SUV, Sedan), then Name and Mileage, in en, ru and uk, with light, dark and AX-XL previews; first launch asks for no photo: REQ-BOARD-032 and REQ-BOARD-030 tests fail first, then `just verify`
 - [ ] Repair 1: the editor locks Cancel and swipe while a save runs: a failing test for the locked sheet first, then `just verify`
 - [ ] Repair 1: a failed photo load clears the staged photo, says so in the Photo row and lets the same item be picked again: failing tests first, then `just verify`
-- [ ] Repair 1: the view model's photo id follows a successful photo command, not only a reload: a REQ-BOARD-033 test fails first, then `just verify`
+- [ ] Repair 2: a failed photo load resets only a staged replacement and keeps a staged remove: a REQ-BOARD-033 test fails first, then `just verify`
 
 ## Deferred
 
