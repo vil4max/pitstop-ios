@@ -93,7 +93,8 @@ struct NextServiceWidgetView: View {
 
     /// The Lock Screen renders this family in one vibrant tint, so the glyph's shape, not its colour, tells the state
     /// (REQ-DESIGN-001); the operation name joins the accent group. When the text does not fit, lines go by priority
-    /// instead of being clipped (owner, FU-2): the fact goes first, and the name and the status always stay.
+    /// instead of being clipped (owner, FU-2): the fact goes first, then the status word, leaving its glyph; the name
+    /// and the status always stay.
     private var rectangular: some View {
         Group {
             switch content {
@@ -101,7 +102,8 @@ struct NextServiceWidgetView: View {
                 ViewThatFits(in: .vertical) {
                     rectangularOperation(summary, showsFact: true)
                     rectangularOperation(summary, showsFact: false)
-                    rectangularOperation(summary, showsFact: false, compact: true)
+                    rectangularOperation(summary, showsFact: false, showsWord: false)
+                    rectangularOperation(summary, showsFact: false, showsWord: false, nameLines: 1)
                 }
             case .empty:
                 ViewThatFits(in: .vertical) {
@@ -120,30 +122,45 @@ struct NextServiceWidgetView: View {
         .accessibilityElement(children: .combine)
     }
 
-    /// `compact` is the last resort at the largest text sizes, where even two lines do not fit the Lock Screen slot:
-    /// the name and the status shrink instead of the status being cut.
+    /// Without the word, the status is its glyph alone, read by VoiceOver as the word, leading the name as on the small
+    /// widget: on two whole lines when they fit the slot, otherwise on one line that may shrink.
     private func rectangularOperation(
         _ summary: NextServiceSummary,
         showsFact: Bool,
-        compact: Bool = false
+        showsWord: Bool = true,
+        nameLines: Int = 2
     ) -> some View {
-        VStack(alignment: .leading, spacing: 1) {
-            summary.operation.widgetTitle
-                .font(PitTypography.headline)
-                .widgetAccentable()
-                .lineLimit(1)
-            HStack(spacing: 5) {
-                StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize * (compact ? 0.5 : 1))
-                Text(summary.word.widgetLabel)
+        let name = summary.operation.widgetTitle
+            .font(PitTypography.headline)
+            .widgetAccentable()
+        return VStack(alignment: .leading, spacing: 1) {
+            if showsWord {
+                name
+                    .lineLimit(1)
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
+                    // `ViewThatFits` measures height only, so the word wraps rather than being cut sideways: a word
+                    // that needs more room makes this layout taller, and the widget moves on (REQ-GRAMMAR-003).
+                    Text(summary.word.widgetLabel)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } else {
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
+                        .accessibilityRepresentation { Text(summary.word.widgetLabel) }
+                    // Two lines report their full height, so a slot too short for them rejects this layout.
+                    name
+                        .lineLimit(nameLines)
+                        .minimumScaleFactor(0.6)
+                        .fixedSize(horizontal: false, vertical: nameLines > 1)
+                }
             }
-            .lineLimit(1)
             if showsFact {
                 summary.fact.widgetText
                     .foregroundStyle(PitColor.contentSecondary)
                     .lineLimit(1)
             }
         }
-        .minimumScaleFactor(compact ? 0.5 : 1)
     }
 
     /// The sparse and unreadable states keep their sentence; the widget's name above it goes first.

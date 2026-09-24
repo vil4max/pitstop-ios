@@ -122,12 +122,13 @@ struct NextServiceWidgetSourceTests {
         #expect(!modifiers.contains { $0.contains("lineLimit") || $0.contains("minimumScaleFactor") })
     }
 
-    @Test("REQ-WIDGET-004: the Lock Screen rectangular widget drops the fact first and keeps name and status")
+    @Test("REQ-WIDGET-004: the Lock Screen rectangular widget drops the fact, then the word; name and status stay")
     func rectangularDropsLinesByPriority() throws {
         let rectangular = try family("rectangular")
-        let variant = #/rectangularOperation\(summary, showsFact: (true|false)(, compact: true)?\)/#
-        let order = rectangular.matches(of: variant).map { "\($0.1)\($0.2 == nil ? "" : " compact")" }
-        #expect(order == ["true", "false", "false compact"])
+        let variant = #/rectangularOperation\(summary, showsFact: (\w+)(, showsWord: false)?(, nameLines: 1)?\)/#
+        let order = rectangular.matches(of: variant)
+            .map { "\($0.1) \($0.2 == nil ? "word" : "glyph")\($0.3 == nil ? "" : " one-line name")" }
+        #expect(order == ["true word", "false word", "false glyph", "false glyph one-line name"])
         let first = #/ViewThatFits\(in: \.vertical\)\s*\{\s*rectangularOperation\(summary, showsFact: true/#
         #expect(rectangular.contains(first))
 
@@ -135,7 +136,27 @@ struct NextServiceWidgetSourceTests {
         let kept = try removing(block: "showsFact", from: String(member(from: start, in: rectangular)))
         #expect(kept.contains("summary.operation.widgetTitle"))
         #expect(kept.contains("StatusGlyphView(glyph: summary.status.glyph"))
+        #expect(kept.contains("Text(summary.word.widgetLabel)"), "the status word must not depend on the fact")
         #expect(!kept.contains("summary.fact.widgetText"))
+    }
+
+    /// `ViewThatFits` measures height only, so a status word cut sideways on one line would still "fit" and the
+    /// fallback would never be reached. The word wraps instead, and nothing around it limits or shrinks it: a word
+    /// that needs more room makes the layout taller, and the widget moves on to the glyph alone.
+    @Test("REQ-GRAMMAR-003: the Lock Screen rectangular widget never truncates or shrinks the status word")
+    func rectangularNeverTruncatesTheStatusWord() throws {
+        let rectangular = try family("rectangular")
+        let start = try #require(rectangular.range(of: "    private func rectangularOperation")).lowerBound
+        let lines = try member(from: start, in: rectangular).split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+        let word = try #require(lines.firstIndex { $0.hasPrefix("Text(summary.word.widgetLabel)") }, "no status word")
+        let modifiers = lines[(word + 1)...].prefix { $0.hasPrefix(".") || $0.hasPrefix("//") }
+        #expect(modifiers.contains(".fixedSize(horizontal: false, vertical: true)"), "the word must wrap")
+        #expect(!modifiers.contains { $0.contains("lineLimit") || $0.contains("minimumScaleFactor") })
+        let containerLimits = zip(lines, lines.dropFirst()).filter { closing, next in
+            closing == "}" && (next.hasPrefix(".lineLimit") || next.hasPrefix(".minimumScaleFactor"))
+        }
+        #expect(containerLimits.isEmpty, "a container limits or shrinks the status word")
     }
 
     @Test("REQ-DESIGN-001: the small widget says the status as a chip of word, shared glyph and colour")
