@@ -40,10 +40,15 @@ struct MarkDoneSheetClosedTests {
         _ service: ServiceViewModel,
         _ store: HeldStore,
         at call: HeldStore.Call,
-        odometerText: String
+        odometerText: String,
+        replacingPits: Bool = false
     ) async -> Task<Bool, Never> {
         await store.hold(call)
-        let save = Task { await service.confirmDone(.engineOilService, on: now, odometerText: odometerText) }
+        let save = Task {
+            await service.confirmDone(
+                .engineOilService, on: now, odometerText: odometerText, replacingPits: replacingPits
+            )
+        }
         await store.waitUntilHeld()
         return save
     }
@@ -200,6 +205,50 @@ struct MarkDoneSheetClosedTests {
         #expect(service.state.listFailure == .notSaved)
         #expect(service.state.failure == nil, "the cabin filter sheet shows no failure about oil")
         #expect(await store.base.completions.isEmpty)
+    }
+
+    @Test("REQ-NEW-9: a Replace the owner chose before the app closed the sheet still replaces Pit's entry")
+    func chosenReplaceStandsAfterTheAppCloses() async throws {
+        let store = HeldStore()
+        let service = await openedService(store)
+        #expect(await service.track(.engineOilService, kilometersText: "10000", monthsText: "12"))
+        await openMarkDone(service, .engineOilService)
+        try await pitRecords(.engineOilService, odometerKm: nil, in: store)
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+        // The owner chooses Replace; the recheck is slow, and the app closes the sheet meanwhile.
+        let replace = await confirmOilAndHold(
+            service, store, at: .completionsRead, odometerText: "86000", replacingPits: true
+        )
+
+        service.markDoneClosed()
+        await store.release()
+
+        #expect(await !replace.value, "no sheet is open to close")
+        let oil = await store.base.completions.filter { $0.operationID == .engineOilService }
+        #expect(oil.map(\.odometerKm) == [86000], "the owner's choice was carried out")
+        #expect(service.state.listFailure == nil && service.state.failure == nil)
+        #expect(service.state.operations.first { $0.id == .engineOilService }?.lastCompletion?.odometerKm == 86000)
+    }
+
+    @Test("REQ-NEW-9: a Replace whose Pit entries changed after the app closed the sheet keeps Pit's and says so")
+    func changedReplaceAfterTheAppClosesKeepsPits() async throws {
+        let store = HeldStore()
+        let service = await openedService(store)
+        await openMarkDone(service, .engineOilService)
+        try await pitRecords(.engineOilService, odometerKm: nil, in: store)
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+        let replace = await confirmOilAndHold(
+            service, store, at: .completionsRead, odometerText: "86000", replacingPits: true
+        )
+        // Pit records the work again before the recheck reads the store; the app closes the sheet.
+        try await pitRecords(.engineOilService, odometerKm: 85500, in: store)
+
+        service.markDoneClosed()
+        await store.release()
+
+        #expect(await !replace.value)
+        #expect(await store.base.completions.count { $0.operationID == .engineOilService } == 2, "only Pit's")
+        #expect(service.state.listFailure == .pitAlreadyRecorded)
     }
 
     @Test("REQ-NEW-10: Service tells the view model when a Mark as done sheet closes, however it closes")

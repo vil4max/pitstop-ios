@@ -741,11 +741,17 @@ If the Mark as done sheet closes while its save still runs and the recheck
 then finds Pit's differing entry within a day (REQ-MAINT-040), the app shall
 not record the owner's entry, shall reload the list, and shall say on the
 list that Pit's record was kept and that undoing it and marking the work
-again records the owner's entry instead.
+again records the owner's entry instead; a "Replace with mine" the owner
+chose before the app closed the sheet is the exception and still replaces
+the entries the prompt named (REQ-NEW-3), since the save lock lets only the
+app close the sheet.
 Acceptance: Given Pit recorded an oil change without an odometer and the
 owner's save of 86,000 km is still rechecking, When the app closes the sheet,
 Then only Pit's completion is stored, the reloaded list shows it, and the
-list names Pit's record rather than inviting a retry.
+list names Pit's record rather than inviting a retry; Given the owner chose
+"Replace with mine" and Pit's entries are unchanged, When the app closes the
+sheet during the recheck, Then only the owner's completion is stored and the
+list shows it.
 
 ### REQ-NEW-10 — A closed sheet's save stays out of the next sheet
 Status: proposed
