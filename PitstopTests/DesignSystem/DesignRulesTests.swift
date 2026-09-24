@@ -48,16 +48,12 @@ struct DesignRulesTests {
         #expect(hits.isEmpty, "colour literals under Shared/ outside DesignSystem/: \(hits)")
     }
 
-    /// Widgets not yet redesigned, by file name. The next-service widget is SYS-007's and keeps its look until that
-    /// card restyles it; a new widget file is checked from its first line.
-    private static let widgetsNotYetRedesigned: Set = ["NextServiceWidget.swift"]
-
-    @Test("REQ-DESIGN-004: redesigned widget code names PitColor roles, never a colour literal")
+    /// Every widget file is checked from its first line, the next-service widget included since FU-2 restyled it.
+    @Test("REQ-DESIGN-004: widget code names PitColor roles, never a colour literal")
     func widgetsUseRoles() throws {
         let files = try Self.swiftFiles(under: "PitstopWidgets")
-            .filter { !Self.widgetsNotYetRedesigned.contains($0.lastPathComponent) }
         #expect(
-            files.contains { $0.lastPathComponent == "CaptureWidget.swift" },
+            Set(files.map(\.lastPathComponent)).isSuperset(of: ["CaptureWidget.swift", "NextServiceWidget.swift"]),
             "the widget sources were not found; the rule would pass vacuously"
         )
         let hits = try files.flatMap { try Self.matches(of: Self.colourLiteral, in: $0) }

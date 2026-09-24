@@ -22,6 +22,8 @@ enum DesignTokens {
 
     static let chipCornerRadius: CGFloat = 20
     static let statusGlyphSize: CGFloat = 9
+    /// The status glyph beside the word on the Lock Screen rectangular widget, whose text is larger than a chip's.
+    static let lockScreenStatusGlyphSize: CGFloat = 11
     static let shareTrackHeight: CGFloat = 5
     static let emptyStateDiscSize: CGFloat = 64
     /// The glyph disc on the small "Remember" widget: smaller than the empty state's, so the headline and the hint

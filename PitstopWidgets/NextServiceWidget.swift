@@ -59,6 +59,8 @@ struct NextServiceTimelineProvider: TimelineProvider {
 struct NextServiceWidgetView: View {
     let content: NextServiceContent
     @Environment(\.widgetFamily) private var family
+    /// The Lock Screen status glyph grows with the text beside it, as a chip's glyph does.
+    @ScaledMetric(relativeTo: .body) private var statusGlyphSize = DesignTokens.lockScreenStatusGlyphSize
 
     var body: some View {
         switch family {
@@ -69,10 +71,14 @@ struct NextServiceWidgetView: View {
                 .containerBackground(for: .widget) {}
         default:
             small
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(for: .widget) {
+                    PitColor.surfaceSecondary
+                }
         }
     }
 
+    /// One line of system-rendered text: WidgetKit draws only text and an SF Symbol here, so the status glyph and
+    /// the design roles cannot apply.
     @ViewBuilder
     private var inline: some View {
         switch content {
@@ -84,28 +90,33 @@ struct NextServiceWidgetView: View {
         }
     }
 
+    /// The Lock Screen renders this family in one vibrant tint, so the glyph's shape, not its colour, tells the state
+    /// (REQ-DESIGN-001); the operation name joins the accent group.
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
             switch content {
             case let .operation(summary):
                 summary.operation.widgetTitle
-                    .font(.headline)
+                    .font(PitTypography.headline)
                     .widgetAccentable()
                     .lineLimit(1)
-                Label(summary.word.widgetLabel, systemImage: summary.status.systemImage)
-                    .lineLimit(1)
+                HStack(spacing: 5) {
+                    StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
+                    Text(summary.word.widgetLabel)
+                }
+                .lineLimit(1)
                 summary.fact.widgetText
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(PitColor.contentSecondary)
                     .lineLimit(1)
             case .empty:
                 Text("widget.nextService.title")
-                    .font(.headline)
+                    .font(PitTypography.headline)
                     .widgetAccentable()
                 Text("widget.nextService.empty.detail")
                     .lineLimit(2)
             case .unavailable:
                 Text("widget.nextService.title")
-                    .font(.headline)
+                    .font(PitTypography.headline)
                     .widgetAccentable()
                 Text("widget.nextService.unavailable")
                     .lineLimit(2)
@@ -116,36 +127,46 @@ struct NextServiceWidgetView: View {
         .accessibilityElement(children: .combine)
     }
 
+    /// The mockup's small "Next service" frame: eyebrow, operation name and its status chip on top, the one fact at
+    /// the bottom. The sparse states keep the same grammar with no chip, so no urgency is invented (core C2).
     private var small: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Label("widget.nextService.title", systemImage: "wrench.and.screwdriver")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 4) {
+            Text("widget.nextService.title")
+                .font(PitTypography.captionSmall.weight(.bold))
+                .textCase(.uppercase)
+                .kerning(0.6)
+                .foregroundStyle(PitColor.contentSecondary)
+                // Two lines, so the widget's name stays whole in Russian and Ukrainian.
+                .lineLimit(2)
                 .widgetAccentable()
-            Spacer(minLength: 0)
             switch content {
             case let .operation(summary):
                 summary.operation.widgetTitle
-                    .font(.headline)
+                    .font(PitTypography.headline)
+                    .foregroundStyle(PitColor.contentPrimary)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
-                Label(summary.word.widgetLabel, systemImage: summary.status.systemImage)
-                    .font(.subheadline.weight(.medium))
+                StatusChip(Text(summary.word.widgetLabel), glyph: summary.status.glyph, color: summary.status.color)
+                    // A chip wraps rather than truncates; in the fixed widget frame two lines keep it inside.
                     .lineLimit(2)
+                Spacer(minLength: 0)
                 summary.fact.widgetText
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(PitTypography.caption)
+                    .foregroundStyle(PitColor.contentSecondary)
                     .lineLimit(2)
             case .empty:
                 Text("widget.nextService.empty.headline")
-                    .font(.headline)
+                    .font(PitTypography.headline)
+                    .foregroundStyle(PitColor.contentPrimary)
+                Spacer(minLength: 0)
                 Text("widget.nextService.empty.detail")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(PitTypography.caption)
+                    .foregroundStyle(PitColor.contentSecondary)
             case .unavailable:
+                Spacer(minLength: 0)
                 Text("widget.nextService.unavailable")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(PitTypography.supporting)
+                    .foregroundStyle(PitColor.contentSecondary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -219,3 +240,40 @@ extension DistanceBlock {
         }
     }
 }
+
+#if DEBUG
+    private typealias PreviewEntry = NextServiceTimelineProvider.Entry
+
+    /// Fictional, like the gallery sample: a due operation shows the filled glyph and the due colour.
+    private let dueSample = NextServiceContent.operation(NextServiceSummary(
+        operation: .brakeFluid,
+        status: .due,
+        word: .due,
+        fact: .progress(.daysPast(12), block: nil)
+    ))
+
+    #Preview(as: .systemSmall) {
+        NextServiceWidget()
+    } timeline: {
+        PreviewEntry(date: .now, content: NextServiceTimelineProvider.sample)
+        PreviewEntry(date: .now, content: dueSample)
+        PreviewEntry(date: .now, content: .empty)
+        PreviewEntry(date: .now, content: .unavailable)
+    }
+
+    #Preview(as: .accessoryRectangular) {
+        NextServiceWidget()
+    } timeline: {
+        PreviewEntry(date: .now, content: NextServiceTimelineProvider.sample)
+        PreviewEntry(date: .now, content: dueSample)
+        PreviewEntry(date: .now, content: .empty)
+        PreviewEntry(date: .now, content: .unavailable)
+    }
+
+    #Preview(as: .accessoryInline) {
+        NextServiceWidget()
+    } timeline: {
+        PreviewEntry(date: .now, content: NextServiceTimelineProvider.sample)
+        PreviewEntry(date: .now, content: .empty)
+    }
+#endif

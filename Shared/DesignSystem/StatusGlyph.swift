@@ -2,6 +2,8 @@ import SwiftUI
 
 /// One shape per state, shared by chips, Road markers and widgets, so state is never colour alone
 /// (REQ-DESIGN-001). The word that goes with it carries the meaning for VoiceOver.
+/// It and `StatusChip` live in `Shared/` because the next-service widget draws them; their previews stay in the app
+/// (`StatusPreviews.swift`), which has `PreviewMatrix`.
 enum StatusGlyph: CaseIterable, Hashable, Sendable {
     /// Ahead or up to date.
     case ring
@@ -61,16 +63,3 @@ struct StatusGlyphView: View {
         }
     }
 }
-
-#if DEBUG
-    #Preview("Status glyphs") {
-        PreviewMatrix {
-            HStack(spacing: 16) {
-                ForEach(StatusGlyph.allCases, id: \.self) { glyph in
-                    StatusGlyphView(glyph: glyph, size: 18)
-                }
-            }
-            .foregroundStyle(PitColor.statusDue)
-        }
-    }
-#endif

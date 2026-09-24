@@ -39,18 +39,6 @@ enum ProgressFact: Hashable, Sendable {
     case progress(ProgressMeasure?, block: DistanceBlock?)
 }
 
-extension MaintenanceStatus {
-    /// The same symbol on Service, Car Board and the widget; the word always goes with it.
-    var systemImage: String {
-        switch self {
-        case .unknown: "questionmark.circle"
-        case .upToDate: "checkmark.circle"
-        case .approaching: "clock.badge.exclamationmark"
-        case .due: "exclamationmark.circle"
-        }
-    }
-}
-
 extension MaintenanceOperationState {
     var statusWord: MaintenanceStatusWord {
         switch status {
