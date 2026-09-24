@@ -9,7 +9,9 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000…RD-010 landed on `redesign/ios27`; RD-011 is next.
+Current outcome: RD-000…RD-011 landed on `redesign/ios27`; the overnight run
+ended at the RD-011 boundary on 2026-09-24 (RD-012 was out of the night's
+scope).
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
@@ -35,7 +37,10 @@ Blocking decisions: none. Owner decisions pending for the end of the round:
 REQ-MAINT-040 (proposed), the REQ-UTILITY-012 status line, the
 REQ-DESIGN-004 amendment, follow-up cards (History/Notes empty before load;
 NextServiceWidget restyle; a Mark-as-done save still running after its
-sheet closed), and the device checks DEV-WIDGET and DEV-PIT-SHEET.
+sheet closed; two RD-011 test-strength lows), the knock glow contrast
+(ADR 0039: about 1.3–3.3:1 against the full glow, about 8:1 with Increase
+Contrast; the mockup draws it this way), and the device checks DEV-WIDGET
+and DEV-PIT-SHEET.
 Permitted deviations: RD-010 is re-estimated from 0.5d to about 2d because
 REQ-UTILITY-012 and REQ-PIT-026 are not implemented on `main` (every sheet
 covers the utility layer; `RootView.swift` ignores the keyboard for it).
@@ -43,7 +48,8 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: RD-011 Writer steps (drafted when the card starts).
+Next step: the owner's decisions listed under Blocking decisions, then RD-012
+Writer steps (drafted when the card starts).
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -80,7 +86,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-008 Sparse states | REQ-GRAMMAR-004 | RD-000 | done | `c426bfa`…`1944c46`; `just verify` per step; review: 1 medium + 2 low (one low out of scope, filed as a follow-up), then no findings |
 | RD-009 Widgets | WidgetEntryTests | RD-000 | done | `5f724f1`…`b49448b`; `just verify` per step; review: 0 high/medium + 3 low, repaired; then 0 high/medium + 3 low, accepted |
 | RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | done | `a161608`…`250b36e`; `just verify` per step; review: 1 high + 3 medium + 1 low; 1 medium + 3 low; 1 medium + 4 low; 1 medium + 1 low; then 0 high/medium + 1 pre-existing low (follow-up); four repair iterations, the third and fourth approved by the owner |
-| RD-011 Pit character | REQ-PIT-022…024 | RD-000 | in progress | — |
+| RD-011 Pit character | REQ-PIT-022…024 | RD-000 | done | `69a7113`…`dce4225`; `just verify` per step; review: 1 medium + 6 low, all repaired; then 0 high/medium + 2 low (test strength), accepted |
 | RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | planned | — |
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | RD-012 | planned | — |
 | Release 1.2.0 | `just tf-check` Ready | SYS-008 | planned | — |
@@ -250,6 +256,25 @@ added here when the slice starts.
   save still running after its sheet closed writes to the next sheet's
   state), filed as a follow-up. The integrator fast-forwarded to 250b36e
   and ran `just verify`: passed.
+- 2026-09-24, RD-011 (slice-writer): `just verify` passed before each
+  commit; `PitHead` draws the ADR 0037 icon geometry (icon not regenerated)
+  and replaces the glass circle in the layer, in sheets and in the capture
+  sheet header; `PitPose` per motion state (REQ-PIT-022), accent eyes on
+  knock (REQ-PIT-023), head motion only in motion-table states
+  (REQ-PIT-024); `PitEyesGlyph` removed, the ADR 0028 life plan kept in
+  `PitEyeLife.swift`; ADR 0039 amends ADR 0009 (no glass on the Pit
+  control). Screenshots and renders in `rd-011/`. The safety classifier was
+  unavailable during the writer's run; the integrator audited the branch
+  (scope, no Tooling/project/icon change, no push, `main` untouched). The
+  first review run failed on an API network error and was resumed. Review
+  round 1: 1 medium (per-layer shadows under the face screen) + 6 low, all
+  repaired; round 2 (read without the skill, inside the time box): 0
+  high/medium + 2 low on test strength (the pressed-tint render test sits
+  inside rounding; the disabled test does not guard the style's own
+  compositing group), accepted as follow-ups. The integrator fast-forwarded
+  to dce4225, ran `just verify` (passed) and pushed the branch. Not checked
+  on screen: the pressed state, Pit inside a feature sheet, Reduce
+  Transparency, VoiceOver.
 
 ## Untested scope
 
@@ -381,18 +406,20 @@ dispatch commit; same output and integration as RD-001; the head keeps
 the delivered icon geometry of ADR 0037, so no icon is regenerated, and a
 needed geometry change stops the card for the owner):
 
-- [ ] Pit head component: pearl shell, bezel, navy visor and lit lens eyes, with Reduce Transparency and Increase Contrast variants, matching the ADR 0037 icon geometry: head geometry tests, previews
-- [ ] The head replaces the glass circle in the utility layer, in the Pit control inside sheets and in the capture sheet header, keeping the pressed-state feedback: `UtilityLayer` and `PitInSheet` tests, ADR 0028 tests unchanged
-- [ ] Every motion state has a distinct static pose with inward eye tilt at most 6°: REQ-PIT-022 tests
-- [ ] A knock turns the eyes to the accent and back, with or without Reduce Motion; no other state uses the accent: REQ-PIT-023 tests
-- [ ] The head tilts or lifts only in motion-table states and is still when resting or idle; Reduce Motion shows the poses without animation: REQ-PIT-024 tests
-- [ ] ADR amending ADR 0009 for the Pit control (no glass) and the Pit character docs: mockup deviations, system-overview rows, work-plan row: diff review
+- [x] Pit head component: pearl shell, bezel, navy visor and lit lens eyes, with Reduce Transparency and Increase Contrast variants, matching the ADR 0037 icon geometry: head geometry tests, previews — 69a7113
+- [x] The head replaces the glass circle in the utility layer, in the Pit control inside sheets and in the capture sheet header, keeping the pressed-state feedback: `UtilityLayer` and `PitInSheet` tests, ADR 0028 tests unchanged — aa8f35c
+- [x] Every motion state has a distinct static pose with inward eye tilt at most 6°: REQ-PIT-022 tests — 261b706
+- [x] A knock turns the eyes to the accent and back, with or without Reduce Motion; no other state uses the accent: REQ-PIT-023 tests — a808b54
+- [x] The head tilts or lifts only in motion-table states and is still when resting or idle; Reduce Motion shows the poses without animation: REQ-PIT-024 tests — 551fd58
+- [x] ADR amending ADR 0009 for the Pit control (no glass) and the Pit character docs: mockup deviations, system-overview rows, work-plan row: diff review — 6f40809
+- [x] Review repair: one shadow from the head outline; disabled Pit dims as one object; pressed tint follows the knock; knock from the tested keyframes; contrast and finish wording: `just verify`, render tests — 4461ce7, 568e789, e525955, dceba65, dce4225
 
 ## Resume prompt
 
 Pitstop session, task `docs/tasks/redesign-ios27.md` on branch
-`redesign/ios27`. Owner decisions pending for the end of the round are listed
-under Blocking decisions. Read `AGENTS.md`, this brief and the
+`redesign/ios27`. The overnight run (RD-007…RD-011) is finished; nothing is
+authorized to run unattended now. Owner decisions pending are listed under
+Blocking decisions. Read `AGENTS.md`, this brief and the
 work-plan row of the next card only. Check `git status` (clean, on `redesign/ios27`, no leftover
 `.claude/worktrees/*` checkout; remove a finished writer worktree only after
 confirming its commits are on the branch) and `git log -1`. Then continue at
