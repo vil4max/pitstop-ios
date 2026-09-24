@@ -220,9 +220,9 @@ struct NextServiceWidgetView: View {
 
     /// The mockup's small "Next service" frame: eyebrow, operation name and its status chip on top, the one fact at
     /// the bottom. When the text does not fit (large text sizes, long names), lines go by priority instead of being
-    /// clipped (owner, FU-2): the eyebrow first, then the fact, then the status word, leaving the name (up to three
-    /// lines) and the status glyph; the name and the status always stay, and a tap opens Service for the rest. The
-    /// sparse states keep the same grammar with no chip, so no urgency is invented (core C2), and keep their sentence.
+    /// clipped (owner, FU-2): the eyebrow first, then the fact, then the status word, leaving the name and the status
+    /// glyph; the name and the status always stay, and a tap opens Service for the rest. The sparse states keep the
+    /// same grammar with no chip, so no urgency is invented (core C2), and keep their sentence.
     private var small: some View {
         Group {
             switch content {
@@ -265,8 +265,7 @@ struct NextServiceWidgetView: View {
     }
 
     /// Without the word (the last resort), the status is its glyph alone, in the status colour; VoiceOver still reads
-    /// the word in `spokenSummary`. The glyph leads the name, so the name keeps the widget's whole height for up to
-    /// three lines.
+    /// the word in `spokenSummary`. The glyph leads the name, so the name keeps the widget's whole height.
     private func smallOperation(
         _ summary: NextServiceSummary,
         showsEyebrow: Bool,
@@ -297,9 +296,9 @@ struct NextServiceWidgetView: View {
                         size: min(statusGlyphSize, DesignTokens.statusGlyphBesideNameMaxSize)
                     )
                     .foregroundStyle(summary.status.color)
+                    // The last layout has the whole tile: the name takes as many lines as fit, and shrinks only when
+                    // it still does not, so it never ends in an ellipsis while the tile has room.
                     name
-                        .lineLimit(3)
-                        // The name is the main information left, so it may shrink further to stay whole.
                         .minimumScaleFactor(0.6)
                 }
             }

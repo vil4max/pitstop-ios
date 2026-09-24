@@ -261,6 +261,21 @@ struct NextServiceWidgetSourceTests {
         #expect(lastResort.contains(".lineLimit(3)") && lastResort.contains(".minimumScaleFactor(0.5)"))
     }
 
+    /// The small widget's last layout has no fallback and a whole tile of height. A line limit there would shrink or
+    /// cut the name while the tile still has room, so the name takes as many lines as the tile holds and shrinks
+    /// only when it still does not fit.
+    @Test("REQ-WIDGET-004: the small widget's last layout lets the name use the whole tile before it shrinks")
+    func smallLastLayoutUsesTheWholeTile() throws {
+        let lines = try helper("smallOperation").split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }
+        let last = try #require(lines.firstIndex(of: "} else {"), "the small widget has no last layout")
+        let name = try #require(
+            modifierChains(after: "name", in: Array(lines[last...])).first { !$0.isEmpty },
+            "the small widget's last layout draws no name"
+        )
+        #expect(!name.contains { $0.contains("lineLimit") }, "the last layout caps the name's lines")
+        #expect(name.contains(".minimumScaleFactor(0.6)"), "the last layout lost its shrink floor")
+    }
+
     /// A glyph that scales with body text reaches about 34 pt at the largest size, a quarter of the Lock Screen slot,
     /// and cuts the one name the rule keeps. Beside the name the glyph is capped in every glyph-only layout.
     @Test("REQ-WIDGET-004: beside the name the status glyph is capped")
