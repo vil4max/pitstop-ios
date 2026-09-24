@@ -231,6 +231,8 @@ public enum DomainCommand: Hashable, Sendable {
     case removePlannedEvent(RemovePlannedEventCommand)
     case recordVehicleServiceReport(RecordVehicleServiceReportCommand)
     case removeVehicleServiceReport(RemoveVehicleServiceReportCommand)
+    case setCarBody(SetCarBodyCommand)
+    case setCarPhoto(SetCarPhotoCommand)
 
     public func validate(now: Date) throws(DomainCommandError) {
         switch self {
@@ -274,6 +276,9 @@ public enum DomainCommand: Hashable, Sendable {
             try Self.check(command.report, now: now)
         case let .removeVehicleServiceReport(command):
             guard !command.operationID.rawValue.isBlank else { throw .emptyOperationID }
+        case .setCarBody, .setCarPhoto:
+            // Every value, including `nil`, is a valid choice; only the vehicle check can reject them.
+            break
         }
     }
 

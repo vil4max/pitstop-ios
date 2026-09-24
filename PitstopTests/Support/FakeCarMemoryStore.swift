@@ -253,6 +253,22 @@ actor FakeCarMemoryStore: CarMemoryStore {
             reports.removeAll(where: matches)
             return .vehicleServiceReportRemoved(removed)
         default:
+            return try applyProfile(command)
+        }
+    }
+
+    /// The car's body and photo id, with the real store's vehicle check (ADR 0040).
+    private func applyProfile(_ command: DomainCommand) throws(CarMemoryStoreError) -> CommandResult {
+        switch command {
+        case let .setCarBody(set):
+            guard set.vehicleID == vehicle.id else { throw .unknownVehicle }
+            vehicle = vehicle.applying(set)
+            return .vehicleUpdated(vehicle)
+        case let .setCarPhoto(set):
+            guard set.vehicleID == vehicle.id else { throw .unknownVehicle }
+            vehicle = vehicle.applying(set)
+            return .vehicleUpdated(vehicle)
+        default:
             throw .storageFailure
         }
     }

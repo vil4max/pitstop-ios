@@ -12,6 +12,26 @@ public struct VehicleID: Hashable, Codable, Sendable, CustomStringConvertible {
     }
 }
 
+/// The side-view placeholder the owner picks for a car without a photo (ADR 0040).
+public enum CarBody: String, Codable, Sendable, CaseIterable {
+    case suv
+    case sedan
+}
+
+/// Names the files of one car photo in the App Group container; the store keeps only this id, never
+/// image bytes (ADR 0040). A replaced photo gets a new id, so its old files can be deleted by the old one.
+public struct CarPhotoID: Hashable, Codable, Sendable, CustomStringConvertible {
+    public let rawValue: UUID
+
+    public init(rawValue: UUID = UUID()) {
+        self.rawValue = rawValue
+    }
+
+    public var description: String {
+        rawValue.uuidString
+    }
+}
+
 public struct Vehicle: Identifiable, Hashable, Codable, Sendable {
     public let id: VehicleID
     public var name: String
@@ -21,6 +41,10 @@ public struct Vehicle: Identifiable, Hashable, Codable, Sendable {
     public var vin: String?
     /// `true` until the user supplies or confirms any fact; the name is then a placeholder (core C2).
     public var isProvisional: Bool
+    /// The owner's own choice, `nil` until one is made. Only a profile command sets it: nothing derives
+    /// it from the name, a make or a locale (REQ-BOARD-030, REQ-DESIGN-005).
+    public var chosenBody: CarBody?
+    public var photoID: CarPhotoID?
 
     public init(
         id: VehicleID = VehicleID(),
@@ -29,7 +53,9 @@ public struct Vehicle: Identifiable, Hashable, Codable, Sendable {
         model: String? = nil,
         year: Int? = nil,
         vin: String? = nil,
-        isProvisional: Bool = false
+        isProvisional: Bool = false,
+        chosenBody: CarBody? = nil,
+        photoID: CarPhotoID? = nil
     ) {
         self.id = id
         self.name = name
@@ -38,6 +64,13 @@ public struct Vehicle: Identifiable, Hashable, Codable, Sendable {
         self.year = year
         self.vin = vin
         self.isProvisional = isProvisional
+        self.chosenBody = chosenBody
+        self.photoID = photoID
+    }
+
+    /// The body every surface draws: the owner's choice, or SUV when none was made (REQ-BOARD-030).
+    public var body: CarBody {
+        chosenBody ?? .suv
     }
 }
 

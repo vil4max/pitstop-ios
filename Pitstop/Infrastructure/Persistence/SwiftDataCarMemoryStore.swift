@@ -166,6 +166,8 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             return .plannedEventRemoved(removed)
         case .recordVehicleServiceReport, .removeVehicleServiceReport:
             return try applyReport(command)
+        case .setCarBody, .setCarPhoto:
+            return try applyProfile(command)
         }
     }
 
@@ -379,5 +381,19 @@ extension SwiftDataCarMemoryStore {
         default:
             throw CarMemoryStoreError.storageFailure
         }
+    }
+
+    /// The car record this store opens has no column for the body or the photo id yet; schema V5 adds
+    /// them (ADR 0040). Until then the command saves nothing rather than report a change it did not keep.
+    private func applyProfile(_ command: DomainCommand) throws -> CommandResult {
+        switch command {
+        case let .setCarBody(set):
+            try requireVehicle(set.vehicleID)
+        case let .setCarPhoto(set):
+            try requireVehicle(set.vehicleID)
+        default:
+            break
+        }
+        throw CarMemoryStoreError.storageFailure
     }
 }
