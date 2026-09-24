@@ -68,7 +68,9 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: the follow-up batch FU-1…FU-5 is complete; the owner's end-of-round decisions (Blocking decisions), then RD-012.
+Next step: ask the owner for the end-of-round decisions listed under
+Blocking decisions (or wait for their word); RD-012 is dispatched only when
+the owner starts it, under the kit rules published at 3ba4ba4.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -85,6 +87,32 @@ plan and its `system-overview.md` row is updated in the card's last commit.
 Screenshots and review verdicts go to
 `agent-artifacts/2026-09-23/pitstop-ios27-redesign/outputs/`, not the
 repository.
+
+## State
+
+2026-09-24 handoff before a context reset proposed by the SDLC Orchestrator.
+RD-000…RD-011 and the follow-up cards FU-1…FU-5 landed on `redesign/ios27`
+with `just verify`, independent review and a backup push each; nothing is
+running, no writer worktree is left, and `main` and tags are untouched.
+Changed since the last handoff: FU-1…FU-5, REQ-WIDGET-011/012 approved,
+REQ-MAINT-040…056 proposed, UI-TB-001 added to the work plan.
+
+How the round runs (replaces the dropped Resume prompt): one `slice-writer`
+at a time in its own worktree from a dispatch commit in this brief, with
+`agent-artifacts/2026-09-23/pitstop-ios27-redesign/work/writer-rules.md`;
+an independent `/code-review` subagent per round; integration by
+`git merge --ff-only`, `git worktree remove` (no `--force`) and
+`git branch -d`; `just verify`; the integration record committed here; a
+backup push of `redesign/ios27` per card (owner decision). Report every card
+boundary and incident to the SDLC Orchestrator. No merge into `main`, push
+of `main` or tag without the owner's word in the session.
+
+## Baselines
+
+- Last landed commit before this handoff: `9e6a960` (also `origin/redesign/ios27`).
+- `redesign/ios27` was cut from `main` at `ab6b60c`; `main` is still at `ab6b60c`.
+- Review verdicts, screenshots and writer logs: `agent-artifacts/2026-09-23/pitstop-ios27-redesign/outputs/` and `work/`.
+- The Xcode 27.2 beta iOS 27.2 simulator runtime (8 GB) is installed; the iPhone Duo Simulator needs Xcode 27.1 (owner download).
 
 ## Slices
 
@@ -552,37 +580,6 @@ dispatch commit; same output and integration as RD-001):
 
 - [x] The two RD-011 test-strength lows: the pressed-tint render test runs over an opaque background so a mis-placed tint fails clearly (4756b9a); the button style's compositing group was removed as redundant instead of guarded (no pixel changed without it; allowed by the dispatch), and the disabled-dimming test guards `PitHead`'s own group (62c5b07): `PitControlTests`, mutation evidence
 - [x] Review repair: the disabled test also checks that the head's shadow dims with it: mutation — 4e26ddb
-
-## Resume prompt
-
-Pitstop session, task `docs/tasks/redesign-ios27.md` on branch
-`redesign/ios27`. The overnight run (RD-007…RD-011) is finished; nothing is
-authorized to run unattended now. Owner decisions pending are listed under
-Blocking decisions. Read `AGENTS.md`, this brief and the
-work-plan row of the next card only. Check `git status` (clean, on `redesign/ios27`, no leftover
-`.claude/worktrees/*` checkout; remove a finished writer worktree only after
-confirming its commits are on the branch) and `git log -1`. Then continue at
-"Next step" above: draft the next card's Writer steps in this brief, commit
-that dispatch, and hand the card to a `slice-writer` subagent with
-`agent-artifacts/2026-09-23/pitstop-ios27-redesign/work/writer-rules.md`.
-Integrate each card after an independent `/code-review`: with one writer at a
-time and nothing committed to `redesign/ios27` between its dispatch commit
-and integration, run `git merge --ff-only worktree-agent-<id>`, then
-`git worktree remove <path>` (no `--force`) and `git branch -d
-worktree-agent-<id>`; none of these prompt the owner. If the fast-forward
-fails, stop at that boundary; never fall back to `git branch -D` overnight.
-Then run `just verify`, commit the "record integration" brief update after
-the merge, and push `redesign/ios27` (the owner's per-card backup
-decision). Overnight (see Authorized scope): run
-RD-007…RD-011 in order without asking the owner, decide within the brief and
-the mockup and record deviations, mark on-screen checks that need an access
-prompt "not checked", skip RD-012, and stop at the last clean card boundary
-by 09:00 Kyiv (06:00 UTC), or earlier if the gate fails after three repairs
-or a card needs something outside the brief. Keep the registry next_step
-current (`features/session/registry.py set <session id> --next-step`). SYS-008
-depends on RD-012 and is not started overnight. This prompt authorizes no
-merge into `main`, no push of `main` and no tag: those wait for the owner's
-word in the session.
 
 ## Current checklist
 
