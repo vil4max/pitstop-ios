@@ -97,9 +97,8 @@ private struct PitHeadPressed<Label: View>: View {
             // The head draws the tint itself, so it follows a lifted or tilted head (a knock is when Pit is tapped).
             .environment(\.pitHeadPressed, isPressed)
             .scaleEffect(PitHeadPress.scale(isPressed: isPressed))
-            // Dimmed as one object: opacity on the layered head would fade each layer on its own, so the shell would
-            // show through the screen and the screen through the eyes.
-            .compositingGroup()
+            // Dimmed as one object: PitHead flattens itself into one layer before its shadow, so this opacity fades the
+            // head and its shadow together and no layer of the head shows through another.
             .opacity(isEnabled ? 1 : PitHeadPress.disabledOpacity)
             // Feedback, not motion: with Reduce Motion it changes without a spring.
             .animation(reduceMotion ? nil : .spring(duration: 0.2, bounce: 0.3), value: isPressed)

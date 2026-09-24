@@ -94,6 +94,7 @@ struct PitControlTests {
         let enabled = try PitHeadTests.brightness(of: render(enabled: true), at: eye)
         let disabled = try PitHeadTests.brightness(of: render(enabled: false), at: eye)
         // As one object the lit eye fades toward the white ground; layer by layer the dark screen shows through it.
+        // The button style relies on PitHead's own compositing group for this, so the check guards that group.
         let ground: CGFloat = 0.7
         let opacity = CGFloat(PitHeadPress.disabledOpacity)
         #expect(disabled > opacity * enabled + (1 - opacity) * ground, "eye \(disabled), enabled \(enabled)")
