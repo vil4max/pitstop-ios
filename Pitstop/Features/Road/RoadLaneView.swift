@@ -19,7 +19,7 @@ struct RoadLaneGeometry: Equatable {
     }
 
     var carHeight: CGFloat {
-        Self.carWidth / AbstractCarView.aspectRatio
+        Self.carWidth / CarVisual.aspectRatio
     }
 
     /// The road line: the foot of every post and the bottom of the car's wheels.
@@ -41,6 +41,9 @@ struct RoadLaneGeometry: Equatable {
 /// VoiceOver: the summary sentence and the list under the lane say the same in words.
 struct RoadLaneView: View {
     let slots: [RoadSlot]
+    /// The car at "Now": the same picture as the Car Board stage (ADR 0040 "One component").
+    let carBody: CarBody
+    let carPhoto: CarPhotoFiles?
 
     static let carID = "road.car"
 
@@ -52,7 +55,7 @@ struct RoadLaneView: View {
         let geometry = RoadLaneGeometry(plateSize: plateSize)
         HStack(alignment: .top, spacing: 0) {
             VStack(spacing: RoadLaneGeometry.labelGap) {
-                AbstractCarView()
+                CarVisual(body: carBody, photo: carPhoto)
                     .frame(width: RoadLaneGeometry.carWidth, height: geometry.carHeight)
                     .padding(.top, geometry.carTop)
                 Text("road.now")
@@ -155,7 +158,7 @@ private struct RoadSignView: View {
         PreviewMatrix {
             StageSurface {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    RoadLaneView(slots: road.slots)
+                    RoadLaneView(slots: road.slots, carBody: .sedan, carPhoto: nil)
                 }
                 .scrollClipDisabled()
             }

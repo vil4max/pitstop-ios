@@ -9,6 +9,9 @@ struct CarBoardTileView: View {
     var history: HistoryTimeline = .empty
     var service: [MaintenanceOperationState] = []
     var road: RoadProjection?
+    /// The car drawn at "Now" on the Road tile: the same picture as the stage (ADR 0040 "One component").
+    var carBody: CarBody = .suv
+    var carPhoto: CarPhotoFiles?
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -23,7 +26,7 @@ struct CarBoardTileView: View {
                 titleRow
                 if descriptor.kind == .road {
                     if content.roadSlots.isEmpty {
-                        RoadSparseLine()
+                        RoadSparseLine(carBody: carBody, carPhoto: carPhoto)
                             .frame(height: 34)
                             .padding(.vertical, 2)
                     } else {
@@ -31,8 +34,13 @@ struct CarBoardTileView: View {
                         // car. Its labels share a quarter of the tile width each; at that capped size long names
                         // truncate ("oil se…", checked at AX5), so at accessibility sizes the markers stay, the
                         // labels go, and the sentence below carries the words.
-                        CarBoardRoadLane(slots: content.roadSlots, showsLabels: !dynamicTypeSize.isAccessibilitySize)
-                            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                        CarBoardRoadLane(
+                            slots: content.roadSlots,
+                            carBody: carBody,
+                            carPhoto: carPhoto,
+                            showsLabels: !dynamicTypeSize.isAccessibilitySize
+                        )
+                        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                     }
                 }
                 VStack(alignment: .leading, spacing: 6) {
@@ -149,6 +157,8 @@ struct CarBoardTileView: View {
 /// because the summary sentence under it says the same in words (REQ-BOARD-023).
 private struct CarBoardRoadLane: View {
     let slots: [RoadSlot]
+    let carBody: CarBody
+    let carPhoto: CarPhotoFiles?
     let showsLabels: Bool
     @ScaledMetric(relativeTo: .caption) private var plateSize: CGFloat = 22
 
@@ -158,10 +168,10 @@ private struct CarBoardRoadLane: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             VStack(spacing: 6) {
-                AbstractCarView()
+                CarVisual(body: carBody, photo: carPhoto)
                     .frame(width: Self.carWidth)
-                    // The wheels stand on the road, level with the foot of every post.
-                    .padding(.top, max(0, roadY - Self.carWidth / 2.6))
+                    // The wheels stand on the frame's bottom, so on the road, level with the foot of every post.
+                    .padding(.top, max(0, roadY - Self.carWidth / CarVisual.aspectRatio))
                 Text("road.now")
                     .font(PitTypography.captionSmall.weight(.semibold))
                     .foregroundStyle(PitColor.contentSecondary)
@@ -225,15 +235,21 @@ private struct CarBoardRoadLane: View {
 
 /// The car at the left of an open road with no milestones drawn: nothing is invented.
 private struct RoadSparseLine: View {
+    let carBody: CarBody
+    let carPhoto: CarPhotoFiles?
+
+    private static let carWidth: CGFloat = 58
+
     var body: some View {
         GeometryReader { proxy in
             let roadY = proxy.size.height * 0.72
             ZStack(alignment: .topLeading) {
                 DashedRoadLine()
                     .offset(y: roadY - DesignTokens.roadLineWidth / 2)
-                AbstractCarView()
-                    .frame(width: 58)
-                    .offset(y: roadY - 24)
+                CarVisual(body: carBody, photo: carPhoto)
+                    .frame(width: Self.carWidth)
+                    // The frame's bottom, where the wheels stand, on the road line.
+                    .offset(y: roadY - Self.carWidth / CarVisual.aspectRatio)
             }
         }
         .accessibilityHidden(true)
@@ -245,6 +261,7 @@ private struct RoadSparseLine: View {
         PreviewMatrix {
             VStack(spacing: DesignTokens.tileSpacing) {
                 CarBoardTileView(descriptor: CarBoardTileDescriptor.v1[0])
+                CarBoardTileView(descriptor: CarBoardTileDescriptor.v1[0], carBody: .sedan)
                 CarBoardTileView(
                     descriptor: CarBoardTileDescriptor.v1[1],
                     notes: NotesSummary(notes: [Note(rawText: "Left wiper streaks at speed")])

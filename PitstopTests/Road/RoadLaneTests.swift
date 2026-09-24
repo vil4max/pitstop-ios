@@ -38,8 +38,9 @@ struct RoadLaneTests {
     @Test("REQ-ROAD-029: posts stand on the road line and the car's wheels touch it, with plates capped")
     func carAndPostsShareTheRoadLine() {
         // Stated independently of the geometry: a 12 pt post under the plate, plates capped at 36 pt, and a
-        // 56 pt car whose frame is 56 / 2.6 pt tall. A plate shorter than the car lowers the plate, not the road.
-        let carHeight: CGFloat = 56 / 2.6
+        // 56 pt car whose frame has the SUV placeholder's proportions, 960 × 334. A plate shorter than the car
+        // lowers the plate, not the road.
+        let carHeight: CGFloat = 56 * 334 / 960
         let cases: [(scaled: CGFloat, plate: CGFloat, roadY: CGFloat)] = [
             (5, 5, carHeight),
             (18, 18, 30),
@@ -57,9 +58,9 @@ struct RoadLaneTests {
             let postFoot = lane.plateTop + lane.plateSize + RoadLaneGeometry.postHeight
             #expect(abs(postFoot - expected.roadY) < 0.001)
 
-            // What the car column draws: top padding, then AbstractCarView, whose wheels are centred at 76 % of
-            // its height with a diameter of 17 % of its width. Their bottom touches the 2 pt road line.
-            let wheelBottom = lane.carTop + 0.76 * carHeight + 0.085 * RoadLaneGeometry.carWidth
+            // What the car column draws: top padding, then CarVisual, whose wheels stand on its frame's bottom
+            // edge (CarBoardCarPictureTests). Their bottom touches the 2 pt road line.
+            let wheelBottom = lane.carTop + carHeight
             #expect(abs(wheelBottom - expected.roadY) <= DesignTokens.roadLineWidth / 2)
         }
     }

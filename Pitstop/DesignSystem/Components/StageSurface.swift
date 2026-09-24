@@ -46,7 +46,7 @@ struct StageSurface<Content: View>: View {
         PreviewMatrix {
             StageSurface {
                 VStack(alignment: .leading, spacing: 4) {
-                    AbstractCarView().frame(height: DesignTokens.heroCarMaxHeight)
+                    CarVisual(body: .suv, photo: nil).frame(height: DesignTokens.heroCarMaxHeight)
                     Text(verbatim: "47 560 km")
                         .font(PitTypography.title)
                     Text(verbatim: "updated 9 days ago")

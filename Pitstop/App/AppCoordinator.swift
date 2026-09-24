@@ -30,6 +30,10 @@ final class AppCoordinator {
         carBoard = CarBoardViewModel(
             store: environment.store,
             persistence: environment.persistence,
+            // Without the App Group container there are no photo files, and the car is its placeholder.
+            photos: StoreLocation.groupContainerURL().map {
+                CarPhotoStore(directory: CarPhotoStore.directory(inGroupContainer: $0))
+            },
             analytics: odometerAnalytics
         )
         prepare = environment.prepare

@@ -15,6 +15,8 @@ struct CarBoardView: View {
                 ScreenHeader(eyebrow: String(localized: "carBoard.eyebrow"), title: viewModel.state.car.name)
                 CarHeroView(
                     car: viewModel.state.car,
+                    carBody: viewModel.state.carBody,
+                    carPhoto: viewModel.state.carPhoto,
                     mileage: viewModel.state.mileage,
                     recency: viewModel.state.mileageRecency
                 ) {
@@ -79,7 +81,9 @@ struct CarBoardView: View {
                 notes: viewModel.state.notes,
                 history: viewModel.state.history,
                 service: viewModel.state.service,
-                road: viewModel.state.road
+                road: viewModel.state.road,
+                carBody: viewModel.state.carBody,
+                carPhoto: viewModel.state.carPhoto
             )
         }
         .buttonStyle(.plain)

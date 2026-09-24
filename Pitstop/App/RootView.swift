@@ -302,7 +302,12 @@ struct RootView: View {
         case .tile(.notes):
             NotesView(viewModel: notes, carName: carBoard.state.car.name)
         case .tile(.road):
-            RoadView(viewModel: road, carName: carBoard.state.car.name)
+            RoadView(
+                viewModel: road,
+                carName: carBoard.state.car.name,
+                carBody: carBoard.state.carBody,
+                carPhoto: carBoard.state.carPhoto
+            )
         case .tile(.service):
             ServiceView(viewModel: service, carName: carBoard.state.car.name)
         case .tile(.history):

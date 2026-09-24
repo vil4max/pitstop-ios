@@ -3,6 +3,10 @@ import Observation
 
 struct CarBoardViewState: Equatable {
     var car: ProvisionalCarContext = .firstLaunch
+    /// The body the car is drawn as without a photo: SUV until the owner chooses (REQ-BOARD-030).
+    var carBody: CarBody = .suv
+    /// The photo's files on disk; nil without a photo, or when its files are gone (REQ-BOARD-029).
+    var carPhoto: CarPhotoFiles?
     var mileage: CarBoardMileage = .unknown
     /// The age of the observation behind `mileage`; nil exactly when no observation exists (REQ-BOARD-027).
     var mileageRecency: MileageRecency?
@@ -30,6 +34,8 @@ final class CarBoardViewModel {
     private(set) var state: CarBoardViewState
 
     private let store: any CarMemoryStore
+    /// Nil when the App Group container is unavailable: the car is then drawn as its placeholder.
+    private let photos: (any CarPhotoStoring)?
     private let analytics: any AnalyticsTracking<OdometerAnalyticsEvent>
     private let now: @Sendable () -> Date
     /// The owner's calendar, passed to the Road projection so the tile and the Road screen bucket
@@ -42,11 +48,13 @@ final class CarBoardViewModel {
     init(
         store: any CarMemoryStore,
         persistence: PersistenceMode = .durable,
+        photos: (any CarPhotoStoring)? = nil,
         analytics: any AnalyticsTracking<OdometerAnalyticsEvent> = NoAnalyticsTracker(),
         now: @escaping @Sendable () -> Date = { Date() },
         calendar: Calendar = .autoupdatingCurrent
     ) {
         self.store = store
+        self.photos = photos
         self.analytics = analytics
         self.now = now
         self.calendar = calendar
@@ -70,6 +78,8 @@ final class CarBoardViewModel {
             vehicleID = vehicle.id
             isMileageCurrent = context.mileage == .known
             state.car = ProvisionalCarContext(vehicle: vehicle, observedKm: context.observedKm)
+            state.carBody = vehicle.body
+            state.carPhoto = vehicle.photoID.flatMap { photos?.files(for: $0) }
             state.mileage = CarBoardMileage(odometerKm: state.car.odometerKm)
             state.mileageRecency = context.observedAt.map {
                 MileageRecency(observedAt: $0, now: moment, calendar: calendar)

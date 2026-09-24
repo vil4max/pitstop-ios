@@ -3,6 +3,8 @@ import SwiftUI
 struct RoadView: View {
     let viewModel: RoadViewModel
     let carName: String
+    let carBody: CarBody
+    let carPhoto: CarPhotoFiles?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var position: String? = RoadLaneView.carID
@@ -106,7 +108,7 @@ struct RoadView: View {
         StageSurface {
             VStack(alignment: .trailing, spacing: 8) {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    RoadLaneView(slots: projection.slots)
+                    RoadLaneView(slots: projection.slots, carBody: carBody, carPhoto: carPhoto)
                         // Labels keep growing to the first accessibility size and then wrap in their slot;
                         // past it one slot would outgrow the screen. The list below keeps every size.
                         .dynamicTypeSize(...DynamicTypeSize.accessibility1)

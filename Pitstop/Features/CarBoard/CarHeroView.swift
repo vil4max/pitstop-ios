@@ -4,6 +4,9 @@ import SwiftUI
 /// technical specifications appear here (REQ-BOARD-017).
 struct CarHeroView: View {
     let car: ProvisionalCarContext
+    /// Drawn when there is no photo: the owner's choice, never derived from the name or a make (REQ-BOARD-030).
+    let carBody: CarBody
+    let carPhoto: CarPhotoFiles?
     let mileage: CarBoardMileage
     /// Nil when no mileage observation exists: then there is no age to show (REQ-BOARD-027).
     let recency: MileageRecency?
@@ -38,10 +41,10 @@ struct CarHeroView: View {
         .accessibilityIdentifier("carBoard.hero")
     }
 
-    /// The car standing on a dashed horizon, the stage's only drawing. Decorative: the screen title names the
-    /// car (REQ-BOARD-024).
+    /// The car standing on a dashed horizon, the stage's only drawing: the lifted photo, the whole photo or the
+    /// placeholder for the body (ADR 0040). Decorative: the screen title names the car (REQ-BOARD-024).
     private var stagedCar: some View {
-        AbstractCarView()
+        CarVisual(body: carBody, photo: carPhoto)
             .frame(maxWidth: .infinity, maxHeight: DesignTokens.heroCarMaxHeight)
             .padding(.top, 4)
             .background(alignment: .bottom) {
@@ -131,11 +134,20 @@ struct CarHeroView: View {
                         vehicle: Vehicle(id: Vehicle.provisionalID, name: "Kestrel"),
                         observedKm: 47560
                     ),
+                    carBody: .sedan,
+                    carPhoto: nil,
                     mileage: .kilometers(47560),
                     recency: .days(9),
                     onEdit: {}
                 )
-                CarHeroView(car: .firstLaunch, mileage: .unknown, recency: nil, onEdit: {})
+                CarHeroView(
+                    car: .firstLaunch,
+                    carBody: .suv,
+                    carPhoto: nil,
+                    mileage: .unknown,
+                    recency: nil,
+                    onEdit: {}
+                )
             }
         }
     }
