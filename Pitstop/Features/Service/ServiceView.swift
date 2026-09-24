@@ -236,7 +236,7 @@ struct ServiceView: View {
         case .futureDate: "service.failure.future"
         case .invalidReport: "service.failure.report"
         case .reportOdometerMissing: "service.failure.reportOdometer"
-        case .pitAlreadyRecorded: "service.failure.pitRecordKept"
+        case .pitAlreadyRecorded: "service.failure.pitEntryKept"
         case .notSaved, .none: "service.failure.notSaved"
         }
     }

@@ -5397,6 +5397,28 @@
         }
       }
     },
+    "service.failure.pitEntryKept" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not saved: Pit's entry for this work was kept, and your entry was not saved."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не сохранено: запись Пита об этой работе оставлена, ваша запись не сохранена."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не збережено: запис Піта про цю роботу залишено, ваш запис не збережено."
+          }
+        }
+      }
+    },
     "service.failure.pitRecordKept" : {
       "localizations" : {
         "en" : {

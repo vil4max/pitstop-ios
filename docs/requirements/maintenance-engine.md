@@ -740,8 +740,8 @@ Source: FU-3, FU-5
 If the Mark as done sheet closes while its save still runs and the recheck
 then finds Pit's differing entry within a day (REQ-MAINT-040), the app shall
 not record the owner's entry, shall reload the list, and shall say on the
-list that Pit's record was kept and that undoing it and marking the work
-again records the owner's entry instead; a "Replace with mine" the owner
+list only that Pit's entry for this work was kept and the owner's entry was
+not saved; a "Replace with mine" the owner
 chose before the app closed the sheet is the exception and still replaces
 the entries the prompt named (REQ-NEW-3), since the save lock lets only the
 app close the sheet.

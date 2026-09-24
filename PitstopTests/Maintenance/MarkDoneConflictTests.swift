@@ -262,9 +262,18 @@ struct MarkDoneConflictTests {
         #expect(!service.contains("anyway"))
     }
 
-    @Test("REQ-NEW-9: the list names Pit's kept record in words that do not invite recording both")
-    func listNamesPitsKeptRecord() throws {
+    @Test("REQ-NEW-9: the list only states that Pit's entry was kept and the owner's was not saved, in en, ru and uk")
+    func listStatesPitsEntryKept() throws {
         let code = try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift")
-        #expect(code.contains("case .pitAlreadyRecorded: \"service.failure.pitRecordKept\""))
+        #expect(code.contains("case .pitAlreadyRecorded: \"service.failure.pitEntryKept\""))
+        let catalog = try PitInSheetTests.source("Pitstop/Resources/Localizations/Localizable.xcstrings")
+        let root = try #require(JSONSerialization.jsonObject(with: Data(catalog.utf8)) as? [String: Any])
+        let strings = try #require(root["strings"] as? [String: Any])
+        let entry = try #require(strings["service.failure.pitEntryKept"] as? [String: Any])
+        let localizations = try #require(entry["localizations"] as? [String: [String: [String: String]]])
+        #expect(Set(localizations.keys) == ["en", "ru", "uk"])
+        // A fact, not advice: "undo the last done" can point at another completion (REQ-NEW-9).
+        let english = try #require(localizations["en"]?["stringUnit"]?["value"])
+        #expect(!english.localizedCaseInsensitiveContains("undo"))
     }
 }
