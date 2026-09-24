@@ -1,9 +1,9 @@
 # Task — RD-012 Car profile (Agentic SDLC pilot round)
 
 Assignee: Pitstop (local_1b8d76c5-4a66-436c-9d0f-8e59157a2252), host Claude desktop
-State: claimed
+State: done
 Requested by: SDLC Orchestrator relaying owner request (2026-09-24)
-Evidence: pending
+Evidence: `RD-012/car-profile` at the close commit; coverage matrix (`spec_trace.py matrix` on a fresh `just ci` bundle at `cd3c92f`): 8 requirements, 0 GAP, 0 Deferred; review: every card closed with a clean round (car-profile-data 1, car-visual 1, car-editor-profile 3, car-avatar 2); `lock --check` clean; `brief_lint.py --strict` 0 problems
 Depends-on: kit-alignment
 Parallelism: none
 Profile: round
@@ -11,9 +11,10 @@ Plan hash: 633e53470a50acf45215ceab92ed8c21183b6a25346b92f4f1009ce4789cfb09
 
 ## Current status and authorization
 
-Current outcome: cards `car-profile-data` (`5a76746`), `car-visual`
-(`43e9d47`) and `car-editor-profile` (`0a2f7db`, two repairs, round 3
-clean) landed; card `car-avatar` dispatched.
+Current outcome: done. All four cards landed on `RD-012/car-profile`:
+`car-profile-data` (`5a76746`), `car-visual` (`43e9d47`),
+`car-editor-profile` (`0a2f7db`, two repairs) and `car-avatar` (`f9c835d`,
+one repair); coverage matrix 8 of 8 OK.
 Authorized scope: the owner in this session on 2026-09-24: "RD-012 делаем как
 pilot round по новому SDLC flow: в старом brief не начинай, оркестратор
 пришлёт задачу, открой её в plan mode."; the RD-012 pilot plan approved
@@ -36,7 +37,8 @@ Permitted deviations: none.
 Material assumptions: the simulator's Vision may return no foreground
 instance, so the lifted path is checked on a device (What to Test); checked
 at card `car-visual` by running the fake and the Vision path in tests.
-Next step: integrate card `car-avatar` after repair 1 and its round 2 review; then close the round.
+Next step: fast-forward `redesign/ios27` onto `RD-012/car-profile`, delete
+the round branch, then Release 1.2.0 in `redesign-ios27.md`.
 Requirements: REQ-BOARD-017, REQ-BOARD-029, REQ-BOARD-030, REQ-BOARD-031,
 REQ-BOARD-032, REQ-BOARD-033, REQ-BOARD-034, REQ-DESIGN-005
 Acceptance specs: tests citing each requirement above in their display name,
@@ -421,7 +423,32 @@ Output: a Repair 1 section appended to the writer report in
   value is set once in `RootView.content`, which both Pit presentations
   inherit. Road "Now" keeps the car picture from card `car-visual`, not an
   avatar (REQ-BOARD-034 names headers and the Pit sheet). Round 1 review:
-  1 medium; repair 1 dispatched.
+  1 medium; repair 1 dispatched. Repair 1 READY at `f9c835d` after a clean
+  rebase onto `bd24b6f` (final SHAs `9178be1`, `bfa1462`, `f9c835d`);
+  round 2 review: 0 high/medium, 2 low (backlog), no regression. Landed by
+  `git merge --ff-only`.
+- 2026-09-25, round close:
+  - `just ci` on `cd3c92f` → verify OK, ci OK; a first run on `8b57578`
+    failed "Inputs changed during verify" because the integrator committed
+    docs while it ran, and the rerun on a still tree passed.
+  - `spec_trace.py matrix --brief docs/tasks/rd-012-car-profile.md --results
+    build/ci/results/tests.xcresult` → 8 requirements, 0 GAP, Deferred share
+    0 of 8, exit 0; the Deferred table stays empty, so no Deferred approval
+    was needed.
+  - `spec_trace.py lock --check` → clean.
+  - Screenshots (`just run-sim` with `-pitstop-open road`, captured with
+    `xcrun simctl io`) in `agent-artifacts/2026-09-24/pitstop-rd-012/outputs/car-avatar/`:
+    the Road header shows the 28 pt avatar before the eyebrow; Car Board's
+    header shows none. `-pitstop-show-question` found no pending question, so
+    the Pit question card and saved state were not seen on screen.
+  - Device checks the pilot could not reach are 1.2.0 What to Test items
+    12–16.
+  - Low findings: 21 across the round; FU-6 and FU-7 in the work plan carry
+    the code and test ones, the design-session items are under Owner
+    decisions pending, 2 are accepted.
+  - `[unreleased]` lines added for car-visual, car-editor-profile and
+    car-avatar; ADR 0040 and ADR 0009 wording corrected; system overview,
+    work plan and project status updated.
 
 ### Round 1 review — car-profile-data (2026-09-24)
 
@@ -478,6 +505,13 @@ Review SHA: 109a102
 - [low][non-blocking][new] Pitstop/App/RootView.swift:95 — reading the car's body and photo in `RootView.body` re-evaluates the root modifier chain on every field write in `CarBoardViewModel.load()`; extra body work only (backlog at close)
 - [low][non-blocking][new] PitstopTests/DesignSystem/CarAvatarPlacementTests.swift:131 — `carBoardHeaderHasNone` reads only the first line of the `ScreenHeader(` call, so an avatar argument on a later line would pass (backlog at close)
 
+### Round 2 review — car-avatar (2026-09-25)
+
+Review SHA: f9c835d
+
+- [low][non-blocking][new] Pitstop/Features/Pit/PitSheetParts.swift:13 — at AX5 Pit's head centres on the stacked avatar and title and lines up with neither (backlog: design session)
+- [low][non-blocking][new] PitstopTests/DesignSystem/CarAvatarPlacementTests.swift:164 — the height test proves the avatar leaves the row, not that it sits above the title (backlog at close)
+
 ## Untested scope
 
 - The lifted path on real photos (Neural Engine) and `PhotosPicker` with the
@@ -507,21 +541,35 @@ Card `car-editor-profile` (dispatched 2026-09-25):
 
 Card `car-avatar` (dispatched 2026-09-25):
 
-- [ ] A design-system `CarAvatar` (round, the photo or the placeholder for the body, 28 pt and 44 pt, hidden from VoiceOver) and one environment value carrying the car's body and photo files, with light, dark and AX-XL previews: REQ-BOARD-034 tests fail first, then `just verify`
-- [ ] `RootView` sets the value; detail screen headers (Road, Notes, History, Service) show the 28 pt avatar before the eyebrow, and the Pit sheet's saved state and question card show the 44 pt one; Car Board's header, Settings and forms show none: REQ-BOARD-034 tests fail first, then `just verify`
-- [ ] Repair 1: the saved-state header stacks its avatar and title at accessibility sizes: a REQ-BOARD-034 test fails first, then `just verify`
+- [x] A design-system `CarAvatar` (round, the photo or the placeholder for the body, 28 pt and 44 pt, hidden from VoiceOver) and one environment value carrying the car's body and photo files, with light, dark and AX-XL previews: REQ-BOARD-034 tests fail first, then `just verify` — 9178be1
+- [x] `RootView` sets the value; detail screen headers (Road, Notes, History, Service) show the 28 pt avatar before the eyebrow, and the Pit sheet's saved state and question card show the 44 pt one; Car Board's header, Settings and forms show none: REQ-BOARD-034 tests fail first, then `just verify` — bfa1462
+- [x] Repair 1: the saved-state header stacks its avatar and title at accessibility sizes: a REQ-BOARD-034 test fails first, then `just verify` — f9c835d
 
 ## Deferred
 
 | Requirement | Status | Reason | Backlog | Expiry |
 |---|---|---|---|---|
 
+<!-- spec_trace:matrix:begin -->
+
 ## Coverage matrix
+
+| Requirement | Status | Detail |
+|---|---|---|
+| REQ-BOARD-017 | OK | passed |
+| REQ-BOARD-029 | OK | passed |
+| REQ-BOARD-030 | OK | passed |
+| REQ-BOARD-031 | OK | passed |
+| REQ-BOARD-032 | OK | passed |
+| REQ-BOARD-033 | OK | passed |
+| REQ-BOARD-034 | OK | passed |
+| REQ-DESIGN-005 | OK | passed |
+<!-- spec_trace:matrix:end -->
 
 Generated at close by `spec_trace.py matrix`.
 
 ## Current checklist
 
-- [ ] package approval recorded, Plan hash set, lock written
-- [ ] four cards landed with review and `just verify`
-- [ ] matrix exit 0, Deferred approved, `[unreleased]` lines, `State: done`
+- [x] package approval recorded, Plan hash set, lock written
+- [x] four cards landed with review and `just verify`
+- [x] matrix exit 0, no Deferred row, `[unreleased]` lines, `State: done`
