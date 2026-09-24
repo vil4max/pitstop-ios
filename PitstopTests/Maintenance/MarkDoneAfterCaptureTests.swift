@@ -44,7 +44,7 @@ struct MarkDoneAfterCaptureTests {
     }
 
     @Test(
-        "REQ-MAINT-040: the same work, date and odometer captured over Mark as done is recorded once and nothing is lost"
+        "REQ-NEW-1: the same work, date and odometer captured over Mark as done is recorded once and nothing is lost"
     )
     func sameEntryIsRecordedOnce() async throws {
         let store = FakeCarMemoryStore()
@@ -59,10 +59,10 @@ struct MarkDoneAfterCaptureTests {
 
         #expect(await store.completions == captured)
         #expect(await store.executed.count == 1, "the editor wrote nothing")
-        #expect(service.state.failure == nil && !service.state.isMarkDoneAlreadyRecorded)
+        #expect(service.state.failure == nil && service.state.markDoneConflict == nil)
     }
 
-    @Test("REQ-MAINT-040: with no odometer typed, the same work and date captured over Mark as done is recorded once")
+    @Test("REQ-NEW-1: with no odometer typed, the same work and date captured over Mark as done is recorded once")
     func emptyOdometerIsRecordedOnce() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -82,43 +82,43 @@ struct MarkDoneAfterCaptureTests {
         try await captureOilChange(store)
 
         #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
-        #expect(service.state.isMarkDoneAlreadyRecorded)
+        #expect(service.state.markDoneConflict?.pitEntry.odometerKm == 85000)
         #expect(service.state.failure == nil)
         #expect(await store.completions.count == 1, "nothing written before the owner decides")
 
-        // "Save anyway": the owner's entry is recorded as well.
-        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "86000", anyway: true))
-        #expect(await store.completions.map(\.odometerKm).sorted { ($0 ?? 0) < ($1 ?? 0) } == [85000, 86000])
-        #expect(!service.state.isMarkDoneAlreadyRecorded)
+        // Confirming the same entry again asks again: no path records the owner's entry beside Pit's.
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+        #expect(await store.completions.count == 1)
+        #expect(service.state.markDoneConflict != nil)
     }
 
-    @Test("REQ-MAINT-040: every time the sheet has to say Pit already saved the work, it is announced to VoiceOver")
-    func alreadyRecordedIsAnnounced() async throws {
+    @Test("REQ-MAINT-040: every time the sheet has to ask about Pit's entry, the prompt is announced to VoiceOver")
+    func conflictIsAnnounced() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
         await openMarkDone(service, .engineOilService)
         try await captureOilChange(store)
-        #expect(service.state.markDoneAlreadyRecordedNotices == 0)
+        #expect(service.state.markDoneConflictNotices == 0)
 
         #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
-        #expect(service.state.markDoneAlreadyRecordedNotices == 1)
+        #expect(service.state.markDoneConflictNotices == 1)
         // Confirming again with another odometer says it again, although the message is already shown.
         #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "87000"))
-        #expect(service.state.markDoneAlreadyRecordedNotices == 2)
+        #expect(service.state.markDoneConflictNotices == 2)
 
         // The sheet speaks each notice, and its view reads the count Service passes in.
         let code = try PitInSheetTests.source("Pitstop/Features/Service/MarkDoneView.swift").split(separator: "\n")
             .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
             .joined(separator: "\n")
-        let change = try #require(code.range(of: ".onChange(of: alreadyRecordedNotices)"))
+        let change = try #require(code.range(of: ".onChange(of: conflictNotices)"))
         #expect(code[change.upperBound...].prefix(200).contains(
-            "AccessibilityNotification.Announcement(String(localized: \"service.done.alreadyRecorded\")).post()"
+            "AccessibilityNotification.Announcement(conflict.message).post()"
         ))
         #expect(try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift")
-            .contains("alreadyRecordedNotices: viewModel.state.markDoneAlreadyRecordedNotices"))
+            .contains("conflictNotices: viewModel.state.markDoneConflictNotices"))
     }
 
-    @Test("REQ-MAINT-040: after the message, an entry edited to match Pit's is not recorded twice, even on Save anyway")
+    @Test("REQ-NEW-4: after the prompt, an entry edited to match Pit's is not recorded twice")
     func editedEntryIsRechecked() async throws {
         for edited in ["85000", ""] {
             let store = FakeCarMemoryStore()
@@ -126,19 +126,19 @@ struct MarkDoneAfterCaptureTests {
             await openMarkDone(service, .engineOilService)
             try await captureOilChange(store)
             #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
-            #expect(service.state.isMarkDoneAlreadyRecorded)
+            #expect(service.state.markDoneConflict != nil)
 
-            // The owner corrects the field: the message spoke of 86000, so it goes.
+            // The owner corrects the field: the prompt spoke of 86000, so it goes.
             service.markDoneInputChanged()
-            #expect(!service.state.isMarkDoneAlreadyRecorded)
-            #expect(await service.confirmDone(.engineOilService, on: now, odometerText: edited, anyway: true))
+            #expect(service.state.markDoneConflict == nil)
+            #expect(await service.confirmDone(.engineOilService, on: now, odometerText: edited))
 
             #expect(await store.completions.count == 1, "\(edited.isEmpty ? "cleared" : edited) matches Pit's record")
-            #expect(!service.state.isMarkDoneAlreadyRecorded)
+            #expect(service.state.markDoneConflict == nil)
         }
     }
 
-    @Test("REQ-MAINT-040: the sheet reports every edit of the date or the odometer, so a stale message goes")
+    @Test("REQ-NEW-4: the sheet reports every edit of the date or the odometer, so a stale message goes")
     func editsClearTheMessage() throws {
         let code = try PitInSheetTests.source("Pitstop/Features/Service/MarkDoneView.swift").split(separator: "\n")
             .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
@@ -149,7 +149,7 @@ struct MarkDoneAfterCaptureTests {
             .contains("onEdit: viewModel.markDoneInputChanged"))
     }
 
-    @Test("REQ-MAINT-040: Mark as done does not open while the store cannot be read, and says it was not saved")
+    @Test("REQ-NEW-7: Mark as done does not open while the store cannot be read, and says it was not saved")
     func unreadableAtOpeningDoesNotOpen() async {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -179,10 +179,10 @@ struct MarkDoneAfterCaptureTests {
         try await captureOilChange(store)
 
         #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
-        #expect(service.state.isMarkDoneAlreadyRecorded)
+        #expect(service.state.markDoneConflict != nil)
         // Another late read, after the message appeared, changes nothing either.
         _ = await service.readMarkDoneOpening(.cabinFilter)
-        #expect(service.state.isMarkDoneAlreadyRecorded)
+        #expect(service.state.markDoneConflict != nil)
         #expect(await service.confirmDone(.engineOilService, on: now, odometerText: ""))
         #expect(await store.completions.count == 1, "the oil sheet kept its snapshot: Pit's work is not recorded twice")
 
@@ -206,11 +206,11 @@ struct MarkDoneAfterCaptureTests {
 
         #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "85000"))
 
-        #expect(service.state.isMarkDoneAlreadyRecorded)
+        #expect(service.state.markDoneConflict != nil)
         #expect(await store.completions.count == 1)
     }
 
-    @Test("REQ-MAINT-040: work Pit recorded for another date while Mark as done is open does not replace the owner's")
+    @Test("REQ-NEW-5: work Pit recorded for another date while Mark as done is open does not replace the owner's")
     func captureOnAnotherDayIsNotTheSameWork() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -228,7 +228,7 @@ struct MarkDoneAfterCaptureTests {
         ) })
     }
 
-    @Test("REQ-MAINT-040: a completion stored after Service last loaded but before the sheet opened is not Pit's")
+    @Test("REQ-NEW-6: a completion stored after Service last loaded but before the sheet opened is not Pit's")
     func completionBeforeOpeningIsNotPits() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -239,10 +239,10 @@ struct MarkDoneAfterCaptureTests {
         #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "85000"))
 
         #expect(await store.completions.count == 2)
-        #expect(!service.state.isMarkDoneAlreadyRecorded)
+        #expect(service.state.markDoneConflict == nil)
     }
 
-    @Test("REQ-MAINT-040: without a capture, a second Mark as done on the same day is recorded as the owner asked")
+    @Test("REQ-NEW-6: without a capture, a second Mark as done on the same day is recorded as the owner asked")
     func deliberateRepeatIsRecorded() async {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -278,7 +278,7 @@ struct MarkDoneAfterCaptureTests {
         #expect(afterReading.state.operations.first?.isReportSuperseded == true)
     }
 
-    @Test("REQ-MAINT-040: other work is still recorded: the same operation on another day, or another operation")
+    @Test("REQ-NEW-5: other work is still recorded: the same operation on another day, or another operation")
     func otherWorkIsStillRecorded() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -294,7 +294,7 @@ struct MarkDoneAfterCaptureTests {
         #expect(completions.count { $0.operationID == .engineOilService } == 2)
     }
 
-    @Test("REQ-MAINT-040: when the recheck cannot read the store, Mark as done reports not saved and writes nothing")
+    @Test("REQ-NEW-8: when the recheck cannot read the store, Mark as done reports not saved and writes nothing")
     func unreadableStoreIsNotSaved() async {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)

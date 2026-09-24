@@ -5067,6 +5067,50 @@
         }
       }
     },
+    "service.done.conflict %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pit already saved this work as done on %@. Keep Pit's entry, or replace it with yours?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пит уже записал эту работу как сделанную %@. Оставить запись Пита или заменить её вашей?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Піт уже записав цю роботу як зроблену %@. Залишити запис Піта чи замінити його вашим?"
+          }
+        }
+      }
+    },
+    "service.done.conflict.odometer %@ %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pit already saved this work as done on %1$@ at %2$lld km. Keep Pit's entry, or replace it with yours?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пит уже записал эту работу как сделанную %1$@ на пробеге %2$lld км. Оставить запись Пита или заменить её вашей?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Піт уже записав цю роботу як зроблену %1$@ на пробігу %2$lld км. Залишити запис Піта чи замінити його вашим?"
+          }
+        }
+      }
+    },
     "service.done.date" : {
       "localizations" : {
         "en" : {
@@ -5107,6 +5151,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Підтверджуйте лише справді виконану роботу. Вона почне новий цикл для цієї операції і ні для якої іншої."
+          }
+        }
+      }
+    },
+    "service.done.keepPits" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep Pit's entry"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставить запись Пита"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Залишити запис Піта"
+          }
+        }
+      }
+    },
+    "service.done.replaceWithMine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replace with mine"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменить моей"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Замінити моїм"
           }
         }
       }
@@ -5239,6 +5327,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не збережено: Піт уже зберіг цю роботу на цю дату, вона вже в списку. Позначайте її знову, лише якщо хочете записати й свої дані."
+          }
+        }
+      }
+    },
+    "service.failure.pitRecordKept" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not saved: Pit had already saved this work for a date close to yours, and Pit's entry is on the list now. To use your entry instead, undo the last “done” and mark the work again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не сохранено: Пит уже записал эту работу на близкую дату, его запись уже в списке. Чтобы вместо неё записать вашу, отмените последнее «выполнено» и отметьте работу снова."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не збережено: Піт уже записав цю роботу на близьку дату, його запис уже в списку. Щоб натомість записати ваш, скасуйте останнє «виконано» й позначте роботу знову."
           }
         }
       }

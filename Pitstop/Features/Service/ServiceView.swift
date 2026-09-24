@@ -105,11 +105,12 @@ struct ServiceView: View {
         case let .done(operation):
             MarkDoneView(
                 operation: operation,
-                isAlreadyRecorded: viewModel.state.isMarkDoneAlreadyRecorded,
-                alreadyRecordedNotices: viewModel.state.markDoneAlreadyRecordedNotices,
-                onEdit: viewModel.markDoneInputChanged
-            ) { date, odometer, anyway in
-                await viewModel.confirmDone(operation, on: date, odometerText: odometer, anyway: anyway)
+                conflict: viewModel.state.markDoneConflict,
+                conflictNotices: viewModel.state.markDoneConflictNotices,
+                onEdit: viewModel.markDoneInputChanged,
+                onKeepPits: viewModel.keepPitsEntry
+            ) { date, odometer, replacingPits in
+                await viewModel.confirmDone(operation, on: date, odometerText: odometer, replacingPits: replacingPits)
             }
         case let .report(operation):
             DashboardReadingView(
@@ -204,7 +205,7 @@ struct ServiceView: View {
     }
 
     /// Every way a sheet closes (Cancel, a swipe, its own save) goes through this setter, before any other sheet can
-    /// open, so a Mark as done save still running from a closed sheet reports on the list (REQ-MAINT-040).
+    /// open, so a Mark as done save still running from a closed sheet reports on the list (REQ-NEW-10).
     private var sheetBinding: Binding<ServiceSheet?> {
         Binding(
             get: { sheet },
@@ -235,7 +236,7 @@ struct ServiceView: View {
         case .futureDate: "service.failure.future"
         case .invalidReport: "service.failure.report"
         case .reportOdometerMissing: "service.failure.reportOdometer"
-        case .pitAlreadyRecorded: "service.failure.pitAlreadyRecorded"
+        case .pitAlreadyRecorded: "service.failure.pitRecordKept"
         case .notSaved, .none: "service.failure.notSaved"
         }
     }

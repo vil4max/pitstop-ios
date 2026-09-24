@@ -98,6 +98,20 @@ public struct RevokeMaintenanceCompletionCommand: Hashable, Sendable {
     }
 }
 
+/// The owner's Mark as done entry takes the place of completions of the same work that Pit recorded while the sheet
+/// was open (REQ-MAINT-040, REQ-NEW-3). Revoking them and confirming the owner's completion is one command, so one
+/// save: the store never holds both entries, or neither. Each replaced completion must be of the same vehicle and
+/// operation. Only the user can issue it; no proposal maps to it.
+public struct ReplaceMaintenanceCompletionCommand: Hashable, Sendable {
+    public let replacedIDs: Set<UUID>
+    public let completion: MaintenanceCompletion
+
+    public init(replacedIDs: Set<UUID>, completion: MaintenanceCompletion) {
+        self.replacedIDs = replacedIDs
+        self.completion = completion
+    }
+}
+
 public struct SetMaintenancePolicyCommand: Hashable, Sendable {
     public let vehicleID: VehicleID
     public let policy: MaintenancePolicy
@@ -206,6 +220,7 @@ public enum DomainCommand: Hashable, Sendable {
     case recordVehicleFact(RecordVehicleFactCommand)
     case confirmMaintenanceCompletion(ConfirmMaintenanceCompletionCommand)
     case revokeMaintenanceCompletion(RevokeMaintenanceCompletionCommand)
+    case replaceMaintenanceCompletion(ReplaceMaintenanceCompletionCommand)
     case setMaintenancePolicy(SetMaintenancePolicyCommand)
     case stopTrackingOperation(StopTrackingOperationCommand)
     case recordVehicleEvent(RecordVehicleEventCommand)
@@ -236,6 +251,9 @@ public enum DomainCommand: Hashable, Sendable {
             try Self.checkNotFuture(command.completion.performedAt, now: now)
         case .revokeMaintenanceCompletion:
             break
+        case let .replaceMaintenanceCompletion(command):
+            try Self.checkOdometer(command.completion.odometerKm.map(Double.init))
+            try Self.checkNotFuture(command.completion.performedAt, now: now)
         case let .setMaintenancePolicy(command):
             try Self.check(command.policy)
         case let .stopTrackingOperation(command):

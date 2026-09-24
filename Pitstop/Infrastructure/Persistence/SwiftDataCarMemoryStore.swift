@@ -139,6 +139,8 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             let revoked = record.domain
             modelContext.delete(record)
             return .completionRevoked(revoked)
+        case let .replaceMaintenanceCompletion(replace):
+            return try applyReplace(replace)
         case let .setMaintenancePolicy(set):
             try requireVehicle(set.vehicleID)
             try upsert(set.policy, vehicleID: set.vehicleID)
@@ -164,31 +166,6 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             return .plannedEventRemoved(removed)
         case .recordVehicleServiceReport, .removeVehicleServiceReport:
             return try applyReport(command)
-        }
-    }
-
-    private func applyReport(_ command: DomainCommand) throws -> CommandResult {
-        switch command {
-        case let .recordVehicleServiceReport(record):
-            try requireVehicle(record.report.vehicleID)
-            // A new reading replaces the older one for every reader, but the older row stays so that a
-            // replayed confirmation of it is a duplicate, never an overwrite of the newer reading.
-            try requireNew(ReportRecord.self, id: record.report.id)
-            let entered = try record.report.entered(after: completions(
-                of: record.report.operationID, vehicleID: record.report.vehicleID
-            ))
-            modelContext.insert(ReportRecord(entered))
-            return .vehicleServiceReportRecorded(entered)
-        case let .removeVehicleServiceReport(remove):
-            try requireVehicle(remove.vehicleID)
-            let matches = try reportRecords(remove.operationID, vehicleID: remove.vehicleID)
-            guard let removed = matches.map(\.domain).newestPerOperation[remove.operationID] else {
-                throw CarMemoryStoreError.unknownVehicleServiceReport
-            }
-            matches.forEach(modelContext.delete)
-            return .vehicleServiceReportRemoved(removed)
-        default:
-            throw CarMemoryStoreError.storageFailure
         }
     }
 
@@ -351,6 +328,55 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             return try body()
         } catch {
             throw (error as? CarMemoryStoreError) ?? .storageFailure
+        }
+    }
+}
+
+/// Command handlers kept outside the actor body, which the project's type-length lint caps.
+extension SwiftDataCarMemoryStore {
+    /// Deletes the replaced completions and inserts the owner's in the same pending change, which `execute` saves once
+    /// or rolls back whole (REQ-NEW-3). A replaced completion that is gone, or is not this vehicle's same operation,
+    /// fails the whole command.
+    private func applyReplace(_ replace: ReplaceMaintenanceCompletionCommand) throws -> CommandResult {
+        let completion = replace.completion
+        try requireVehicle(completion.vehicleID)
+        try requireNew(Schema1.MaintenanceCompletionRecord.self, id: completion.id)
+        for id in replace.replacedIDs {
+            let matches = try modelContext.fetch(
+                FetchDescriptor(predicate: Schema1.MaintenanceCompletionRecord.matching(id))
+            )
+            guard let record = matches.first,
+                  record.domain.vehicleID == completion.vehicleID,
+                  record.domain.operationID == completion.operationID
+            else { throw CarMemoryStoreError.unknownCompletion }
+            modelContext.delete(record)
+        }
+        modelContext.insert(Schema1.MaintenanceCompletionRecord(completion))
+        return .completionConfirmed(completion)
+    }
+
+    private func applyReport(_ command: DomainCommand) throws -> CommandResult {
+        switch command {
+        case let .recordVehicleServiceReport(record):
+            try requireVehicle(record.report.vehicleID)
+            // A new reading replaces the older one for every reader, but the older row stays so that a
+            // replayed confirmation of it is a duplicate, never an overwrite of the newer reading.
+            try requireNew(ReportRecord.self, id: record.report.id)
+            let entered = try record.report.entered(after: completions(
+                of: record.report.operationID, vehicleID: record.report.vehicleID
+            ))
+            modelContext.insert(ReportRecord(entered))
+            return .vehicleServiceReportRecorded(entered)
+        case let .removeVehicleServiceReport(remove):
+            try requireVehicle(remove.vehicleID)
+            let matches = try reportRecords(remove.operationID, vehicleID: remove.vehicleID)
+            guard let removed = matches.map(\.domain).newestPerOperation[remove.operationID] else {
+                throw CarMemoryStoreError.unknownVehicleServiceReport
+            }
+            matches.forEach(modelContext.delete)
+            return .vehicleServiceReportRemoved(removed)
+        default:
+            throw CarMemoryStoreError.storageFailure
         }
     }
 }

@@ -7,7 +7,8 @@ private let now = DomainFixtures.Odometers.baseDate
 /// The sheet locks Cancel and swipe-to-dismiss while its save runs (ADR 0032), but the app itself can still close it,
 /// and Mark as done may then open for other work before the first save returns. That save belongs to a sheet that is
 /// gone, so it must leave the open sheet's snapshot and message alone, and still record the owner's work or say on the
-/// list that it did not (REQ-MAINT-040, proposed). The tests close the sheet by opening the next one or directly.
+/// list that it did not (REQ-NEW-9, REQ-NEW-10, proposed). The tests close the sheet by opening the next one or
+/// directly.
 @MainActor
 @Suite("Mark as done after its sheet closed")
 struct MarkDoneSheetClosedTests {
@@ -48,7 +49,7 @@ struct MarkDoneSheetClosedTests {
     }
 
     @Test(
-        "REQ-MAINT-040: an oil save that returns after the cabin filter sheet opened keeps that sheet's snapshot and message"
+        "REQ-NEW-10: an oil save returning after the cabin filter sheet opened keeps that sheet's snapshot and message"
     )
     func lateSaveKeepsTheNextSheetsState() async throws {
         let store = HeldStore()
@@ -61,12 +62,12 @@ struct MarkDoneSheetClosedTests {
         await openMarkDone(service, .cabinFilter)
         try await pitRecords(.cabinFilter, odometerKm: nil, in: store)
         #expect(await !service.confirmDone(.cabinFilter, on: now, odometerText: "30000"))
-        #expect(service.state.isMarkDoneAlreadyRecorded)
+        #expect(service.state.markDoneConflict != nil)
 
         await store.release()
         _ = await oilSave.value
 
-        #expect(service.state.isMarkDoneAlreadyRecorded, "the cabin filter sheet still says Pit saved this")
+        #expect(service.state.markDoneConflict != nil, "the cabin filter sheet still says Pit saved this")
         #expect(service.state.failure == nil)
         // The cabin filter sheet kept its snapshot: with the odometer cleared, Pit's record is not repeated.
         service.markDoneInputChanged()
@@ -74,7 +75,7 @@ struct MarkDoneSheetClosedTests {
         #expect(await store.base.completions.count { $0.operationID == .cabinFilter } == 1)
     }
 
-    @Test("REQ-MAINT-040: a late \"Pit already saved this\" from a closed sheet shows nothing in the sheet open now")
+    @Test("REQ-NEW-10: a late \"Pit already saved this\" from a closed sheet shows nothing in the sheet open now")
     func lateAlreadyRecordedStaysOutOfTheNextSheet() async throws {
         let store = HeldStore()
         let service = await openedService(store)
@@ -84,19 +85,19 @@ struct MarkDoneSheetClosedTests {
         let oilSave = await confirmOilAndHold(service, store, at: .completionsRead, odometerText: "86000")
 
         await openMarkDone(service, .cabinFilter)
-        let notices = service.state.markDoneAlreadyRecordedNotices
+        let notices = service.state.markDoneConflictNotices
         await store.release()
 
         #expect(await !oilSave.value)
-        #expect(!service.state.isMarkDoneAlreadyRecorded, "the cabin filter sheet shows no message about oil")
-        #expect(service.state.markDoneAlreadyRecordedNotices == notices, "and announces none")
+        #expect(service.state.markDoneConflict == nil, "the cabin filter sheet shows no message about oil")
+        #expect(service.state.markDoneConflictNotices == notices, "and announces none")
         #expect(service.state.failure == nil)
         // The owner's entry was not recorded, and the list says Pit's record is why.
         #expect(service.state.listFailure == .pitAlreadyRecorded)
         #expect(await store.base.completions.count { $0.operationID == .engineOilService } == 1, "only Pit's")
     }
 
-    @Test("REQ-MAINT-040: the owner's work from a sheet that closed while saving is recorded once, even if saved again")
+    @Test("REQ-NEW-10: the owner's work from a sheet that closed while saving is recorded once, even if saved again")
     func closedSheetsSaveIsRecordedOnce() async {
         let store = HeldStore()
         let service = await openedService(store)
@@ -117,7 +118,7 @@ struct MarkDoneSheetClosedTests {
         #expect(oil.map(\.odometerKm) == [85000])
     }
 
-    @Test("REQ-MAINT-040: a save that fails after its sheet closed says so on the list, not in a later sheet")
+    @Test("REQ-NEW-10: a save that fails after its sheet closed says so on the list, not in a later sheet")
     func closedSheetsFailureIsOnTheList() async {
         let store = HeldStore()
         let service = await openedService(store)
@@ -136,7 +137,7 @@ struct MarkDoneSheetClosedTests {
     }
 
     @Test(
-        "REQ-MAINT-040: an entry a closed sheet could not ask about is reported as Pit's record, with the list reloaded"
+        "REQ-NEW-9: an entry a closed sheet could not ask about is reported as Pit's record, with the list reloaded"
     )
     func closedSheetsConflictNamesPitsRecord() async throws {
         let store = HeldStore()
@@ -158,7 +159,7 @@ struct MarkDoneSheetClosedTests {
         #expect(await store.base.completions.count == 1, "only Pit's")
     }
 
-    @Test("REQ-MAINT-040: a late \"already recorded\" from a closed sheet leaves the next sheet's snapshot and message")
+    @Test("REQ-NEW-10: a late \"already recorded\" from a closed sheet leaves the next sheet's snapshot and message")
     func lateAlreadyRecordedKeepsTheNextSheetsSnapshot() async throws {
         let store = HeldStore()
         let service = await openedService(store)
@@ -174,7 +175,7 @@ struct MarkDoneSheetClosedTests {
         await store.release()
 
         #expect(await !oilSave.value, "the closed sheet's result cannot close the sheet open now")
-        #expect(service.state.isMarkDoneAlreadyRecorded, "the cabin filter sheet still says Pit saved this")
+        #expect(service.state.markDoneConflict != nil, "the cabin filter sheet still says Pit saved this")
         #expect(service.state.failure == nil && service.state.listFailure == nil, "nothing was lost")
         service.markDoneInputChanged()
         #expect(await service.confirmDone(.cabinFilter, on: now, odometerText: ""))
@@ -182,7 +183,7 @@ struct MarkDoneSheetClosedTests {
         #expect(await store.base.completions.count { $0.operationID == .engineOilService } == 1, "only Pit's")
     }
 
-    @Test("REQ-MAINT-040: a recheck read that fails after its sheet closed says so on the list, not in the next sheet")
+    @Test("REQ-NEW-10: a recheck read that fails after its sheet closed says so on the list, not in the next sheet")
     func lateRecheckFailureIsOnTheList() async {
         let store = HeldStore()
         let service = await openedService(store)
@@ -201,7 +202,7 @@ struct MarkDoneSheetClosedTests {
         #expect(await store.base.completions.isEmpty)
     }
 
-    @Test("REQ-MAINT-040: Service tells the view model when a Mark as done sheet closes, however it closes")
+    @Test("REQ-NEW-10: Service tells the view model when a Mark as done sheet closes, however it closes")
     func serviceReportsTheSheetClosing() throws {
         let code = try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift").split(separator: "\n")
             .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
@@ -214,7 +215,7 @@ struct MarkDoneSheetClosedTests {
         #expect(body.contains("viewModel.markDoneClosed()"))
     }
 
-    @Test("REQ-MAINT-040, ADR-0032: the owner cannot close Mark as done while its save runs, by Cancel or a swipe")
+    @Test("REQ-NEW-11, ADR-0032: the owner cannot close Mark as done while its save runs, by Cancel or a swipe")
     func sheetLocksWhileSaving() throws {
         let code = try PitInSheetTests.source("Pitstop/Features/Service/MarkDoneView.swift").split(separator: "\n")
             .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }

@@ -137,3 +137,15 @@ extension ServiceViewState {
         )
     }
 }
+
+extension MarkDoneConflict {
+    /// The prompt, shown in the sheet and spoken to VoiceOver: it names Pit's entry, since it may be dated a day away
+    /// from the owner's or carry another odometer (REQ-MAINT-040).
+    var message: String {
+        let date = pitEntry.performedAt.formatted(date: .long, time: .omitted)
+        if let odometerKm = pitEntry.odometerKm {
+            return String(localized: "service.done.conflict.odometer \(date) \(odometerKm)")
+        }
+        return String(localized: "service.done.conflict \(date)")
+    }
+}

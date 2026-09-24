@@ -157,6 +157,8 @@ actor FakeCarMemoryStore: CarMemoryStore {
                 throw .unknownCompletion
             }
             return .completionRevoked(completions.remove(at: index))
+        case let .replaceMaintenanceCompletion(replace):
+            return try applyReplace(replace)
         case let .setMaintenancePolicy(set):
             guard !failingPolicyOperations.contains(set.policy.operationID) else { throw .storageFailure }
             policies.removeAll { $0.operationID == set.policy.operationID && $0.source == set.policy.source }
@@ -214,6 +216,23 @@ actor FakeCarMemoryStore: CarMemoryStore {
         default:
             return try applyReport(command)
         }
+    }
+
+    /// All or nothing, as the real store saves it once: every check runs before anything changes.
+    private func applyReplace(
+        _ replace: ReplaceMaintenanceCompletionCommand
+    ) throws(CarMemoryStoreError) -> CommandResult {
+        let completion = replace.completion
+        guard completion.vehicleID == vehicle.id else { throw .unknownVehicle }
+        guard !completions.contains(where: { $0.id == completion.id }) else { throw .duplicateRecord }
+        let replaced = completions.filter { replace.replacedIDs.contains($0.id) }
+        let isSameWork = replaced.allSatisfy {
+            $0.vehicleID == completion.vehicleID && $0.operationID == completion.operationID
+        }
+        guard replaced.count == replace.replacedIDs.count, isSameWork else { throw .unknownCompletion }
+        completions.removeAll { replace.replacedIDs.contains($0.id) }
+        completions.append(completion)
+        return .completionConfirmed(completion)
     }
 
     /// Dashboard readings, with the real store's vehicle check and one-row-per-operation rule.
