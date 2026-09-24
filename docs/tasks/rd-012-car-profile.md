@@ -36,7 +36,7 @@ Permitted deviations: none.
 Material assumptions: the simulator's Vision may return no foreground
 instance, so the lifted path is checked on a device (What to Test); checked
 at card `car-visual` by running the fake and the Vision path in tests.
-Next step: integrate card `car-avatar` when its writer reports; then close the round.
+Next step: integrate card `car-avatar` after repair 1 and its round 2 review; then close the round.
 Requirements: REQ-BOARD-017, REQ-BOARD-029, REQ-BOARD-030, REQ-BOARD-031,
 REQ-BOARD-032, REQ-BOARD-033, REQ-BOARD-034, REQ-DESIGN-005
 Acceptance specs: tests citing each requirement above in their display name,
@@ -334,6 +334,26 @@ remove-then-failed-pick case). One commit, failing test first. The two round
 Output: a Repair 2 section appended to the writer report in
 `agent-artifacts/2026-09-24/pitstop-rd-012/outputs/car-editor-profile/writer-report.md`.
 
+### car-avatar repair 1 dispatch — The saved-state header stacks at accessibility sizes (2026-09-25)
+
+Objective: At accessibility text sizes, the Pit sheet's saved-state header
+stacks its avatar and title the way `ScreenHeader` and `PitQuestionCard` do,
+so the title keeps the full width.
+
+Sources: REQ-BOARD-034; round 1 review finding `PitSheetParts.swift:16`
+(medium); mockup: `docs/design/ios27-mockups.html` Dynamic Type rule (the
+words wrap under the avatar).
+
+Intended deviations: none
+
+Boundaries: the writer's branch rebased onto the round head first
+(KIT-D-024); owned `Pitstop/Features/Pit/PitSheetParts.swift` and its tests.
+One commit, failing test first. The two round 1 lows are not repaired
+(backlog).
+
+Output: a Repair 1 section appended to the writer report in
+`agent-artifacts/2026-09-24/pitstop-rd-012/outputs/car-avatar/writer-report.md`.
+
 ## Evidence history
 
 - 2026-09-24: round opened; `spec_trace.py --prose` on Car Hero, Car profile
@@ -393,6 +413,16 @@ Output: a Repair 2 section appended to the writer report in
   the simulator tool's access prompt went unanswered; it joins the 1.2.0
   What to Test.
 
+- 2026-09-25, card `car-avatar`: writer READY at `109a102` (`b36504d`,
+  `109a102`), each step failing first and `just verify` green; Conflicts
+  found: none; no ownership gap. The dispatch's `PitSheetParts.swift:195`
+  pointed at a preview, so the writer put the saved-state avatar in
+  `PitMomentHeader`, shown only with "Saved.", within its owned files. The
+  value is set once in `RootView.content`, which both Pit presentations
+  inherit. Road "Now" keeps the car picture from card `car-visual`, not an
+  avatar (REQ-BOARD-034 names headers and the Pit sheet). Round 1 review:
+  1 medium; repair 1 dispatched.
+
 ### Round 1 review — car-profile-data (2026-09-24)
 
 Review SHA: 5a76746
@@ -440,6 +470,14 @@ Review SHA: 0a2f7db
 - [low][non-blocking][new] PitstopTests/CarBoard/CarEditorTests.swift:137 — the corrected test keeps the name `failedLoadKeepsTheSavedPhoto` while it now asserts the remove is kept (backlog at close)
 - [low][non-blocking][new] PitstopTests/CarBoard/CarEditorTests.swift:156 — no test pins remove, then a successful pick, then a failed pick giving "unchanged" (backlog at close)
 
+### Round 1 review — car-avatar (2026-09-25)
+
+Review SHA: 109a102
+
+- [medium][blocking][new] Pitstop/Features/Pit/PitSheetParts.swift:16 — `PitMomentHeader` puts the 44 pt avatar beside the 44 pt head and the title in a plain row with no accessibility-size switch, unlike `ScreenHeader` and `PitQuestionCard`; at AX5 on an iPhone 17 the title loses about 56 pt of width and "Сохранено." / "Збережено." likely break inside the word
+- [low][non-blocking][new] Pitstop/App/RootView.swift:95 — reading the car's body and photo in `RootView.body` re-evaluates the root modifier chain on every field write in `CarBoardViewModel.load()`; extra body work only (backlog at close)
+- [low][non-blocking][new] PitstopTests/DesignSystem/CarAvatarPlacementTests.swift:131 — `carBoardHeaderHasNone` reads only the first line of the `ScreenHeader(` call, so an avatar argument on a later line would pass (backlog at close)
+
 ## Untested scope
 
 - The lifted path on real photos (Neural Engine) and `PhotosPicker` with the
@@ -471,6 +509,7 @@ Card `car-avatar` (dispatched 2026-09-25):
 
 - [ ] A design-system `CarAvatar` (round, the photo or the placeholder for the body, 28 pt and 44 pt, hidden from VoiceOver) and one environment value carrying the car's body and photo files, with light, dark and AX-XL previews: REQ-BOARD-034 tests fail first, then `just verify`
 - [ ] `RootView` sets the value; detail screen headers (Road, Notes, History, Service) show the 28 pt avatar before the eyebrow, and the Pit sheet's saved state and question card show the 44 pt one; Car Board's header, Settings and forms show none: REQ-BOARD-034 tests fail first, then `just verify`
+- [ ] Repair 1: the saved-state header stacks its avatar and title at accessibility sizes: a REQ-BOARD-034 test fails first, then `just verify`
 
 ## Deferred
 
