@@ -6,7 +6,7 @@ private let performed = DomainFixtures.Odometers.baseDate
 private let now = performed.addingTimeInterval(86400)
 
 /// "Replace with mine" in Mark as done revokes Pit's completion and stores the owner's as one command, so the store
-/// never holds both (two completions of the same work) or neither (the work lost) (REQ-NEW-3).
+/// never holds both (two completions of the same work) or neither (the work lost) (REQ-MAINT-043).
 @Suite("Replacing a completion in one transaction")
 struct SwiftDataReplaceCompletionTests {
     private struct Stored {
@@ -33,7 +33,7 @@ struct SwiftDataReplaceCompletionTests {
         return Stored(store: store, pits: pits, brakes: brakes, owners: owners)
     }
 
-    @Test("REQ-NEW-3: replacing Pit's completion revokes it and stores the owner's with one command")
+    @Test("REQ-MAINT-043: replacing Pit's completion revokes it and stores the owner's with one command")
     func replaceSwapsTheCompletion() async throws {
         let url = TestStore.temporaryURL()
         defer { TestStore.remove(at: url) }
@@ -49,7 +49,7 @@ struct SwiftDataReplaceCompletionTests {
         #expect(Set(reopened) == [fixture.brakes, fixture.owners])
     }
 
-    @Test("REQ-NEW-15: when any part of a replace fails, neither the revoke nor the owner's completion is stored")
+    @Test("REQ-MAINT-055: when any part of a replace fails, neither the revoke nor the owner's completion is stored")
     func failedReplaceChangesNothing() async throws {
         let url = TestStore.temporaryURL()
         defer { TestStore.remove(at: url) }
@@ -87,7 +87,7 @@ struct SwiftDataReplaceCompletionTests {
         #expect(Set(reopened) == [fixture.pits, fixture.brakes])
     }
 
-    @Test("REQ-NEW-15: a replace is validated as a confirmation: no future date and a plausible odometer")
+    @Test("REQ-MAINT-055: a replace is validated as a confirmation: no future date and a plausible odometer")
     func replaceIsValidatedLikeAConfirmation() async throws {
         let url = TestStore.temporaryURL()
         defer { TestStore.remove(at: url) }

@@ -205,7 +205,7 @@ struct ServiceView: View {
     }
 
     /// Every way a sheet closes (Cancel, a swipe, its own save) goes through this setter, before any other sheet can
-    /// open, so a Mark as done save still running from a closed sheet reports on the list (REQ-NEW-10).
+    /// open, so a Mark as done save still running from a closed sheet reports on the list (REQ-MAINT-050).
     private var sheetBinding: Binding<ServiceSheet?> {
         Binding(
             get: { sheet },

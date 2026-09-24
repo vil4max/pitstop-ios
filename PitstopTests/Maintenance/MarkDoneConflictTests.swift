@@ -50,7 +50,7 @@ struct MarkDoneConflictTests {
         }
     }
 
-    @Test("REQ-NEW-5: Pit's entry two days away from the owner's date is other work, and both are recorded")
+    @Test("REQ-MAINT-045: Pit's entry two days away from the owner's date is other work, and both are recorded")
     func entryTwoDaysAwayIsOtherWork() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -113,7 +113,7 @@ struct MarkDoneConflictTests {
         #expect(await oil(store).map(\.odometerKm) == [86000])
     }
 
-    @Test("REQ-NEW-12: a Pit entry recorded after the prompt is not replaced unseen: it asks again, writing nothing")
+    @Test("REQ-MAINT-052: a Pit entry recorded after the prompt is not replaced unseen: it asks again, writing nothing")
     func newEntryAfterThePromptAsksAgain() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -132,7 +132,9 @@ struct MarkDoneConflictTests {
         #expect(await oil(store).map(\.odometerKm) == [86000])
     }
 
-    @Test("REQ-NEW-12: an entry that vanished after the prompt changes the choice, so it asks again for what is left")
+    @Test(
+        "REQ-MAINT-052: an entry that vanished after the prompt changes the choice, so it asks again for what is left"
+    )
     func vanishedEntryAsksAgain() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -148,7 +150,9 @@ struct MarkDoneConflictTests {
         #expect(service.state.markDoneConflict?.pitEntries.map(\.id) == [kept.id])
     }
 
-    @Test("REQ-NEW-12: with the prompted entry gone and a new one stored, Replace writes nothing and names the new one")
+    @Test(
+        "REQ-MAINT-052: with the prompted entry gone and a new one stored, Replace writes nothing and names the new one"
+    )
     func replacedEntrySwappedForANewOneAsksAgain() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -165,7 +169,7 @@ struct MarkDoneConflictTests {
         #expect(await oil(store) == [recorded])
     }
 
-    @Test("REQ-NEW-12: Pit recording the owner's own entry after the prompt does not skip the chosen Replace")
+    @Test("REQ-MAINT-052: Pit recording the owner's own entry after the prompt does not skip the chosen Replace")
     func identicalEntryDoesNotSkipReplace() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -184,7 +188,7 @@ struct MarkDoneConflictTests {
         #expect(await oil(store).map(\.odometerKm) == [86000], "one completion of the work")
     }
 
-    @Test("REQ-NEW-2: keeping Pit's entry records nothing from the sheet, closes it and shows Pit's entry")
+    @Test("REQ-MAINT-042: keeping Pit's entry records nothing from the sheet, closes it and shows Pit's entry")
     func keepPitsEntry() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -200,7 +204,7 @@ struct MarkDoneConflictTests {
         #expect(service.state.operations.first { $0.id == .engineOilService }?.lastCompletion == pits)
     }
 
-    @Test("REQ-NEW-3: replacing Pit's entry leaves only the owner's, written as one replace command")
+    @Test("REQ-MAINT-043: replacing Pit's entry leaves only the owner's, written as one replace command")
     func replaceWithMine() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -222,7 +226,7 @@ struct MarkDoneConflictTests {
         #expect(service.state.operations.first { $0.id == .engineOilService }?.lastCompletion?.odometerKm == 86000)
     }
 
-    @Test("REQ-NEW-15: a replace that cannot be stored keeps Pit's entry, stores nothing of the owner's and says so")
+    @Test("REQ-MAINT-055: a replace that cannot be stored keeps Pit's entry, stores nothing of the owner's and says so")
     func failedReplaceKeepsPitsEntry() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -236,7 +240,7 @@ struct MarkDoneConflictTests {
         #expect(service.state.failure == .notSaved, "the open sheet says nothing was saved")
     }
 
-    @Test("REQ-NEW-3: Replace rechecks what is stored: with Pit's entry gone, the owner's is recorded alone")
+    @Test("REQ-MAINT-043: Replace rechecks what is stored: with Pit's entry gone, the owner's is recorded alone")
     func replaceRechecksTheStore() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -249,7 +253,7 @@ struct MarkDoneConflictTests {
         #expect(await oil(store).map(\.odometerKm) == [86000])
     }
 
-    @Test("REQ-NEW-13: undo after Replace removes only the owner's entry and does not bring Pit's back")
+    @Test("REQ-MAINT-053: undo after Replace removes only the owner's entry and does not bring Pit's back")
     func undoAfterReplaceDoesNotRestorePits() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -264,7 +268,7 @@ struct MarkDoneConflictTests {
         #expect(service.state.operations.first { $0.id == .engineOilService }?.lastCompletion == nil)
     }
 
-    @Test("REQ-NEW-8: when Replace cannot read the store, nothing is written and the sheet says it was not saved")
+    @Test("REQ-MAINT-048: when Replace cannot read the store, nothing is written and the sheet says it was not saved")
     func replaceOverUnreadableStore() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)
@@ -294,7 +298,9 @@ struct MarkDoneConflictTests {
         #expect(!service.contains("anyway"))
     }
 
-    @Test("REQ-NEW-9: the list only states that Pit's entry was kept and the owner's was not saved, in en, ru and uk")
+    @Test(
+        "REQ-MAINT-049: the list only states that Pit's entry was kept and the owner's was not saved, in en, ru and uk"
+    )
     func listStatesPitsEntryKept() throws {
         let code = try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift")
         #expect(code.contains("case .pitAlreadyRecorded: \"service.failure.pitEntryKept\""))
@@ -304,7 +310,7 @@ struct MarkDoneConflictTests {
         let entry = try #require(strings["service.failure.pitEntryKept"] as? [String: Any])
         let localizations = try #require(entry["localizations"] as? [String: [String: [String: String]]])
         #expect(Set(localizations.keys) == ["en", "ru", "uk"])
-        // A fact, not advice: "undo the last done" can point at another completion (REQ-NEW-9).
+        // A fact, not advice: "undo the last done" can point at another completion (REQ-MAINT-049).
         let english = try #require(localizations["en"]?["stringUnit"]?["value"])
         #expect(!english.localizedCaseInsensitiveContains("undo"))
     }

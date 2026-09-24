@@ -99,7 +99,7 @@ public struct RevokeMaintenanceCompletionCommand: Hashable, Sendable {
 }
 
 /// The owner's Mark as done entry takes the place of completions of the same work that Pit recorded while the sheet
-/// was open (REQ-MAINT-040, REQ-NEW-3). Revoking them and confirming the owner's completion is one command, so one
+/// was open (REQ-MAINT-040, REQ-MAINT-043). Revoking them and confirming the owner's completion is one command, so one
 /// save: the store never holds both entries, or neither. Each replaced completion must be of the same vehicle and
 /// operation. Only the user can issue it; no proposal maps to it.
 public struct ReplaceMaintenanceCompletionCommand: Hashable, Sendable {

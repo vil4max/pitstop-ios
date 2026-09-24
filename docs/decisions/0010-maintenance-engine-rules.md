@@ -84,7 +84,7 @@ grouped.
   (`DomainCommand.replaceMaintenanceCompletion`) is the second command that
   resets a cycle, issued only as the owner's explicit "Replace with mine" in
   Mark as done: it revokes the Pit entries the prompt named and confirms the
-  owner's completion in one save (REQ-MAINT-040, REQ-NEW-3, proposed). No
+  owner's completion in one save (REQ-MAINT-040, REQ-MAINT-043, proposed). No
   proposal maps to it.
 - **Change interval** re-saves the owner's policy for a tracked operation.
 - **Undo the last "done"** issues `RevokeMaintenanceCompletionCommand`, for a

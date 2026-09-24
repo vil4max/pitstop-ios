@@ -335,7 +335,8 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
 /// Command handlers kept outside the actor body, which the project's type-length lint caps.
 extension SwiftDataCarMemoryStore {
     /// Deletes the replaced completions and inserts the owner's in the same pending change, which `execute` saves once
-    /// or rolls back whole (REQ-NEW-3). A replaced completion that is gone, or is not this vehicle's same operation,
+    /// or rolls back whole (REQ-MAINT-043). A replaced completion that is gone, or is not this vehicle's same
+    /// operation,
     /// fails the whole command.
     private func applyReplace(_ replace: ReplaceMaintenanceCompletionCommand) throws -> CommandResult {
         let completion = replace.completion

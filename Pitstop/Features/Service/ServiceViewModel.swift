@@ -59,7 +59,7 @@ struct ServiceViewState: Equatable {
 }
 
 /// What the open Mark as done sheet asks about: every entry Pit recorded within a day of the owner's date, nearest
-/// first. "Replace with mine" revokes exactly these (REQ-MAINT-040, REQ-NEW-3).
+/// first. "Replace with mine" revokes exactly these (REQ-MAINT-040, REQ-MAINT-043).
 struct MarkDoneConflict: Equatable {
     let pitEntries: [MaintenanceCompletion]
 }
@@ -72,10 +72,10 @@ struct MarkDoneOpening: Equatable {
 
 /// What Mark as done does when completions of its operation were recorded while the sheet was open (REQ-PIT-026).
 enum MarkDoneRecheck: Equatable {
-    /// Nothing recorded within a day of this date: the owner's completion is other work and is written (REQ-NEW-5).
+    /// Nothing recorded within a day of this date: the owner's completion is other work and is written (REQ-MAINT-045).
     case write
     /// The same work on the same day, and the typed odometer is empty or the one recorded: writing would duplicate
-    /// (REQ-NEW-1).
+    /// (REQ-MAINT-041).
     case alreadyRecorded
     /// The same work within a day of this date, differing from the owner's entry: writing would record it twice, so
     /// the owner keeps Pit's entries or replaces them (REQ-MAINT-040). Nearest to the owner's date first.
@@ -85,7 +85,7 @@ enum MarkDoneRecheck: Equatable {
 
     /// `prompted` is the set the owner chose to replace. The choice covers only what the prompt showed: when Pit's
     /// entries within a day changed since, the owner is asked again, and the same-day skip does not apply, since the
-    /// owner chose to remove the prompted entries (REQ-NEW-12).
+    /// owner chose to remove the prompted entries (REQ-MAINT-052).
     init(
         recorded: [MaintenanceCompletion],
         date: Date,
@@ -139,7 +139,7 @@ enum ServiceFailure: Equatable {
     /// A reported distance needs the mileage it was read at.
     case reportOdometerMissing
     /// A Mark as done sheet closed before it could ask about Pit's differing entry of the same work, so Pit's entry was
-    /// kept and the owner's not recorded (REQ-NEW-9). Unlike `notSaved` it invites no retry, which would record the
+    /// kept and the owner's not recorded (REQ-MAINT-049). Unlike `notSaved` it invites no retry, which would record the
     /// same work twice.
     case pitAlreadyRecorded
 }
@@ -155,7 +155,7 @@ final class ServiceViewModel {
     private var markDoneOpening: MarkDoneOpening?
     /// Which Mark as done sheet is open; nil once it closed. A save still running after its own sheet closed, or after
     /// another one opened, must not write that sheet's snapshot or message, so it compares this with the sheet it
-    /// started in (REQ-NEW-10).
+    /// started in (REQ-MAINT-050).
     private var markDoneSheet: UUID?
 
     init(store: any CarMemoryStore, now: @escaping @Sendable () -> Date = { Date() }) {
@@ -244,7 +244,7 @@ final class ServiceViewModel {
     }
 
     /// The owner changed the date or the odometer: the prompt about Pit's entry spoke of the previous entry
-    /// (REQ-NEW-4).
+    /// (REQ-MAINT-044).
     func markDoneInputChanged() {
         state.markDoneConflict = nil
     }
@@ -252,8 +252,8 @@ final class ServiceViewModel {
     /// Called only after the user confirmed the work was actually performed (core C5). `replacingPits` is the owner's
     /// "Replace with mine" after the sheet asked about Pit's entries of the same work: what is stored is rechecked
     /// first, and only when Pit's entries within a day are still the ones the prompt showed are they revoked and the
-    /// owner's completion confirmed as one command, so one store transaction (REQ-NEW-3); otherwise the sheet asks
-    /// again (REQ-NEW-12). Returns whether the sheet closes as saved; a sheet that closed while this ran gets
+    /// owner's completion confirmed as one command, so one store transaction (REQ-MAINT-043); otherwise the sheet asks
+    /// again (REQ-MAINT-052). Returns whether the sheet closes as saved; a sheet that closed while this ran gets
     /// false, so it cannot close the sheet open now.
     func confirmDone(
         _ operation: MaintenanceOperationID,
@@ -268,12 +268,13 @@ final class ServiceViewModel {
         guard DomainCommandLimits.isNotFuture(date, now: now()) else { return fail(.futureDate) }
         let odometerKm = odometer.intValue
         // Everything after the first await checks that this sheet is still the open one: Cancel and a swipe close it
-        // while it saves, and another Mark as done may open before the save returns (REQ-NEW-10).
+        // while it saves, and another Mark as done may open before the save returns (REQ-MAINT-050).
         let sheet = markDoneSheet
         let prompted = replacingPits ? state.markDoneConflict.map { Set($0.pitEntries.map(\.id)) } : nil
         // Pit can record this work while the sheet is open (REQ-PIT-026), so what is stored is checked again now. Only
         // a completion recorded since the sheet opened counts: the owner's own earlier ones, even from the same day,
-        // do not (REQ-NEW-6). The same work is never recorded twice, and what the owner typed is dropped only by their
+        // do not (REQ-MAINT-046). The same work is never recorded twice, and what the owner typed is dropped only by
+        // their
         // own choice (REQ-MAINT-040, proposed).
         let recorded: [MaintenanceCompletion]
         do {
@@ -302,7 +303,7 @@ final class ServiceViewModel {
             replaced = ids
         case let .conflict(entries):
             // Only the open sheet can ask. Once it closed, Pit's entry is kept and the owner's is not recorded; the
-            // reloaded list shows Pit's record and says why (REQ-NEW-9).
+            // reloaded list shows Pit's record and says why (REQ-MAINT-049).
             guard markDoneSheet == sheet else {
                 await load()
                 state.listFailure = .pitAlreadyRecorded
@@ -333,7 +334,8 @@ final class ServiceViewModel {
         return true
     }
 
-    /// "Keep Pit's entry": nothing from the sheet is recorded, and the list reloads to show Pit's entry (REQ-NEW-2).
+    /// "Keep Pit's entry": nothing from the sheet is recorded, and the list reloads to show Pit's entry
+    /// (REQ-MAINT-042).
     /// The sheet's save lock keeps it the open one until this returns; false if another sheet is open by then.
     func keepPitsEntry() async -> Bool {
         let sheet = markDoneSheet

@@ -624,7 +624,7 @@ open with "Keep Pit's entry" and "Replace with mine", and VoiceOver announces
 the prompt; Given Pit also recorded the oil change yesterday at 84,900 km,
 Then the prompt names both entries.
 
-### REQ-NEW-14 — Mark as done never stores the owner's entry beside Pit's
+### REQ-MAINT-054 — Mark as done never stores the owner's entry beside Pit's
 Status: proposed
 Core: C2, C5
 Source: FU-5
@@ -635,7 +635,7 @@ Acceptance: Given Pit recorded an oil change today while the sheet was open,
 When the owner confirms a differing entry for today, once or repeatedly, Then
 only Pit's completion is stored until the owner keeps it or replaces it.
 
-### REQ-NEW-1 — The entry Pit already recorded is not recorded again
+### REQ-MAINT-041 — The entry Pit already recorded is not recorded again
 Status: proposed
 Core: C2, C5
 Source: [REQ-PIT-026](pit-behavior-and-motion.md), FU-5
@@ -647,7 +647,7 @@ Acceptance: Given Pit recorded an oil change today at 85,000 km while the
 sheet was open, When the owner confirms today at 85,000 km or with no
 odometer, Then one completion is stored and the sheet closes.
 
-### REQ-NEW-2 — Keeping Pit's entry records nothing from the sheet
+### REQ-MAINT-042 — Keeping Pit's entry records nothing from the sheet
 Status: proposed
 Core: C2, C5
 Source: FU-5
@@ -657,7 +657,7 @@ Acceptance: Given the prompt of REQ-MAINT-040, When the owner keeps Pit's
 entry, Then only Pit's completion of that work is stored and the list shows
 it as the last completion.
 
-### REQ-NEW-3 — Replacing Pit's entry is one store transaction
+### REQ-MAINT-043 — Replacing Pit's entry is one store transaction
 Status: proposed
 Core: C2, C5
 Source: FU-5
@@ -669,11 +669,11 @@ Acceptance: Given the prompt of REQ-MAINT-040, When the owner replaces Pit's
 entry, Then the owner's completion is the only one of that work stored and a
 single command wrote it.
 
-### REQ-NEW-15 — A failed Replace changes nothing
+### REQ-MAINT-055 — A failed Replace changes nothing
 Status: proposed
 Core: C2, C5
 Source: FU-5
-If the Replace transaction of REQ-NEW-3 fails, the app shall store neither
+If the Replace transaction of REQ-MAINT-043 fails, the app shall store neither
 the revocation of Pit's entries nor the owner's completion, and shall say in
 the sheet that nothing was saved.
 Acceptance: Given the owner replaces Pit's entry, When the store rejects the
@@ -681,7 +681,7 @@ command (an entry gone, other work, an invalid date or odometer, or a failed
 save), Then Pit's completion is still stored, the owner's is not, and the
 sheet stays open saying it was not saved.
 
-### REQ-NEW-12 — Replace covers only the entries the owner was shown
+### REQ-MAINT-052 — Replace covers only the entries the owner was shown
 Status: proposed
 Core: C2, C5
 Source: FU-5 review
@@ -696,7 +696,7 @@ and the prompt names both entries; Given Pit meanwhile records exactly the
 owner's entry, Then the sheet does not close as already recorded but asks
 again.
 
-### REQ-NEW-13 — Undo after Replace does not bring Pit's entry back
+### REQ-MAINT-053 — Undo after Replace does not bring Pit's entry back
 Status: proposed
 Core: C2, C5
 Source: FU-5 review, [ADR 0010](../decisions/0010-maintenance-engine-rules.md)
@@ -709,7 +709,7 @@ When the owner undoes the last "done", Then no completion of that work from
 today remains and the operation has no last completion unless an earlier one
 exists.
 
-### REQ-NEW-4 — Editing the entry withdraws the prompt
+### REQ-MAINT-044 — Editing the entry withdraws the prompt
 Status: proposed
 Core: C2
 Source: FU-5
@@ -718,9 +718,9 @@ REQ-MAINT-040 is shown, the app shall remove the prompt, and the next
 confirmation shall recheck the edited entry.
 Acceptance: Given the prompt, When the owner changes the odometer to Pit's
 value and confirms, Then the prompt is gone and nothing more is recorded
-(REQ-NEW-1).
+(REQ-MAINT-041).
 
-### REQ-NEW-5 — Work Pit recorded more than a day away is other work
+### REQ-MAINT-045 — Work Pit recorded more than a day away is other work
 Status: proposed
 Core: C5
 Source: FU-5
@@ -731,7 +731,7 @@ Pit's.
 Acceptance: Given Pit records "changed the oil in March" while the sheet is
 open, When the owner confirms today, Then both completions are stored.
 
-### REQ-NEW-6 — Only completions stored after the sheet opened are Pit's
+### REQ-MAINT-046 — Only completions stored after the sheet opened are Pit's
 Status: proposed
 Core: C5
 Source: REQ-MAINT-031, [ADR 0035](../decisions/0035-dashboard-service-reading.md)
@@ -742,7 +742,7 @@ Acceptance: Given Siri saved an oil change today at 84,000 km before the sheet
 opened, When the owner confirms today at 85,000 km, Then the owner's
 completion is recorded and no prompt appears.
 
-### REQ-NEW-7 — Mark as done does not open over an unreadable store
+### REQ-MAINT-047 — Mark as done does not open over an unreadable store
 Status: proposed
 Core: C2
 Source: FU-3, FU-5
@@ -753,7 +753,7 @@ Acceptance: Given the store fails to read, When the owner taps "Mark as
 done", Then no sheet opens, Service says it did not work and nothing is
 written.
 
-### REQ-NEW-8 — An unreadable recheck saves nothing
+### REQ-MAINT-048 — An unreadable recheck saves nothing
 Status: proposed
 Core: C2
 Source: FU-5
@@ -764,7 +764,7 @@ Acceptance: Given the sheet is open and the store stops reading, When the
 owner confirms, Then no command is executed and the sheet says it was not
 saved.
 
-### REQ-NEW-9 — A sheet the app closed keeps Pit's entry and says so on the list
+### REQ-MAINT-049 — A sheet the app closed keeps Pit's entry and says so on the list
 Status: proposed
 Core: C2, C5
 Source: FU-3, FU-5
@@ -774,7 +774,7 @@ not record the owner's entry, shall reload the list, and shall say on the
 list only that Pit's entry for this work was kept and the owner's entry was
 not saved; a "Replace with mine" the owner
 chose before the app closed the sheet is the exception and still replaces
-the entries the prompt named (REQ-NEW-3), since the save lock lets only the
+the entries the prompt named (REQ-MAINT-043), since the save lock lets only the
 app close the sheet.
 Acceptance: Given Pit recorded an oil change without an odometer and the
 owner's save of 86,000 km is still rechecking, When the app closes the sheet,
@@ -784,7 +784,7 @@ list names Pit's record rather than inviting a retry; Given the owner chose
 sheet during the recheck, Then only the owner's completion is stored and the
 list shows it.
 
-### REQ-NEW-10 — A closed sheet's save stays out of the next sheet
+### REQ-MAINT-050 — A closed sheet's save stays out of the next sheet
 Status: proposed
 Core: C2
 Source: FU-3
@@ -795,7 +795,7 @@ Acceptance: Given the oil save is held and the cabin filter sheet opens, When
 the oil save returns or fails, Then the cabin filter sheet keeps its snapshot
 and prompt.
 
-### REQ-NEW-16 — A closed sheet's save still finishes visibly
+### REQ-MAINT-056 — A closed sheet's save still finishes visibly
 Status: proposed
 Core: C2
 Source: FU-3
@@ -805,7 +805,7 @@ Acceptance: Given the oil save is held and its sheet closes, When the save
 returns, Then the owner's completion is on the reloaded list once; When it
 fails, Then the list says it was not saved and no sheet shows the failure.
 
-### REQ-NEW-11 — Mark as done cannot be dismissed while it saves
+### REQ-MAINT-051 — Mark as done cannot be dismissed while it saves
 Status: proposed
 Core: C2
 Source: FU-3, [ADR 0032](../decisions/0032-planned-dated-events.md)

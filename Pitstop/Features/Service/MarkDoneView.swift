@@ -56,7 +56,7 @@ struct MarkDoneView: View {
                 }
             }
             .pitDisabledWhileSaving(isSaving)
-            // Leaving mid-save hands the save's result to whatever opens next (ADR 0032, REQ-NEW-11).
+            // Leaving mid-save hands the save's result to whatever opens next (ADR 0032, REQ-MAINT-051).
             .interactiveDismissDisabled(isSaving)
             // VoiceOver focus stays on the confirmation and the prompt appears below it, so it is also spoken; its two
             // choices are the next elements after it (REQ-MAINT-040).
