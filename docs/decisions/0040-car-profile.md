@@ -67,7 +67,18 @@ the photo lives, how the lift runs, and what may never happen to the photo.
 
 ## Verified
 
-Filled at round close from the coverage matrix and the simulator screenshots.
+- Coverage matrix at RD-012 close (`just ci` bundle, 2026-09-25): REQ-BOARD-017, 029, 030,
+  031, 032, 033, 034 and REQ-DESIGN-005 each passed, 0 GAP.
+- Migration tests open V1, V2, V3 and V4 stores under V5 with their data intact; V4 has a
+  frozen shape test.
+- `CarPhotoStore` tests: the files carry no Exif segment, the original is at most 2048 px,
+  deleting an id removes every file.
+- Simulator (iPhone 17, iOS 27.0): the SUV placeholder faces right on the hero and the Road
+  tile in light, dark and AX-XXXL; Road's header shows the 28 pt avatar; Car Board's header
+  shows none.
+- Not verified here: the Vision cut-out (the simulator has no inference context, so the
+  shape test is skipped there), `PhotosPicker` with a real library, the car editor and the
+  avatar in the Pit sheet on screen — the 1.2.0 What to Test, items 12–16.
 
 ## Rejected alternatives
 
