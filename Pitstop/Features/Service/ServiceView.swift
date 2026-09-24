@@ -51,7 +51,7 @@ struct ServiceView: View {
         }
         .stopTrackingConfirmation(viewModel)
         .deleteReportConfirmation(viewModel)
-        .pitSheet(item: $sheet) { sheet in
+        .pitSheet(item: sheetBinding) { sheet in
             sheetContent(sheet)
                 .alert(failureTitle, isPresented: failureBinding) {
                     Button("common.ok") { viewModel.dismissFailure() }
@@ -199,6 +199,20 @@ struct ServiceView: View {
                 if !isPresented {
                     undoCandidate = nil
                 }
+            }
+        )
+    }
+
+    /// Every way a sheet closes (Cancel, a swipe, its own save) goes through this setter, before any other sheet can
+    /// open, so a Mark as done save still running from a closed sheet reports on the list (REQ-MAINT-040).
+    private var sheetBinding: Binding<ServiceSheet?> {
+        Binding(
+            get: { sheet },
+            set: { newValue in
+                if case .done = sheet, newValue != sheet {
+                    viewModel.markDoneClosed()
+                }
+                sheet = newValue
             }
         )
     }

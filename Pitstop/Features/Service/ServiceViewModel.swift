@@ -112,6 +112,10 @@ final class ServiceViewModel {
     private let now: @Sendable () -> Date
     /// The open Mark as done sheet and its operation's completions when it opened (the ADR 0035 pattern).
     private var markDoneOpening: MarkDoneOpening?
+    /// Which Mark as done sheet is open; nil once it closed. A save still running after its own sheet closed, or after
+    /// another one opened, must not write that sheet's snapshot or message, so it compares this with the sheet it
+    /// started in (REQ-MAINT-040).
+    private var markDoneSheet: UUID?
 
     init(store: any CarMemoryStore, now: @escaping @Sendable () -> Date = { Date() }) {
         self.store = store
@@ -186,8 +190,16 @@ final class ServiceViewModel {
             return false
         }
         markDoneOpening = opening
+        markDoneSheet = UUID()
         state.isMarkDoneAlreadyRecorded = false
         return true
+    }
+
+    /// The Mark as done sheet closed: by Cancel, a swipe or its own save. A save still running from it reports on the
+    /// list from now on.
+    func markDoneClosed() {
+        markDoneOpening = nil
+        markDoneSheet = nil
     }
 
     /// The owner changed the date or the odometer: the "already saved" message spoke of the previous entry.
@@ -197,7 +209,8 @@ final class ServiceViewModel {
 
     /// Called only after the user confirmed the work was actually performed (core C5). `anyway` is the owner's
     /// "Save anyway" after the sheet said Pit already recorded this work for the date; the entry is still
-    /// rechecked, because it may have been edited to match what Pit stored.
+    /// rechecked, because it may have been edited to match what Pit stored. Returns whether the sheet closes as saved;
+    /// a sheet that closed while this ran gets false, so it cannot close the sheet open now.
     func confirmDone(
         _ operation: MaintenanceOperationID,
         on date: Date,
@@ -210,34 +223,43 @@ final class ServiceViewModel {
         }
         guard DomainCommandLimits.isNotFuture(date, now: now()) else { return fail(.futureDate) }
         let odometerKm = odometer.intValue
+        // Everything after the first await checks that this sheet is still the open one: Cancel and a swipe close it
+        // while it saves, and another Mark as done may open before the save returns (REQ-MAINT-040).
+        let sheet = markDoneSheet
         // Pit can record this work while the sheet is open (REQ-PIT-026), so what is stored is checked again now. Only
         // a completion recorded since the sheet opened counts: the owner's own earlier ones, even from the same day,
         // do not (REQ-MAINT-031). What the owner typed is never dropped without a word (REQ-MAINT-040, proposed).
         let recorded: [MaintenanceCompletion]
         do {
-            recorded = try await recordedSinceOpening(operation)
+            recorded = try await completionsRecorded(operation, since: markDoneOpening)
         } catch {
-            return fail(.notSaved)
+            return failMarkDone(startedIn: sheet)
         }
         switch MarkDoneRecheck(recorded: recorded, date: date, odometerKm: odometerKm) {
         case .write:
             break
         case .alreadyRecorded:
             // The same work on the same date, and nothing typed here that it lacks.
-            markDoneOpening = nil
+            let isOpen = markDoneSheet == sheet
+            if isOpen {
+                markDoneOpening = nil
+            }
             await load()
+            guard isOpen, markDoneSheet == sheet else { return false }
             state.failure = nil
             state.isMarkDoneAlreadyRecorded = false
             return true
         case .askOwner where anyway:
             break
         case .askOwner:
+            // Only the open sheet can ask; once it closed, the owner's entry is not recorded and the list says so.
+            guard markDoneSheet == sheet else { return failMarkDone(startedIn: sheet) }
             state.failure = nil
             state.isMarkDoneAlreadyRecorded = true
             state.markDoneAlreadyRecordedNotices += 1
             return false
         }
-        let saved = await execute { vehicleID in
+        let saved = await write { vehicleID in
             .confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
                 vehicleID: vehicleID,
                 operationID: operation,
@@ -245,11 +267,13 @@ final class ServiceViewModel {
                 odometerKm: odometerKm
             )))
         }
-        if saved {
-            markDoneOpening = nil
-            state.isMarkDoneAlreadyRecorded = false
-        }
-        return saved
+        guard saved else { return failMarkDone(startedIn: sheet) }
+        // A closed sheet's work is on the reloaded list; the sheet open now keeps its snapshot and message.
+        guard markDoneSheet == sheet else { return false }
+        markDoneOpening = nil
+        state.failure = nil
+        state.isMarkDoneAlreadyRecorded = false
+        return true
     }
 
     /// Takes back the latest confirmation of an operation, for a tap or a number entered by mistake.
@@ -389,8 +413,11 @@ final class ServiceViewModel {
     }
 
     /// Completions of `operation` stored since its Mark as done sheet opened; none without an open sheet for it.
-    private func recordedSinceOpening(_ operation: MaintenanceOperationID) async throws -> [MaintenanceCompletion] {
-        guard let opening = markDoneOpening, opening.operation == operation else { return [] }
+    private func completionsRecorded(
+        _ operation: MaintenanceOperationID,
+        since opening: MarkDoneOpening?
+    ) async throws -> [MaintenanceCompletion] {
+        guard let opening, opening.operation == operation else { return [] }
         let vehicleID = try await store.currentVehicle().id
         return try await store.maintenanceCompletions().filter { completion in
             completion.vehicleID == vehicleID && completion.operationID == operation
@@ -398,15 +425,31 @@ final class ServiceViewModel {
         }
     }
 
+    /// A Mark as done save that was not recorded says so in its sheet while that sheet is open, and on the list once
+    /// it closed: the sheet open now, if any, is about other work.
+    private func failMarkDone(startedIn sheet: UUID?) -> Bool {
+        guard markDoneSheet == sheet else {
+            state.listFailure = .notSaved
+            return false
+        }
+        return fail(.notSaved)
+    }
+
     private func execute(_ makeCommand: (VehicleID) -> DomainCommand) async -> Bool {
+        guard await write(makeCommand) else { return fail(.notSaved) }
+        state.failure = nil
+        return true
+    }
+
+    /// Stores the command and reloads; where a failure is shown is the caller's choice.
+    private func write(_ makeCommand: (VehicleID) -> DomainCommand) async -> Bool {
         do {
             let vehicleID = try await store.currentVehicle().id
             try await store.execute(makeCommand(vehicleID), now: now())
         } catch {
-            return fail(.notSaved)
+            return false
         }
         await load()
-        state.failure = nil
         return true
     }
 
