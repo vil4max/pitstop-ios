@@ -94,14 +94,8 @@ private struct PitHeadPressed<Label: View>: View {
 
     var body: some View {
         label
-            .overlay {
-                Circle()
-                    .fill(PitColor.headPressed)
-                    // The head fills 54 of the 56 units; the tint stays on the shell.
-                    .scaleEffect(2 * PitHeadGeometry.headRadius / PitHeadGeometry.viewBox)
-                    .opacity(PitHeadPress.highlightOpacity(isPressed: isPressed))
-                    .allowsHitTesting(false)
-            }
+            // The head draws the tint itself, so it follows a lifted or tilted head (a knock is when Pit is tapped).
+            .environment(\.pitHeadPressed, isPressed)
             .scaleEffect(PitHeadPress.scale(isPressed: isPressed))
             // Dimmed as one object: opacity on the layered head would fade each layer on its own, so the shell would
             // show through the screen and the screen through the eyes.

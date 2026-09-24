@@ -14,6 +14,7 @@ struct PitHead: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorSchemeContrast) private var contrast
+    @Environment(\.pitHeadPressed) private var isPressed
     /// Counts entries into the knock, which replays its two dips.
     @State private var knocks = 0
 
@@ -42,6 +43,12 @@ struct PitHead: View {
             shell
             face
             eyes
+            // Pressed feedback on the shell, inside the head so it moves with the head's tilt and lift.
+            Circle()
+                .fill(PitColor.headPressed)
+                .place(circle: Geometry.headCenter, radius: Geometry.headRadius, unit: unit)
+                .opacity(PitHeadPress.highlightOpacity(isPressed: isPressed))
+                .allowsHitTesting(false)
         }
         .frame(width: size, height: size)
         // The head moves only as the pose says (REQ-PIT-024); with Reduce Motion it changes without animation.
@@ -225,6 +232,11 @@ struct PitHead: View {
         .offset(x: shownLife.gaze.x * 1.2 * unit, y: shownLife.gaze.y * unit)
         .animation(reduceMotion ? nil : shownLife.animation.delay(delay), value: shownLife.gaze)
     }
+}
+
+extension EnvironmentValues {
+    /// Set by `PitHeadButtonStyle` while Pit's control is pressed.
+    @Entry var pitHeadPressed = false
 }
 
 /// How the head moves between poses (ADR 0028 timings, REQ-PIT-024).

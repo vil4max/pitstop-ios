@@ -99,6 +99,32 @@ struct PitControlTests {
         #expect(disabled > opacity * enabled + (1 - opacity) * ground, "eye \(disabled), enabled \(enabled)")
     }
 
+    @MainActor
+    @Test("ADR-0039: the pressed tint moves with the lifted, tilted head during a knock")
+    func pressedTintFollowsTheHead() throws {
+        let size: CGFloat = 112
+        let unit = size / PitHeadGeometry.viewBox
+        func render(pressed: Bool) throws -> CGImage {
+            try #require(PitHeadTests.render(
+                PitHead(state: .knock, size: size, finish: .standard).environment(\.pitHeadPressed, pressed),
+                size: size
+            ))
+        }
+        let pressed = try render(pressed: true), plain = try render(pressed: false)
+        // Below the lifted chin, where the head was at rest: no tint crescent.
+        let chin = CGPoint(x: 28 * unit, y: 54.5 * unit)
+        #expect(abs(PitHeadTests.brightness(of: pressed, at: chin) - PitHeadTests.brightness(of: plain, at: chin)) <
+            0.01)
+        // The top of the lifted head is tinted.
+        let crown = CGPoint(x: 28 * unit, y: 5 * unit)
+        #expect(PitHeadTests.brightness(of: pressed, at: crown) < PitHeadTests.brightness(of: plain, at: crown) - 0.03)
+        let style = try Self.declaration(
+            "private struct PitHeadPressed",
+            in: "Pitstop/DesignSystem/Components/UtilityLayer.swift"
+        )
+        #expect(style.contains(".environment(\\.pitHeadPressed, isPressed)"))
+    }
+
     @Test("ADR-0039: pressing the head shrinks and darkens it, as the glass circle's touch feedback did")
     func pressFeedback() {
         #expect(PitHeadPress.scale(isPressed: false) == 1)
