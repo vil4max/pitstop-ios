@@ -89,15 +89,24 @@ struct PitControlTests {
             ))
         }
         let unit = size / PitHeadGeometry.viewBox
+        let enabledImage = try render(enabled: true), disabledImage = try render(enabled: false)
+        let opacity = CGFloat(PitHeadPress.disabledOpacity)
         // Inside the left lens, below its highlight.
         let eye = CGPoint(x: 22 * unit, y: 32 * unit)
-        let enabled = try PitHeadTests.brightness(of: render(enabled: true), at: eye)
-        let disabled = try PitHeadTests.brightness(of: render(enabled: false), at: eye)
+        let enabled = PitHeadTests.brightness(of: enabledImage, at: eye)
+        let disabled = PitHeadTests.brightness(of: disabledImage, at: eye)
         // As one object the lit eye fades toward the white ground; layer by layer the dark screen shows through it.
         // The button style relies on PitHead's own compositing group for this, so the check guards that group.
         let ground: CGFloat = 0.7
-        let opacity = CGFloat(PitHeadPress.disabledOpacity)
         #expect(disabled > opacity * enabled + (1 - opacity) * ground, "eye \(disabled), enabled \(enabled)")
+        // The lower shell, where the head's shadow lies under it. The head and its shadow dim as one layer, so the
+        // disabled pixel is the enabled one blended toward the white ground; dimmed apart, the shadow would show
+        // through the faded shell and darken it by about 0.05.
+        let shell = CGPoint(x: 28 * unit, y: 48 * unit)
+        let enabledShell = PitHeadTests.brightness(of: enabledImage, at: shell)
+        let disabledShell = PitHeadTests.brightness(of: disabledImage, at: shell)
+        let blended = opacity * enabledShell + (1 - opacity)
+        #expect(abs(disabledShell - blended) < 0.02, "shell \(disabledShell), one-layer blend \(blended)")
     }
 
     @MainActor
