@@ -12,6 +12,20 @@ Xcode 27.2 or later: an older Xcode may write a `project.pbxproj` back next to
 it. The Runtime reads versions and sets the Xcode Cloud build number in either
 format (`Tooling/docs/testflight.md`, "Project format").
 
+**Experiment (kit KIT-D-040, recorded 2026-09-24):** opening the JSON
+project in the Xcode app needs the Xcode 27.2 beta, while builds, tests and
+the gate run on the stable Xcode 27.0 (`xcodebuild -version` on this Mac:
+Xcode 27.0, 27A266a). The beta is an experiment, never a gate the flow
+depends on.
+
+```text
+experiment: beta
+surface: Xcode 27.2 beta, used only to open Pitstop.xcodeproj/project.xcproj in the Xcode app
+owner: the owner
+reason: the JSON project format (update of 2026-09-21) opens only in Xcode 27.2
+exit: Xcode 27.2 stable release; review by 2026-12-31
+```
+
 ## Context
 
 The backlog adds well over a hundred source files. The project listed every
