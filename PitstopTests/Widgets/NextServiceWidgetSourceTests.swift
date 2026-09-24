@@ -89,13 +89,14 @@ struct NextServiceWidgetSourceTests {
     }
 
     /// Owner, 2026-09-24: when the content does not fit, lines go by priority instead of being clipped. The name and
-    /// the status always stay; the eyebrow goes first, then the fact. A tap opens Service for the rest.
-    @Test("REQ-WIDGET-004: the small widget drops the eyebrow, then the fact, and always keeps name and status")
+    /// the status always stay; the eyebrow goes first, then the fact, and last the status word, leaving its glyph.
+    /// A tap opens Service for the rest.
+    @Test("REQ-WIDGET-004: the small widget drops the eyebrow, then the fact, then the word; name and status stay")
     func smallDropsLinesByPriority() throws {
         let small = try family("small")
-        let step = #/smallOperation\(summary, showsEyebrow: (true|false), showsFact: (true|false)(, lineLimit: 1)?\)/#
-        let order = small.matches(of: step).map { "\($0.1) \($0.2) \($0.3 == nil ? 2 : 1)" }
-        #expect(order == ["true true 2", "false true 2", "false false 2", "false false 1"])
+        let step = #/smallOperation\(summary, showsEyebrow: (\w+), showsFact: (\w+)(, showsWord: false)?\)/#
+        let order = small.matches(of: step).map { "\($0.1) \($0.2) \($0.3 == nil ? "word" : "glyph")" }
+        #expect(order == ["true true word", "false true word", "false false word", "false false glyph"])
         let first = #/ViewThatFits\(in: \.vertical\)\s*\{\s*smallOperation\(summary, showsEyebrow: true/#
         #expect(small.contains(first))
 
@@ -104,7 +105,21 @@ struct NextServiceWidgetSourceTests {
         let kept = try removing(block: "showsFact", from: removing(block: "showsEyebrow", from: operation))
         #expect(kept.contains("summary.operation.widgetTitle"), "the name must not depend on a dropped line")
         #expect(kept.contains("StatusChip("), "the status must not depend on a dropped line")
+        #expect(kept.contains("StatusGlyphView(glyph: summary.status.glyph"), "the last resort keeps the glyph")
         #expect(!kept.contains("summary.fact.widgetText") && !kept.contains("smallEyebrow"))
+        // A spacer outside the fact would add a gap to every fact-less layout and could reject one that fits.
+        #expect(!kept.contains("Spacer("), "the spacer belongs to the fact")
+    }
+
+    /// Chips wrap and are never truncated (REQ-GRAMMAR-003): a layout shows the whole word or only the glyph. A word
+    /// too long for a layout makes that layout too tall, so the widget moves on to the next one.
+    @Test("REQ-GRAMMAR-003: the small widget never limits or shrinks the status chip's word")
+    func smallNeverTruncatesTheStatusWord() throws {
+        let small = try family("small")
+        let lines = small.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }
+        let chip = try #require(lines.firstIndex { $0.hasPrefix("StatusChip(") }, "no status chip")
+        let modifiers = lines[(chip + 1)...].prefix { $0.hasPrefix(".") || $0.hasPrefix("//") }
+        #expect(!modifiers.contains { $0.contains("lineLimit") || $0.contains("minimumScaleFactor") })
     }
 
     @Test("REQ-WIDGET-004: the Lock Screen rectangular widget drops the fact first and keeps name and status")
