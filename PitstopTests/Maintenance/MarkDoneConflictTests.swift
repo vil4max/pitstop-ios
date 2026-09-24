@@ -148,6 +148,23 @@ struct MarkDoneConflictTests {
         #expect(service.state.markDoneConflict?.pitEntries.map(\.id) == [kept.id])
     }
 
+    @Test("REQ-NEW-12: with the prompted entry gone and a new one stored, Replace writes nothing and names the new one")
+    func replacedEntrySwappedForANewOneAsksAgain() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        let prompted = try await pitRecords(store, on: now, odometerKm: 85000)
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+        _ = try await store.execute(.revokeMaintenanceCompletion(.init(completionID: prompted.id)), now: now)
+        let recorded = try await pitRecords(store, on: now - day, odometerKm: nil)
+        let commands = await store.executed.count
+
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000", replacingPits: true))
+
+        #expect(await store.executed.count == commands, "nothing written beside the new entry")
+        #expect(service.state.markDoneConflict?.pitEntries.map(\.id) == [recorded.id])
+        #expect(await oil(store) == [recorded])
+    }
+
     @Test("REQ-NEW-12: Pit recording the owner's own entry after the prompt does not skip the chosen Replace")
     func identicalEntryDoesNotSkipReplace() async throws {
         let store = FakeCarMemoryStore()
