@@ -17,6 +17,13 @@ struct StatusChip: View {
     }
 
     @ScaledMetric(relativeTo: .footnote) private var glyphSize = DesignTokens.statusGlyphSize
+    @Environment(\.redactionReasons) private var redactionReasons
+
+    /// Redacted (a locked widget, REQ-WIDGET-008), the chip drops the state's colour, which redaction would keep on
+    /// the word's placeholder and the background.
+    private var shownColor: Color {
+        redactionReasons.isEmpty ? color : PitColor.contentSecondary
+    }
 
     var body: some View {
         HStack(spacing: 5) {
@@ -26,11 +33,11 @@ struct StatusChip: View {
                 // A chip wraps rather than truncates at accessibility sizes (REQ-GRAMMAR-003).
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .foregroundStyle(color)
+        .foregroundStyle(shownColor)
         .padding(.vertical, 3)
         .padding(.leading, 7)
         .padding(.trailing, 9)
-        .background(color.opacity(0.14), in: .rect(cornerRadius: DesignTokens.chipCornerRadius))
+        .background(shownColor.opacity(0.14), in: .rect(cornerRadius: DesignTokens.chipCornerRadius))
         .accessibilityElement(children: .combine)
     }
 }

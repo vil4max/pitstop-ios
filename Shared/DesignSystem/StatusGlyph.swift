@@ -20,27 +20,39 @@ enum StatusGlyph: CaseIterable, Hashable, Sendable {
 struct StatusGlyphView: View {
     let glyph: StatusGlyph
     var size: CGFloat = DesignTokens.statusGlyphSize
+    @Environment(\.redactionReasons) private var redactionReasons
 
     var body: some View {
         ZStack {
-            switch glyph {
-            case .ring:
-                Circle().strokeBorder(lineWidth: strokeWidth)
-            case .half:
-                Circle().strokeBorder(lineWidth: strokeWidth)
-                LeadingHalf().fill()
-            case .filled:
-                Circle().fill()
-            case .filledRing:
-                // The halo stays inside the box so a scaled glyph never overlaps the chip's word.
-                Circle().strokeBorder(lineWidth: strokeWidth).opacity(0.35)
-                Circle().fill().padding(strokeWidth * 1.25)
-            case .dashed:
-                Circle().strokeBorder(style: StrokeStyle(lineWidth: strokeWidth, dash: [size / 4, size / 6]))
+            // Redaction replaces text and symbols but leaves shapes as they are, so a redacted glyph (a locked
+            // widget, REQ-WIDGET-008) draws one neutral disc instead of telling the state by shape and colour.
+            if !redactionReasons.isEmpty {
+                Circle().fill(PitColor.contentTertiary)
+            } else {
+                shape
             }
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
+    }
+
+    @ViewBuilder
+    private var shape: some View {
+        switch glyph {
+        case .ring:
+            Circle().strokeBorder(lineWidth: strokeWidth)
+        case .half:
+            Circle().strokeBorder(lineWidth: strokeWidth)
+            LeadingHalf().fill()
+        case .filled:
+            Circle().fill()
+        case .filledRing:
+            // The halo stays inside the box so a scaled glyph never overlaps the chip's word.
+            Circle().strokeBorder(lineWidth: strokeWidth).opacity(0.35)
+            Circle().fill().padding(strokeWidth * 1.25)
+        case .dashed:
+            Circle().strokeBorder(style: StrokeStyle(lineWidth: strokeWidth, dash: [size / 4, size / 6]))
+        }
     }
 
     private var strokeWidth: CGFloat {
