@@ -232,6 +232,21 @@ struct MarkDoneConflictTests {
         #expect(await oil(store).map(\.odometerKm) == [86000])
     }
 
+    @Test("REQ-NEW-13: undo after Replace removes only the owner's entry and does not bring Pit's back")
+    func undoAfterReplaceDoesNotRestorePits() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        try await pitRecords(store, on: now, odometerKm: 85000)
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "86000", replacingPits: true))
+        let replaced = try #require(service.state.operations.first { $0.id == .engineOilService })
+
+        #expect(await service.undoLastCompletion(of: replaced))
+
+        #expect(await oil(store).isEmpty, "Pit's replaced entry stays revoked (ADR 0010 undo)")
+        #expect(service.state.operations.first { $0.id == .engineOilService }?.lastCompletion == nil)
+    }
+
     @Test("REQ-NEW-8: when Replace cannot read the store, nothing is written and the sheet says it was not saved")
     func replaceOverUnreadableStore() async throws {
         let store = FakeCarMemoryStore()

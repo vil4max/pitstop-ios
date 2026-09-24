@@ -678,6 +678,19 @@ and the prompt names both entries; Given Pit meanwhile records exactly the
 owner's entry, Then the sheet does not close as already recorded but asks
 again.
 
+### REQ-NEW-13 — Undo after Replace does not bring Pit's entry back
+Status: proposed
+Core: C2, C5
+Source: FU-5 review, [ADR 0010](../decisions/0010-maintenance-engine-rules.md)
+When the owner undoes the last "done" after replacing Pit's entries with
+their own, the app shall remove only the owner's completion, leaving Pit's
+replaced entries revoked, so the cycle counts from the completion before
+them, or is unknown without one.
+Acceptance: Given the owner replaced Pit's oil change of today with theirs,
+When the owner undoes the last "done", Then no completion of that work from
+today remains and the operation has no last completion unless an earlier one
+exists.
+
 ### REQ-NEW-4 — Editing the entry withdraws the prompt
 Status: proposed
 Core: C2
