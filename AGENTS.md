@@ -16,12 +16,12 @@ commit credentials, tokens, passwords, session data, or private keys.
 
 ## Development entry
 
-Read `PROJECT_STATUS.md`, then the **Agent development loop** in
-`docs/engineering/agent-loop-and-gitflow.md` for implementation tasks.
-That loop explicitly delegates independent review to a separate agent when
-the host supports it. If unavailable, report independent review as pending.
+Read `PROJECT_STATUS.md`, then **Agent development** in
+`docs/engineering/agent-loop-and-gitflow.md` for implementation tasks. The
+process itself (plan approval, writers, independent review, integration,
+round close) is the kit's; this repository keeps only its project facts.
 
-Shared behavior and skills: `${AGENTS_KIT_ROOT:-${DEV_ROOT:-$HOME/Developer/Personal}/agent-engineering-kit}`.
+Shared behavior and skills: `${AGENTS_KIT_ROOT:-${DEV_ROOT:-$HOME/Developer/Personal}/agent-tools/agent-engineering-kit}`.
 Open its `AGENTS.md` when shared policy is not loaded. Project execution uses
 the installed `Tooling/` slice from `ios-agent-toolchain`.
 
@@ -32,12 +32,11 @@ the installed `Tooling/` slice from `ios-agent-toolchain`.
 - CI: shared Runtime pipeline (ADR 0013). A push to `main` runs tests on
   GitHub-hosted runners (public repository, ADR 0014) and builds nothing.
   Local `just verify` is the gate.
-- TestFlight: an agent may create and push a `tf-` tag only after
-  `just tf-check` prints `Ready` for a commit on `origin/main`. `v` tags and
-  App Review submission are owner-only. Procedure: `Tooling/docs/testflight.md`.
+- TestFlight: procedure in `Tooling/docs/testflight.md`; who may tag is
+  kit policy.
 - Documentation/config-only edits use proportional checks without an app build.
 - Release preflight after committing verified contents: `just release --check`.
-- Task input: `docs/tasks/template.md`; evidence: the PR.
+- Task record and evidence: the task brief in `docs/tasks/` (kit brief schema).
 
 `Tooling/backend/build/` contains tracked shell executors, not build output.
 Keep `Tooling/runtime.local.yml`, `.codex/`, and local markers untracked.
