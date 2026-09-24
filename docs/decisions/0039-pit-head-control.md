@@ -55,7 +55,8 @@ while the app still drew the eyes in the glass circle. The Poses table and REQ-P
   since it removes the glow (about 8:1 measured on a render). With the knock's full-strength glow, as the mockup
   draws it (`#7DBAFA` eyes on a `#6FB2FF` glow), a render measures about 1.3:1 between the eyes, 2.4:1 at their
   outer edges and 3.3:1 below them: the knock reads by the colour change, the inward tilt and the lift, not by eye
-  contrast. Lowering the knock glow is left to the owner (the Poses table asks for a stronger glow).
+  contrast. The owner kept the mockup's glow on 2026-09-24 (the Poses table asks for a stronger glow), so the
+  knock is not lowered to raise eye contrast.
 - **Head motion.** Only thinking (tilt 6° aside), startle (lift 2 pt) and knock (lift 3 pt, lean in 4°) move the
   head (REQ-PIT-024); every idle action keeps it still, and bounded life (ADR 0028) scales and shifts the eyes,
   never the head. The knock's two bumps are 1.5 pt dips from the lifted pose, so the head stays between rest and
