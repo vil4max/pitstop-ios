@@ -49,18 +49,20 @@ requirement is rewritten in EARS (KIT-D-001) as single-rule requirements,
 still proposed. "Replace" revokes Pit's entry and confirms the owner's in
 one store transaction if the domain allows it; otherwise the card stops
 for the owner. Order: FU-1, FU-2, FU-3, FU-5, FU-4.
-Blocking decisions: none. Owner decisions pending for the end of the round:
-REQ-MAINT-040 (proposed), the REQ-UTILITY-012 status line, the
-REQ-DESIGN-004 amendment, follow-up cards (History/Notes empty before load;
-NextServiceWidget restyle; a Mark-as-done save still running after its
-sheet closed; two RD-011 test-strength lows; these are now FU-2…FU-4),
-two follow-up candidates from the FU-1 review (Service and Road keep their
-empty state beside the banner after a failed reload; Car Board tiles show
-their empty defaults when the first load fails; both core C2, pre-existing),
-the knock glow contrast
-(ADR 0039: about 1.3–3.3:1 against the full glow, about 8:1 with Increase
-Contrast; the mockup draws it this way), and the device checks DEV-WIDGET
-and DEV-PIT-SHEET.
+End-of-round decisions, owner in this session on 2026-09-24: approve
+REQ-MAINT-040…056 (`1dd13a4`); approve the REQ-UTILITY-012 status-line
+update (`bfd61ec`); approve the REQ-DESIGN-004 scope amendment (the text
+catches up with the tests) and move the requirement to
+`docs/requirements/product-design.md` so `spec_trace.py` sees it
+(`ce07ad3`); keep the knock glow as the mockup draws it (ADR 0039,
+`919adb3`); push `46062c1` as a branch backup (done). RD-012 runs as a
+pilot round of the new SDLC flow from a task the orchestrator sends, in
+plan mode, not from this brief.
+Blocking decisions: none. Owner decisions pending: the two follow-up
+candidates from the FU-1 review (Service and Road keep their empty state
+beside the banner after a failed reload; Car Board tiles show their empty
+defaults when the first load fails; both core C2, pre-existing) and the
+device checks DEV-WIDGET and DEV-PIT-SHEET.
 Permitted deviations: RD-010 is re-estimated from 0.5d to about 2d because
 REQ-UTILITY-012 and REQ-PIT-026 are not implemented on `main` (every sheet
 covers the utility layer; `RootView.swift` ignores the keyboard for it).
@@ -68,9 +70,8 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: ask the owner for the end-of-round decisions listed under
-Blocking decisions (or wait for their word); RD-012 is dispatched only when
-the owner starts it, under the kit rules published at 3ba4ba4.
+Next step: wait for the orchestrator's RD-012 pilot task and open it in
+plan mode; the owner confirms the two FU-1 candidates and the device checks.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
