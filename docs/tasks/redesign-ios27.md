@@ -68,7 +68,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: FU-2 (dispatched), then FU-3, FU-5, FU-4; RD-012 waits for the owner.
+Next step: FU-3 (dispatched when it starts), then FU-5, FU-4; RD-012 waits for the owner.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -109,7 +109,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | planned | — |
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | RD-012 | planned | — |
 | FU-1 History and Notes load states | REQ-GRAMMAR-004, core C2 | RD-008 | done | `3ecf307`, `72de89a`; `just verify` per step; 6 of 10 new tests failed first; review: 0 high/medium, 2 out-of-scope lows (owner candidates) |
-| FU-2 Next-service widget restyle | `NextServiceWidgetTests`, REQ-DESIGN-004 | RD-009 | in progress | — |
+| FU-2 Next-service widget restyle | `NextServiceWidgetTests`, REQ-DESIGN-004, REQ-WIDGET-011, 012 | RD-009 | done | `159b636`…`4f236bc`; `just verify` per step; review: 6 rounds (1 medium privacy; then clean; 3 medium; 3 medium; 1 medium; 0 high/medium + 1 low wording), all repaired; the owner lifted the repair budget |
 | FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | planned | — |
 | FU-5 Mark-as-done merge conflict | REQ-MAINT-040 (EARS, proposed) | FU-3 | planned | — |
 | FU-4 RD-011 test strength | `PitControlTests` | RD-011 | planned | — |
@@ -309,6 +309,30 @@ added here when the slice starts.
   reload; Car Board tile defaults on a failed first load), recorded as
   owner candidates. The integrator fast-forwarded to 72de89a and ran
   `just verify`: passed.
+- 2026-09-24, FU-2 (slice-writer): `just verify` passed before each
+  commit; `StatusGlyph`, `StatusChip` and the status mapping moved to
+  `Shared/DesignSystem/`; the widget left the design-rule exemption
+  (mutation: `.secondary` fails `DesignRulesTests`). Review: round 1,
+  1 medium (the shape-drawn status glyph survived privacy redaction on a
+  locked Lock Screen, REQ-WIDGET-008) + 1 low; round 2 clean; the owner
+  then decided, in this session, "оптимизируй - главное основная и важная
+  инфа - тап по виджету откроет детали", approved the resulting
+  REQ-WIDGET-011/012 wording ("Утверждаю") and lifted the repair budget
+  ("Бюджет еще позволяет"); rounds 3–5 found 3, 3 and 1 medium on names and
+  status words cut at large sizes, all repaired with failing-first tests;
+  round 6: 0 high/medium + 1 low (wording), repaired. Known limit: at the
+  largest sizes the last layout may end a very long name in "…" (SwiftUI
+  truncates instead of shrinking); a stepped text-size fallback is a
+  follow-up candidate. Pre-existing low for the owner: a redacted status
+  word's bar width still hints at its length (REQ-WIDGET-008). Not checked:
+  the real widget on a device (DEV-WIDGET). The desktop app restarted
+  during repair 4; the writer resumed from its committed steps. The
+  integrator fast-forwarded to 4f236bc and ran `just verify`: passed.
+- 2026-09-24, toolbar audit (owner request): the iPhone Duo Simulator needs
+  Xcode 27.1 (Apple ID download, owner); the Xcode 27.2 beta iOS 27.2
+  runtime (8 GB, downloaded with the owner's approval) does not offer the
+  device. Audited on iPhone SE (3rd generation) instead; recorded as
+  UI-TB-001 in the work plan (6544028). The audit simulator was deleted.
 
 ## Untested scope
 
@@ -458,8 +482,12 @@ FU-2 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001; the medium "Road"
 widget in the mockup is not delivered and stays out of scope):
 
-- [ ] Next-service widget (small, Lock Screen rectangular and inline) drawn with design-system roles and the status glyph, same content, words, link and read-only store access; `NextServiceWidget.swift` leaves the design-rule exemption: `NextServiceWidgetTests`, `DesignRulesTests`
-- [ ] Next-service widget docs: mockup "As built" note, system-overview row, DEV-WIDGET row: diff review
+- [x] Next-service widget (small, Lock Screen rectangular and inline) drawn with design-system roles and the status glyph, same content, words, link and read-only store access; `NextServiceWidget.swift` leaves the design-rule exemption: `NextServiceWidgetTests`, `DesignRulesTests` — 159b636
+- [x] Next-service widget docs: mockup "As built" note, system-overview row, DEV-WIDGET row: diff review — 12a0211
+- [x] Review repair: neutral status glyph and chip under privacy redaction; top-anchored small layout: `StatusRedactionTests`, failing-first — e3a3246, 349fef1
+- [x] Owner decision ("keep the main information, a tap opens the details"): lines drop by priority, then name and status kept readable, whole VoiceOver content: `NextServiceWidgetSourceTests`, failing-first — cb92aff, f33297c, 0b01fab, 034c39e, f6bf572
+- [x] Review repair: smaller status word before wrapping, names wrap before lower lines drop, glyph cap, redacted spoken label, test gaps, fitting notes: `just verify`, failing-first — e9b8a9b, d76a378, ec8ed13, 7b57838, db97ed3, 8cd046f, 0fa9da0, fc5d2eb, 4f236bc
+- [x] REQ-WIDGET-011 and 012 approved by the owner; tests retagged: `just verify` — 9aadb81
 
 ## Resume prompt
 

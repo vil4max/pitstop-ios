@@ -42,7 +42,7 @@ Each card is one screen, keeps that screen's behaviour and tests, adds
 light/dark and accessibility-extra-large previews, updates
 `docs/design/ios27-mockups.html` if the screen deviates from it, and updates the screen's row in
 `docs/engineering/system-overview.md`. The redesign ADR is
-[0038](../decisions/0038-ios27-surface-tiers.md). Not part of these cards: the SYS-007 widgets (the next-service widget keeps its delivered look; the mockup's small "Next service" and medium "Road" frames are the input for a later card that restyles it, not yet scheduled); RD-003 restyled the delivered
+[0038](../decisions/0038-ios27-surface-tiers.md). Not part of these cards: the SYS-007 widgets (FU-2 restyled the next-service widget on 2026-09-24; the mockup's medium "Road" widget is not delivered); RD-003 restyled the delivered
 MNT-VR-002 row line and kept its sheet and menu entries without changing their wording.
 ROAD-EST-002 has landed its estimate line on Road; RD-002 kept it as
 delivered. Text-clipping at accessibility
