@@ -38,11 +38,26 @@ confirmed in this session, "Подтверждаю"): FU-1…FU-4 below, one at 
 on `redesign/ios27`, each with review, `just verify` and a backup push;
 decisions within the brief are the integrator's. Out of scope: RD-012,
 `main` and tags, and every owner decision listed under Blocking decisions.
+FU-5, owner on 2026-09-24 (relayed by the orchestrator, then confirmed in
+this session, "Подтверждаю"): REQ-MAINT-040 becomes a merge-conflict
+choice. When Pit records the same operation (date within ±1 day) while
+Mark as done is open, the owner either keeps Pit's entry or replaces it
+with their own; "Save anyway" and two completions for the same work go
+away; completions stored before the sheet opened do not count
+(REQ-MAINT-031); an unreadable store still keeps the sheet closed; the
+requirement is rewritten in EARS (KIT-D-001) as single-rule requirements,
+still proposed. "Replace" revokes Pit's entry and confirms the owner's in
+one store transaction if the domain allows it; otherwise the card stops
+for the owner. Order: FU-1, FU-2, FU-3, FU-5, FU-4.
 Blocking decisions: none. Owner decisions pending for the end of the round:
 REQ-MAINT-040 (proposed), the REQ-UTILITY-012 status line, the
 REQ-DESIGN-004 amendment, follow-up cards (History/Notes empty before load;
 NextServiceWidget restyle; a Mark-as-done save still running after its
-sheet closed; two RD-011 test-strength lows), the knock glow contrast
+sheet closed; two RD-011 test-strength lows; these are now FU-2…FU-4),
+two follow-up candidates from the FU-1 review (Service and Road keep their
+empty state beside the banner after a failed reload; Car Board tiles show
+their empty defaults when the first load fails; both core C2, pre-existing),
+the knock glow contrast
 (ADR 0039: about 1.3–3.3:1 against the full glow, about 8:1 with Increase
 Contrast; the mockup draws it this way), and the device checks DEV-WIDGET
 and DEV-PIT-SHEET.
@@ -53,7 +68,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: FU-1 (dispatched), then FU-2…FU-4; RD-012 waits for the owner.
+Next step: FU-2 (dispatched when it starts), then FU-3, FU-5, FU-4; RD-012 waits for the owner.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -93,9 +108,10 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-011 Pit character | REQ-PIT-022…024 | RD-000 | done | `69a7113`…`dce4225`; `just verify` per step; review: 1 medium + 6 low, all repaired; then 0 high/medium + 2 low (test strength), accepted |
 | RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | planned | — |
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | RD-012 | planned | — |
-| FU-1 History and Notes load states | REQ-GRAMMAR-004, core C2 | RD-008 | in progress | — |
+| FU-1 History and Notes load states | REQ-GRAMMAR-004, core C2 | RD-008 | done | `3ecf307`, `72de89a`; `just verify` per step; 6 of 10 new tests failed first; review: 0 high/medium, 2 out-of-scope lows (owner candidates) |
 | FU-2 Next-service widget restyle | `NextServiceWidgetTests`, REQ-DESIGN-004 | RD-009 | planned | — |
 | FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | planned | — |
+| FU-5 Mark-as-done merge conflict | REQ-MAINT-040 (EARS, proposed) | FU-3 | planned | — |
 | FU-4 RD-011 test strength | `PitControlTests` | RD-011 | planned | — |
 | Release 1.2.0 | `just tf-check` Ready | SYS-008 | planned | — |
 
@@ -217,7 +233,8 @@ added here when the slice starts.
   disabled-first-action preview, VoiceOver, ru/uk. Follow-up for the owner
   (pre-existing, out of scope): History and Notes show their empty state
   before the first load and beside the load-failure banner, which claims an
-  unread fact (core C2); Service already waits for `hasLoaded`.
+  unread fact (core C2); Service waits for `hasLoaded` on the first load
+  only. Fixed in FU-1.
 - 2026-09-23, RD-009 (slice-writer): `just verify` passed before each commit;
   `PitColor`, `DesignTokens` and `PitTypography` moved to `Shared/DesignSystem/`
   and `GlyphDisc` extracted, with no project change; `CaptureWidgetSourceTests`
@@ -283,6 +300,15 @@ added here when the slice starts.
   to dce4225, ran `just verify` (passed) and pushed the branch. Not checked
   on screen: the pressed state, Pit inside a feature sheet, Reduce
   Transparency, VoiceOver.
+- 2026-09-24, FU-1 (slice-writer): `just verify` passed before each
+  commit; "History load states" and "Notes load states" suites (10 tests,
+  6 failed first on 70f02e2); `SparseStateTests` "History with one event is
+  not sparse" now builds with `hasLoaded: true` (stronger). Not checked on
+  screen: History and Notes open only from a Car Board tile tap. Review:
+  0 high/medium; 2 lows outside the card (Service and Road after a failed
+  reload; Car Board tile defaults on a failed first load), recorded as
+  owner candidates. The integrator fast-forwarded to 72de89a and ran
+  `just verify`: passed.
 
 ## Untested scope
 
@@ -425,8 +451,8 @@ needed geometry change stops the card for the owner):
 FU-1 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001):
 
-- [ ] History and Notes show their empty state only after a successful load that found no records; before the first load and beside the load-failure banner they show none, as Service already does: REQ-GRAMMAR-004 tests
-- [ ] History and Notes docs: system-overview rows and the brief's follow-up note: diff review
+- [x] History and Notes show their empty state only after a successful load that found no records; before the first load and beside the load-failure banner they show none, as Service does on its first load: REQ-GRAMMAR-004 tests — 3ecf307
+- [x] History and Notes docs: system-overview rows (the brief's note is the integrator's): diff review — 72de89a
 
 ## Resume prompt
 
