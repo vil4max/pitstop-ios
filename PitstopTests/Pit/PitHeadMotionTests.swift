@@ -30,9 +30,10 @@ struct PitHeadMotionTests {
         #expect(abs(PitPose(.knock).headTilt) <= 4)
         // The knock's two bumps dip from the lifted pose and never lift the head past it or below rest.
         let lift = PitPose(.knock).headLift
-        #expect(!PitHeadMotion.knockBumps.isEmpty)
-        for dip in PitHeadMotion.knockBumps {
-            #expect(dip >= 0 && lift - dip >= 0)
+        // These are the keyframes the head plays, then a spring back to the lifted pose.
+        #expect(PitHeadMotion.knockBumps.filter { $0.dip > 0 }.count == 2)
+        for bump in PitHeadMotion.knockBumps {
+            #expect(bump.dip >= 0 && lift - bump.dip >= 0 && bump.duration > 0)
         }
     }
 

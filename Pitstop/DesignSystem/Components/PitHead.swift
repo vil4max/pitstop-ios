@@ -60,10 +60,10 @@ struct PitHead: View {
         } keyframes: { _ in
             // Two small dips from the lifted pose: a knock, not a bounce.
             KeyframeTrack {
-                CubicKeyframe(PitHeadMotion.knockDip, duration: 0.09)
-                CubicKeyframe(0, duration: 0.1)
-                CubicKeyframe(PitHeadMotion.knockDip, duration: 0.09)
-                SpringKeyframe(0, duration: 0.2)
+                for bump in PitHeadMotion.knockBumps {
+                    CubicKeyframe(bump.dip, duration: bump.duration)
+                }
+                SpringKeyframe(0, duration: PitHeadMotion.knockSettle)
             }
         }
         .onChange(of: state) { _, newState in
@@ -243,8 +243,12 @@ extension EnvironmentValues {
 enum PitHeadMotion {
     /// How far each of the knock's two dips lowers the head from its lifted pose, in head units.
     static let knockDip: CGFloat = 1.5
-    /// The keyframes the knock plays: dip, back, dip, back.
-    static let knockBumps: [CGFloat] = [knockDip, 0, knockDip, 0]
+    /// The keyframes the knock plays, in order: dip, back, dip (the head view builds its track from them).
+    static let knockBumps: [(dip: CGFloat, duration: TimeInterval)] = [
+        (knockDip, 0.09), (0, 0.1), (knockDip, 0.09),
+    ]
+    /// After the last dip the head springs back to its lifted pose.
+    static let knockSettle: TimeInterval = 0.2
 
     /// With Reduce Motion every pose is shown at once (pit-behavior-and-motion.md, "Accessibility").
     static func animation(into state: PitState, reduceMotion: Bool) -> Animation? {
