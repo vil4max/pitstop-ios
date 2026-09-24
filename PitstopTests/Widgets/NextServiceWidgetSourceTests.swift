@@ -257,14 +257,16 @@ struct NextServiceWidgetSourceTests {
         let lastResort = try #require(
             modifierChains(after: "name", in: Array(rectangular[last...])).first { !$0.isEmpty }
         )
-        // The Lock Screen's last layout: up to three rows, shrinking to half before an ellipsis.
+        // The Lock Screen's last layout: up to three rows, with a best-effort scale factor. SwiftUI truncates a
+        // multi-line name rather than shrinking it, so at the largest sizes the name may still end in "…".
         #expect(lastResort.contains(".lineLimit(3)") && lastResort.contains(".minimumScaleFactor(0.5)"))
     }
 
-    /// The small widget's last layout has no fallback and a whole tile of height. A line limit there would shrink or
-    /// cut the name while the tile still has room, so the name takes as many lines as the tile holds and shrinks
-    /// only when it still does not fit.
-    @Test("REQ-WIDGET-004: the small widget's last layout lets the name use the whole tile before it shrinks")
+    /// The small widget's last layout has no fallback and a whole tile of height. A line limit there would cut the
+    /// name while the tile still has room, so the name takes as many lines as the tile holds. The 0.6 scale factor is
+    /// best effort: SwiftUI truncates a multi-line name rather than shrinking it, so at the largest sizes the name may
+    /// still end in "…".
+    @Test("REQ-WIDGET-004: the small widget's last layout lets the name use the whole tile")
     func smallLastLayoutUsesTheWholeTile() throws {
         let lines = try helper("smallOperation").split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }
         let last = try #require(lines.firstIndex(of: "} else {"), "the small widget has no last layout")

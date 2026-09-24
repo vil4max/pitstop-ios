@@ -145,7 +145,8 @@ struct NextServiceWidgetView: View {
     /// name as on the small widget. Before the last layout the name has no line limit: a `Text` with a limit reports
     /// the same height cut or whole, so the vertical fit would accept a cut name. Unlimited, a name that does not fit
     /// makes the layout too tall and the next one is tried. Only the last layout, which has no fallback, caps the name
-    /// at the slot's three rows and lets it shrink to half.
+    /// at the slot's three rows. Its scale factor is best effort: SwiftUI truncates a multi-line name rather than
+    /// shrinking it, so at the largest text sizes the name may end in "…".
     private func rectangularOperation(
         _ summary: NextServiceSummary,
         showsFact: Bool,
@@ -296,8 +297,9 @@ struct NextServiceWidgetView: View {
                         size: min(statusGlyphSize, DesignTokens.statusGlyphBesideNameMaxSize)
                     )
                     .foregroundStyle(summary.status.color)
-                    // The last layout has the whole tile: the name takes as many lines as fit, and shrinks only when
-                    // it still does not, so it never ends in an ellipsis while the tile has room.
+                    // The last layout has the whole tile, so the name takes as many lines as fit. The scale factor is
+                    // best effort: SwiftUI truncates a multi-line name rather than shrinking it, so at the largest
+                    // text sizes the name may end in "…".
                     name
                         .minimumScaleFactor(0.6)
                 }
