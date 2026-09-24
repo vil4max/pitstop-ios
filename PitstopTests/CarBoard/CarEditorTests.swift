@@ -49,6 +49,20 @@ struct CarEditorTests {
         }
     }
 
+    // MARK: Saving
+
+    /// Leaving mid-save would store a photo the owner cancelled, delete the old one, and leave a late failure
+    /// alert behind (ADR 0032, as the planned-date editor does).
+    @Test("REQ-BOARD-029: the car editor locks Cancel and swipe-to-dismiss while a save runs")
+    func editorLocksWhileSaving() throws {
+        let editor = CarEditorView(car: kestrel, body: .suv, hasPhoto: true, canChoosePhoto: true) { _ in true }
+        let locks = try #require(
+            Mirror(reflecting: editor.body).descendant("locksWhileSaving") as? Bool,
+            "the car editor is no longer a SaveSheetScaffold"
+        )
+        #expect(locks)
+    }
+
     // MARK: Body
 
     @Test("REQ-BOARD-030: the editor shows the car's body and sends a change only when the owner makes one")

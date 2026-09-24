@@ -71,7 +71,10 @@ struct CarEditorView: View {
             title: "carEditor.title",
             saveIdentifier: "carEditor.save",
             // A pick still loading would otherwise be dropped from the save.
-            canSave: !isLoadingPhoto
+            canSave: !isLoadingPhoto,
+            // Leaving mid-save would store a photo the owner cancelled, delete the old one's files, and leave
+            // the failure alert behind (ADR 0032).
+            locksWhileSaving: true
         ) {
             Form {
                 if canChoosePhoto {
