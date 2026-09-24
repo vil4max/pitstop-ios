@@ -96,7 +96,7 @@ struct NextServiceWidgetSourceTests {
 
     /// A stack taller than the widget is clipped: centred, or in a frame that grows to the stack and is then
     /// centred, it loses its first and last lines at once.
-    @Test("REQ-WIDGET-004: both data families anchor their content to the top of the widget")
+    @Test("REQ-WIDGET-011: both data families anchor their content to the top of the widget")
     func familiesAnchorTheirStackToTheTop() throws {
         let topAnchored = ".frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)"
         for name in ["small", "rectangular"] {
@@ -105,7 +105,9 @@ struct NextServiceWidgetSourceTests {
     }
 
     /// The sparse and unreadable states keep their sentence; the widget's name above it (eyebrow or title) goes first.
-    @Test("REQ-WIDGET-006: the sparse and unreadable states drop the widget's name first and keep their sentence")
+    @Test(
+        "REQ-WIDGET-006, REQ-WIDGET-011: the sparse and unreadable states drop the widget's name first and keep their sentence"
+    )
     func sparseStatesDropTheirTitleFirst() throws {
         let small = try familyBody("small")
         for helper in ["smallEmpty", "smallUnavailable"] {
@@ -135,7 +137,7 @@ struct NextServiceWidgetSourceTests {
     /// Owner, 2026-09-24: when the content does not fit, lines go by priority instead of being clipped. The name and
     /// the status always stay; the eyebrow goes first, then the fact, and last the status word, leaving its glyph.
     /// A tap opens Service for the rest.
-    @Test("REQ-WIDGET-004: the small widget drops the eyebrow, then the fact, then the word; name and status stay")
+    @Test("REQ-WIDGET-011: the small widget drops the eyebrow, then the fact, then the word; name and status stay")
     func smallDropsLinesByPriority() throws {
         let small = try family("small")
         let step = #/smallOperation\(summary, showsEyebrow: (\w+), showsFact: (\w+)(, showsWord: false)?\)/#
@@ -173,7 +175,7 @@ struct NextServiceWidgetSourceTests {
         #expect(containerLimits.isEmpty, "a stack around the chip limits or shrinks its word")
     }
 
-    @Test("REQ-WIDGET-004: the Lock Screen rectangular widget drops the fact, then the word; name and status stay")
+    @Test("REQ-WIDGET-011: the Lock Screen rectangular widget drops the fact, then the word; name and status stay")
     func rectangularDropsLinesByPriority() throws {
         let rectangular = try family("rectangular")
         let variant = #/rectangularOperation\(summary, showsFact: (\w+)(, showsWord: false)?(, isLastResort: true)?\)/#
@@ -233,7 +235,7 @@ struct NextServiceWidgetSourceTests {
     /// layout but its family's last, the name therefore has no line limit and no scale factor: it wraps, and a name
     /// that does not fit makes the layout too tall, so the next layout is tried. Only the last layout, which has no
     /// fallback, may cap or shrink the name.
-    @Test("REQ-WIDGET-004: before the last layout the name wraps whole, with no line limit or shrink")
+    @Test("REQ-WIDGET-011: before the last layout the name wraps whole, with no line limit or shrink")
     func nameWrapsBeforeLowerLinesDrop() throws {
         let wraps = ".fixedSize(horizontal: false, vertical: true)"
         // Each helper's last layout is the branch that opens with this line and runs to the next branch or the end.
@@ -266,7 +268,7 @@ struct NextServiceWidgetSourceTests {
     /// name while the tile still has room, so the name takes as many lines as the tile holds. The 0.6 scale factor is
     /// best effort: SwiftUI truncates a multi-line name rather than shrinking it, so at the largest sizes the name may
     /// still end in "…".
-    @Test("REQ-WIDGET-004: the small widget's last layout lets the name use the whole tile")
+    @Test("REQ-WIDGET-011: the small widget's last layout lets the name use the whole tile")
     func smallLastLayoutUsesTheWholeTile() throws {
         let lines = try helper("smallOperation").split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }
         let last = try #require(lines.firstIndex(of: "} else {"), "the small widget has no last layout")
@@ -280,7 +282,7 @@ struct NextServiceWidgetSourceTests {
 
     /// A glyph that scales with body text reaches about 34 pt at the largest size, a quarter of the Lock Screen slot,
     /// and cuts the one name the rule keeps. Beside the name the glyph is capped in every glyph-only layout.
-    @Test("REQ-WIDGET-004: beside the name the status glyph is capped")
+    @Test("REQ-WIDGET-011: beside the name the status glyph is capped")
     func glyphBesideTheNameLeavesItsRoom() throws {
         let capped = #/
             StatusGlyphView\( \s* glyph: \s summary\.status\.glyph, \s*
@@ -295,7 +297,7 @@ struct NextServiceWidgetSourceTests {
 
     /// Only the chosen `ViewThatFits` layout is in the accessibility tree, so combining children would silence a line
     /// dropped for room. Each family reads one label built from the whole content instead.
-    @Test("REQ-WIDGET-004: VoiceOver reads name, status word and fact whichever layout is shown")
+    @Test("REQ-WIDGET-012: VoiceOver reads name, status word and fact whichever layout is shown")
     func familiesSpeakTheWholeContent() throws {
         for name in ["small", "rectangular"] {
             let body = try familyBody(name)

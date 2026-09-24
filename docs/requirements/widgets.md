@@ -63,6 +63,8 @@ When the widget builds its entry
 Then it runs the same maintenance engine on the same facts as Service and
 shows the first operation in Service's order by name, status word and one
 fact, such as "Engine oil service · Approaching · in 1,200 km" or "Due"
+Amended by REQ-WIDGET-011: when the content does not fit at the current text
+size, the fact and then the status word may be dropped.
 
 ### REQ-WIDGET-005 — Unknown and partial states read as on Service
 Status: proposed
@@ -74,6 +76,9 @@ When the widget shows it
 Then it says "Not enough facts" or "Up to date by date" / "Approaching by date"
 with the reason the distance is not counted, never a number the facts do not
 support
+Amended by REQ-WIDGET-011: the reason is part of the fact line and may be
+dropped when the content does not fit, as on the Lock Screen at the default
+text size when the name or the status word fills the slot.
 
 ### REQ-WIDGET-006 — Empty and unreadable states are calm and open the app
 Status: proposed
@@ -127,3 +132,25 @@ When the widget builds its timeline
 Then it asks to be reloaded at the first moment its content changes, and not
 sooner than five minutes; content that time cannot change asks for no
 scheduled reload
+
+### REQ-WIDGET-011 — Content that does not fit drops lines by priority
+Status: approved (owner, 2026-09-24)
+Core: C2
+Source: [ADR 0036](../decisions/0036-app-group-store-and-next-service-widget.md), FU-2
+Given the widget's content does not fit at the current text size
+When the widget lays out an operation
+Then it drops lines in this order: first the "Next service" eyebrow, then the
+fact (with the by-date reason), then the status word, whose glyph remains; the
+operation name and the status stay visible, the name wraps whole before any
+lower line is dropped and may end in an ellipsis only in the last layout, and
+a status word is never truncated; a tap opens Service
+
+### REQ-WIDGET-012 — VoiceOver reads the whole content
+Status: approved (owner, 2026-09-24)
+Core: P5
+Source: FU-2
+Given the widget shows an operation in any layout
+When VoiceOver reads it
+Then it reads the operation name, the status word and the fact, including the
+lines the layout dropped; under privacy redaction it reads only the widget's
+name (REQ-WIDGET-008)
