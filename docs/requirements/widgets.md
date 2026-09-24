@@ -137,20 +137,24 @@ scheduled reload
 Status: approved (owner, 2026-09-24)
 Core: C2
 Source: [ADR 0036](../decisions/0036-app-group-store-and-next-service-widget.md), FU-2
-Given the widget's content does not fit at the current text size
-When the widget lays out an operation
-Then it drops lines in this order: first the "Next service" eyebrow, then the
-fact (with the by-date reason), then the status word, whose glyph remains; the
-operation name and the status stay visible, the name wraps whole before any
-lower line is dropped and may end in an ellipsis only in the last layout, and
-a status word is never truncated; a tap opens Service
+If the widget's content does not fit at the current text size, the widget
+shall drop lines in this order: first the "Next service" eyebrow, then the
+fact (with the by-date reason), then the status word, keeping the status
+glyph; the operation name and the status shall stay visible, the name shall
+wrap whole before any lower line is dropped and may end in an ellipsis only
+in the last layout, and a status word shall never be truncated.
+Acceptance: Given an operation whose content does not fit, When the widget
+lays it out, Then the dropped lines follow this order and a tap still opens
+Service.
 
 ### REQ-WIDGET-012 — VoiceOver reads the whole content
 Status: approved (owner, 2026-09-24)
 Core: P5
 Source: FU-2
-Given the widget shows an operation in any layout
-When VoiceOver reads it
-Then it reads the operation name, the status word and the fact, including the
-lines the layout dropped; under privacy redaction it reads only the widget's
-name (REQ-WIDGET-008)
+When VoiceOver reads the widget, the widget shall speak the operation name,
+the status word and the fact, including lines the layout dropped; while the
+content is redacted for privacy, it shall speak only the widget's name
+(REQ-WIDGET-008).
+Acceptance: Given the widget shows an operation in any layout, When VoiceOver
+reads it, Then it hears the full content, or only the widget's name when
+redacted.
