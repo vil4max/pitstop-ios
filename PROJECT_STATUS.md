@@ -1,7 +1,7 @@
 # PitStop — Project Status
 
 **Project State:** Active since 2026-09-23 (owner unfroze it); the iOS 27 redesign round runs on the local branch `redesign/ios27` ([`docs/tasks/redesign-ios27.md`](docs/tasks/redesign-ios27.md))  
-**Next task:** RD-012, the car profile card (RD-000…RD-011 landed on `redesign/ios27`, ADR 0038, ADR 0039) ([`docs/planning/work-plan.md`](docs/planning/work-plan.md)); the round ends with SYS-008 and TestFlight 1.2.0  
+**Next task:** Release 1.2.0 (RD-000…RD-011 on `redesign/ios27`; RD-012, the car profile and the first round on the kit's round flow, landed on `RD-012/car-profile`, ADR 0040, [`docs/tasks/rd-012-car-profile.md`](docs/tasks/rd-012-car-profile.md)) ([`docs/planning/work-plan.md`](docs/planning/work-plan.md)); SYS-008 follows for 1.3.0  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
 **TestFlight:** version 1.1.0 (tag `tf-1.1.0-3`); delivery is tag-gated (ADR 0013)
 
@@ -41,12 +41,13 @@ project marker is gitignored.
 - Remaining work: SYS-007 is delivered (ADR 0036); the iOS 27 redesign cards, owner-only device checks, and
   owner decisions. All are in
   [`docs/planning/work-plan.md`](docs/planning/work-plan.md).
-- Requirements: 175 REQ IDs are `Status: proposed` and 50 are approved:
+- Requirements: 175 REQ IDs are `Status: proposed` and 53 are approved:
   REQ-BOARD-017 (title wording, 2026-09-23), REQ-BOARD-026, REQ-ICON-001, REQ-ROAD-007, 022, 023, the iOS 27
   redesign set approved in the design session on 2026-09-22 (REQ-DESIGN-001…005,
   REQ-GRAMMAR-001…004, REQ-BOARD-027…031, REQ-ROAD-027…029, REQ-PIT-021…027, REQ-UTILITY-012),
-  REQ-WIDGET-011, 012, and the Mark-as-done merge-conflict set REQ-MAINT-040…056 (2026-09-24).
-  Tests cite the proposed IDs; the redesign IDs have no tests until their RD cards land.
+  REQ-WIDGET-011, 012, the Mark-as-done merge-conflict set REQ-MAINT-040…056 (2026-09-24), and
+  the car profile set REQ-BOARD-032…034 (RD-012 package, 2026-09-24). Approved requirements are
+  fingerprinted in `docs/requirements/.spec-lock.json`.
 
 ## Current implementation status
 

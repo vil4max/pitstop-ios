@@ -80,11 +80,11 @@ on screen" until a snapshot-testing card exists.
   rows, the failed-load line).
 - Requirements: 175 REQ IDs are `Status: proposed` (SYS-007 added REQ-WIDGET-001…010; MNT-VR-002 added
   REQ-MAINT-030…039 and REQ-ROAD-026 and reworded REQ-MAINT-023 as the owner
-  approved in substance). 50 are approved: REQ-BOARD-017, REQ-BOARD-026, REQ-ICON-001,
+  approved in substance). 53 are approved: REQ-BOARD-017, REQ-BOARD-026, REQ-ICON-001,
   REQ-ROAD-007, 022, 023, the iOS 27 redesign set approved in the design
   session on 2026-09-22 (REQ-DESIGN-001…005, REQ-GRAMMAR-001…004,
   REQ-BOARD-027…031, REQ-ROAD-027…029, REQ-PIT-021…027, REQ-UTILITY-012),
-  REQ-WIDGET-011, 012 and REQ-MAINT-040…056 (2026-09-24). Approval is an owner
+  REQ-WIDGET-011, 012, REQ-MAINT-040…056 (2026-09-24) and REQ-BOARD-032…034 (RD-012). Approval is an owner
   action; design decisions are made and approved in the design session.
 - ADR 0020: questions A–D (promote ADR 0001, recommendation data source,
   Service Plan vs multi-operation visit order, legacy data import) and the
