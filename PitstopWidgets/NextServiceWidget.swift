@@ -169,7 +169,10 @@ struct NextServiceWidgetView: View {
                     .foregroundStyle(PitColor.contentSecondary)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        // When large text overflows the widget, the eyebrow and name stay and only the lowest lines are clipped.
+        // `minHeight: 0` keeps the frame at the widget's height; with a maximum alone it grows to the taller stack
+        // and the widget centres it, cutting the first and last lines at once.
+        .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
         .privacySensitive()
         .accessibilityElement(children: .combine)
     }

@@ -57,6 +57,14 @@ struct NextServiceWidgetSourceTests {
         }
     }
 
+    /// A stack taller than the widget is clipped: centred, or in a frame that grows to the stack and is then
+    /// centred, it loses the eyebrow at the top and the fact at the bottom at once.
+    @Test("REQ-WIDGET-004: at large text sizes the small widget keeps its top lines and loses only the lowest")
+    func smallAnchorsItsStackToTheTop() throws {
+        let topAnchored = ".frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)"
+        #expect(try family("small").contains(topAnchored))
+    }
+
     @Test("REQ-DESIGN-001: the small widget says the status as a chip of word, shared glyph and colour")
     func smallDrawsTheStatusChip() throws {
         let chip = "StatusChip(Text(summary.word.widgetLabel), glyph: summary.status.glyph, "
