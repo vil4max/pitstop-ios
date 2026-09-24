@@ -49,6 +49,8 @@ struct MarkDoneView: View {
                 }
             }
             .pitDisabledWhileSaving(isSaving)
+            // Leaving mid-save hands the save's result to whatever opens next (ADR 0032, REQ-MAINT-040).
+            .interactiveDismissDisabled(isSaving)
             // VoiceOver focus stays on the confirmation and the message appears below it, so it is also spoken; "Save
             // anyway" is the next element after it (REQ-MAINT-040).
             .onChange(of: date) { onEdit() }
@@ -61,6 +63,7 @@ struct MarkDoneView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("common.cancel", role: .cancel) { dismiss() }
+                        .disabled(isSaving)
                 }
             }
         }

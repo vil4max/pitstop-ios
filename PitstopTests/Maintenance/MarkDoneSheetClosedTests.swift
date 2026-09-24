@@ -4,10 +4,10 @@ import Testing
 
 private let now = DomainFixtures.Odometers.baseDate
 
-/// A Mark as done save can still be running when its sheet closes: Cancel stays enabled while it saves, and a swipe
-/// closes the sheet too. The owner may then open Mark as done for other work before the first save returns. That save
-/// belongs to a sheet that is gone, so it must leave the open sheet's snapshot and message alone, and still record the
-/// owner's work or say on the list that it did not (REQ-MAINT-040, proposed).
+/// The sheet locks Cancel and swipe-to-dismiss while its save runs (ADR 0032), but the app itself can still close it,
+/// and Mark as done may then open for other work before the first save returns. That save belongs to a sheet that is
+/// gone, so it must leave the open sheet's snapshot and message alone, and still record the owner's work or say on the
+/// list that it did not (REQ-MAINT-040, proposed). The tests close the sheet by opening the next one or directly.
 @MainActor
 @Suite("Mark as done after its sheet closed")
 struct MarkDoneSheetClosedTests {
@@ -56,7 +56,7 @@ struct MarkDoneSheetClosedTests {
         await openMarkDone(service, .engineOilService)
         let oilSave = await confirmOilAndHold(service, store, at: .write, odometerText: "")
 
-        // The owner cancels the oil sheet while it saves and opens Mark as done for the cabin filter. Pit records
+        // The oil sheet closes while it saves, and the owner opens Mark as done for the cabin filter. Pit records
         // today's cabin filter change over it, and the owner's odometer differs, so the sheet says Pit saved it.
         await openMarkDone(service, .cabinFilter)
         try await pitRecords(.cabinFilter, odometerKm: nil, in: store)
@@ -104,7 +104,7 @@ struct MarkDoneSheetClosedTests {
         await openMarkDone(service, .engineOilService)
         let oilSave = await confirmOilAndHold(service, store, at: .write, odometerText: "85000")
 
-        // Unsure the first save went through, the owner cancels and marks the oil change again.
+        // The sheet closes while it saves; unsure the save went through, the owner marks the oil change again.
         await openMarkDone(service, .engineOilService)
         await store.release()
         #expect(await !oilSave.value, "the closed sheet's save cannot close the sheet open now")
@@ -124,7 +124,7 @@ struct MarkDoneSheetClosedTests {
         await openMarkDone(service, .engineOilService)
         let oilSave = await confirmOilAndHold(service, store, at: .write, odometerText: "85000")
 
-        // The owner cancels the sheet and opens nothing else; the write then fails.
+        // The sheet closes and nothing else opens; the write then fails.
         service.markDoneClosed()
         await store.base.failCommands()
         await store.release()
@@ -146,6 +146,16 @@ struct MarkDoneSheetClosedTests {
         let body = code[setter.upperBound...].prefix(300)
         #expect(body.contains("if case .done = sheet, newValue != sheet {"))
         #expect(body.contains("viewModel.markDoneClosed()"))
+    }
+
+    @Test("REQ-MAINT-040, ADR-0032: the owner cannot close Mark as done while its save runs, by Cancel or a swipe")
+    func sheetLocksWhileSaving() throws {
+        let code = try PitInSheetTests.source("Pitstop/Features/Service/MarkDoneView.swift").split(separator: "\n")
+            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
+            .joined(separator: "\n")
+        #expect(code.contains(".interactiveDismissDisabled(isSaving)"))
+        let cancel = try #require(code.range(of: "Button(\"common.cancel\", role: .cancel) { dismiss() }"))
+        #expect(code[cancel.upperBound...].prefix(80).contains(".disabled(isSaving)"))
     }
 }
 
