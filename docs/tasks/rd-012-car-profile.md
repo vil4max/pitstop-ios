@@ -12,7 +12,8 @@ Plan hash: 633e53470a50acf45215ceab92ed8c21183b6a25346b92f4f1009ce4789cfb09
 ## Current status and authorization
 
 Current outcome: round opened on `RD-012/car-profile` (cut from
-`redesign/ios27` at `b6aab84`); no card dispatched.
+`redesign/ios27` at `b6aab84`); package approved; card `car-profile-data`
+dispatched.
 Authorized scope: the owner in this session on 2026-09-24: "RD-012 делаем как
 pilot round по новому SDLC flow: в старом brief не начинай, оркестратор
 пришлёт задачу, открой её в plan mode."; the RD-012 pilot plan approved
@@ -35,8 +36,8 @@ Permitted deviations: none.
 Material assumptions: the simulator's Vision may return no foreground
 instance, so the lifted path is checked on a device (What to Test); checked
 at card `car-visual` by running the fake and the Vision path in tests.
-Next step: dispatch card `car-profile-data` from the commit that records its
-Writer steps.
+Next step: integrate card `car-profile-data` when its writer reports READY:
+review, `git merge --ff-only`, `just verify`, backup push.
 Requirements: REQ-BOARD-017, REQ-BOARD-029, REQ-BOARD-030, REQ-BOARD-031,
 REQ-BOARD-032, REQ-BOARD-033, REQ-BOARD-034, REQ-DESIGN-005
 Acceptance specs: tests citing each requirement above in their display name,
@@ -265,7 +266,11 @@ Output: the writer report, filed under
 
 ## Writer steps
 
-Filled per card at its dispatch.
+Card `car-profile-data` (dispatched 2026-09-24):
+
+- [ ] Domain `CarBody` (`suv`, `sedan`) and the car's optional body and photo id, a car without a body reading as SUV and never derived from its name or make, plus `DomainCommand` cases that set or clear them: REQ-BOARD-030 tests fail first, then `just verify`
+- [ ] `PitstopSchemaV5` with its own car record (+ body, + photo id), a lightweight V4 → V5 stage, the app and the widget reader opening V5, V4 frozen with a shape test, the store mapping and every `CarMemoryStore` implementation reading and writing body and photo id: migration tests from V1, V2, V3 and V4 stores with data intact and a round-trip test fail first, then `just verify`
+- [ ] `CarPhotoStore` in `Pitstop/Infrastructure/CarPhoto/`: saves the original re-encoded as JPEG (at most 2048 px on the long side, no EXIF or location metadata) and an optional lifted PNG under `CarPhotos/` in an injected container directory, returns their URLs by id, and deletes every file of an id: REQ-BOARD-029 and REQ-BOARD-033 tests fail first, then `just verify`
 
 ## Deferred
 
