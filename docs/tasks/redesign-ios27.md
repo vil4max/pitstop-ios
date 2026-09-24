@@ -68,7 +68,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: FU-3 (dispatched), then FU-5, FU-4; RD-012 waits for the owner.
+Next step: FU-5 (dispatched), then FU-4; RD-012 waits for the owner.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -110,8 +110,8 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | RD-012 | planned | — |
 | FU-1 History and Notes load states | REQ-GRAMMAR-004, core C2 | RD-008 | done | `3ecf307`, `72de89a`; `just verify` per step; 6 of 10 new tests failed first; review: 0 high/medium, 2 out-of-scope lows (owner candidates) |
 | FU-2 Next-service widget restyle | `NextServiceWidgetTests`, REQ-DESIGN-004, REQ-WIDGET-011, 012 | RD-009 | done | `159b636`…`4f236bc`; `just verify` per step; review: 6 rounds (1 medium privacy; then clean; 3 medium; 3 medium; 1 medium; 0 high/medium + 1 low wording), all repaired; the owner lifted the repair budget |
-| FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | in progress | — |
-| FU-5 Mark-as-done merge conflict | REQ-MAINT-040 (EARS, proposed) | FU-3 | planned | — |
+| FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | done | `0f8024f`…`7061361`; `just verify` per step; failing-first; review: 2 medium + 3 low, then 0 high/medium + 1 low (accepted) |
+| FU-5 Mark-as-done merge conflict | REQ-MAINT-040 (EARS, proposed) | FU-3 | in progress | — |
 | FU-4 RD-011 test strength | `PitControlTests` | RD-011 | planned | — |
 | Release 1.2.0 | `just tf-check` Ready | SYS-008 | planned | — |
 
@@ -333,6 +333,20 @@ added here when the slice starts.
   runtime (8 GB, downloaded with the owner's approval) does not offer the
   device. Audited on iPhone SE (3rd generation) instead; recorded as
   UI-TB-001 in the work plan (6544028). The audit simulator was deleted.
+- 2026-09-24, FU-3 (slice-writer): `just verify` passed before each
+  commit; per-opening token so a closed sheet's save never writes into the
+  next sheet, then Mark as done locked against Cancel and swipe while saving
+  (ADR 0032 pattern, the reviewer's option chosen by the integrator); an
+  app-closed sheet whose entry is dropped reports Pit's record
+  (`service.failure.pitAlreadyRecorded`, en/ru/uk) and reloads the list.
+  Review: round 1, 2 medium + 3 low; round 2, 0 high/medium + 1 low
+  accepted (after an app-initiated close and a failed reload the message
+  says Pit's record is on the list). Accepted residuals, reachable only when
+  the app itself closes the sheet: a closed sheet's failure can be cleared
+  by another sheet's alert; a late own save can be described as Pit's.
+  REQ-MAINT-040's text for these goes to FU-5. Not checked on screen. The
+  integrator fast-forwarded to 7061361 and ran `just verify`: passed.
+  REQ-WIDGET-011/012 restated in EARS form per KIT-D-001 (0e240e0).
 
 ## Untested scope
 
@@ -492,7 +506,16 @@ widget in the mockup is not delivered and stays out of scope):
 FU-3 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001):
 
-- [ ] A Mark-as-done save that is still running when its sheet closes writes nothing into the state of a sheet opened afterwards (snapshot, message, announcement), and the owner's save still completes or fails visibly: failing-first REQ-MAINT-040 tests
+- [x] A Mark-as-done save that is still running when its sheet closes writes nothing into the state of a sheet opened afterwards (snapshot, message, announcement), and the owner's save still completes or fails visibly: failing-first REQ-MAINT-040 tests — 0f8024f
+- [x] Review repair: Mark as done locked against Cancel and swipe while saving (ADR 0032); an app-closed sheet's dropped entry names Pit's record and reloads the list; late-branch tests: failing-first, mutation — 2bbfe7e, d61756d, 7061361
+
+FU-5 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001; fix profile,
+failing test first; builds on FU-3's per-opening token and save lock):
+
+- [ ] REQ-MAINT-040 rewritten in EARS (KIT-D-001) as single-rule requirements, still proposed: the keep-Pit's or replace-with-mine choice, the ±1 day window, completions before the sheet opened not counting (REQ-MAINT-031), the unreadable store keeping the sheet closed, and FU-3's app-closed-sheet behaviour; new rules take `REQ-NEW` placeholders that the integrator numbers: diff review
+- [ ] When Pit records the same operation within ±1 day while Mark as done is open, the owner resolves it with one prompt: keep Pit's entry, or replace it with theirs (Pit's revoked and the owner's confirmed in one store transaction); "Save anyway" and two completions for the same work go away: failing-first tests
+- [ ] Mark-as-done docs: system-overview row, mockup note if the sheet changes: diff review
 
 ## Resume prompt
 
