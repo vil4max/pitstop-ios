@@ -7,6 +7,8 @@ struct NotesViewState: Equatable {
     /// `nil` is the main list: every note, classified or not.
     var contextFilter: NoteContext?
     var isLoadFailed = false
+    /// False until the first successful load; before it, `notes` is empty only because nothing was read.
+    var hasLoaded = false
     /// Shown inside the editor sheet, where the unsaved text still is.
     var editorFailure: NotesFailure?
     /// Shown on the list: archive and restore happen with no sheet open.
@@ -62,6 +64,7 @@ final class NotesViewModel {
         do {
             state.notes = try await store.notes()
             state.isLoadFailed = false
+            state.hasLoaded = true
             // A filter whose last note was archived would otherwise show an empty list with no way out.
             if let filter = state.contextFilter, !state.availableContexts.contains(filter) {
                 state.contextFilter = nil

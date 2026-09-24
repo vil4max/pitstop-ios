@@ -4,6 +4,8 @@ import Observation
 struct HistoryViewState: Equatable {
     var timeline: HistoryTimeline = .empty
     var isLoadFailed = false
+    /// False until the first successful load; before it, `timeline` is empty only because nothing was read.
+    var hasLoaded = false
     var failure: HistoryFailure?
 }
 
@@ -13,9 +15,11 @@ enum HistoryEmptyAction: Hashable {
 }
 
 extension HistoryViewState {
-    /// History's sparse state (REQ-GRAMMAR-004): nothing has happened to the car yet, as far as it knows.
+    /// History's sparse state (REQ-GRAMMAR-004): nothing has happened to the car yet, as far as it knows. Nil
+    /// before the first load and while the last load failed: "No history yet" would then claim a fact the screen
+    /// could not read (core C2), next to the failure banner.
     var sparseState: EmptyStateContent<HistoryEmptyAction>? {
-        guard timeline.entries.isEmpty else {
+        guard hasLoaded, !isLoadFailed, timeline.entries.isEmpty else {
             return nil
         }
         return EmptyStateContent(
@@ -64,6 +68,7 @@ final class HistoryViewModel {
                 completions: store.maintenanceCompletions()
             )
             state.isLoadFailed = false
+            state.hasLoaded = true
         } catch {
             state.isLoadFailed = true
         }

@@ -260,3 +260,73 @@ struct NotesPresentationTests {
         #expect(DomainFixtures.Notes.rawThought.metaContexts.isEmpty)
     }
 }
+
+/// Notes' empty states (active and archived) state a fact: no notes in that scope. They may appear only once a
+/// load has read the store and found none (core C2); an unread or unreadable store says nothing about the car.
+@MainActor
+@Suite("Notes load states")
+struct NotesLoadStateTests {
+    @Test("REQ-GRAMMAR-004, core C2: Notes show no empty state in either scope before the first load finishes")
+    func noEmptyStateBeforeLoad() {
+        let model = TestViewModels.notes(FakeCarMemoryStore(), now: now)
+
+        #expect(model.state.sparseState == nil)
+        model.select(scope: .archived)
+        #expect(model.state.sparseState == nil)
+    }
+
+    @Test("REQ-GRAMMAR-004, core C2: a failed first load shows only the failure banner in either scope")
+    func noEmptyStateBesideFailedFirstLoad() async {
+        let store = FakeCarMemoryStore()
+        let model = TestViewModels.notes(store, now: now)
+        await store.failEverything()
+
+        await model.load()
+
+        #expect(model.state.isLoadFailed)
+        #expect(model.state.sparseState == nil)
+        model.select(scope: .archived)
+        #expect(model.state.sparseState == nil)
+    }
+
+    @Test("REQ-GRAMMAR-004, core C2: a failed reload after an empty load drops the empty state for the banner")
+    func noEmptyStateBesideFailedReload() async throws {
+        let store = FakeCarMemoryStore()
+        let model = TestViewModels.notes(store, now: now)
+        await model.load()
+        _ = try #require(model.state.sparseState)
+        await store.failEverything()
+
+        await model.load()
+
+        #expect(model.state.isLoadFailed)
+        #expect(model.state.sparseState == nil)
+    }
+
+    @Test("REQ-GRAMMAR-004, core C2: a successful load that finds no notes shows the empty state in both scopes")
+    func emptyStateAfterSuccessfulEmptyLoad() async {
+        let model = TestViewModels.notes(FakeCarMemoryStore(), now: now)
+
+        await model.load()
+
+        #expect(!model.state.isLoadFailed)
+        #expect(model.state.sparseState != nil)
+        model.select(scope: .archived)
+        #expect(model.state.sparseState != nil)
+    }
+
+    @Test("REQ-GRAMMAR-004, core C2: a known note shows no empty state, even after a failed reload")
+    func recordsShowNoEmptyState() async {
+        let store = FakeCarMemoryStore()
+        let model = TestViewModels.notes(store, now: now)
+        #expect(await model.add(text: "Check the wiper blades"))
+        #expect(model.state.sparseState == nil)
+        await store.failEverything()
+
+        await model.load()
+
+        #expect(model.state.isLoadFailed)
+        #expect(model.state.visibleNotes.count == 1)
+        #expect(model.state.sparseState == nil)
+    }
+}

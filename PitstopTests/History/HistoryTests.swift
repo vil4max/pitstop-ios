@@ -211,3 +211,69 @@ struct HistoryViewModelTests {
         #expect(board.state.history.latest == .completion(completion))
     }
 }
+
+/// History's empty state states a fact: the car has no recorded events. It may appear only once a load has
+/// read the store and found none (core C2); an unread or unreadable store says nothing about the car.
+@MainActor
+@Suite("History load states")
+struct HistoryLoadStateTests {
+    @Test("REQ-GRAMMAR-004, core C2: History shows no empty state before its first load finishes")
+    func noEmptyStateBeforeLoad() {
+        let model = TestViewModels.history(FakeCarMemoryStore(), now: now)
+
+        #expect(model.state.sparseState == nil)
+    }
+
+    @Test("REQ-GRAMMAR-004, core C2: a failed first load shows only the failure banner, no empty state beside it")
+    func noEmptyStateBesideFailedFirstLoad() async {
+        let store = FakeCarMemoryStore()
+        let model = TestViewModels.history(store, now: now)
+        await store.failEverything()
+
+        await model.load()
+
+        #expect(model.state.isLoadFailed)
+        #expect(model.state.sparseState == nil)
+    }
+
+    @Test("REQ-GRAMMAR-004, core C2: a failed reload after an empty load drops the empty state for the banner")
+    func noEmptyStateBesideFailedReload() async throws {
+        let store = FakeCarMemoryStore()
+        let model = TestViewModels.history(store, now: now)
+        await model.load()
+        _ = try #require(model.state.sparseState)
+        await store.failEverything()
+
+        await model.load()
+
+        #expect(model.state.isLoadFailed)
+        #expect(model.state.sparseState == nil)
+    }
+
+    @Test("REQ-GRAMMAR-004, core C2: a successful load that finds no events shows the empty state")
+    func emptyStateAfterSuccessfulEmptyLoad() async {
+        let model = TestViewModels.history(FakeCarMemoryStore(), now: now)
+
+        await model.load()
+
+        #expect(!model.state.isLoadFailed)
+        #expect(model.state.sparseState != nil)
+    }
+
+    @Test("REQ-GRAMMAR-004, core C2: a recorded event shows no empty state, even after a failed reload")
+    func recordsShowNoEmptyState() async {
+        let store = FakeCarMemoryStore()
+        let model = TestViewModels.history(store, now: now)
+        var draft = model.newDraft()
+        draft.kind = .carWash
+        #expect(await model.save(draft))
+        #expect(model.state.sparseState == nil)
+        await store.failEverything()
+
+        await model.load()
+
+        #expect(model.state.isLoadFailed)
+        #expect(model.state.timeline.entries.count == 1)
+        #expect(model.state.sparseState == nil)
+    }
+}

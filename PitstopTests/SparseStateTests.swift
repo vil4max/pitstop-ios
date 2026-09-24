@@ -122,7 +122,7 @@ struct SparseStateTests {
     @Test("REQ-GRAMMAR-004: History with one event is not sparse")
     func historyWithEventIsNotSparse() {
         let wash = HistoryEvent(vehicleID: Fix.vehicleID, kind: .carWash, date: Fix.date(2))
-        let state = HistoryViewState(timeline: HistoryTimeline(events: [wash], completions: []))
+        let state = HistoryViewState(timeline: HistoryTimeline(events: [wash], completions: []), hasLoaded: true)
 
         #expect(state.sparseState == nil)
     }

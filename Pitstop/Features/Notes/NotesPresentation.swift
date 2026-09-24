@@ -40,9 +40,10 @@ extension NotesViewState {
     }
 
     /// Notes' sparse state (REQ-GRAMMAR-004). The archive keeps its delivered headline alone: it has no
-    /// sentence, and a new note would not land in it.
+    /// sentence, and a new note would not land in it. Nil in both scopes before the first load and while the last
+    /// load failed: an empty state would then claim a fact the screen could not read (core C2), next to the banner.
     var sparseState: EmptyStateContent<NotesEmptyAction>? {
-        guard visibleNotes.isEmpty else {
+        guard hasLoaded, !isLoadFailed, visibleNotes.isEmpty else {
             return nil
         }
         return scope == .active
