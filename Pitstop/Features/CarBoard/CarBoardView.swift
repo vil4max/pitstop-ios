@@ -107,6 +107,7 @@ struct CarBoardView: View {
         switch viewModel.state.failure {
         case .invalidOdometer: "carEditor.failure.odometer"
         case .mileageNotSaved: "carEditor.failure.mileageOnly"
+        case .profileNotSaved: "carEditor.failure.profileOnly"
         case .saveFailed, .none: "carEditor.failure.save"
         }
     }

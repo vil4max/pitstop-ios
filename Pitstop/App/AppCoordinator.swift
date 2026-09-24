@@ -34,6 +34,8 @@ final class AppCoordinator {
             photos: StoreLocation.groupContainerURL().map {
                 CarPhotoStore(directory: CarPhotoStore.directory(inGroupContainer: $0))
             },
+            // The lift runs once, on device, when a picked photo is saved (ADR 0040 "Lift").
+            lifter: VisionSubjectLifter(),
             analytics: odometerAnalytics
         )
         prepare = environment.prepare

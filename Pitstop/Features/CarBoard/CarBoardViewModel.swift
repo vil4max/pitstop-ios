@@ -25,7 +25,17 @@ enum CarBoardFailure: Equatable {
     case saveFailed
     /// The name was saved but the reading was not; the message must not claim nothing changed.
     case mileageNotSaved
+    /// Something else was saved but the body or the photo was not; again not "nothing changed".
+    case profileNotSaved
     case invalidOdometer
+}
+
+/// What the car editor asks for the photo on save. Nothing is stored or deleted before the owner saves.
+enum CarPhotoEdit: Equatable, Sendable {
+    case unchanged
+    /// The data picked in the editor, not yet decoded or bounded.
+    case replace(Data)
+    case remove
 }
 
 @MainActor
@@ -35,13 +45,15 @@ final class CarBoardViewModel {
 
     private let store: any CarMemoryStore
     /// Nil when the App Group container is unavailable: the car is then drawn as its placeholder.
-    private let photos: (any CarPhotoStoring)?
+    private let photoPreparation: CarPhotoPreparation?
     private let analytics: any AnalyticsTracking<OdometerAnalyticsEvent>
     private let now: @Sendable () -> Date
     /// The owner's calendar, passed to the Road projection so the tile and the Road screen bucket
     /// reading days the same way (ADR 0034).
     private let calendar: Calendar
     private var vehicleID: VehicleID?
+    /// The stored reference, whose files a replaced or removed photo deletes (REQ-BOARD-033).
+    private var photoID: CarPhotoID?
     /// Whether the shown mileage is recent enough to count; a stale one is re-recorded even unchanged.
     private var isMileageCurrent = false
 
@@ -49,12 +61,13 @@ final class CarBoardViewModel {
         store: any CarMemoryStore,
         persistence: PersistenceMode = .durable,
         photos: (any CarPhotoStoring)? = nil,
+        lifter: (any SubjectLifter)? = nil,
         analytics: any AnalyticsTracking<OdometerAnalyticsEvent> = NoAnalyticsTracker(),
         now: @escaping @Sendable () -> Date = { Date() },
         calendar: Calendar = .autoupdatingCurrent
     ) {
         self.store = store
-        self.photos = photos
+        photoPreparation = photos.map { CarPhotoPreparation(photos: $0, lifter: lifter) }
         self.analytics = analytics
         self.now = now
         self.calendar = calendar
@@ -76,10 +89,11 @@ final class CarBoardViewModel {
                 now: moment, latestReading: latest, completions: completions, reports: reports
             )
             vehicleID = vehicle.id
+            photoID = vehicle.photoID
             isMileageCurrent = context.mileage == .known
             state.car = ProvisionalCarContext(vehicle: vehicle, observedKm: context.observedKm)
             state.carBody = vehicle.body
-            state.carPhoto = vehicle.photoID.flatMap { photos?.files(for: $0) }
+            state.carPhoto = vehicle.photoID.flatMap { photoPreparation?.photos.files(for: $0) }
             state.mileage = CarBoardMileage(odometerKm: state.car.odometerKm)
             state.mileageRecency = context.observedAt.map {
                 MileageRecency(observedAt: $0, now: moment, calendar: calendar)
@@ -113,9 +127,14 @@ final class CarBoardViewModel {
 
     /// Returns `true` when the edit was saved, so the editor closes only after persistence succeeded.
     /// A blank name means "leave it as it is": the editor may have been opened over stale state, and
-    /// a placeholder must never be written back as a user-supplied fact (core C2).
-    func saveCar(name: String, odometerText: String) async -> Bool {
-        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+    /// a placeholder must never be written back as a user-supplied fact (core C2). `body` is `nil`, or the
+    /// body already shown, when the owner did not change it, so SUV is never written on the owner's behalf.
+    func saveCar(
+        name: String,
+        odometerText: String,
+        body: CarBody? = nil,
+        photo: CarPhotoEdit = .unchanged
+    ) async -> Bool {
         let kilometers = InputParsing.kilometers(from: odometerText)
         if case .invalid = kilometers {
             return fail(.invalidOdometer)
@@ -124,30 +143,98 @@ final class CarBoardViewModel {
         if vehicleID == nil {
             await load()
         }
-        guard let vehicleID else { return fail(.saveFailed) }
+        guard vehicleID != nil else { return fail(.saveFailed) }
 
-        var nameWasSaved = false
+        // The new files are written before any command, so a photo that cannot be read or stored changes
+        // nothing; they stay unreferenced until the photo command succeeds.
+        let newPhotoID: CarPhotoID?
         do {
-            if !trimmedName.isEmpty, trimmedName != state.car.name {
-                let fact = VehicleFact(field: .name, value: trimmedName)
-                try await store.execute(.recordVehicleFact(.init(vehicleID: vehicleID, fact: fact)), now: now())
-                nameWasSaved = true
+            newPhotoID = try await storeNewPhoto(photo)
+        } catch {
+            return fail(.saveFailed)
+        }
+        let replacedPhotoID = photoID
+        let commands = changes(name: name, kilometers: kilometers, body: body, photo: photo, newPhotoID: newPhotoID)
+
+        var savedAnything = false
+        for command in commands {
+            do {
+                try await store.execute(command, now: now())
+            } catch {
+                // The car does not point at the new files, so they go; the old photo stays as it was.
+                if let newPhotoID {
+                    await photoPreparation?.discard(newPhotoID)
+                }
+                await load()
+                return fail(Self.failure(savedAnything: savedAnything, failing: command))
             }
-            // The same number is still worth recording when the shown mileage is stale: it tells the
-            // engine where the car is today (REQ-BOARD-026).
-            if case let .value(value) = kilometers, value != state.car.odometerKm || !isMileageCurrent {
-                let reading = OdometerReading(vehicleID: vehicleID, value: Double(value), recordedAt: now())
-                try await store.execute(.recordOdometerReading(.init(reading: reading)), now: now())
+            savedAnything = true
+            // Neither the body nor the photo sends an analytics event (ADR 0040 "Privacy").
+            if command.isOdometerReading {
                 analytics.track(.odometerUpdated(source: .explicit, anomalyConfirmation: .noAnomaly))
             }
-        } catch {
-            await load()
-            return fail(nameWasSaved ? .mileageNotSaved : .saveFailed)
+        }
+        // Only now is the old id unreferenced: deleting earlier could leave the car pointing at nothing.
+        if let replacedPhotoID, commands.contains(where: \.isCarPhoto) {
+            await photoPreparation?.discard(replacedPhotoID)
         }
         await load()
         // A stale failure from an earlier attempt must not outlive a successful save.
         state.failure = nil
         return true
+    }
+
+    /// The commands a save runs, in order: the name and the mileage first, as before the car had a
+    /// profile, then the body, and the photo last, so the old photo's files go only once nothing can fail.
+    private func changes(
+        name: String,
+        kilometers: WholeNumberInput,
+        body: CarBody?,
+        photo: CarPhotoEdit,
+        newPhotoID: CarPhotoID?
+    ) -> [DomainCommand] {
+        guard let vehicleID else { return [] }
+        var commands: [DomainCommand] = []
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedName.isEmpty, trimmedName != state.car.name {
+            let fact = VehicleFact(field: .name, value: trimmedName)
+            commands.append(.recordVehicleFact(.init(vehicleID: vehicleID, fact: fact)))
+        }
+        // The same number is still worth recording when the shown mileage is stale: it tells the
+        // engine where the car is today (REQ-BOARD-026).
+        if case let .value(value) = kilometers, value != state.car.odometerKm || !isMileageCurrent {
+            let reading = OdometerReading(vehicleID: vehicleID, value: Double(value), recordedAt: now())
+            commands.append(.recordOdometerReading(.init(reading: reading)))
+        }
+        if let body, body != state.carBody {
+            commands.append(.setCarBody(.init(vehicleID: vehicleID, body: body)))
+        }
+        switch photo {
+        case .unchanged:
+            break
+        case .replace:
+            commands.append(.setCarPhoto(.init(vehicleID: vehicleID, photoID: newPhotoID)))
+        case .remove where photoID != nil:
+            commands.append(.setCarPhoto(.init(vehicleID: vehicleID, photoID: nil)))
+        case .remove:
+            break
+        }
+        return commands
+    }
+
+    /// The picked photo's new id once its files are stored, or `nil` when the photo does not change.
+    private func storeNewPhoto(_ photo: CarPhotoEdit) async throws(CarPhotoStoreError) -> CarPhotoID? {
+        guard case let .replace(data) = photo else { return nil }
+        // Without the App Group container there is nowhere to keep the files.
+        guard let photoPreparation else { throw .writeFailed }
+        return try await photoPreparation.store(picked: data)
+    }
+
+    /// A failed command's message names what was already saved, so it never claims that nothing changed.
+    private static func failure(savedAnything: Bool, failing command: DomainCommand) -> CarBoardFailure {
+        guard savedAnything else { return .saveFailed }
+        // Only the name runs before the mileage.
+        return command.isOdometerReading ? .mileageNotSaved : .profileNotSaved
     }
 
     func dismissFailure() {
@@ -157,5 +244,23 @@ final class CarBoardViewModel {
     private func fail(_ failure: CarBoardFailure) -> Bool {
         state.failure = failure
         return false
+    }
+}
+
+private extension DomainCommand {
+    var isOdometerReading: Bool {
+        if case .recordOdometerReading = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    var isCarPhoto: Bool {
+        if case .setCarPhoto = self {
+            true
+        } else {
+            false
+        }
     }
 }

@@ -491,6 +491,28 @@
         }
       }
     },
+    "carEditor.failure.profileOnly" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some changes were saved, but the photo or body was not. Try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Часть изменений сохранена, а фото или кузов — нет. Попробуйте ещё раз."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Частину змін збережено, а фото або кузов — ні. Спробуйте ще раз."
+          }
+        }
+      }
+    },
     "carEditor.failure.save" : {
       "localizations" : {
         "en" : {
