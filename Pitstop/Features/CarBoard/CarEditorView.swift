@@ -1,34 +1,122 @@
+import PhotosUI
 import SwiftUI
 
-/// One optional sheet, not a setup step: every field may stay empty, and empty means unchanged.
+/// What the editor holds until Save. Nothing is stored, lifted or deleted before the owner saves, and an
+/// untouched field means unchanged.
+struct CarEditorDraft: Equatable {
+    var name: String
+    var odometer: String
+    var body: CarBody
+    private(set) var photo: CarPhotoEdit = .unchanged
+    /// The body the board showed when the editor opened; choosing it again is no change (REQ-BOARD-030).
+    private let shownBody: CarBody
+    private let hasSavedPhoto: Bool
+
+    init(car: ProvisionalCarContext, body: CarBody, hasPhoto: Bool) {
+        name = car.isProvisional ? "" : car.name
+        odometer = car.odometerKm.map(String.init) ?? ""
+        self.body = body
+        shownBody = body
+        hasSavedPhoto = hasPhoto
+    }
+
+    /// `nil` unless the owner picked a body other than the one shown, so SUV is never written for them.
+    var bodyChange: CarBody? {
+        body == shownBody ? nil : body
+    }
+
+    var showsRemovePhoto: Bool {
+        switch photo {
+        case .unchanged: hasSavedPhoto
+        case .replace: true
+        case .remove: false
+        }
+    }
+
+    mutating func choosePhoto(_ data: Data) {
+        photo = .replace(data)
+    }
+
+    /// Removing a pick that was never saved just drops it; a saved photo is removed on save (REQ-BOARD-033).
+    mutating func removePhoto() {
+        photo = hasSavedPhoto ? .remove : .unchanged
+    }
+}
+
+/// One optional sheet, not a setup step: every field may stay empty, and empty means unchanged. The photo
+/// comes from the photo library only, which needs no permission prompt (ADR 0040 "Picking").
 struct CarEditorView: View {
-    let car: ProvisionalCarContext
-    let onSave: (_ name: String, _ odometer: String) async -> Bool
+    /// False without the App Group container, where no photo could be kept.
+    let canChoosePhoto: Bool
+    let onSave: (CarEditorDraft) async -> Bool
 
-    @State private var name: String
-    @State private var odometer: String
+    @State private var draft: CarEditorDraft
+    @State private var pickedItem: PhotosPickerItem?
+    @State private var isLoadingPhoto = false
 
-    init(car: ProvisionalCarContext, onSave: @escaping (_ name: String, _ odometer: String) async -> Bool) {
-        self.car = car
+    init(
+        car: ProvisionalCarContext,
+        body: CarBody,
+        hasPhoto: Bool,
+        canChoosePhoto: Bool,
+        onSave: @escaping (CarEditorDraft) async -> Bool
+    ) {
+        self.canChoosePhoto = canChoosePhoto
         self.onSave = onSave
-        _name = State(initialValue: car.isProvisional ? "" : car.name)
-        _odometer = State(initialValue: car.odometerKm.map(String.init) ?? "")
+        _draft = State(initialValue: CarEditorDraft(car: car, body: body, hasPhoto: hasPhoto))
     }
 
     var body: some View {
         SaveSheetScaffold(
             title: "carEditor.title",
-            saveIdentifier: "carEditor.save"
+            saveIdentifier: "carEditor.save",
+            // A pick still loading would otherwise be dropped from the save.
+            canSave: !isLoadingPhoto
         ) {
             Form {
+                if canChoosePhoto {
+                    Section("carEditor.photo.section") {
+                        PhotosPicker(selection: $pickedItem, matching: .images) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("carEditor.photo.choose")
+                                    .foregroundStyle(PitColor.contentPrimary)
+                                Text("carEditor.photo.footer")
+                                    .font(.footnote)
+                                    .foregroundStyle(PitColor.contentSecondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .accessibilityIdentifier("carEditor.photo.choose")
+                        if draft.showsRemovePhoto {
+                            Button("carEditor.photo.remove", role: .destructive) {
+                                pickedItem = nil
+                                draft.removePhoto()
+                            }
+                            .accessibilityIdentifier("carEditor.photo.remove")
+                        }
+                    }
+                }
                 Section("carEditor.name.section") {
-                    TextField("carEditor.name.placeholder", text: $name)
+                    TextField("carEditor.name.placeholder", text: $draft.name)
                         .textInputAutocapitalization(.words)
                         .pitReportsEditing()
                         .accessibilityIdentifier("carEditor.name")
                 }
                 Section {
-                    TextField("carEditor.odometer.placeholder", text: $odometer)
+                    Picker("carEditor.body.section", selection: $draft.body) {
+                        Text("carEditor.body.suv").tag(CarBody.suv)
+                        Text("carEditor.body.sedan").tag(CarBody.sedan)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .accessibilityIdentifier("carEditor.body")
+                } header: {
+                    Text("carEditor.body.section")
+                } footer: {
+                    Text("carEditor.body.footer")
+                }
+                Section {
+                    TextField("carEditor.odometer.placeholder", text: $draft.odometer)
                         .keyboardType(.numberPad)
                         .pitReportsEditing()
                         .accessibilityIdentifier("carEditor.odometer")
@@ -38,6 +126,51 @@ struct CarEditorView: View {
                     Text("carEditor.odometer.footer")
                 }
             }
-        } save: { await onSave(name, odometer) }
+            .task(id: pickedItem) { await loadPickedPhoto() }
+        } save: { await onSave(draft) }
+    }
+
+    /// Only the bytes are read here; decoding, bounding and the lift wait for Save and run off the main
+    /// actor. A pick that cannot be loaded leaves the draft as it was.
+    private func loadPickedPhoto() async {
+        guard let item = pickedItem else {
+            isLoadingPhoto = false
+            return
+        }
+        isLoadingPhoto = true
+        let data = try? await item.loadTransferable(type: Data.self)
+        // A newer pick or a remove replaced this one while it loaded, and that task owns the state now.
+        guard !Task.isCancelled else { return }
+        if let data {
+            draft.choosePhoto(data)
+        }
+        isLoadingPhoto = false
     }
 }
+
+#if DEBUG
+    #Preview("Car editor, saved photo, light") {
+        CarEditorView(
+            car: ProvisionalCarContext(vehicle: Vehicle(id: Vehicle.provisionalID, name: "Kestrel"), observedKm: 47560),
+            body: .sedan,
+            hasPhoto: true,
+            canChoosePhoto: true
+        ) { _ in false }
+            .preferredColorScheme(.light)
+    }
+
+    #Preview("Car editor, saved photo, dark") {
+        CarEditorView(
+            car: ProvisionalCarContext(vehicle: Vehicle(id: Vehicle.provisionalID, name: "Kestrel"), observedKm: 47560),
+            body: .sedan,
+            hasPhoto: true,
+            canChoosePhoto: true
+        ) { _ in false }
+            .preferredColorScheme(.dark)
+    }
+
+    #Preview("Car editor, first launch, AX-XL") {
+        CarEditorView(car: .firstLaunch, body: .suv, hasPhoto: false, canChoosePhoto: true) { _ in false }
+            .dynamicTypeSize(.accessibility3)
+    }
+#endif

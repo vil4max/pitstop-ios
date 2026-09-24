@@ -7,6 +7,9 @@ struct CarBoardViewState: Equatable {
     var carBody: CarBody = .suv
     /// The photo's files on disk; nil without a photo, or when its files are gone (REQ-BOARD-029).
     var carPhoto: CarPhotoFiles?
+    /// Whether a photo can be kept at all: false without the App Group container, where the editor
+    /// offers no photo.
+    var canStorePhoto = false
     var mileage: CarBoardMileage = .unknown
     /// The age of the observation behind `mileage`; nil exactly when no observation exists (REQ-BOARD-027).
     var mileageRecency: MileageRecency?
@@ -71,7 +74,7 @@ final class CarBoardViewModel {
         self.analytics = analytics
         self.now = now
         self.calendar = calendar
-        state = CarBoardViewState(isStorageTemporary: persistence == .temporary)
+        state = CarBoardViewState(canStorePhoto: photos != nil, isStorageTemporary: persistence == .temporary)
     }
 
     func load() async {
