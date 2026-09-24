@@ -607,7 +607,7 @@ When it passes through the Remember pipeline
 Then it becomes a dashboard reading proposal only when the display is named and a countdown marker ("in", "через", "до ТО", "overdue by", "просрочено на") precedes the value or "left" / "overdue" follows its unit, never from a number after "пробег", "odometer" or a bare "на" or followed by "пробега", an "overdue" capture without a readable countdown keeps only its words and never becomes a mileage, and never instead of a completion the same words report; the proposal is never auto-accepted; the operation is asked first and never guessed, the odometer is asked when a distance is given, a proposal with no remaining value is incomplete; nothing is written before confirmation, cancelling writes nothing, and "I don't know" keeps only the words
 
 ### REQ-MAINT-040 — Pit's differing entry of the same work within a day is one choice for the owner
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2, C5
 Source: [Pit availability](pit-behavior-and-motion.md#availability), [REQ-PIT-026](pit-behavior-and-motion.md), [ADR 0035](../decisions/0035-dashboard-service-reading.md), FU-5
 When the owner confirms Mark as done and Pit recorded a completion of that
@@ -625,7 +625,7 @@ the prompt; Given Pit also recorded the oil change yesterday at 84,900 km,
 Then the prompt names both entries.
 
 ### REQ-MAINT-054 — Mark as done never stores the owner's entry beside Pit's
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2, C5
 Source: FU-5
 The app shall not store the owner's Mark as done completion beside a
@@ -636,7 +636,7 @@ When the owner confirms a differing entry for today, once or repeatedly, Then
 only Pit's completion is stored until the owner keeps it or replaces it.
 
 ### REQ-MAINT-041 — The entry Pit already recorded is not recorded again
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2, C5
 Source: [REQ-PIT-026](pit-behavior-and-motion.md), FU-5
 When the owner confirms Mark as done and Pit recorded a completion of that
@@ -648,7 +648,7 @@ sheet was open, When the owner confirms today at 85,000 km or with no
 odometer, Then one completion is stored and the sheet closes.
 
 ### REQ-MAINT-042 — Keeping Pit's entry records nothing from the sheet
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2, C5
 Source: FU-5
 When the owner chooses "Keep Pit's entry", the app shall record nothing from
@@ -658,7 +658,7 @@ entry, Then only Pit's completion of that work is stored and the list shows
 it as the last completion.
 
 ### REQ-MAINT-043 — Replacing Pit's entry is one store transaction
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2, C5
 Source: FU-5
 When the owner chooses "Replace with mine" and Pit's entries within a day of
@@ -670,7 +670,7 @@ entry, Then the owner's completion is the only one of that work stored and a
 single command wrote it.
 
 ### REQ-MAINT-055 — A failed Replace changes nothing
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2, C5
 Source: FU-5
 If the Replace transaction of REQ-MAINT-043 fails, the app shall store neither
@@ -682,7 +682,7 @@ save), Then Pit's completion is still stored, the owner's is not, and the
 sheet stays open saying it was not saved.
 
 ### REQ-MAINT-052 — Replace covers only the entries the owner was shown
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2, C5
 Source: FU-5 review
 If, when the owner chooses "Replace with mine", Pit's entries within a day of
@@ -697,7 +697,7 @@ owner's entry, Then the sheet does not close as already recorded but asks
 again.
 
 ### REQ-MAINT-053 — Undo after Replace does not bring Pit's entry back
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2, C5
 Source: FU-5 review, [ADR 0010](../decisions/0010-maintenance-engine-rules.md)
 When the owner undoes the last "done" after replacing Pit's entries with
@@ -710,7 +710,7 @@ today remains and the operation has no last completion unless an earlier one
 exists.
 
 ### REQ-MAINT-044 — Editing the entry withdraws the prompt
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2
 Source: FU-5
 When the owner edits the date or the odometer while the prompt of
@@ -721,7 +721,7 @@ value and confirms, Then the prompt is gone and nothing more is recorded
 (REQ-MAINT-041).
 
 ### REQ-MAINT-045 — Work Pit recorded more than a day away is other work
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C5
 Source: FU-5
 When the owner confirms Mark as done and every completion of that operation
@@ -732,7 +732,7 @@ Acceptance: Given Pit records "changed the oil in March" while the sheet is
 open, When the owner confirms today, Then both completions are stored.
 
 ### REQ-MAINT-046 — Only completions stored after the sheet opened are Pit's
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C5
 Source: REQ-MAINT-031, [ADR 0035](../decisions/0035-dashboard-service-reading.md)
 The app shall compare the owner's Mark as done entry only with completions of
@@ -743,7 +743,7 @@ opened, When the owner confirms today at 85,000 km, Then the owner's
 completion is recorded and no prompt appears.
 
 ### REQ-MAINT-047 — Mark as done does not open over an unreadable store
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2
 Source: FU-3, FU-5
 If what is stored cannot be read as the Mark as done sheet is about to open,
@@ -754,7 +754,7 @@ done", Then no sheet opens, Service says it did not work and nothing is
 written.
 
 ### REQ-MAINT-048 — An unreadable recheck saves nothing
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2
 Source: FU-5
 If what is stored cannot be read when the owner confirms Mark as done or
@@ -765,7 +765,7 @@ owner confirms, Then no command is executed and the sheet says it was not
 saved.
 
 ### REQ-MAINT-049 — A sheet the app closed keeps Pit's entry and says so on the list
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2, C5
 Source: FU-3, FU-5
 If the Mark as done sheet closes while its save still runs and the recheck
@@ -785,7 +785,7 @@ sheet during the recheck, Then only the owner's completion is stored and the
 list shows it.
 
 ### REQ-MAINT-050 — A closed sheet's save stays out of the next sheet
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2
 Source: FU-3
 If a Mark as done save is still running when its sheet closes, the app shall
@@ -796,7 +796,7 @@ the oil save returns or fails, Then the cabin filter sheet keeps its snapshot
 and prompt.
 
 ### REQ-MAINT-056 — A closed sheet's save still finishes visibly
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2
 Source: FU-3
 If a Mark as done save is still running when its sheet closes, the app shall
@@ -806,7 +806,7 @@ returns, Then the owner's completion is on the reloaded list once; When it
 fails, Then the list says it was not saved and no sheet shows the failure.
 
 ### REQ-MAINT-051 — Mark as done cannot be dismissed while it saves
-Status: proposed
+Status: approved (owner, 2026-09-24)
 Core: C2
 Source: FU-3, [ADR 0032](../decisions/0032-planned-dated-events.md)
 While Mark as done is saving, the app shall disable Cancel and
