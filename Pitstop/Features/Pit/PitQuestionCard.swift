@@ -5,17 +5,22 @@ struct PitQuestionCard: View {
     let model: PitQuestionViewModel
     let question: PitAskedQuestion
 
+    @Environment(\.carAvatar) private var carAvatar
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
         @Bindable var model = model
         VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
             switch question {
             case let .currentMileage(lastKnownKm):
-                Text("pit.question.mileage.title")
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
-                Text("pit.question.mileage.reason")
-                    .font(.subheadline)
-                    .foregroundStyle(PitColor.contentSecondary)
+                heading {
+                    Text("pit.question.mileage.title")
+                        .font(.headline)
+                        .accessibilityAddTraits(.isHeader)
+                    Text("pit.question.mileage.reason")
+                        .font(.subheadline)
+                        .foregroundStyle(PitColor.contentSecondary)
+                }
                 if let lastKnownKm {
                     // The last observation is shown as history, never as today's mileage (core C2).
                     Text("pit.question.mileage.last \(lastKnownKm)")
@@ -56,6 +61,26 @@ struct PitQuestionCard: View {
         }
     }
 
+    /// The question's words beside the 44 pt avatar of the car the answer belongs to (REQ-BOARD-034); at
+    /// accessibility sizes the words move under it, so they keep the card's full width.
+    @ViewBuilder
+    private func heading(@ViewBuilder _ words: () -> some View) -> some View {
+        if let carAvatar {
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: DesignTokens.tileSpacing))
+                : AnyLayout(HStackLayout(spacing: 10))
+            layout {
+                CarAvatar(source: carAvatar, size: .pit)
+                VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
+                    words()
+                }
+                .fixedSize(horizontal: false, vertical: true)
+            }
+        } else {
+            words()
+        }
+    }
+
     /// "I don't know yet" defers: the mileage stays unknown (core C2) and the question is not repeated
     /// (REQ-PIT-012). "Don't ask" dismisses and starts the dismissal cooldown (REQ-PIT-010).
     @ViewBuilder
@@ -89,3 +114,25 @@ struct PitQuestionCard: View {
         }
     }
 }
+
+#if DEBUG
+    #Preview("Pit question card") {
+        // The card draws only what it is given; the model's stores are never reached in a preview.
+        if let registry = try? PitQuestionRegistry.product() {
+            PreviewMatrix {
+                PitSheetCard {
+                    PitQuestionCard(
+                        model: PitQuestionViewModel(
+                            questions: UnavailablePitQuestionStore(),
+                            store: UnavailableCarMemoryStore(),
+                            registry: registry
+                        ),
+                        question: .currentMileage(lastKnownKm: 42500)
+                    )
+                }
+                // The root sets the car; here a fictional sedan with no photo.
+                .environment(\.carAvatar, CarAvatarSource(body: .sedan, photo: nil))
+            }
+        }
+    }
+#endif

@@ -6,10 +6,16 @@ struct PitMomentHeader: View {
     let eyes: PitState
     var life: PitEyeLife = .still
 
+    @Environment(\.carAvatar) private var carAvatar
+
     var body: some View {
         HStack(spacing: 12) {
             // Fixed size at every text size, like the utility circle.
             PitHead(state: eyes, life: life, size: DesignTokens.pitHeaderHeadSize)
+            // "Saved." names the car the fact went to (REQ-BOARD-034); the other moments are about the words.
+            if title == .saved, let avatar = carAvatar {
+                CarAvatar(source: avatar, size: .pit)
+            }
             Text(title.key)
                 .font(.title2.bold())
                 .foregroundStyle(title == .saved ? PitColor.statusUpToDate : PitColor.contentPrimary)
@@ -215,6 +221,8 @@ extension View {
                 Button {} label: { PitActionLabel(title: "pit.confirm.asNote") }
                     .pitSecondaryAction()
             }
+            // The root sets the car; here a fictional SUV with no photo, so "Saved." shows its avatar.
+            .environment(\.carAvatar, CarAvatarSource(body: .suv, photo: nil))
         }
     }
 #endif

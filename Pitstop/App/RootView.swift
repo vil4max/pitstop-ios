@@ -91,6 +91,8 @@ struct RootView: View {
         systemEntry(pitCoordination(boardNavigation))
             // Outside `systemEntry`, so Settings, presented there, keeps Pit as feature sheets do (REQ-UTILITY-012).
             .environment(\.pitInSheet, PitInSheetContext(entry: pitEntry, presence: pit, visible: visibleFeature))
+            // Here too, so every sheet, and Pit opened over any of them, inherits the car (REQ-BOARD-034).
+            .environment(\.carAvatar, CarAvatarSource(body: carBoard.state.carBody, photo: carBoard.state.carPhoto))
     }
 
     private var boardNavigation: some View {

@@ -6,10 +6,13 @@ struct FeatureScaffold<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
 
+    /// Road, Notes, History and Service show the car's avatar before the eyebrow (REQ-BOARD-034).
+    @Environment(\.carAvatar) private var carAvatar
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {
-                ScreenHeader(eyebrow: carName, title: title)
+                ScreenHeader(eyebrow: carName, title: title, avatar: carAvatar)
                 content
             }
             .padding(.horizontal, DesignTokens.screenPadding)
@@ -20,3 +23,17 @@ struct FeatureScaffold<Content: View>: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
+#if DEBUG
+    #Preview("Feature scaffold") {
+        PreviewMatrix {
+            FeatureScaffold(carName: "Kestrel", title: "Service") {
+                Text(verbatim: "Engine oil service")
+                    .font(PitTypography.body)
+                    .foregroundStyle(PitColor.contentPrimary)
+            }
+            .frame(height: 220)
+            .environment(\.carAvatar, CarAvatarSource(body: .suv, photo: nil))
+        }
+    }
+#endif
