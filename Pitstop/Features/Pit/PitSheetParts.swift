@@ -7,6 +7,7 @@ struct PitMomentHeader: View {
     var life: PitEyeLife = .still
 
     @Environment(\.carAvatar) private var carAvatar
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         HStack(spacing: 12) {
@@ -14,14 +15,27 @@ struct PitMomentHeader: View {
             PitHead(state: eyes, life: life, size: DesignTokens.pitHeaderHeadSize)
             // "Saved." names the car the fact went to (REQ-BOARD-034); the other moments are about the words.
             if title == .saved, let avatar = carAvatar {
-                CarAvatar(source: avatar, size: .pit)
+                // At accessibility sizes the title wraps under the avatar, as in `ScreenHeader`, instead of giving
+                // up the avatar's width in the row.
+                let layout = dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+                    : AnyLayout(HStackLayout(spacing: 12))
+                layout {
+                    CarAvatar(source: avatar, size: .pit)
+                    titleText
+                }
+            } else {
+                titleText
             }
-            Text(title.key)
-                .font(.title2.bold())
-                .foregroundStyle(title == .saved ? PitColor.statusUpToDate : PitColor.contentPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityAddTraits(.isHeader)
         }
+    }
+
+    private var titleText: some View {
+        Text(title.key)
+            .font(.title2.bold())
+            .foregroundStyle(title == .saved ? PitColor.statusUpToDate : PitColor.contentPrimary)
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityAddTraits(.isHeader)
     }
 }
 
@@ -221,7 +235,8 @@ extension View {
                 Button {} label: { PitActionLabel(title: "pit.confirm.asNote") }
                     .pitSecondaryAction()
             }
-            // The root sets the car; here a fictional SUV with no photo, so "Saved." shows its avatar.
+            // The root sets the car; here a fictional SUV with no photo, so "Saved." shows its avatar, beside the
+            // title in the default rows and above it in the AX-XL rows.
             .environment(\.carAvatar, CarAvatarSource(body: .suv, photo: nil))
         }
     }

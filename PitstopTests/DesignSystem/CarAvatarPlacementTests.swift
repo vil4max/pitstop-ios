@@ -134,6 +134,37 @@ struct CarAvatarPlacementTests {
 
     // MARK: Pit
 
+    /// The rendered height of a view at 1x, laid out at `width` and the given text size.
+    private static func height(of view: some View, width: CGFloat, textSize: DynamicTypeSize) throws -> Int {
+        let renderer = ImageRenderer(content: view
+            .frame(width: width)
+            .environment(\.colorScheme, .light)
+            .environment(\.dynamicTypeSize, textSize))
+        renderer.scale = 1
+        return try #require(renderer.cgImage).height
+    }
+
+    @Test("REQ-BOARD-034: at accessibility sizes the saved-state title wraps under the avatar, beside Pit's head")
+    func savedStateStacksAtAccessibilitySizes() throws {
+        let width: CGFloat = 320
+        let diameter = Int(CarAvatar.Size.pit.diameter)
+        func height(avatar: CarAvatarSource?, textSize: DynamicTypeSize) throws -> Int {
+            try Self.height(
+                of: PitMomentHeader(title: .saved, eyes: .closedEyes).environment(\.carAvatar, avatar),
+                width: width,
+                textSize: textSize
+            )
+        }
+        // At the default size the avatar sits in the row: it adds no height.
+        #expect(try height(avatar: Self.sedan, textSize: .large) == height(avatar: nil, textSize: .large))
+        // At accessibility sizes the title moves under the avatar instead of losing the avatar's width.
+        for textSize in [DynamicTypeSize.accessibility1, .accessibility3, .accessibility5] {
+            let plain = try height(avatar: nil, textSize: textSize)
+            let stacked = try height(avatar: Self.sedan, textSize: textSize)
+            #expect(stacked >= plain + diameter, "at \(textSize): \(stacked) with the avatar, \(plain) without")
+        }
+    }
+
     @Test("REQ-BOARD-034: the Pit sheet's saved state shows the 44 pt avatar; other moments show none")
     func savedStateShowsTheAvatar() throws {
         let width: CGFloat = 320
