@@ -505,3 +505,27 @@ Source: [Car Hero](#car-hero)
 Given a photo whose subject cannot be lifted
 When the stage renders
 Then the whole photo is shown under the stage mask and no error is shown
+
+### REQ-BOARD-032 — First launch never asks for a photo
+Status: proposed (RD-012 opening, 2026-09-24)
+Core: C2, P1
+Source: [Car profile](#car-profile), [product-design Car image](product-design.md#car-image)
+Given a first launch with no car details
+When Car Board appears
+Then nothing asks for a photo, and the car is shown as the SUV placeholder
+
+### REQ-BOARD-033 — Removing the photo removes its files
+Status: proposed (RD-012 opening, 2026-09-24)
+Core: P1, P2
+Source: [Car profile](#car-profile)
+Given a saved car photo
+When the owner removes it in the car editor and saves
+Then every file stored for that photo is deleted from the container, the car store keeps no reference to it, and the car is shown as the placeholder for the chosen body
+
+### REQ-BOARD-034 — A small avatar shows the car where it helps
+Status: proposed (RD-012 opening, 2026-09-24)
+Core: P5
+Source: [Car profile](#car-profile)
+Given any car context
+When a detail screen header, the Pit sheet's saved state or its question card renders
+Then a round avatar of the car, the photo or the placeholder for the chosen body, is shown at 28 pt in the header and 44 pt in the Pit sheet and is hidden from VoiceOver, and Settings, forms and list rows show none
