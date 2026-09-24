@@ -40,6 +40,21 @@ struct NextServiceWidgetSourceTests {
         return members.joined(separator: "\n")
     }
 
+    /// One family's own view property alone, for modifiers that must wrap every layout rather than sit on one
+    /// helper's layout.
+    private func familyBody(_ name: String) throws -> Substring {
+        let code = try code()
+        let start = try #require(code.range(of: "    private var \(name): some View {"), "no \(name) family")
+        return try member(from: start.lowerBound, in: code)
+    }
+
+    /// A helper's own declaration, such as `smallOperation`, from its first line to its closing brace.
+    private func helper(_ name: String) throws -> String {
+        let code = try code()
+        let start = try #require(code.range(of: "    private func \(name)("), "no \(name) in the view")
+        return try String(member(from: start.lowerBound, in: code))
+    }
+
     /// `code` without its `if <condition> {` block, from that line to the brace at the same indentation.
     private func removing(block condition: String, from code: String) throws -> String {
         let opening = try #require(code.range(of: "if \(condition) {"), "no `if \(condition)` block")
@@ -62,7 +77,8 @@ struct NextServiceWidgetSourceTests {
         #expect(code.contains("try StoreLocation.readableGroupStore().map(NextServiceStoreReader.facts(at:))"))
         #expect(code.contains("let policy: TimelineReloadPolicy = plan.refreshDate.map { .after($0) } ?? .never"))
         for name in ["small", "rectangular"] {
-            #expect(try family(name).contains(".privacySensitive()"), "the \(name) family is not privacy-sensitive")
+            // On the family itself, so every layout is covered, not only the one a helper draws.
+            #expect(try familyBody(name).contains(".privacySensitive()"), "the \(name) family is not privacy-sensitive")
         }
     }
 
@@ -84,7 +100,35 @@ struct NextServiceWidgetSourceTests {
     func familiesAnchorTheirStackToTheTop() throws {
         let topAnchored = ".frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)"
         for name in ["small", "rectangular"] {
-            #expect(try family(name).contains(topAnchored), "the \(name) family is not top-anchored")
+            #expect(try familyBody(name).contains(topAnchored), "the \(name) family is not top-anchored")
+        }
+    }
+
+    /// The sparse and unreadable states keep their sentence; the widget's name above it (eyebrow or title) goes first.
+    @Test("REQ-WIDGET-006: the sparse and unreadable states drop the widget's name first and keep their sentence")
+    func sparseStatesDropTheirTitleFirst() throws {
+        let small = try familyBody("small")
+        for helper in ["smallEmpty", "smallUnavailable"] {
+            let step = try Regex(#"\#(helper)\(showsEyebrow: (\w+)\)"#)
+            let order = small.matches(of: step).map { "\($0.output[1].substring ?? "")" }
+            #expect(order == ["true", "false"], "\(helper) does not drop the eyebrow first")
+        }
+        let rectangular = try familyBody("rectangular")
+        for key in ["widget.nextService.empty.detail", "widget.nextService.unavailable"] {
+            let step = try Regex(#"rectangularSentence\("\#(key)", showsTitle: (\w+)\)"#)
+            let order = rectangular.matches(of: step).map { "\($0.output[1].substring ?? "")" }
+            #expect(order == ["true", "false"], "the rectangular \(key) state does not drop the title first")
+        }
+
+        let emptyKept = try removing(block: "showsEyebrow", from: helper("smallEmpty"))
+        #expect(emptyKept.contains(#"Text("widget.nextService.empty.headline")"#))
+        #expect(emptyKept.contains(#"Text("widget.nextService.empty.detail")"#))
+        let unavailableKept = try removing(block: "showsEyebrow", from: helper("smallUnavailable"))
+        #expect(unavailableKept.contains(#"Text("widget.nextService.unavailable")"#))
+        let sentenceKept = try removing(block: "showsTitle", from: helper("rectangularSentence"))
+        #expect(sentenceKept.contains("Text(sentence)"))
+        for kept in [emptyKept, unavailableKept, sentenceKept] {
+            #expect(!kept.contains("smallEyebrow") && !kept.contains(#"Text("widget.nextService.title")"#))
         }
     }
 
@@ -163,13 +207,12 @@ struct NextServiceWidgetSourceTests {
     /// dropped for room. Each family reads one label built from the whole content instead.
     @Test("REQ-WIDGET-004: VoiceOver reads name, status word and fact whichever layout is shown")
     func familiesSpeakTheWholeContent() throws {
-        let code = try code()
         for name in ["small", "rectangular"] {
-            let start = try #require(code.range(of: "    private var \(name): some View {"), "no \(name) family")
-            let body = try member(from: start.lowerBound, in: code)
+            let body = try familyBody(name)
             #expect(body.contains(".accessibilityElement(children: .ignore)"), "the \(name) family combines children")
             #expect(body.contains(".accessibilityLabel(spokenSummary)"), "the \(name) family has no whole label")
         }
+        let code = try code()
         let start = try #require(code.range(of: "    private var spokenSummary: Text {"), "no spoken summary")
         let summary = try member(from: start.lowerBound, in: code)
         for text in [
