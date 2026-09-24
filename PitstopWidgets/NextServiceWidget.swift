@@ -59,6 +59,7 @@ struct NextServiceTimelineProvider: TimelineProvider {
 struct NextServiceWidgetView: View {
     let content: NextServiceContent
     @Environment(\.widgetFamily) private var family
+    @Environment(\.redactionReasons) private var redactionReasons
     /// A status glyph drawn without a chip (the Lock Screen, and the small widget's last resort) grows with the text,
     /// as a chip's glyph does.
     @ScaledMetric(relativeTo: .body) private var statusGlyphSize = DesignTokens.lockScreenStatusGlyphSize
@@ -93,9 +94,12 @@ struct NextServiceWidgetView: View {
 
     /// What VoiceOver reads for the small and rectangular families, whichever layout is shown: a line dropped for
     /// room leaves the screen, not the spoken summary. `ViewThatFits` keeps only the chosen layout in the
-    /// accessibility tree, so combining its children would silence the dropped lines.
+    /// accessibility tree, so combining its children would silence the dropped lines. Redaction hides drawn text, not
+    /// an explicit label, so a redacted widget (a locked device) names itself and speaks no service data
+    /// (REQ-WIDGET-008).
     private var spokenSummary: Text {
-        switch content {
+        guard redactionReasons.isEmpty else { return Text("widget.nextService.title") }
+        return switch content {
         case let .operation(summary):
             Text("\(summary.operation.widgetTitle), \(Text(summary.word.widgetLabel)), \(summary.fact.widgetText)")
         case .empty:

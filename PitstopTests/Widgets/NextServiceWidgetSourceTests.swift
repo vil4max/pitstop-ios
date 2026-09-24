@@ -285,6 +285,22 @@ struct NextServiceWidgetSourceTests {
         }
     }
 
+    /// Redaction hides what is drawn, but an explicit accessibility label is not a drawn text. On a locked device
+    /// (or any redaction) the label therefore says only the widget's name, never the service data (REQ-WIDGET-008).
+    @Test("REQ-WIDGET-008: a redacted widget's spoken label names the widget and no service data")
+    func redactedLabelSpeaksNoServiceData() throws {
+        let code = try code()
+        #expect(code.contains("@Environment(\\.redactionReasons) private var redactionReasons"))
+        let start = try #require(code.range(of: "    private var spokenSummary: Text {"), "no spoken summary")
+        let lines = try member(from: start.lowerBound, in: code).split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+        let body = Array(lines.dropFirst())
+        #expect(
+            body.first == #"guard redactionReasons.isEmpty else { return Text("widget.nextService.title") }"#,
+            "the spoken summary must check for redaction before it reads any service data"
+        )
+    }
+
     @Test("REQ-DESIGN-001: the small widget says the status as a chip of word, shared glyph and colour")
     func smallDrawsTheStatusChip() throws {
         let chip = "StatusChip(Text(summary.word.widgetLabel), glyph: summary.status.glyph, "
