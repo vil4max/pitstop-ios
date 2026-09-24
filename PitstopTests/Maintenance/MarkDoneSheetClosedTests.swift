@@ -102,7 +102,7 @@ struct MarkDoneSheetClosedTests {
         #expect(await store.base.completions.count { $0.operationID == .engineOilService } == 1, "only Pit's")
     }
 
-    @Test("REQ-NEW-10: the owner's work from a sheet that closed while saving is recorded once, even if saved again")
+    @Test("REQ-NEW-16: the owner's work from a sheet that closed while saving is recorded once, even if saved again")
     func closedSheetsSaveIsRecordedOnce() async {
         let store = HeldStore()
         let service = await openedService(store)
@@ -123,7 +123,7 @@ struct MarkDoneSheetClosedTests {
         #expect(oil.map(\.odometerKm) == [85000])
     }
 
-    @Test("REQ-NEW-10: a save that fails after its sheet closed says so on the list, not in a later sheet")
+    @Test("REQ-NEW-16: a save that fails after its sheet closed says so on the list, not in a later sheet")
     func closedSheetsFailureIsOnTheList() async {
         let store = HeldStore()
         let service = await openedService(store)
@@ -188,7 +188,7 @@ struct MarkDoneSheetClosedTests {
         #expect(await store.base.completions.count { $0.operationID == .engineOilService } == 1, "only Pit's")
     }
 
-    @Test("REQ-NEW-10: a recheck read that fails after its sheet closed says so on the list, not in the next sheet")
+    @Test("REQ-NEW-16: a recheck read that fails after its sheet closed says so on the list, not in the next sheet")
     func lateRecheckFailureIsOnTheList() async {
         let store = HeldStore()
         let service = await openedService(store)

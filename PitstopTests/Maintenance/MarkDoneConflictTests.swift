@@ -205,7 +205,7 @@ struct MarkDoneConflictTests {
         #expect(service.state.operations.first { $0.id == .engineOilService }?.lastCompletion?.odometerKm == 86000)
     }
 
-    @Test("REQ-NEW-3: a replace that cannot be stored keeps Pit's entry, stores nothing of the owner's and says so")
+    @Test("REQ-NEW-15: a replace that cannot be stored keeps Pit's entry, stores nothing of the owner's and says so")
     func failedReplaceKeepsPitsEntry() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)

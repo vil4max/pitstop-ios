@@ -616,14 +616,24 @@ or the day after, and that entry differs from the owner's (another of those
 days, or an odometer typed here that Pit's entry lacks or does not match),
 the app shall record nothing, keep the sheet open and ask once, in place and to VoiceOver,
 whether to keep Pit's entries or replace them with the owner's, naming the
-date of every such entry of Pit's and its odometer when it has one; the app
-shall never record the owner's completion beside Pit's for the same work.
+date of every such entry of Pit's and its odometer when it has one.
 Acceptance: Given Mark as done is open for engine oil and Pit records an oil
 change today at 85,000 km, When the owner confirms today at 86,000 km, or
 yesterday with the odometer empty, Then nothing is written, the sheet stays
-open with "Keep Pit's entry" and "Replace with mine", VoiceOver announces the
-prompt, and no action records both completions; Given Pit also recorded
-the oil change yesterday at 84,900 km, Then the prompt names both entries.
+open with "Keep Pit's entry" and "Replace with mine", and VoiceOver announces
+the prompt; Given Pit also recorded the oil change yesterday at 84,900 km,
+Then the prompt names both entries.
+
+### REQ-NEW-14 — Mark as done never stores the owner's entry beside Pit's
+Status: proposed
+Core: C2, C5
+Source: FU-5
+The app shall not store the owner's Mark as done completion beside a
+completion of the same work that Pit recorded while the sheet was open,
+dated within a day of the entered date.
+Acceptance: Given Pit recorded an oil change today while the sheet was open,
+When the owner confirms a differing entry for today, once or repeatedly, Then
+only Pit's completion is stored until the owner keeps it or replaces it.
 
 ### REQ-NEW-1 — The entry Pit already recorded is not recorded again
 Status: proposed
@@ -654,14 +664,22 @@ Source: FU-5
 When the owner chooses "Replace with mine" and Pit's entries within a day of
 the entered date are still exactly the ones the prompt named, the app shall,
 in one store transaction, revoke those entries and record the owner's
-completion, then close the sheet as saved; if the
-transaction fails, the app shall store neither change and say in the sheet
-that nothing was saved.
+completion, then close the sheet as saved.
 Acceptance: Given the prompt of REQ-MAINT-040, When the owner replaces Pit's
 entry, Then the owner's completion is the only one of that work stored and a
-single command wrote it; When that command fails, Then Pit's completion is
-still stored, the owner's is not, and the sheet stays open saying it was not
-saved.
+single command wrote it.
+
+### REQ-NEW-15 — A failed Replace changes nothing
+Status: proposed
+Core: C2, C5
+Source: FU-5
+If the Replace transaction of REQ-NEW-3 fails, the app shall store neither
+the revocation of Pit's entries nor the owner's completion, and shall say in
+the sheet that nothing was saved.
+Acceptance: Given the owner replaces Pit's entry, When the store rejects the
+command (an entry gone, other work, an invalid date or odometer, or a failed
+save), Then Pit's completion is still stored, the owner's is not, and the
+sheet stays open saying it was not saved.
 
 ### REQ-NEW-12 — Replace covers only the entries the owner was shown
 Status: proposed
@@ -772,11 +790,20 @@ Core: C2
 Source: FU-3
 If a Mark as done save is still running when its sheet closes, the app shall
 change nothing in a sheet opened afterwards (its snapshot, message, prompt or
-announcement), and shall still record the owner's work or say on the list
-that it was not saved.
+announcement).
 Acceptance: Given the oil save is held and the cabin filter sheet opens, When
 the oil save returns or fails, Then the cabin filter sheet keeps its snapshot
-and prompt, and a failure appears on the list.
+and prompt.
+
+### REQ-NEW-16 — A closed sheet's save still finishes visibly
+Status: proposed
+Core: C2
+Source: FU-3
+If a Mark as done save is still running when its sheet closes, the app shall
+still record the owner's work, or say on the list that it was not saved.
+Acceptance: Given the oil save is held and its sheet closes, When the save
+returns, Then the owner's completion is on the reloaded list once; When it
+fails, Then the list says it was not saved and no sheet shows the failure.
 
 ### REQ-NEW-11 — Mark as done cannot be dismissed while it saves
 Status: proposed

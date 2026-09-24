@@ -74,7 +74,7 @@ struct MarkDoneAfterCaptureTests {
         #expect(await store.completions.count == 1)
     }
 
-    @Test("REQ-MAINT-040: a different odometer for the same work and date keeps the sheet open until the owner decides")
+    @Test("REQ-NEW-14: a different odometer for the same work and date keeps the sheet open until the owner decides")
     func differentOdometerAsksTheOwner() async throws {
         let store = FakeCarMemoryStore()
         let service = await openedService(store)

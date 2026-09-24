@@ -49,7 +49,7 @@ struct SwiftDataReplaceCompletionTests {
         #expect(Set(reopened) == [fixture.brakes, fixture.owners])
     }
 
-    @Test("REQ-NEW-3: when any part of a replace fails, neither the revoke nor the owner's completion is stored")
+    @Test("REQ-NEW-15: when any part of a replace fails, neither the revoke nor the owner's completion is stored")
     func failedReplaceChangesNothing() async throws {
         let url = TestStore.temporaryURL()
         defer { TestStore.remove(at: url) }
@@ -87,7 +87,7 @@ struct SwiftDataReplaceCompletionTests {
         #expect(Set(reopened) == [fixture.pits, fixture.brakes])
     }
 
-    @Test("REQ-NEW-3: a replace is validated as a confirmation: no future date and a plausible odometer")
+    @Test("REQ-NEW-15: a replace is validated as a confirmation: no future date and a plausible odometer")
     func replaceIsValidatedLikeAConfirmation() async throws {
         let url = TestStore.temporaryURL()
         defer { TestStore.remove(at: url) }
