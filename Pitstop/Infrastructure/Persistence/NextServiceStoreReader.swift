@@ -3,6 +3,7 @@ import SwiftData
 
 private typealias Schema1 = PitstopSchemaV1
 private typealias ReportRecord = PitstopSchemaV4.VehicleServiceReportRecord
+private typealias CarRecord = PitstopSchemaV5.VehicleRecord
 
 /// The widget's only access to the car memory (ADR 0036): a read-only container, the maintenance
 /// records Service reads, mapped to domain values, and nothing else. Notes, History and plans are
@@ -22,7 +23,7 @@ enum NextServiceStoreReader {
             throw ReadError.storeUnavailable
         }
         do {
-            var vehicles = FetchDescriptor<Schema1.VehicleRecord>()
+            var vehicles = FetchDescriptor<CarRecord>()
             vehicles.fetchLimit = 1
             let hasVehicle = try !context.fetch(vehicles).isEmpty
             guard hasVehicle else { return .noCar }

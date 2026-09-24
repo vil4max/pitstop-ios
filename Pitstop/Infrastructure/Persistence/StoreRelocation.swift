@@ -279,6 +279,6 @@ struct StoreRelocation {
     /// released before the app opens the same file for use.
     static func openAndRead(_ store: URL) throws {
         let container = try PersistenceContainer.make(storeURL: store)
-        _ = try ModelContext(container).fetchCount(FetchDescriptor<PitstopSchemaV1.VehicleRecord>())
+        _ = try ModelContext(container).fetchCount(FetchDescriptor<PitstopSchemaV5.VehicleRecord>())
     }
 }

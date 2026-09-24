@@ -6,34 +6,25 @@ import Testing
 private let now = Date(timeIntervalSince1970: 1_800_000_000)
 private let oil = PitQuestionFixtures.oilIntervalID
 
-/// A store written by a container that knows only `schema`, as an older build wrote it.
-private func legacyContainer(_ schema: any VersionedSchema.Type, url: URL) throws -> ModelContainer {
-    let legacy = Schema(versionedSchema: schema)
-    return try ModelContainer(for: legacy, configurations: ModelConfiguration(schema: legacy, url: url))
-}
-
 private struct SeededFacts {
     let vehicleID: VehicleID
     let reading: OdometerReading
 }
 
 /// Car memory an older build could hold: a named car, a reading, an owner policy, a completion, a note.
-private func seedCarMemory(_ store: SwiftDataCarMemoryStore) async throws -> SeededFacts {
-    let vehicleID = try await store.currentVehicle().id
+private func seedCarMemory(_ writer: LegacyStoreWriter) throws -> SeededFacts {
+    let vehicleID = writer.car(name: "Kestrel", isProvisional: false)
     let reading = OdometerReading(vehicleID: vehicleID, value: 42000, recordedAt: now)
-    let policy = MaintenancePolicy(operationID: .engineOilService, distanceIntervalKm: 10000, source: .userCustom)
-    let commands: [DomainCommand] = [
-        .recordVehicleFact(.init(vehicleID: vehicleID, fact: VehicleFact(field: .name, value: "Kestrel"))),
-        .recordOdometerReading(.init(reading: reading)),
-        .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: policy)),
-        .confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: .engineOilService, performedAt: now, odometerKm: 41000
-        ))),
-        .createNote(CreateNoteCommand(vehicleID: vehicleID, rawText: "before the migration")),
-    ]
-    for command in commands {
-        try await store.execute(command, now: now)
-    }
+    writer.insert(reading)
+    writer.insert(
+        MaintenancePolicy(operationID: .engineOilService, distanceIntervalKm: 10000, source: .userCustom),
+        vehicleID: vehicleID
+    )
+    writer.insert(MaintenanceCompletion(
+        vehicleID: vehicleID, operationID: .engineOilService, performedAt: now, odometerKm: 41000
+    ))
+    writer.insert(Note(vehicleID: vehicleID, rawText: "before the migration", createdAt: now))
+    try writer.save()
     return SeededFacts(vehicleID: vehicleID, reading: reading)
 }
 
@@ -68,10 +59,10 @@ struct SchemaV3MigrationTests {
         defer { TestStore.remove(at: url) }
         let facts: SeededFacts
         do {
-            let container = try legacyContainer(PitstopSchemaV2.self, url: url)
-            facts = try await seedCarMemory(SwiftDataCarMemoryStore(modelContainer: container))
+            let writer = try LegacyStoreWriter(PitstopSchemaV2.self, url: url)
+            facts = try seedCarMemory(writer)
             let questions = try SwiftDataPitQuestionStore(
-                modelContainer: container,
+                modelContainer: writer.container,
                 registry: PitQuestionFixtures.registry()
             )
             try await questions.execute(.asked(questionID: oil), now: now)
@@ -96,8 +87,7 @@ struct SchemaV3MigrationTests {
         defer { TestStore.remove(at: url) }
         let facts: SeededFacts
         do {
-            let container = try legacyContainer(PitstopSchemaV1.self, url: url)
-            facts = try await seedCarMemory(SwiftDataCarMemoryStore(modelContainer: container))
+            facts = try seedCarMemory(LegacyStoreWriter(PitstopSchemaV1.self, url: url))
         }
 
         let container = try PersistenceContainer.make(storeURL: url)

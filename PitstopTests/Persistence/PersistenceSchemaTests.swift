@@ -91,9 +91,39 @@ struct PersistenceSchemaTests {
         ])
     }
 
-    @Test("ADR-0035: the app opens the newest schema version")
-    func containerUsesVersionFour() throws {
-        let container = try PersistenceContainer.make(storeURL: nil)
-        #expect(Self.shape(of: container.schema) == Self.shape(of: Schema(versionedSchema: PitstopSchemaV4.self)))
+    /// V4 as TestFlight `tf-1.1.0-3` shipped it. V5 reuses every class but the car record, so V4 is frozen too.
+    private static let frozenV4 = (frozenV3 + [
+        "VehicleServiceReportRecord completionIDsAtEntry:Array<UUID> distanceUnit:String id:UUID! "
+            + "odometerKm:Optional<Int>? operationID:String "
+            + "remainingDays:Optional<Int>? remainingDistance:Optional<Double>? reportedAt:Date source:String "
+            + "vehicleID:UUID",
+    ]).sorted()
+
+    @Test("ADR-0040: schema V4 is frozen; a change must be a new version that copies its classes")
+    func versionFourIsFrozen() {
+        #expect(Self.shape(of: Schema(versionedSchema: PitstopSchemaV4.self)) == Self.frozenV4)
+    }
+
+    @Test("ADR-0040: schema V5 is V4 with only the car record changed, gaining the optional body and photo id")
+    func versionFiveExtendsVersionFour() {
+        let v5 = Self.shape(of: Schema(versionedSchema: PitstopSchemaV5.self))
+        #expect(v5.filter { !$0.hasPrefix("VehicleRecord ") } == Self.frozenV4
+            .filter { !$0.hasPrefix("VehicleRecord ") })
+        // Only an id and a raw body value: no image bytes can be stored in the car record (ADR 0040).
+        #expect(v5.filter { $0.hasPrefix("VehicleRecord ") } == [
+            "VehicleRecord body:Optional<String>? createdAt:Date id:UUID! isProvisional:Bool "
+                + "make:Optional<String>? model:Optional<String>? name:String photoID:Optional<UUID>? "
+                + "vin:Optional<String>? year:Optional<Int>?",
+        ])
+    }
+
+    @Test("ADR-0040: the app and the widget reader open the newest schema version")
+    func containersUseVersionFive() throws {
+        let newest = Self.shape(of: Schema(versionedSchema: PitstopSchemaV5.self))
+        #expect(try Self.shape(of: PersistenceContainer.make(storeURL: nil).schema) == newest)
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        _ = try PersistenceContainer.make(storeURL: url)
+        #expect(try Self.shape(of: PersistenceContainer.makeReadOnly(storeURL: url).schema) == newest)
     }
 }

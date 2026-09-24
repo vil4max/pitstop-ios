@@ -124,14 +124,10 @@ struct SwiftDataPitQuestionStoreTests {
         defer { TestStore.remove(at: url) }
         let vehicleID: VehicleID
         do {
-            let v1 = Schema(versionedSchema: PitstopSchemaV1.self)
-            let container = try ModelContainer(for: v1, configurations: ModelConfiguration(schema: v1, url: url))
-            let store = SwiftDataCarMemoryStore(modelContainer: container)
-            vehicleID = try await store.currentVehicle().id
-            try await store.execute(
-                .createNote(CreateNoteCommand(vehicleID: vehicleID, rawText: "до миграции")),
-                now: now
-            )
+            let writer = try LegacyStoreWriter(PitstopSchemaV1.self, url: url)
+            vehicleID = writer.car()
+            writer.insert(Note(vehicleID: vehicleID, rawText: "до миграции", createdAt: now))
+            try writer.save()
         }
 
         let container = try PersistenceContainer.make(storeURL: url)

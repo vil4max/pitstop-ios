@@ -337,12 +337,9 @@ struct NextServiceStoreReaderTests {
         let url = TestStore.temporaryURL()
         defer { TestStore.remove(at: url) }
         do {
-            let legacy = Schema(versionedSchema: PitstopSchemaV3.self)
-            let container = try ModelContainer(
-                for: legacy,
-                configurations: ModelConfiguration(schema: legacy, url: url)
-            )
-            _ = try await SwiftDataCarMemoryStore(modelContainer: container).currentVehicle()
+            let writer = try LegacyStoreWriter(PitstopSchemaV3.self, url: url)
+            writer.car()
+            try writer.save()
         }
         let before = try await settledFingerprint(of: url)
         #expect(throws: NextServiceStoreReader.ReadError.storeUnavailable) {

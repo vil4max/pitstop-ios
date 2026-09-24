@@ -44,13 +44,6 @@ private struct Containers {
     }
 }
 
-/// A store written by a container that knows only `schema`, as an older TestFlight build wrote it.
-private func legacyStore(_ schema: any VersionedSchema.Type, url: URL) throws -> SwiftDataCarMemoryStore {
-    let legacy = Schema(versionedSchema: schema)
-    let container = try ModelContainer(for: legacy, configurations: ModelConfiguration(schema: legacy, url: url))
-    return SwiftDataCarMemoryStore(modelContainer: container)
-}
-
 /// Fictional facts every shipped schema can hold: a reading, the owner's oil interval, a completion.
 private func seedCarMemory(_ store: SwiftDataCarMemoryStore) async throws -> VehicleID {
     let vehicleID = try await store.currentVehicle().id
@@ -66,6 +59,18 @@ private func seedCarMemory(_ store: SwiftDataCarMemoryStore) async throws -> Veh
     for command in commands {
         try await store.execute(command, now: now)
     }
+    return vehicleID
+}
+
+/// The same facts written as an older TestFlight build wrote them, with that schema's own record classes.
+@discardableResult
+private func seedLegacyCarMemory(_ writer: LegacyStoreWriter) -> VehicleID {
+    let vehicleID = writer.car()
+    writer.insert(OdometerReading(vehicleID: vehicleID, value: 38800, recordedAt: now))
+    writer.insert(MaintenanceFixture.custom(.engineOilService, km: 15000, months: 12), vehicleID: vehicleID)
+    writer.insert(MaintenanceCompletion(
+        vehicleID: vehicleID, operationID: .engineOilService, performedAt: now - 200 * 86400, odometerKm: 30000
+    ))
     return vehicleID
 }
 
@@ -112,7 +117,11 @@ struct StoreRelocationTests {
     func versionTwoStoreMoves() async throws {
         let containers = try Containers()
         defer { containers.remove() }
-        _ = try await seedCarMemory(legacyStore(PitstopSchemaV2.self, url: containers.legacyStore))
+        do {
+            let writer = try LegacyStoreWriter(PitstopSchemaV2.self, url: containers.legacyStore)
+            seedLegacyCarMemory(writer)
+            try writer.save()
+        }
         try await expectMoved(containers)
         try await expectCarMemory(at: containers.groupStore)
     }
@@ -123,12 +132,13 @@ struct StoreRelocationTests {
         defer { containers.remove() }
         let insurance: PlannedDatedEvent
         do {
-            let store = try legacyStore(PitstopSchemaV3.self, url: containers.legacyStore)
-            let vehicleID = try await seedCarMemory(store)
+            let writer = try LegacyStoreWriter(PitstopSchemaV3.self, url: containers.legacyStore)
+            let vehicleID = seedLegacyCarMemory(writer)
             insurance = PlannedDatedEvent(
                 vehicleID: vehicleID, kind: .insuranceExpiry, date: now + 90 * 86400, createdAt: now
             )
-            try await store.execute(.addPlannedEvent(.init(event: insurance)), now: now)
+            try writer.insert(insurance)
+            try writer.save()
         }
         try await expectMoved(containers)
         try await expectCarMemory(at: containers.groupStore)
@@ -141,13 +151,15 @@ struct StoreRelocationTests {
         defer { containers.remove() }
         let report: VehicleServiceReport
         do {
-            let store = try TestStore.carMemory(url: containers.legacyStore)
-            let vehicleID = try await seedCarMemory(store)
+            // V4's own classes: since V5, today's store would write a version 5 store here instead.
+            let writer = try LegacyStoreWriter(PitstopSchemaV4.self, url: containers.legacyStore)
+            let vehicleID = seedLegacyCarMemory(writer)
             report = VehicleServiceReport(
                 vehicleID: vehicleID, operationID: .engineOilService, reportedAt: now, odometerKm: 38800,
                 remainingDistance: 3200, distanceUnit: .kilometers, remainingDays: 45, source: .manualEntry
             )
-            try await store.execute(.recordVehicleServiceReport(.init(report: report)), now: now)
+            try writer.insert(report)
+            try writer.save()
         }
         try await expectMoved(containers)
         try await expectCarMemory(at: containers.groupStore)

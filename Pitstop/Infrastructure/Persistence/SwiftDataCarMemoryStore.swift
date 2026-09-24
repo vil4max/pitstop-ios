@@ -4,6 +4,7 @@ import SwiftData
 private typealias Schema1 = PitstopSchemaV1
 private typealias PlannedRecord = PitstopSchemaV3.PlannedVehicleEventRecord
 private typealias ReportRecord = PitstopSchemaV4.VehicleServiceReportRecord
+private typealias CarRecord = PitstopSchemaV5.VehicleRecord
 
 @ModelActor
 actor SwiftDataCarMemoryStore: CarMemoryStore {
@@ -279,12 +280,12 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
 
     /// First launch has no record yet; the provisional car is created on demand so the app
     /// needs no setup step before first value (core P2).
-    private func vehicleRecord() throws -> Schema1.VehicleRecord {
+    private func vehicleRecord() throws -> CarRecord {
         if let existing = try existingVehicleRecord() {
             return existing
         }
         let provisional = Vehicle.provisional()
-        let record = Schema1.VehicleRecord(
+        let record = CarRecord(
             id: provisional.id.rawValue,
             name: provisional.name,
             isProvisional: true,
@@ -295,14 +296,14 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
         return record
     }
 
-    private func existingVehicleRecord() throws -> Schema1.VehicleRecord? {
-        let sort = SortDescriptor(\Schema1.VehicleRecord.createdAt)
+    private func existingVehicleRecord() throws -> CarRecord? {
+        let sort = SortDescriptor(\CarRecord.createdAt)
         return try modelContext.fetch(FetchDescriptor(sortBy: [sort])).first
     }
 
     /// Never creates the car: a command must not leave a side effect behind when it is rejected.
     @discardableResult
-    private func requireVehicle(_ id: VehicleID) throws -> Schema1.VehicleRecord {
+    private func requireVehicle(_ id: VehicleID) throws -> CarRecord {
         guard let record = try existingVehicleRecord(), record.id == id.rawValue else {
             throw CarMemoryStoreError.unknownVehicle
         }
@@ -383,17 +384,22 @@ extension SwiftDataCarMemoryStore {
         }
     }
 
-    /// The car record this store opens has no column for the body or the photo id yet; schema V5 adds
-    /// them (ADR 0040). Until then the command saves nothing rather than report a change it did not keep.
+    /// The body and the photo id live on the V5 car record (ADR 0040). Clearing the photo drops only the
+    /// id; its files are the photo store's to delete (REQ-BOARD-033).
     private func applyProfile(_ command: DomainCommand) throws -> CommandResult {
+        let record: CarRecord
+        let updated: Vehicle
         switch command {
         case let .setCarBody(set):
-            try requireVehicle(set.vehicleID)
+            record = try requireVehicle(set.vehicleID)
+            updated = record.domain.applying(set)
         case let .setCarPhoto(set):
-            try requireVehicle(set.vehicleID)
+            record = try requireVehicle(set.vehicleID)
+            updated = record.domain.applying(set)
         default:
-            break
+            throw CarMemoryStoreError.storageFailure
         }
-        throw CarMemoryStoreError.storageFailure
+        record.update(from: updated)
+        return .vehicleUpdated(updated)
     }
 }

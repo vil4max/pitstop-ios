@@ -41,6 +41,7 @@
             "Infrastructure/Persistence/PitstopSchemaV2.swift",
             "Infrastructure/Persistence/PitstopSchemaV3.swift",
             "Infrastructure/Persistence/PitstopSchemaV4.swift",
+            "Infrastructure/Persistence/PitstopSchemaV5.swift",
             "Infrastructure/Persistence/RecordMapping.swift",
             "Infrastructure/Persistence/StoreLocation.swift",
           ],

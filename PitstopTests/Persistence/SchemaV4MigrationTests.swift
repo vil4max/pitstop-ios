@@ -5,27 +5,15 @@ import Testing
 
 private let now = Date(timeIntervalSince1970: 1_800_000_000)
 
-/// A store written by a container that knows only `schema`, as an older build wrote it.
-private func legacyContainer(_ schema: any VersionedSchema.Type, url: URL) throws -> ModelContainer {
-    let legacy = Schema(versionedSchema: schema)
-    return try ModelContainer(for: legacy, configurations: ModelConfiguration(schema: legacy, url: url))
-}
-
-/// Fictional car memory an older build could hold: a reading, an owner policy, a completion.
-private func seed(_ store: SwiftDataCarMemoryStore) async throws -> VehicleID {
-    let vehicleID = try await store.currentVehicle().id
-    let commands: [DomainCommand] = [
-        .recordOdometerReading(.init(reading: OdometerReading(vehicleID: vehicleID, value: 38800, recordedAt: now))),
-        .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenanceFixture.custom(
-            .engineOilService, km: 15000, months: 12
-        ))),
-        .confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: .engineOilService, performedAt: now - 200 * 86400, odometerKm: 30000
-        ))),
-    ]
-    for command in commands {
-        try await store.execute(command, now: now)
-    }
+/// Fictional car memory an older build could hold: a reading, an owner policy, a completion. Saved by the
+/// caller, after anything else of its own version.
+private func seed(_ writer: LegacyStoreWriter) -> VehicleID {
+    let vehicleID = writer.car()
+    writer.insert(OdometerReading(vehicleID: vehicleID, value: 38800, recordedAt: now))
+    writer.insert(MaintenanceFixture.custom(.engineOilService, km: 15000, months: 12), vehicleID: vehicleID)
+    writer.insert(MaintenanceCompletion(
+        vehicleID: vehicleID, operationID: .engineOilService, performedAt: now - 200 * 86400, odometerKm: 30000
+    ))
     return vehicleID
 }
 
@@ -60,12 +48,13 @@ struct SchemaV4MigrationTests {
         let vehicleID: VehicleID
         let insurance: PlannedDatedEvent
         do {
-            let store = try SwiftDataCarMemoryStore(modelContainer: legacyContainer(PitstopSchemaV3.self, url: url))
-            vehicleID = try await seed(store)
+            let writer = try LegacyStoreWriter(PitstopSchemaV3.self, url: url)
+            vehicleID = seed(writer)
             insurance = PlannedDatedEvent(
                 vehicleID: vehicleID, kind: .insuranceExpiry, date: now + 90 * 86400, createdAt: now
             )
-            try await store.execute(.addPlannedEvent(.init(event: insurance)), now: now)
+            try writer.insert(insurance)
+            try writer.save()
         }
         #expect(try await TestStore.carMemory(url: url).plannedEvents() == [insurance])
         try await expectMigrated(url: url, vehicleID: vehicleID)
@@ -77,9 +66,9 @@ struct SchemaV4MigrationTests {
         defer { TestStore.remove(at: url) }
         let vehicleID: VehicleID
         do {
-            vehicleID = try await seed(SwiftDataCarMemoryStore(
-                modelContainer: legacyContainer(PitstopSchemaV1.self, url: url)
-            ))
+            let writer = try LegacyStoreWriter(PitstopSchemaV1.self, url: url)
+            vehicleID = seed(writer)
+            try writer.save()
         }
         try await expectMigrated(url: url, vehicleID: vehicleID)
     }
@@ -90,24 +79,33 @@ struct SchemaV4MigrationTests {
         defer { TestStore.remove(at: url) }
         let vehicleID: VehicleID
         do {
-            vehicleID = try await seed(SwiftDataCarMemoryStore(
-                modelContainer: legacyContainer(PitstopSchemaV2.self, url: url)
-            ))
+            let writer = try LegacyStoreWriter(PitstopSchemaV2.self, url: url)
+            vehicleID = seed(writer)
+            try writer.save()
         }
         try await expectMigrated(url: url, vehicleID: vehicleID)
     }
 
-    @Test("ADR-0035: the migration plan chains V1 to V4 with one lightweight stage per version")
+    @Test("ADR-0035: the migration plan chains V1 to V4 with one lightweight stage per version before any later one")
     func planChainsEveryVersion() {
         // A loop, not a key path: a key path on the existential metatype crashes the Swift 6.4 compiler.
         var versions: [Schema.Version] = []
         for schema in PitstopMigrationPlan.schemas {
             versions.append(schema.versionIdentifier)
         }
-        #expect(versions == [
-            Schema.Version(1, 0, 0), Schema.Version(2, 0, 0), Schema.Version(3, 0, 0), Schema.Version(4, 0, 0),
-        ])
-        #expect(PitstopMigrationPlan.stages.count == 3)
+        let (one, two, three, four) = (
+            Schema.Version(1, 0, 0), Schema.Version(2, 0, 0), Schema.Version(3, 0, 0), Schema.Version(4, 0, 0)
+        )
+        #expect(Array(versions.prefix(4)) == [one, two, three, four])
+        var stages: [[Schema.Version]] = []
+        for stage in PitstopMigrationPlan.stages {
+            if case let .lightweight(from, to) = stage {
+                stages.append([from.versionIdentifier, to.versionIdentifier])
+            } else {
+                stages.append([])
+            }
+        }
+        #expect(Array(stages.prefix(3)) == [[one, two], [two, three], [three, four]])
     }
 }
 

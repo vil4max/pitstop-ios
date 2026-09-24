@@ -3,7 +3,9 @@ import SwiftData
 
 private typealias Schema1 = PitstopSchemaV1
 
-extension Schema1.VehicleRecord {
+extension PitstopSchemaV5.VehicleRecord {
+    /// A body this version cannot read is no choice, so the car shows as SUV rather than a guess
+    /// (REQ-BOARD-030).
     var domain: Vehicle {
         Vehicle(
             id: VehicleID(rawValue: id),
@@ -12,7 +14,9 @@ extension Schema1.VehicleRecord {
             model: model,
             year: year,
             vin: vin,
-            isProvisional: isProvisional
+            isProvisional: isProvisional,
+            chosenBody: body.flatMap(CarBody.init(rawValue:)),
+            photoID: photoID.map(CarPhotoID.init(rawValue:))
         )
     }
 
@@ -23,6 +27,8 @@ extension Schema1.VehicleRecord {
         year = vehicle.year
         vin = vehicle.vin
         isProvisional = vehicle.isProvisional
+        body = vehicle.chosenBody?.rawValue
+        photoID = vehicle.photoID?.rawValue
     }
 }
 
