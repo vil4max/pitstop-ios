@@ -154,10 +154,19 @@ struct NextServiceWidgetView: View {
                     .lineLimit(1)
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
                     StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
-                    // `ViewThatFits` measures height only, so the word wraps rather than being cut sideways: a word
-                    // that needs more room makes this layout taller, and the widget moves on (REQ-GRAMMAR-003).
-                    Text(summary.word.widgetLabel)
-                        .fixedSize(horizontal: false, vertical: true)
+                    // The word stays whole (REQ-GRAMMAR-003). The horizontal fit accepts a one-line word only when
+                    // its full width fits, first at the family's size, then one type step smaller, so a long by-date
+                    // word keeps the reason line below it. Last, the word wraps: that makes this layout taller, and the
+                    // outer vertical fit drops the fact.
+                    ViewThatFits(in: .horizontal) {
+                        Text(summary.word.widgetLabel)
+                            .lineLimit(1)
+                        Text(summary.word.widgetLabel)
+                            .font(PitTypography.supportingSmall)
+                            .lineLimit(1)
+                        Text(summary.word.widgetLabel)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
             } else {
                 HStack(alignment: .firstTextBaseline, spacing: 5) {

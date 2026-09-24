@@ -184,19 +184,37 @@ struct NextServiceWidgetSourceTests {
         #expect(!kept.contains("summary.fact.widgetText"))
     }
 
-    /// `ViewThatFits` measures height only, so a status word cut sideways on one line would still "fit" and the
-    /// fallback would never be reached. The word wraps instead, and nothing around it limits or shrinks it: a word
-    /// that needs more room makes the layout taller, and the widget moves on to the glyph alone.
+    /// The modifier lines written directly after each line of `lines` that starts with `prefix`.
+    private func modifierChains(after prefix: String, in lines: [String]) -> [[String]] {
+        lines.indices.filter { lines[$0].hasPrefix(prefix) }.map { index in
+            Array(lines[(index + 1)...].prefix { $0.hasPrefix(".") || $0.hasPrefix("//") })
+        }
+    }
+
+    /// `ViewThatFits(in: .vertical)` measures height only, so a status word cut sideways would still "fit" and the
+    /// fallback would never be reached. The word row therefore tries the word on one line, then one type step
+    /// smaller on one line, inside `ViewThatFits(in: .horizontal)`, which accepts a one-line word only when its whole
+    /// width fits; last it wraps, which makes the layout taller so the widget moves on. Nothing shrinks the word, and
+    /// no container limits it (REQ-GRAMMAR-003).
     @Test("REQ-GRAMMAR-003: the Lock Screen rectangular widget never truncates or shrinks the status word")
     func rectangularNeverTruncatesTheStatusWord() throws {
         let rectangular = try family("rectangular")
         let start = try #require(rectangular.range(of: "    private func rectangularOperation")).lowerBound
         let lines = try member(from: start, in: rectangular).split(separator: "\n")
             .map { $0.trimmingCharacters(in: .whitespaces) }
-        let word = try #require(lines.firstIndex { $0.hasPrefix("Text(summary.word.widgetLabel)") }, "no status word")
-        let modifiers = lines[(word + 1)...].prefix { $0.hasPrefix(".") || $0.hasPrefix("//") }
-        #expect(modifiers.contains(".fixedSize(horizontal: false, vertical: true)"), "the word must wrap")
-        #expect(!modifiers.contains { $0.contains("lineLimit") || $0.contains("minimumScaleFactor") })
+        let fits = try #require(lines.firstIndex(of: "ViewThatFits(in: .horizontal) {"), "no one-line word row")
+        let chains = modifierChains(after: "Text(summary.word.widgetLabel)", in: lines)
+        #expect(chains.count == 3, "the word row has one line, a smaller line, then a wrap")
+        #expect(lines[(fits + 1)...].prefix(while: { $0 != "}" }).filter {
+            $0.hasPrefix("Text(summary.word.widgetLabel)")
+        }.count == 3, "every word variant sits inside the horizontal fit")
+        if chains.count == 3 {
+            #expect(chains[0].contains(".lineLimit(1)"))
+            #expect(chains[1].contains(".lineLimit(1)") && chains[1].contains { $0.hasPrefix(".font(") })
+            #expect(chains[2].contains(".fixedSize(horizontal: false, vertical: true)"), "the last word must wrap")
+            #expect(!chains[2].contains { $0.contains("lineLimit") })
+        }
+        #expect(!chains.joined().contains { $0.contains("minimumScaleFactor") }, "the word must not shrink")
         let containerLimits = zip(lines, lines.dropFirst()).filter { closing, next in
             closing == "}" && (next.hasPrefix(".lineLimit") || next.hasPrefix(".minimumScaleFactor"))
         }
