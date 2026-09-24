@@ -91,90 +91,176 @@ struct NextServiceWidgetView: View {
     }
 
     /// The Lock Screen renders this family in one vibrant tint, so the glyph's shape, not its colour, tells the state
-    /// (REQ-DESIGN-001); the operation name joins the accent group.
+    /// (REQ-DESIGN-001); the operation name joins the accent group. When the text does not fit, lines go by priority
+    /// instead of being clipped (owner, FU-2): the fact goes first, and the name and the status always stay.
     private var rectangular: some View {
-        VStack(alignment: .leading, spacing: 1) {
+        Group {
             switch content {
             case let .operation(summary):
-                summary.operation.widgetTitle
-                    .font(PitTypography.headline)
-                    .widgetAccentable()
-                    .lineLimit(1)
-                HStack(spacing: 5) {
-                    StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
-                    Text(summary.word.widgetLabel)
+                ViewThatFits(in: .vertical) {
+                    rectangularOperation(summary, showsFact: true)
+                    rectangularOperation(summary, showsFact: false)
+                    rectangularOperation(summary, showsFact: false, compact: true)
                 }
-                .lineLimit(1)
-                summary.fact.widgetText
-                    .foregroundStyle(PitColor.contentSecondary)
-                    .lineLimit(1)
             case .empty:
-                Text("widget.nextService.title")
-                    .font(PitTypography.headline)
-                    .widgetAccentable()
-                Text("widget.nextService.empty.detail")
-                    .lineLimit(2)
+                ViewThatFits(in: .vertical) {
+                    rectangularSentence("widget.nextService.empty.detail", showsTitle: true)
+                    rectangularSentence("widget.nextService.empty.detail", showsTitle: false)
+                }
             case .unavailable:
-                Text("widget.nextService.title")
-                    .font(PitTypography.headline)
-                    .widgetAccentable()
-                Text("widget.nextService.unavailable")
-                    .lineLimit(2)
+                ViewThatFits(in: .vertical) {
+                    rectangularSentence("widget.nextService.unavailable", showsTitle: true)
+                    rectangularSentence("widget.nextService.unavailable", showsTitle: false)
+                }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
         .privacySensitive()
         .accessibilityElement(children: .combine)
     }
 
-    /// The mockup's small "Next service" frame: eyebrow, operation name and its status chip on top, the one fact at
-    /// the bottom. The sparse states keep the same grammar with no chip, so no urgency is invented (core C2).
-    private var small: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("widget.nextService.title")
-                .font(PitTypography.captionSmall.weight(.bold))
-                .textCase(.uppercase)
-                .kerning(0.6)
-                .foregroundStyle(PitColor.contentSecondary)
-                // Two lines, so the widget's name stays whole in Russian and Ukrainian.
-                .lineLimit(2)
+    /// `compact` is the last resort at the largest text sizes, where even two lines do not fit the Lock Screen slot:
+    /// the name and the status shrink instead of the status being cut.
+    private func rectangularOperation(
+        _ summary: NextServiceSummary,
+        showsFact: Bool,
+        compact: Bool = false
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            summary.operation.widgetTitle
+                .font(PitTypography.headline)
                 .widgetAccentable()
+                .lineLimit(1)
+            HStack(spacing: 5) {
+                StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize * (compact ? 0.5 : 1))
+                Text(summary.word.widgetLabel)
+            }
+            .lineLimit(1)
+            if showsFact {
+                summary.fact.widgetText
+                    .foregroundStyle(PitColor.contentSecondary)
+                    .lineLimit(1)
+            }
+        }
+        .minimumScaleFactor(compact ? 0.5 : 1)
+    }
+
+    /// The sparse and unreadable states keep their sentence; the widget's name above it goes first.
+    private func rectangularSentence(_ sentence: LocalizedStringKey, showsTitle: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            if showsTitle {
+                Text("widget.nextService.title")
+                    .font(PitTypography.headline)
+                    .widgetAccentable()
+            }
+            Text(sentence)
+                .lineLimit(showsTitle ? 2 : 3)
+                .minimumScaleFactor(showsTitle ? 1 : 0.5)
+        }
+    }
+
+    /// The mockup's small "Next service" frame: eyebrow, operation name and its status chip on top, the one fact at
+    /// the bottom. When the text does not fit (large text sizes, long names), lines go by priority instead of being
+    /// clipped (owner, FU-2): the eyebrow first, then the fact, then the name and the chip shorten to one line each;
+    /// the name and the status always stay, and a tap opens Service for the rest. The sparse states keep the same
+    /// grammar with no chip, so no urgency is invented (core C2), and keep their sentence.
+    private var small: some View {
+        Group {
             switch content {
             case let .operation(summary):
-                summary.operation.widgetTitle
-                    .font(PitTypography.headline)
-                    .foregroundStyle(PitColor.contentPrimary)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
-                StatusChip(Text(summary.word.widgetLabel), glyph: summary.status.glyph, color: summary.status.color)
-                    // A chip wraps rather than truncates; in the fixed widget frame two lines keep it inside.
-                    .lineLimit(2)
-                Spacer(minLength: 0)
+                ViewThatFits(in: .vertical) {
+                    smallOperation(summary, showsEyebrow: true, showsFact: true)
+                    smallOperation(summary, showsEyebrow: false, showsFact: true)
+                    smallOperation(summary, showsEyebrow: false, showsFact: false)
+                    smallOperation(summary, showsEyebrow: false, showsFact: false, lineLimit: 1)
+                }
+            case .empty:
+                ViewThatFits(in: .vertical) {
+                    smallEmpty(showsEyebrow: true)
+                    smallEmpty(showsEyebrow: false)
+                }
+            case .unavailable:
+                ViewThatFits(in: .vertical) {
+                    smallUnavailable(showsEyebrow: true)
+                    smallUnavailable(showsEyebrow: false)
+                }
+            }
+        }
+        // The chosen layout starts at the top of the widget. `minHeight: 0` keeps the frame at the widget's height;
+        // with a maximum alone it would grow to a taller layout and be centred.
+        .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
+        .privacySensitive()
+        .accessibilityElement(children: .combine)
+    }
+
+    private var smallEyebrow: some View {
+        Text("widget.nextService.title")
+            .font(PitTypography.captionSmall.weight(.bold))
+            .textCase(.uppercase)
+            .kerning(0.6)
+            .foregroundStyle(PitColor.contentSecondary)
+            // Two lines, so the widget's name stays whole in Russian and Ukrainian.
+            .lineLimit(2)
+            .widgetAccentable()
+    }
+
+    private func smallOperation(
+        _ summary: NextServiceSummary,
+        showsEyebrow: Bool,
+        showsFact: Bool,
+        lineLimit: Int = 2
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if showsEyebrow {
+                smallEyebrow
+            }
+            summary.operation.widgetTitle
+                .font(PitTypography.headline)
+                .foregroundStyle(PitColor.contentPrimary)
+                .lineLimit(lineLimit)
+                .minimumScaleFactor(0.8)
+            StatusChip(Text(summary.word.widgetLabel), glyph: summary.status.glyph, color: summary.status.color)
+                // A chip wraps rather than truncates; the limit keeps it inside the widget.
+                .lineLimit(lineLimit)
+                .minimumScaleFactor(0.8)
+            Spacer(minLength: 0)
+            if showsFact {
                 summary.fact.widgetText
                     .font(PitTypography.caption)
                     .foregroundStyle(PitColor.contentSecondary)
                     .lineLimit(2)
-            case .empty:
-                Text("widget.nextService.empty.headline")
-                    .font(PitTypography.headline)
-                    .foregroundStyle(PitColor.contentPrimary)
-                Spacer(minLength: 0)
-                Text("widget.nextService.empty.detail")
-                    .font(PitTypography.caption)
-                    .foregroundStyle(PitColor.contentSecondary)
-            case .unavailable:
-                Spacer(minLength: 0)
-                Text("widget.nextService.unavailable")
-                    .font(PitTypography.supporting)
-                    .foregroundStyle(PitColor.contentSecondary)
             }
         }
-        // When large text overflows the widget, the eyebrow and name stay and only the lowest lines are clipped.
-        // `minHeight: 0` keeps the frame at the widget's height; with a maximum alone it grows to the taller stack
-        // and the widget centres it, cutting the first and last lines at once.
-        .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
-        .privacySensitive()
-        .accessibilityElement(children: .combine)
+    }
+
+    private func smallEmpty(showsEyebrow: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if showsEyebrow {
+                smallEyebrow
+            }
+            Text("widget.nextService.empty.headline")
+                .font(PitTypography.headline)
+                .foregroundStyle(PitColor.contentPrimary)
+                .minimumScaleFactor(showsEyebrow ? 1 : 0.5)
+            Spacer(minLength: 0)
+            Text("widget.nextService.empty.detail")
+                .font(PitTypography.caption)
+                .foregroundStyle(PitColor.contentSecondary)
+                .minimumScaleFactor(showsEyebrow ? 1 : 0.5)
+        }
+    }
+
+    private func smallUnavailable(showsEyebrow: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if showsEyebrow {
+                smallEyebrow
+            }
+            Spacer(minLength: 0)
+            Text("widget.nextService.unavailable")
+                .font(PitTypography.supporting)
+                .foregroundStyle(PitColor.contentSecondary)
+                .minimumScaleFactor(showsEyebrow ? 1 : 0.5)
+        }
     }
 }
 
