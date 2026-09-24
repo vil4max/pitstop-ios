@@ -104,17 +104,25 @@ struct PitControlTests {
     func pressedTintFollowsTheHead() throws {
         let size: CGFloat = 112
         let unit = size / PitHeadGeometry.viewBox
+        /// Over an opaque light ground: on a transparent render the faint navy tint barely changes the premultiplied
+        /// brightness of the empty chin area, so a misplaced tint would pass or fail on 8-bit rounding.
         func render(pressed: Bool) throws -> CGImage {
             try #require(PitHeadTests.render(
-                PitHead(state: .knock, size: size, finish: .standard).environment(\.pitHeadPressed, pressed),
+                PitHead(state: .knock, size: size, finish: .standard)
+                    .environment(\.pitHeadPressed, pressed)
+                    .frame(width: size, height: size)
+                    .background(PitColor.headShellLight),
                 size: size
             ))
         }
         let pressed = try render(pressed: true), plain = try render(pressed: false)
-        // Below the lifted chin, where the head was at rest: no tint crescent.
+        // Below the lifted chin, where the head was at rest: no tint crescent. A tint left at the resting position
+        // darkens this point by about 0.12.
         let chin = CGPoint(x: 28 * unit, y: 54.5 * unit)
-        #expect(abs(PitHeadTests.brightness(of: pressed, at: chin) - PitHeadTests.brightness(of: plain, at: chin)) <
-            0.01)
+        let chinChange = abs(
+            PitHeadTests.brightness(of: pressed, at: chin) - PitHeadTests.brightness(of: plain, at: chin)
+        )
+        #expect(chinChange < 0.04, "chin changed by \(chinChange)")
         // The top of the lifted head is tinted.
         let crown = CGPoint(x: 28 * unit, y: 5 * unit)
         #expect(PitHeadTests.brightness(of: pressed, at: crown) < PitHeadTests.brightness(of: plain, at: crown) - 0.03)
