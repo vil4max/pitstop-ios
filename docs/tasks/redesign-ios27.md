@@ -58,11 +58,11 @@ catches up with the tests) and move the requirement to
 `919adb3`); push `46062c1` as a branch backup (done). RD-012 runs as a
 pilot round of the new SDLC flow from a task the orchestrator sends, in
 plan mode, not from this brief.
-Blocking decisions: none. Owner decisions pending: the two follow-up
-candidates from the FU-1 review (Service and Road keep their empty state
-beside the banner after a failed reload; Car Board tiles show their empty
-defaults when the first load fails; both core C2, pre-existing) and the
-device checks DEV-WIDGET and DEV-PIT-SHEET.
+The two FU-1 review defects become the fix cards FIX-LOAD-001 and
+FIX-LOAD-002 after RD-012 (`cd6f3c6`); DEV-WIDGET and DEV-PIT-SHEET are
+deferred, device-only, to the TestFlight 1.2.0 build after RD-012
+(`c37214b`).
+Blocking decisions: none. Owner decisions pending: none from this round.
 Permitted deviations: RD-010 is re-estimated from 0.5d to about 2d because
 REQ-UTILITY-012 and REQ-PIT-026 are not implemented on `main` (every sheet
 covers the utility layer; `RootView.swift` ignores the keyboard for it).
@@ -71,7 +71,7 @@ Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
 Next step: wait for the orchestrator's RD-012 pilot task and open it in
-plan mode; the owner confirms the two FU-1 candidates and the device checks.
+plan mode.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
