@@ -55,7 +55,10 @@ the photo lives, how the lift runs, and what may never happen to the photo.
   photo, whole photo under the mask, placeholder for the body) on the stage, the tiles
   and the Road lane; a `CarAvatar` draws the round avatar, 28 pt in detail headers and
   44 pt in the Pit sheet's saved state and question card, hidden from VoiceOver
-  (REQ-BOARD-034). The hero car keeps a label (REQ-BOARD-024).
+  (REQ-BOARD-034). The hero car stays decorative for VoiceOver, as the mockup
+  draws it (`ios27-mockups.html:462`); REQ-BOARD-024 allows a label or a
+  decorative mark. (Corrected at round close: the accepted text said "keeps a
+  label", which neither the code before RD-012 nor the mockup did.)
 - **Privacy.** The photo, its id and its files never reach analytics, logs, the
   network, a widget timeline entry or the repository. No analytics event is added for
   the photo or the body.

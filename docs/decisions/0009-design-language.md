@@ -3,7 +3,9 @@
 **Status:** Accepted for implementation (agent decision under owner delegation,
 2026-09-20: "design it yourself, modern, for Swift 6 and iOS 27"); owner review
 pending; the Pit control and the Pit mark amended by [ADR 0039](0039-pit-head-control.md) (Pit's head, no
-glass, 2026-09-24)\
+glass, 2026-09-24); the Car Hero amended by [ADR 0040](0040-car-profile.md) (the owner's
+photo or the placeholder for the chosen body replaces `AbstractCarView`, and
+`DefaultVehicleHero` is deleted, 2026-09-25)\
 **Task:** CB-002\
 **Contracts:** [`../requirements/product-design.md`](../requirements/product-design.md),
 [`../requirements/screen-grammar.md`](../requirements/screen-grammar.md),
@@ -39,7 +41,8 @@ The catalog image `DefaultVehicleHero` is a specific production car. Showing
 it for a car the user has not identified would break "never show a random
 unrelated car as if it were the user's vehicle", so the provisional hero is
 `AbstractCarView`, a neutral drawn silhouette, marked decorative for
-VoiceOver. The asset stays for a later model-aware visual. While the car is
+VoiceOver. The asset stays for a later model-aware visual. (Superseded by
+ADR 0040: both `AbstractCarView` and the asset are gone.) While the car is
 provisional the hero offers one action, "Name your car", instead of a setup
 checklist.
 
