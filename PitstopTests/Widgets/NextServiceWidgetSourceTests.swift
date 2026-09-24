@@ -221,6 +221,33 @@ struct NextServiceWidgetSourceTests {
         #expect(containerLimits.isEmpty, "a container limits or shrinks the status word")
     }
 
+    /// The name ranks first, so it must not be cut while lower lines stay. A name capped by a line limit has the same
+    /// height cut or whole, so the vertical fit would accept the layout and truncate the name. Instead the name wraps
+    /// up to its family's line budget (three lines on the small widget, two on the Lock Screen) and never shrinks in
+    /// those layouts: a longer name makes the layout taller, and the eyebrow, the fact and the word drop in order.
+    @Test("REQ-WIDGET-004: the name wraps to its line budget instead of being cut while lower lines stay")
+    func nameWrapsBeforeLowerLinesDrop() throws {
+        let wraps = ".fixedSize(horizontal: false, vertical: true)"
+        for (helper, budget) in [("smallOperation", 3), ("rectangularOperation", 2)] {
+            let lines = try self.helper(helper).split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }
+            let wordBranch = try #require(lines.firstIndex(of: "if showsWord {"), "\(helper) has no word branch")
+            let chains = modifierChains(after: "name", in: Array(lines[wordBranch...]))
+                .filter { !$0.isEmpty }
+            let named = try #require(chains.first, "\(helper) does not draw the name in its word layouts")
+            #expect(named.contains(".lineLimit(\(budget))"), "\(helper) caps the name below its line budget")
+            #expect(named.contains(wraps), "\(helper) cuts the name instead of wrapping it")
+            #expect(!named.contains { $0.contains("minimumScaleFactor") }, "\(helper) shrinks the name")
+        }
+        let glyphOnly = try helper("rectangularOperation").split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+        let elseBranch = try #require(glyphOnly.firstIndex(of: "} else {"), "no glyph-only layout")
+        let lastResort = try #require(
+            modifierChains(after: "name", in: Array(glyphOnly[elseBranch...])).first { !$0.isEmpty }
+        )
+        // Only the very last Lock Screen layout, a one-line name, may shrink.
+        #expect(lastResort.contains { $0.hasPrefix(".minimumScaleFactor(nameLines == 1 ?") && $0.hasSuffix(": 1)") })
+    }
+
     /// Only the chosen `ViewThatFits` layout is in the accessibility tree, so combining children would silence a line
     /// dropped for room. Each family reads one label built from the whole content instead.
     @Test("REQ-WIDGET-004: VoiceOver reads name, status word and fact whichever layout is shown")

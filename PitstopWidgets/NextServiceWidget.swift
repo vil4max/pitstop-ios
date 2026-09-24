@@ -150,8 +150,11 @@ struct NextServiceWidgetView: View {
             .widgetAccentable()
         return VStack(alignment: .leading, spacing: 1) {
             if showsWord {
+                // The name ranks first: it wraps to its two-line budget rather than being cut, so a long name makes
+                // this layout taller and the fact, then the word, drop first.
                 name
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
                     StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
                     // The word stays whole (REQ-GRAMMAR-003). The horizontal fit accepts a one-line word only when
@@ -171,10 +174,11 @@ struct NextServiceWidgetView: View {
             } else {
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
                     StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
-                    // Two lines report their full height, so a slot too short for them rejects this layout.
+                    // Two lines report their full height, so a slot too short for them rejects this layout. Only the
+                    // very last layout, a one-line name, may shrink.
                     name
                         .lineLimit(nameLines)
-                        .minimumScaleFactor(0.6)
+                        .minimumScaleFactor(nameLines == 1 ? 0.6 : 1)
                         .fixedSize(horizontal: false, vertical: nameLines > 1)
                 }
             }
@@ -263,9 +267,11 @@ struct NextServiceWidgetView: View {
                 smallEyebrow
             }
             if showsWord {
+                // The name ranks first: it wraps to its three-line budget rather than being cut or shrunk, so a long
+                // name makes this layout taller and the eyebrow, the fact and then the word drop first.
                 name
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
                 // The chip wraps and is never truncated (REQ-GRAMMAR-003): a word that does not fit makes this layout
                 // too tall, and the widget moves on to the glyph alone.
                 StatusChip(Text(summary.word.widgetLabel), glyph: summary.status.glyph, color: summary.status.color)
