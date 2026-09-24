@@ -158,6 +158,49 @@ struct MarkDoneSheetClosedTests {
         #expect(await store.base.completions.count == 1, "only Pit's")
     }
 
+    @Test("REQ-MAINT-040: a late \"already recorded\" from a closed sheet leaves the next sheet's snapshot and message")
+    func lateAlreadyRecordedKeepsTheNextSheetsSnapshot() async throws {
+        let store = HeldStore()
+        let service = await openedService(store)
+        await openMarkDone(service, .engineOilService)
+        try await pitRecords(.engineOilService, odometerKm: nil, in: store)
+        // Nothing typed that Pit's record lacks, so the recheck will find it already recorded; the read is slow.
+        let oilSave = await confirmOilAndHold(service, store, at: .completionsRead, odometerText: "")
+
+        // The oil sheet closes; in the cabin filter sheet Pit records the work and the sheet says so.
+        await openMarkDone(service, .cabinFilter)
+        try await pitRecords(.cabinFilter, odometerKm: nil, in: store)
+        #expect(await !service.confirmDone(.cabinFilter, on: now, odometerText: "30000"))
+        await store.release()
+
+        #expect(await !oilSave.value, "the closed sheet's result cannot close the sheet open now")
+        #expect(service.state.isMarkDoneAlreadyRecorded, "the cabin filter sheet still says Pit saved this")
+        #expect(service.state.failure == nil && service.state.listFailure == nil, "nothing was lost")
+        service.markDoneInputChanged()
+        #expect(await service.confirmDone(.cabinFilter, on: now, odometerText: ""))
+        #expect(await store.base.completions.count { $0.operationID == .cabinFilter } == 1, "the snapshot was kept")
+        #expect(await store.base.completions.count { $0.operationID == .engineOilService } == 1, "only Pit's")
+    }
+
+    @Test("REQ-MAINT-040: a recheck read that fails after its sheet closed says so on the list, not in the next sheet")
+    func lateRecheckFailureIsOnTheList() async {
+        let store = HeldStore()
+        let service = await openedService(store)
+        await openMarkDone(service, .engineOilService)
+        let oilSave = await confirmOilAndHold(service, store, at: .completionsRead, odometerText: "85000")
+
+        await openMarkDone(service, .cabinFilter)
+        await store.base.failEverything()
+        await store.release()
+        let saved = await oilSave.value
+        await store.base.recover()
+
+        #expect(!saved)
+        #expect(service.state.listFailure == .notSaved)
+        #expect(service.state.failure == nil, "the cabin filter sheet shows no failure about oil")
+        #expect(await store.base.completions.isEmpty)
+    }
+
     @Test("REQ-MAINT-040: Service tells the view model when a Mark as done sheet closes, however it closes")
     func serviceReportsTheSheetClosing() throws {
         let code = try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift").split(separator: "\n")
