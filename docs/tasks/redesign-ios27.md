@@ -68,7 +68,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: FU-2 (dispatched when it starts), then FU-3, FU-5, FU-4; RD-012 waits for the owner.
+Next step: FU-2 (dispatched), then FU-3, FU-5, FU-4; RD-012 waits for the owner.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -109,7 +109,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | planned | — |
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | RD-012 | planned | — |
 | FU-1 History and Notes load states | REQ-GRAMMAR-004, core C2 | RD-008 | done | `3ecf307`, `72de89a`; `just verify` per step; 6 of 10 new tests failed first; review: 0 high/medium, 2 out-of-scope lows (owner candidates) |
-| FU-2 Next-service widget restyle | `NextServiceWidgetTests`, REQ-DESIGN-004 | RD-009 | planned | — |
+| FU-2 Next-service widget restyle | `NextServiceWidgetTests`, REQ-DESIGN-004 | RD-009 | in progress | — |
 | FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | planned | — |
 | FU-5 Mark-as-done merge conflict | REQ-MAINT-040 (EARS, proposed) | FU-3 | planned | — |
 | FU-4 RD-011 test strength | `PitControlTests` | RD-011 | planned | — |
@@ -453,6 +453,13 @@ dispatch commit; same output and integration as RD-001):
 
 - [x] History and Notes show their empty state only after a successful load that found no records; before the first load and beside the load-failure banner they show none, as Service does on its first load: REQ-GRAMMAR-004 tests — 3ecf307
 - [x] History and Notes docs: system-overview rows (the brief's note is the integrator's): diff review — 72de89a
+
+FU-2 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001; the medium "Road"
+widget in the mockup is not delivered and stays out of scope):
+
+- [ ] Next-service widget (small, Lock Screen rectangular and inline) drawn with design-system roles and the status glyph, same content, words, link and read-only store access; `NextServiceWidget.swift` leaves the design-rule exemption: `NextServiceWidgetTests`, `DesignRulesTests`
+- [ ] Next-service widget docs: mockup "As built" note, system-overview row, DEV-WIDGET row: diff review
 
 ## Resume prompt
 
