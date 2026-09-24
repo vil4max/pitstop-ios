@@ -37,6 +37,10 @@ struct PitPose: Hashable {
     var eyeTint: PitEyeTint = .lit
     /// Opacity of the glow behind the eyes.
     var glow: Double = PitPose.restingGlow
+    /// The head's tilt in degrees, clockwise positive; zero unless the state's row in the table moves the head.
+    var headTilt: Double = 0
+    /// How far the head rises, in head units (points at 56 pt).
+    var headLift: CGFloat = 0
 
     static let restingGlow: Double = 0.45
 
@@ -58,8 +62,8 @@ struct PitPose: Hashable {
         (left.rotation + right.rotation) / 2
     }
 
-    /// The Poses table of pit-behavior-and-motion.md, drawn without animation. Offsets are in head units; the
-    /// head's own tilt and lift are separate.
+    /// The Poses table of pit-behavior-and-motion.md, drawn without animation. Offsets are in head units. Only
+    /// thinking, startle and knock move the head (REQ-PIT-024).
     init(_ state: PitState) {
         switch state {
         case .resting, .hidden:
@@ -90,12 +94,15 @@ struct PitPose: Hashable {
             // Thinking: up and aside, both eyes rolled 10° the same way.
             self = PitPose(left: PitEyePose(rotation: 10), right: PitEyePose(rotation: 10))
             eyeOffset = CGPoint(x: 2, y: -1.3)
+            // The head tilts 6° aside, the other way from the eyes' roll, as the mockup draws it.
+            headTilt = -6
         case .startle:
             // The lenses round out.
             self = PitPose.resting.eyes {
                 $0.widthScale = 1.16
                 $0.heightScale = 1.06
             }
+            headLift = 2
         case .knock:
             // Attention, never judgement: the tops lean inward by the 6° cap. The eyes turn to the accent and the
             // glow strengthens; with Reduce Motion this is the whole knock (REQ-PIT-023).
@@ -105,6 +112,9 @@ struct PitPose: Hashable {
             )
             eyeTint = .accent
             glow = 1
+            // The head lifts 3 pt and leans in 4°.
+            headLift = 3
+            headTilt = 4
         case .closedEyes:
             // Shallow upward arcs; the flattened, upright lenses fade into them.
             let closed = PitEyePose(outline: .arc, rotation: 0, heightScale: 0.2)

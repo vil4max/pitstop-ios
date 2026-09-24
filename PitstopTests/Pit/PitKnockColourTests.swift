@@ -41,8 +41,8 @@ struct PitKnockColourTests {
     func renderedKnockUsesTheAccent() throws {
         let size: CGFloat = 56
         let unit = size / PitHeadGeometry.viewBox
-        // Below the highlight, inside the left lens.
-        let point = CGPoint(x: 22 * unit, y: 32 * unit)
+        // Below the highlight, inside the left lens, where the knocking head carries it.
+        let point = Self.posed(CGPoint(x: 22, y: 32), in: PitPose(.knock), unit: unit)
         let accent = PitHeadTests.resolve(PitColor.accentPrimary, dark: true)
         let lit = PitHeadTests.resolve(PitColor.headEye, dark: false)
         for scheme in [ColorScheme.light, .dark] {
@@ -53,7 +53,8 @@ struct PitKnockColourTests {
                 PitHead(state: .resting, size: size, finish: .standard).environment(\.colorScheme, scheme), size: size
             ))
             #expect(Self.close(PitHeadTests.rgb(of: knock, at: point), accent), "knock in \(scheme)")
-            #expect(Self.close(PitHeadTests.rgb(of: resting, at: point), lit), "resting in \(scheme)")
+            let restingPoint = Self.posed(CGPoint(x: 22, y: 32), in: PitPose(.resting), unit: unit)
+            #expect(Self.close(PitHeadTests.rgb(of: resting, at: restingPoint), lit), "resting in \(scheme)")
         }
     }
 
@@ -66,8 +67,22 @@ struct PitKnockColourTests {
         }
     }
 
+    /// A point of the head's view box where the pose's head tilt and lift carry it, in points.
+    static func posed(_ point: CGPoint, in pose: PitPose, unit: CGFloat) -> CGPoint {
+        let anchor = CGPoint(x: 28, y: 30)
+        let radians = pose.headTilt * .pi / 180
+        let (dx, dy) = (point.x - anchor.x, point.y - anchor.y)
+        let turned = CGPoint(
+            x: anchor.x + dx * cos(radians) - dy * sin(radians),
+            y: anchor.y + dx * sin(radians) + dy * cos(radians) - pose.headLift
+        )
+        return CGPoint(x: turned.x * unit, y: turned.y * unit)
+    }
+
+    /// Within 0.08 per channel: the renderer shades a dark-scheme image a few percent darker, while the light accent
+    /// and the resting eye each differ from the pale accent by more than 0.25 in red.
     private static func close(_ first: PitHeadTests.Components, _ second: PitHeadTests.Components) -> Bool {
-        abs(first.red - second.red) < 0.04 && abs(first.green - second.green) < 0.04
-            && abs(first.blue - second.blue) < 0.04
+        abs(first.red - second.red) < 0.08 && abs(first.green - second.green) < 0.08
+            && abs(first.blue - second.blue) < 0.08
     }
 }

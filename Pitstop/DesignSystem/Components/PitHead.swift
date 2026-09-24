@@ -14,7 +14,7 @@ struct PitHead: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorSchemeContrast) private var contrast
-    /// Counts entries into the knock, which replays its two bumps.
+    /// Counts entries into the knock, which replays its two dips.
     @State private var knocks = 0
 
     private typealias Geometry = PitHeadGeometry
@@ -37,12 +37,33 @@ struct PitHead: View {
     }
 
     var body: some View {
+        let unit = unit
         ZStack(alignment: .topLeading) {
             shell
             face
             eyes
         }
         .frame(width: size, height: size)
+        // The head moves only as the pose says (REQ-PIT-024); with Reduce Motion it changes without animation.
+        .rotationEffect(.degrees(pose.headTilt), anchor: Geometry.tiltAnchor)
+        .offset(y: -pose.headLift * unit)
+        .animation(PitHeadMotion.animation(into: state, reduceMotion: reduceMotion), value: state)
+        .keyframeAnimator(initialValue: CGFloat.zero, trigger: knocks) { content, dip in
+            content.offset(y: dip * unit)
+        } keyframes: { _ in
+            // Two small dips from the lifted pose: a knock, not a bounce.
+            KeyframeTrack {
+                CubicKeyframe(PitHeadMotion.knockDip, duration: 0.09)
+                CubicKeyframe(0, duration: 0.1)
+                CubicKeyframe(PitHeadMotion.knockDip, duration: 0.09)
+                SpringKeyframe(0, duration: 0.2)
+            }
+        }
+        .onChange(of: state) { _, newState in
+            if PitHeadMotion.playsBumps(entering: newState, reduceMotion: reduceMotion) {
+                knocks += 1
+            }
+        }
         .shadow(color: PitColor.headShadow, radius: 2.5 * unit, y: unit)
         .accessibilityHidden(true)
     }
@@ -136,7 +157,6 @@ struct PitHead: View {
     // MARK: Eyes
 
     private var eyes: some View {
-        let unit = unit
         // The eye on the side Pit looks toward leads; the other follows.
         let trailing = PitEyeAnimation.trailingEyeDelay
         let leftTrails = state == .lookRight
@@ -152,23 +172,6 @@ struct PitHead: View {
         .scaleEffect(shownLife.breath, anchor: Geometry.eyesAnchor)
         .animation(reduceMotion ? nil : .easeInOut(duration: 1.2), value: shownLife.breath)
         .opacity(pose.dimmed ? 0.35 : 1)
-        .keyframeAnimator(initialValue: CGFloat.zero, trigger: knocks) { content, bump in
-            content.offset(y: bump * unit)
-        } keyframes: { _ in
-            // Two small bumps: a knock, not a bounce.
-            KeyframeTrack {
-                CubicKeyframe(-2.5, duration: 0.09)
-                CubicKeyframe(0, duration: 0.1)
-                CubicKeyframe(-2.5, duration: 0.09)
-                SpringKeyframe(0, duration: 0.2)
-            }
-        }
-        .onChange(of: state) { _, newState in
-            // With Reduce Motion the knock is the lifted pose alone (REQ-PIT-018).
-            if newState == .knock, !reduceMotion {
-                knocks += 1
-            }
-        }
     }
 
     private var eyeColor: Color {
@@ -214,10 +217,28 @@ struct PitHead: View {
             x: (center.x + pose.eyeOffset.x) * unit,
             y: (center.y + pose.eyeOffset.y) * unit
         )
-        .animation(reduceMotion ? nil : PitEyeAnimation.into(state).delay(delay), value: state)
+        .animation(PitHeadMotion.animation(into: state, reduceMotion: reduceMotion)?.delay(delay), value: state)
         // Life is a separate offset so its steps never interrupt a state's spring.
         .offset(x: shownLife.gaze.x * 1.2 * unit, y: shownLife.gaze.y * unit)
         .animation(reduceMotion ? nil : shownLife.animation.delay(delay), value: shownLife.gaze)
+    }
+}
+
+/// How the head moves between poses (ADR 0028 timings, REQ-PIT-024).
+enum PitHeadMotion {
+    /// How far each of the knock's two dips lowers the head from its lifted pose, in head units.
+    static let knockDip: CGFloat = 1.5
+    /// The keyframes the knock plays: dip, back, dip, back.
+    static let knockBumps: [CGFloat] = [knockDip, 0, knockDip, 0]
+
+    /// With Reduce Motion every pose is shown at once (pit-behavior-and-motion.md, "Accessibility").
+    static func animation(into state: PitState, reduceMotion: Bool) -> Animation? {
+        reduceMotion ? nil : PitEyeAnimation.into(state)
+    }
+
+    /// With Reduce Motion the knock is the lifted pose alone, with no dips (REQ-PIT-018).
+    static func playsBumps(entering state: PitState, reduceMotion: Bool) -> Bool {
+        state == .knock && !reduceMotion
     }
 }
 

@@ -68,6 +68,9 @@ enum PitHeadGeometry {
     static let shellLightReach: CGFloat = 0.8
     static let shellLightMidStop: CGFloat = 0.62
 
+    /// The head tilts about a point just below its centre, as the mockup rotates it about (28, 30).
+    static let tiltAnchor = UnitPoint(x: 28 / 56, y: 30 / 56)
+
     /// The glow behind the eyes, centred a little below the screen's middle.
     static let glowCenter = UnitPoint(x: 0.5, y: 0.55)
     static let glowReach: CGFloat = 0.55
