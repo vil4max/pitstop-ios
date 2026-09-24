@@ -176,10 +176,10 @@ struct NextServiceWidgetSourceTests {
     @Test("REQ-WIDGET-004: the Lock Screen rectangular widget drops the fact, then the word; name and status stay")
     func rectangularDropsLinesByPriority() throws {
         let rectangular = try family("rectangular")
-        let variant = #/rectangularOperation\(summary, showsFact: (\w+)(, showsWord: false)?(, nameLines: 1)?\)/#
+        let variant = #/rectangularOperation\(summary, showsFact: (\w+)(, showsWord: false)?(, isLastResort: true)?\)/#
         let order = rectangular.matches(of: variant)
-            .map { "\($0.1) \($0.2 == nil ? "word" : "glyph")\($0.3 == nil ? "" : " one-line name")" }
-        #expect(order == ["true word", "false word", "false glyph", "false glyph one-line name"])
+            .map { "\($0.1) \($0.2 == nil ? "word" : "glyph")\($0.3 == nil ? "" : " last")" }
+        #expect(order == ["true word", "false word", "false glyph", "false glyph last"])
         let first = #/ViewThatFits\(in: \.vertical\)\s*\{\s*rectangularOperation\(summary, showsFact: true/#
         #expect(rectangular.contains(first))
 
@@ -228,48 +228,52 @@ struct NextServiceWidgetSourceTests {
         #expect(containerLimits.isEmpty, "a container limits or shrinks the status word")
     }
 
-    /// The name ranks first, so it must not be cut while lower lines stay. A name capped by a line limit has the same
-    /// height cut or whole, so the vertical fit would accept the layout and truncate the name. Instead the name wraps
-    /// up to its family's line budget (three lines on the small widget, two on the Lock Screen) and never shrinks in
-    /// those layouts: a longer name makes the layout taller, and the eyebrow, the fact and the word drop in order.
-    @Test("REQ-WIDGET-004: the name wraps to its line budget instead of being cut while lower lines stay")
+    /// The name ranks first, so it must not be cut while a lower line stays. A `Text` with a line limit reports the
+    /// same height cut or whole, so `ViewThatFits(in: .vertical)` would accept a layout with a cut name. In every
+    /// layout but its family's last, the name therefore has no line limit and no scale factor: it wraps, and a name
+    /// that does not fit makes the layout too tall, so the next layout is tried. Only the last layout, which has no
+    /// fallback, may cap or shrink the name.
+    @Test("REQ-WIDGET-004: before the last layout the name wraps whole, with no line limit or shrink")
     func nameWrapsBeforeLowerLinesDrop() throws {
         let wraps = ".fixedSize(horizontal: false, vertical: true)"
-        for (helper, budget) in [("smallOperation", 3), ("rectangularOperation", 2)] {
+        // Each helper's last layout is the branch that opens with this line and runs to the next branch or the end.
+        let lastBranches = [("smallOperation", "} else {"), ("rectangularOperation", "} else if isLastResort {")]
+        for (helper, lastBranch) in lastBranches {
             let lines = try self.helper(helper).split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }
-            let wordBranch = try #require(lines.firstIndex(of: "if showsWord {"), "\(helper) has no word branch")
-            let chains = modifierChains(after: "name", in: Array(lines[wordBranch...]))
-                .filter { !$0.isEmpty }
-            let named = try #require(chains.first, "\(helper) does not draw the name in its word layouts")
-            #expect(named.contains(".lineLimit(\(budget))"), "\(helper) caps the name below its line budget")
-            #expect(named.contains(wraps), "\(helper) cuts the name instead of wrapping it")
-            #expect(!named.contains { $0.contains("minimumScaleFactor") }, "\(helper) shrinks the name")
+            let last = try #require(lines.firstIndex(of: lastBranch), "\(helper) has no last layout")
+            let lastEnd = lines[(last + 1)...].firstIndex { $0.hasPrefix("} else") } ?? lines.endIndex
+            let earlier = Array(lines[..<last]) + Array(lines[lastEnd...])
+            let chains = modifierChains(after: "name", in: earlier).filter { !$0.isEmpty }
+            #expect(!chains.isEmpty, "\(helper) draws no name before its last layout")
+            for chain in chains {
+                #expect(chain.contains(wraps), "\(helper) does not let the name wrap before its last layout")
+                #expect(!chain.contains { $0.contains("lineLimit") }, "\(helper) caps the name before its last layout")
+                #expect(!chain.contains { $0.contains("minimumScaleFactor") }, "\(helper) shrinks the name early")
+            }
         }
-        let glyphOnly = try helper("rectangularOperation").split(separator: "\n")
+        let rectangular = try helper("rectangularOperation").split(separator: "\n")
             .map { $0.trimmingCharacters(in: .whitespaces) }
-        let elseBranch = try #require(glyphOnly.firstIndex(of: "} else {"), "no glyph-only layout")
+        let last = try #require(rectangular.firstIndex(of: "} else if isLastResort {"), "no Lock Screen last layout")
         let lastResort = try #require(
-            modifierChains(after: "name", in: Array(glyphOnly[elseBranch...])).first { !$0.isEmpty }
+            modifierChains(after: "name", in: Array(rectangular[last...])).first { !$0.isEmpty }
         )
-        // Only the very last Lock Screen layout, a one-line name, may shrink.
-        #expect(lastResort.contains { $0.hasPrefix(".minimumScaleFactor(nameLines == 1 ?") && $0.hasSuffix(": 1)") })
+        // The Lock Screen's last layout: up to three rows, shrinking to half before an ellipsis.
+        #expect(lastResort.contains(".lineLimit(3)") && lastResort.contains(".minimumScaleFactor(0.5)"))
     }
 
     /// A glyph that scales with body text reaches about 34 pt at the largest size, a quarter of the Lock Screen slot,
-    /// and cuts the one name the rule keeps. Beside the name the glyph is capped, and the one-line last resort may
-    /// shrink its name to half.
-    @Test("REQ-WIDGET-004: beside the name the status glyph is capped, and the last Lock Screen name may halve")
+    /// and cuts the one name the rule keeps. Beside the name the glyph is capped in every glyph-only layout.
+    @Test("REQ-WIDGET-004: beside the name the status glyph is capped")
     func glyphBesideTheNameLeavesItsRoom() throws {
         let capped = #/
             StatusGlyphView\( \s* glyph: \s summary\.status\.glyph, \s*
             size: \s min\(statusGlyphSize, \s DesignTokens\.statusGlyphBesideNameMaxSize\) \s* \)
         /#
-        for helper in ["smallOperation", "rectangularOperation"] {
-            let code = try self.helper(helper)
-            let elseBranch = try #require(code.range(of: "} else {"), "\(helper) has no glyph-only layout")
-            #expect(code[elseBranch.upperBound...].contains(capped), "\(helper) does not cap the glyph beside the name")
+        // One glyph-only layout on the small widget, two on the Lock Screen.
+        for (helper, glyphOnlyLayouts) in [("smallOperation", 1), ("rectangularOperation", 2)] {
+            let count = try self.helper(helper).matches(of: capped).count
+            #expect(count == glyphOnlyLayouts, "\(helper) does not cap every glyph beside a name")
         }
-        #expect(try helper("rectangularOperation").contains(".minimumScaleFactor(nameLines == 1 ? 0.5 : 1)"))
     }
 
     /// Only the chosen `ViewThatFits` layout is in the accessibility tree, so combining children would silence a line

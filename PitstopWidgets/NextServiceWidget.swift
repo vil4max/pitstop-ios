@@ -121,7 +121,7 @@ struct NextServiceWidgetView: View {
                     rectangularOperation(summary, showsFact: true)
                     rectangularOperation(summary, showsFact: false)
                     rectangularOperation(summary, showsFact: false, showsWord: false)
-                    rectangularOperation(summary, showsFact: false, showsWord: false, nameLines: 1)
+                    rectangularOperation(summary, showsFact: false, showsWord: false, isLastResort: true)
                 }
             case .empty:
                 ViewThatFits(in: .vertical) {
@@ -142,22 +142,22 @@ struct NextServiceWidgetView: View {
     }
 
     /// Without the word, the status is its glyph alone (VoiceOver still reads the word in `spokenSummary`), leading the
-    /// name as on the small widget: on two whole lines when they fit the slot, otherwise on one line that may shrink.
+    /// name as on the small widget. Before the last layout the name has no line limit: a `Text` with a limit reports
+    /// the same height cut or whole, so the vertical fit would accept a cut name. Unlimited, a name that does not fit
+    /// makes the layout too tall and the next one is tried. Only the last layout, which has no fallback, caps the name
+    /// at the slot's three rows and lets it shrink to half.
     private func rectangularOperation(
         _ summary: NextServiceSummary,
         showsFact: Bool,
         showsWord: Bool = true,
-        nameLines: Int = 2
+        isLastResort: Bool = false
     ) -> some View {
         let name = summary.operation.widgetTitle
             .font(PitTypography.headline)
             .widgetAccentable()
         return VStack(alignment: .leading, spacing: 1) {
             if showsWord {
-                // The name ranks first: it wraps to its two-line budget rather than being cut, so a long name makes
-                // this layout taller and the fact, then the word, drop first.
                 name
-                    .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
                     StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
@@ -175,19 +175,25 @@ struct NextServiceWidgetView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-            } else {
+            } else if isLastResort {
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
                     // Capped, so at the largest text sizes the glyph does not take the width the name needs.
                     StatusGlyphView(
                         glyph: summary.status.glyph,
                         size: min(statusGlyphSize, DesignTokens.statusGlyphBesideNameMaxSize)
                     )
-                    // Two lines report their full height, so a slot too short for them rejects this layout. Only the
-                    // very last layout, a one-line name, may shrink.
                     name
-                        .lineLimit(nameLines)
-                        .minimumScaleFactor(nameLines == 1 ? 0.5 : 1)
-                        .fixedSize(horizontal: false, vertical: nameLines > 1)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.5)
+                }
+            } else {
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    StatusGlyphView(
+                        glyph: summary.status.glyph,
+                        size: min(statusGlyphSize, DesignTokens.statusGlyphBesideNameMaxSize)
+                    )
+                    name
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             if showsFact {
@@ -275,10 +281,10 @@ struct NextServiceWidgetView: View {
                 smallEyebrow
             }
             if showsWord {
-                // The name ranks first: it wraps to its three-line budget rather than being cut or shrunk, so a long
-                // name makes this layout taller and the eyebrow, the fact and then the word drop first.
+                // The name ranks first and has no line limit here: a `Text` with a limit reports the same height cut or
+                // whole, so the vertical fit would accept a cut name. Unlimited, a long name makes this layout too
+                // tall, and the eyebrow, the fact and then the word drop first.
                 name
-                    .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
                 // The chip wraps and is never truncated (REQ-GRAMMAR-003): a word that does not fit makes this layout
                 // too tall, and the widget moves on to the glyph alone.
