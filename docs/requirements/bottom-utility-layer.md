@@ -181,7 +181,7 @@ When the Pit control is displayed
 Then the control remains visible, discoverable, and keeps its semantic label
 
 ### REQ-UTILITY-012 — Sheets keep Pit and cover the rest of the layer
-Status: approved (owner rule 2026-09-22: Pit is always on screen); the medium-detent layout is checked on the simulator in RD-010
+Status: approved (owner rule 2026-09-22: Pit is always on screen; status line updated by the owner, 2026-09-24); RD-010 saw only the Pit Capture Surface on the simulator (inset at the medium detent, large at AX-XXXL); Pit inside a feature sheet or Settings is not yet checked on screen and is tracked as DEV-PIT-SHEET
 Core: P5
 Source: [Pit](#pit), [Safe areas and scrolling](#safe-areas-and-scrolling)
 Given a sheet other than the Pit Capture Surface is presented
