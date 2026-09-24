@@ -115,6 +115,50 @@ struct CarEditorTests {
         #expect(!draft.showsRemovePhoto)
     }
 
+    @Test("REQ-BOARD-029: a pick that cannot be loaded clears the staged photo, says so, and asks for a fresh pick")
+    func failedLoadClearsTheStagedPhoto() {
+        var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: false)
+        draft.beginPhotoLoad()
+        let loaded = draft.finishPhotoLoad(Data([0xFF, 0xD8]))
+        #expect(loaded)
+        #expect(draft.photo == .replace(Data([0xFF, 0xD8])))
+
+        // A second pick fails: the earlier pick must not stay staged unseen.
+        draft.beginPhotoLoad()
+        let kept = draft.finishPhotoLoad(nil)
+
+        #expect(!kept, "the picker selection is not reset, so the same item cannot be picked again")
+        #expect(draft.photo == .unchanged)
+        #expect(draft.photoLoadFailed)
+        #expect(!draft.showsRemovePhoto)
+    }
+
+    @Test("REQ-BOARD-033: a failed pick over a saved photo keeps the saved photo, and the next pick clears the line")
+    func failedLoadKeepsTheSavedPhoto() {
+        var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: true)
+        draft.removePhoto()
+        draft.beginPhotoLoad()
+        let failed = draft.finishPhotoLoad(nil)
+        #expect(!failed)
+        #expect(draft.photo == .unchanged, "a failed pick must not remove or replace the saved photo")
+        #expect(draft.showsRemovePhoto)
+        #expect(draft.photoLoadFailed)
+
+        draft.beginPhotoLoad()
+        #expect(!draft.photoLoadFailed, "the line outlives the next attempt")
+        let failedAgain = draft.finishPhotoLoad(nil)
+        #expect(!failedAgain)
+        draft.removePhoto()
+        #expect(!draft.photoLoadFailed, "the line outlives a remove")
+    }
+
+    @Test("REQ-BOARD-029: the Photo row shows the failed-load line")
+    func photoRowShowsTheFailedLoad() throws {
+        let editor = try PitInSheetTests.source("Pitstop/Features/CarBoard/CarEditorView.swift")
+        #expect(editor.contains("if draft.photoLoadFailed"))
+        #expect(editor.contains("\"carEditor.photo.loadFailed\""))
+    }
+
     @Test("REQ-BOARD-029: without the App Group container the editor offers no photo")
     func photoNeedsTheContainer() {
         let directory = URL.temporaryDirectory.appending(path: "pitstop-editor-\(UUID().uuidString)")
@@ -151,6 +195,7 @@ struct CarEditorTests {
             "carEditor.photo.choose": "Choose photo",
             "carEditor.photo.remove": "Remove photo",
             "carEditor.photo.footer": "Stays on this iPhone. Not shared, not in usage data.",
+            "carEditor.photo.loadFailed": "This photo could not be loaded. Try again or choose another.",
             "carEditor.body.section": "Body",
             "carEditor.body.suv": "SUV",
             "carEditor.body.sedan": "Sedan",

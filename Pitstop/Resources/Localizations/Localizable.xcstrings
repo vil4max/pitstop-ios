@@ -777,6 +777,28 @@
         }
       }
     },
+    "carEditor.photo.loadFailed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This photo could not be loaded. Try again or choose another."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось загрузить это фото. Попробуйте ещё раз или выберите другое."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося завантажити це фото. Спробуйте ще раз або виберіть інше."
+          }
+        }
+      }
+    },
     "carEditor.photo.remove" : {
       "localizations" : {
         "en" : {

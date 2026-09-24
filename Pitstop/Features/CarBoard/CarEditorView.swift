@@ -8,6 +8,8 @@ struct CarEditorDraft: Equatable {
     var odometer: String
     var body: CarBody
     private(set) var photo: CarPhotoEdit = .unchanged
+    /// The last pick could not be loaded; the Photo row says so until the next pick or a remove.
+    private(set) var photoLoadFailed = false
     /// The body the board showed when the editor opened; choosing it again is no change (REQ-BOARD-030).
     private let shownBody: CarBody
     private let hasSavedPhoto: Bool
@@ -35,11 +37,30 @@ struct CarEditorDraft: Equatable {
 
     mutating func choosePhoto(_ data: Data) {
         photo = .replace(data)
+        photoLoadFailed = false
     }
 
     /// Removing a pick that was never saved just drops it; a saved photo is removed on save (REQ-BOARD-033).
     mutating func removePhoto() {
         photo = hasSavedPhoto ? .remove : .unchanged
+        photoLoadFailed = false
+    }
+
+    mutating func beginPhotoLoad() {
+        photoLoadFailed = false
+    }
+
+    /// Stages the loaded bytes and returns `true`. Without bytes nothing stays staged, not even an earlier
+    /// pick the owner meant to replace, so Save can never store a photo nobody sees; the saved photo is kept.
+    /// `false` tells the view to clear the picker selection, so the same item can be picked again.
+    mutating func finishPhotoLoad(_ data: Data?) -> Bool {
+        guard let data else {
+            photo = .unchanged
+            photoLoadFailed = true
+            return false
+        }
+        choosePhoto(data)
+        return true
     }
 }
 
@@ -90,6 +111,12 @@ struct CarEditorView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .accessibilityIdentifier("carEditor.photo.choose")
+                        if draft.photoLoadFailed {
+                            Text("carEditor.photo.loadFailed")
+                                .font(.footnote)
+                                .foregroundStyle(PitColor.statusDanger)
+                                .accessibilityIdentifier("carEditor.photo.loadFailed")
+                        }
                         if draft.showsRemovePhoto {
                             Button("carEditor.photo.remove", role: .destructive) {
                                 pickedItem = nil
@@ -134,18 +161,21 @@ struct CarEditorView: View {
     }
 
     /// Only the bytes are read here; decoding, bounding and the lift wait for Save and run off the main
-    /// actor. A pick that cannot be loaded leaves the draft as it was.
+    /// actor.
     private func loadPickedPhoto() async {
         guard let item = pickedItem else {
             isLoadingPhoto = false
             return
         }
         isLoadingPhoto = true
+        draft.beginPhotoLoad()
+        // A thrown error and no data are the same to the owner: the photo could not be loaded.
         let data = try? await item.loadTransferable(type: Data.self)
         // A newer pick or a remove replaced this one while it loaded, and that task owns the state now.
         guard !Task.isCancelled else { return }
-        if let data {
-            draft.choosePhoto(data)
+        if !draft.finishPhotoLoad(data) {
+            // With the selection kept, picking the same item again would not start a new load.
+            pickedItem = nil
         }
         isLoadingPhoto = false
     }
