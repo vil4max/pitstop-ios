@@ -1,0 +1,323 @@
+{
+  "requirements": {
+    "REQ-BOARD-017": {
+      "active": true,
+      "fingerprint": "7af6e6166f3ab7acb84f975175c8934681d67fe3e77c94a9eb36e08fdec3d150",
+      "normative_text": "Given any car context When Car Board renders Then Car Board shows the car visual in the hero and the display name as the screen title and no technical specification list",
+      "revision": 1
+    },
+    "REQ-BOARD-026": {
+      "active": true,
+      "fingerprint": "82d398d50c537675d92584148b7a62146d6c8019c176cbca313a3699e35a5c27",
+      "normative_text": "Given a completion saved with its mileage is newer than any odometer reading When Car Board renders Then the header shows that mileage the same value Service counts from and saving the same number in the car editor while that mileage is stale records a fresh reading",
+      "revision": 1
+    },
+    "REQ-BOARD-027": {
+      "active": true,
+      "fingerprint": "76d781180acef4e1acbb93f1c12529ab85e92722c67a02c2a387a667b748a58d",
+      "normative_text": "Given a newest mileage observation with a date a reading or a completion saved with its mileage When Car Board renders Then the hero shows that observation s age from its date only and shows no age when no observation exists",
+      "revision": 1
+    },
+    "REQ-BOARD-028": {
+      "active": true,
+      "fingerprint": "58cac7c56adafce7abc1f8b3a8574ece95484428d420d4921aa8b7ac70782b29",
+      "normative_text": "Given the four V1 tiles When they render Then each shows the title row with a chevron a primary line and a secondary line and a status chip only where a state exists",
+      "revision": 1
+    },
+    "REQ-BOARD-029": {
+      "active": true,
+      "fingerprint": "72bb0e05bc1d8fed806b250b3ba26c16067600dbca6b28a157b8d73bd5e150ab",
+      "normative_text": "Given the owner picks a photo in the car editor When it is saved Then it is stored as a file in the app container shown on the stage and never sent to analytics logs or any network widgets read it only as a file in the App Group container after SYS 007 never inside a timeline entry",
+      "revision": 1
+    },
+    "REQ-BOARD-030": {
+      "active": true,
+      "fingerprint": "ed0c7dd594e82656656ffc7abfc681b4e158efdf337d1c4fd487393c25f2cfdd",
+      "normative_text": "Given no photo When the car is shown Then the placeholder is the body the owner chose SUV or sedan or SUV when none was chosen and never one derived from other data",
+      "revision": 1
+    },
+    "REQ-BOARD-031": {
+      "active": true,
+      "fingerprint": "155476504bdf68918a6a80a80ded4df62cde61f643d01550ad67e0f188cd3379",
+      "normative_text": "Given a photo whose subject cannot be lifted When the stage renders Then the whole photo is shown under the stage mask and no error is shown",
+      "revision": 1
+    },
+    "REQ-BOARD-032": {
+      "active": true,
+      "fingerprint": "f6aea09f0a16d3e1270ce45e37211a4b01ea6c93ed236e88c79e71ea88b3fd37",
+      "normative_text": "Given a first launch with no car details When Car Board appears Then nothing asks for a photo and the car is shown as the SUV placeholder",
+      "revision": 1
+    },
+    "REQ-BOARD-033": {
+      "active": true,
+      "fingerprint": "630cff0ea9086f4ae7b366c1944f23c3ca74abe7d6ac72d57cb508717f15ca1c",
+      "normative_text": "Given a saved car photo When the owner removes it in the car editor and saves Then every file stored for that photo is deleted from the container the car store keeps no reference to it and the car is shown as the placeholder for the chosen body",
+      "revision": 1
+    },
+    "REQ-BOARD-034": {
+      "active": true,
+      "fingerprint": "d99b03670e6d036ca2152966ccb45439b9eef32726e49baafb75ecf7987413ac",
+      "normative_text": "Given any car context When a detail screen header the Pit sheet s saved state or its question card renders Then a round avatar of the car the photo or the placeholder for the chosen body is shown at 28 pt in the header and 44 pt in the Pit sheet and is hidden from VoiceOver and Settings forms and list rows show none",
+      "revision": 1
+    },
+    "REQ-DESIGN-001": {
+      "active": true,
+      "fingerprint": "586a914e259c84e9fc04a20802f3725f60effe2b5f1e758d834a34b2e8e7023e",
+      "normative_text": "Given any maintenance or Road state shown to the user When it is rendered Then a word and a state glyph accompany the colour and the glyph shape differs per state",
+      "revision": 1
+    },
+    "REQ-DESIGN-002": {
+      "active": true,
+      "fingerprint": "46431e8e74b1627fec279e731470c03ddc03f654f7e873ef16111a1e6cf1a781",
+      "normative_text": "Given a primary or detail screen When its surfaces are inspected Then only the utility layer toolbar actions and floating controls use Liquid Glass and just verify fails when glassEffect appears outside the design system",
+      "revision": 1
+    },
+    "REQ-DESIGN-003": {
+      "active": true,
+      "fingerprint": "690d0e85d247a2bc05f83a284c8295c727c4245cfc28ed8bc320fb322459731a",
+      "normative_text": "Given the stage tier When it is rendered Then its tint is accentPrimary at a token defined opacity and no other surface is tinted",
+      "revision": 1
+    },
+    "REQ-DESIGN-004": {
+      "active": true,
+      "fingerprint": "df2af1bd38fdd03a1ed25f9a756eeaa8c645db28b7f86294c274231895f1c446",
+      "normative_text": "Given feature code code in Shared outside Shared DesignSystem or widget code in PitstopWidgets When just verify runs Then it fails if such a file contains a colour literal instead of a PitColor role",
+      "revision": 1
+    },
+    "REQ-DESIGN-005": {
+      "active": true,
+      "fingerprint": "499d92d52499b8bc73a839109b03c42dd63531ff88113ce4030840b7cbbaa306",
+      "normative_text": "Given no owner photo When any surface shows the car Then it shows the neutral placeholder for the body the owner chose SUV when none was chosen facing right and never a make model or body derived from other data",
+      "revision": 1
+    },
+    "REQ-GRAMMAR-001": {
+      "active": true,
+      "fingerprint": "d1a6a6d02e9791bd60d13c39e135fd8768a7395f21cc612dbc1c4367da75b093",
+      "normative_text": "Given a screen section listing records of one kind When it renders Then the records are rows in one grouped container not one card per record",
+      "revision": 1
+    },
+    "REQ-GRAMMAR-002": {
+      "active": true,
+      "fingerprint": "371c991e6015c5d51cfd4cc70e415630202b1399645c05d1baedbaab21e2201c",
+      "normative_text": "Given a detail screen When it renders Then it shows eyebrow and large title and its actions in the navigation toolbar as glass buttons or one menu",
+      "revision": 1
+    },
+    "REQ-GRAMMAR-003": {
+      "active": true,
+      "fingerprint": "79e477e4206af33228045305c6c5be44f7066ee35023fc9cc4222dbdb77713ae",
+      "normative_text": "Given the largest Dynamic Type size When any primary or detail screen renders Then no text is truncated below its meaning chips wrap and every control keeps a 44 pt target",
+      "revision": 1
+    },
+    "REQ-GRAMMAR-004": {
+      "active": true,
+      "fingerprint": "8ad119212fc9bb42f5c5094e5ed50f43982b5084a75f7cb8a2f1609f4652475e",
+      "normative_text": "Given an owned surface with no records When it renders Then it shows a glyph a headline at most one sentence and at most two actions and no placeholder metric",
+      "revision": 1
+    },
+    "REQ-ICON-001": {
+      "active": true,
+      "fingerprint": "e155004f3ccd165131e39846583a932907f07c1e3c2fe5cdabad12f9b79ef33f",
+      "normative_text": "Given the primary app icon When it is shown in any appearance Then its only foreground motif is Pit s round head with the face screen and the two eyes at rest with no text letter body mouth or hands",
+      "revision": 1
+    },
+    "REQ-MAINT-040": {
+      "active": true,
+      "fingerprint": "14b52e87839ef9ec053d295db5459bca38f71bed1babcc228bf17b8086ba5dba",
+      "normative_text": "When the owner confirms Mark as done and Pit recorded a completion of that operation while the sheet was open dated on the entered day the day before or the day after and that entry differs from the owner s another of those days or an odometer typed here that Pit s entry lacks or does not match the app shall record nothing keep the sheet open and ask once in place and to VoiceOver whether to keep Pit s entries or replace them with the owner s naming the date of every such entry of Pit s and its odometer when it has one Acceptance Given Mark as done is open for engine oil and Pit records an oil change today at 85 000 km When the owner confirms today at 86 000 km or yesterday with the odometer empty Then nothing is written the sheet stays open with Keep Pit s entry and Replace with mine and VoiceOver announces the prompt Given Pit also recorded the oil change yesterday at 84 900 km Then the prompt names both entries",
+      "revision": 1
+    },
+    "REQ-MAINT-041": {
+      "active": true,
+      "fingerprint": "f2e37f64447c3692b5e58ca203135f73f2820a6ef1b59cfcba6863f637ace208",
+      "normative_text": "When the owner confirms Mark as done and Pit recorded a completion of that operation for the entered day while the sheet was open and the odometer is left empty or equals Pit s the app shall record nothing more and close the sheet as saved Acceptance Given Pit recorded an oil change today at 85 000 km while the sheet was open When the owner confirms today at 85 000 km or with no odometer Then one completion is stored and the sheet closes",
+      "revision": 1
+    },
+    "REQ-MAINT-042": {
+      "active": true,
+      "fingerprint": "a5ee1cc732376ed36eb58ce2ebf8e4048892aa150e1282fb5414d91cd3589c43",
+      "normative_text": "When the owner chooses Keep Pit s entry the app shall record nothing from the sheet close it as saved and reload the list which shows Pit s entry Acceptance Given the prompt of REQ MAINT 040 When the owner keeps Pit s entry Then only Pit s completion of that work is stored and the list shows it as the last completion",
+      "revision": 1
+    },
+    "REQ-MAINT-043": {
+      "active": true,
+      "fingerprint": "fb1358342325a3773f1ef6aca068c8490c4c8892334bdfbc8344734cccfb0761",
+      "normative_text": "When the owner chooses Replace with mine and Pit s entries within a day of the entered date are still exactly the ones the prompt named the app shall in one store transaction revoke those entries and record the owner s completion then close the sheet as saved Acceptance Given the prompt of REQ MAINT 040 When the owner replaces Pit s entry Then the owner s completion is the only one of that work stored and a single command wrote it",
+      "revision": 1
+    },
+    "REQ-MAINT-044": {
+      "active": true,
+      "fingerprint": "2f9261f99ac0247cf6aeea41edc70dc8f108a517230312a7b095b0c9ff314752",
+      "normative_text": "When the owner edits the date or the odometer while the prompt of REQ MAINT 040 is shown the app shall remove the prompt and the next confirmation shall recheck the edited entry Acceptance Given the prompt When the owner changes the odometer to Pit s value and confirms Then the prompt is gone and nothing more is recorded REQ MAINT 041",
+      "revision": 1
+    },
+    "REQ-MAINT-045": {
+      "active": true,
+      "fingerprint": "d4bb2cf507a46a400d4ae838ec8d70bd530fa3be3739803f630f6dd281f7f971",
+      "normative_text": "When the owner confirms Mark as done and every completion of that operation Pit recorded while the sheet was open is dated more than one day before or after the entered day the app shall record the owner s completion and keep Pit s Acceptance Given Pit records changed the oil in March while the sheet is open When the owner confirms today Then both completions are stored",
+      "revision": 1
+    },
+    "REQ-MAINT-046": {
+      "active": true,
+      "fingerprint": "a6835fc8aa4d2d802598eb9532374561c959d7ae5cce7bef9354ab1b67ce51b9",
+      "normative_text": "The app shall compare the owner s Mark as done entry only with completions of that operation stored after its sheet opened completions stored before it opened the same day included shall not count as Pit s entry Acceptance Given Siri saved an oil change today at 84 000 km before the sheet opened When the owner confirms today at 85 000 km Then the owner s completion is recorded and no prompt appears",
+      "revision": 1
+    },
+    "REQ-MAINT-047": {
+      "active": true,
+      "fingerprint": "dee3287496b181e1a30887749c1bfd05ba244f685b9074bd23b310747a4db851",
+      "normative_text": "If what is stored cannot be read as the Mark as done sheet is about to open the app shall not open the sheet and Service shall say it did not work since nothing has been typed yet Acceptance Given the store fails to read When the owner taps Mark as done Then no sheet opens Service says it did not work and nothing is written",
+      "revision": 1
+    },
+    "REQ-MAINT-048": {
+      "active": true,
+      "fingerprint": "34c76894cfc412753bc81ac2100fb781cd96626b8d4134b6bfe680e36e3c428f",
+      "normative_text": "If what is stored cannot be read when the owner confirms Mark as done or chooses Replace with mine the app shall write nothing and say in the open sheet that nothing was saved Acceptance Given the sheet is open and the store stops reading When the owner confirms Then no command is executed and the sheet says it was not saved",
+      "revision": 1
+    },
+    "REQ-MAINT-049": {
+      "active": true,
+      "fingerprint": "7791e1997c7e74babc91ff52a5fc76c9515928f0c1425d774c107352ab15ecae",
+      "normative_text": "If the Mark as done sheet closes while its save still runs and the recheck then finds Pit s differing entry within a day REQ MAINT 040 the app shall not record the owner s entry shall reload the list and shall say on the list only that Pit s entry for this work was kept and the owner s entry was not saved a Replace with mine the owner chose before the app closed the sheet is the exception and still replaces the entries the prompt named REQ MAINT 043 since the save lock lets only the app close the sheet Acceptance Given Pit recorded an oil change without an odometer and the owner s save of 86 000 km is still rechecking When the app closes the sheet Then only Pit s completion is stored the reloaded list shows it and the list names Pit s record rather than inviting a retry Given the owner chose Replace with mine and Pit s entries are unchanged When the app closes the sheet during the recheck Then only the owner s completion is stored and the list shows it",
+      "revision": 1
+    },
+    "REQ-MAINT-050": {
+      "active": true,
+      "fingerprint": "ddffd2a06dfbc1e2aaade2cd0c392f84e72d7985b59d8bbca0d139ef4db536c0",
+      "normative_text": "If a Mark as done save is still running when its sheet closes the app shall change nothing in a sheet opened afterwards its snapshot message prompt or announcement Acceptance Given the oil save is held and the cabin filter sheet opens When the oil save returns or fails Then the cabin filter sheet keeps its snapshot and prompt",
+      "revision": 1
+    },
+    "REQ-MAINT-051": {
+      "active": true,
+      "fingerprint": "d02e3ec48c8b43a3452e6d47c41504117846b7cfcd4e7a7b7ccd3449669ac90b",
+      "normative_text": "While Mark as done is saving the app shall disable Cancel and swipe to dismiss for its sheet Acceptance Given the owner confirmed and the save runs When the owner taps Cancel or swipes down Then the sheet stays until the save returns",
+      "revision": 1
+    },
+    "REQ-MAINT-052": {
+      "active": true,
+      "fingerprint": "72926fd6c4dc22d7d26808d6d1ba5942b651334fe849b004a6707dd24ebbba6c",
+      "normative_text": "If when the owner chooses Replace with mine Pit s entries within a day of the entered date differ from the ones the prompt named one was added or one is gone including an entry equal to the owner s and at least one is still stored the app shall write nothing and ask again naming the entries stored now Acceptance Given the prompt named Pit s entry for today When Pit records the same work yesterday and the owner then replaces Then nothing is written and the prompt names both entries Given Pit meanwhile records exactly the owner s entry Then the sheet does not close as already recorded but asks again",
+      "revision": 1
+    },
+    "REQ-MAINT-053": {
+      "active": true,
+      "fingerprint": "05746d20006f1db1f094e9ad5f2c5038029658594fc50566f52c3114b6f050a6",
+      "normative_text": "When the owner undoes the last done after replacing Pit s entries with their own the app shall remove only the owner s completion leaving Pit s replaced entries revoked so the cycle counts from the completion before them or is unknown without one Acceptance Given the owner replaced Pit s oil change of today with theirs When the owner undoes the last done Then no completion of that work from today remains and the operation has no last completion unless an earlier one exists",
+      "revision": 1
+    },
+    "REQ-MAINT-054": {
+      "active": true,
+      "fingerprint": "83ecb351b450b4ace14625a5ea83b3e51ec34cc092ea71634f63f050573047f2",
+      "normative_text": "The app shall not store the owner s Mark as done completion beside a completion of the same work that Pit recorded while the sheet was open dated within a day of the entered date Acceptance Given Pit recorded an oil change today while the sheet was open When the owner confirms a differing entry for today once or repeatedly Then only Pit s completion is stored until the owner keeps it or replaces it",
+      "revision": 1
+    },
+    "REQ-MAINT-055": {
+      "active": true,
+      "fingerprint": "1c291f8d79d7800b13af32e0e283ca2fd827938e8fab3318525668e49b68f83f",
+      "normative_text": "If the Replace transaction of REQ MAINT 043 fails the app shall store neither the revocation of Pit s entries nor the owner s completion and shall say in the sheet that nothing was saved Acceptance Given the owner replaces Pit s entry When the store rejects the command an entry gone other work an invalid date or odometer or a failed save Then Pit s completion is still stored the owner s is not and the sheet stays open saying it was not saved",
+      "revision": 1
+    },
+    "REQ-MAINT-056": {
+      "active": true,
+      "fingerprint": "161482692d78dfc67cbd33c8226ada0c6faf4485047a8ac221d35f81b0236d4d",
+      "normative_text": "If a Mark as done save is still running when its sheet closes the app shall still record the owner s work or say on the list that it was not saved Acceptance Given the oil save is held and its sheet closes When the save returns Then the owner s completion is on the reloaded list once When it fails Then the list says it was not saved and no sheet shows the failure",
+      "revision": 1
+    },
+    "REQ-PIT-021": {
+      "active": true,
+      "fingerprint": "4cae762d0c2727908f787e5d1f341fb75b3b505a96fdae88ee0f89e66fde612f",
+      "normative_text": "Given any sequence of captures in one sheet session When the sheet renders Then it shows only the current moment composing working confirming clarifying or saved and never a history of earlier turns",
+      "revision": 1
+    },
+    "REQ-PIT-022": {
+      "active": true,
+      "fingerprint": "37c2ae04fb739dde01aba42c64de52b8b80e5ea66cb9e29617e08e1fb6802d45",
+      "normative_text": "Given each state of the motion language When Pit is drawn with animation disabled Then every state has a distinct static pose eye outline tilt or offset or head tilt or lift and the inward eye tilt never exceeds 6",
+      "revision": 1
+    },
+    "REQ-PIT-023": {
+      "active": true,
+      "fingerprint": "cbbca1e1078c9c917e2a1a186844ae5ccb623c54ff638c959c503750986f6331",
+      "normative_text": "Given Pit knocks in the utility layer or in the capture sheet When the eyes are drawn with or without Reduce Motion Then the eyes use accentPrimary for the knock and return to their resting colour when it ends and no other state uses the accent",
+      "revision": 1
+    },
+    "REQ-PIT-024": {
+      "active": true,
+      "fingerprint": "ffcf08387d41c0468fb6f29aa10caf11512be5f916edc3e8b56f531e0d924025",
+      "normative_text": "Given Pit is resting or idle When no motion language state that moves the head is active Then the head neither tilts nor lifts",
+      "revision": 1
+    },
+    "REQ-PIT-025": {
+      "active": true,
+      "fingerprint": "4459c192e738bbc24cc06448acde4a159aad91d224074196f976eb1e26d07024",
+      "normative_text": "Given an accessibility Dynamic Type size When the Pit Capture Surface opens Then it opens at the large detent so the composer and its action stay visible above the keyboard",
+      "revision": 1
+    },
+    "REQ-PIT-026": {
+      "active": true,
+      "fingerprint": "7094aaac2951c2bc28bc10b9f5d47ff280344cc23cb6ab50f6f3162917991caf",
+      "normative_text": "Given any screen or sheet other than the Pit Capture Surface with or without the keyboard When it is displayed Then Pit is visible in the bottom trailing position and one tap opens the Pit Capture Surface and closing it returns to the same sheet with its input unchanged",
+      "revision": 1
+    },
+    "REQ-PIT-027": {
+      "active": true,
+      "fingerprint": "c2533392c30bf4657145e4020a90a0d72b25af68c4ec36dfdd97f7b97e272d65",
+      "normative_text": "Given the capture sheet is composing When Pit s question is pending asking or saving its answer Then the question s Save is the one prominent action and Remember is quiet at every text size otherwise Remember is the prominent action",
+      "revision": 1
+    },
+    "REQ-ROAD-007": {
+      "active": true,
+      "fingerprint": "bf6066a66381bb151af48dd05af5e7e0373f5498cc52040217f1a20bef3c7c9e",
+      "normative_text": "Given date based or mileage based milestones When the Road projection is computed or rendered Then each milestone is placed ordered and labelled by its own dimension time is not converted to mileage or mileage to time except in the labelled date estimate of REQ ROAD 022 and current mileage is never invented",
+      "revision": 1
+    },
+    "REQ-ROAD-022": {
+      "active": true,
+      "fingerprint": "ad97f5cac7a4569b63f26ecd234b537e429ab4b8b35507c0bfbe613356ed12e5",
+      "normative_text": "Given a distance placed milestone with known remaining kilometres and an eligible reading history REQ ROAD 023 When the Road projection is computed Then the milestone carries an estimated date range derived from the reading history labelled as an estimate and its placement order and state are the same as without it",
+      "revision": 1
+    },
+    "REQ-ROAD-023": {
+      "active": true,
+      "fingerprint": "12643b15dc8cf68b4f42de571566d02fa2ef7eaa58f3d2e403dcd24224fdb5eb",
+      "normative_text": "Given fewer than 3 observations in the last 365 days a span under 60 days a newest observation older than 90 days fewer than 2 usable pairs no remaining kilometres a range wider than twice its early bound or a bound more than 730 days away When the Road projection is computed Then the milestone carries no estimate and nothing else changes",
+      "revision": 1
+    },
+    "REQ-ROAD-027": {
+      "active": true,
+      "fingerprint": "a0c2ab1e5f9760f7aeb8c0e1b8646e525efd0a9b16e0ad1f821f3f3c2724d972",
+      "normative_text": "Given a Road projection with slots When Road renders Then the same milestones appear as text rows in the same order under the lane and no milestone is only in the lane or only in the list",
+      "revision": 1
+    },
+    "REQ-ROAD-028": {
+      "active": true,
+      "fingerprint": "fcdc44f681c9542ba97c1c553d5bc594a05afaeba444da9485d380a5a9569a4d",
+      "normative_text": "Given the lane scrolled away from the car When Road renders Then a labelled control returns the lane to the car and the control is absent while the lane s leading item is the car",
+      "revision": 1
+    },
+    "REQ-ROAD-029": {
+      "active": true,
+      "fingerprint": "6133f7d5882ed90bc42525937f71506ea61baf5054e7494c2899bf9ccff7e88d",
+      "normative_text": "Given a lane with the car and milestones in a tile on the Road screen or in a widget When it is drawn at any text size Then the car s wheels and every sign post meet the same road line labels sit under it and no sign uses a warning shape or the danger colour",
+      "revision": 1
+    },
+    "REQ-UTILITY-012": {
+      "active": true,
+      "fingerprint": "83bcf90110b8c50c92f26cb54f5859653a77322e773af40137bcf3d1b87ea019",
+      "normative_text": "Given a sheet other than the Pit Capture Surface is presented When the sheet or the keyboard is shown Then Pit stays visible at the bottom trailing spot of the sheet above the keyboard Settings is not shown over the sheet and both return to their layer positions when the sheet closes",
+      "revision": 1
+    },
+    "REQ-WIDGET-011": {
+      "active": true,
+      "fingerprint": "e3f074ac9a4106a53a3e6cd18f4a68692d8daf86e3aeee8081039a0c51d99e32",
+      "normative_text": "If the widget s content does not fit at the current text size the widget shall drop lines in this order first the Next service eyebrow then the fact with the by date reason then the status word keeping the status glyph the operation name and the status shall stay visible the name shall wrap whole before any lower line is dropped and may end in an ellipsis only in the last layout and a status word shall never be truncated Acceptance Given an operation whose content does not fit When the widget lays it out Then the dropped lines follow this order and a tap still opens Service",
+      "revision": 1
+    },
+    "REQ-WIDGET-012": {
+      "active": true,
+      "fingerprint": "b5e1e6747caa7f578a05f4ce2fe7d171408686bc815e5b1ed47aeb44b1a6c2b3",
+      "normative_text": "When VoiceOver reads the widget the widget shall speak the operation name the status word and the fact including lines the layout dropped while the content is redacted for privacy it shall speak only the widget s name REQ WIDGET 008 Acceptance Given the widget shows an operation in any layout When VoiceOver reads it Then it hears the full content or only the widget s name when redacted",
+      "revision": 1
+    }
+  },
+  "version": 1
+}

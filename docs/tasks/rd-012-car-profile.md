@@ -19,16 +19,24 @@ pilot round по новому SDLC flow: в старом brief не начина
 through ExitPlanMode (Part B: opening, four cards, close, ship); release
 scope "1.2.0 after RD-012 (Recommended)". The pilot-minimum package was
 approved by the owner on 2026-09-24 ("да", kit `docs/tasks/ios-sdlc-review.md`).
-Package approval of this round's requirements and cards: pending (one
-`AskUserQuestion`, quoted here verbatim before the first dispatch).
-Blocking decisions: the package approval above.
+Package approval, owner in this session on 2026-09-24, through
+`AskUserQuestion` with named options ("Approve the package" / "Approve
+without the avatar" / "Not yet"); question: "Approve the RD-012 package as
+one decision? It covers: REQ-BOARD-032 (first launch never asks for a
+photo), REQ-BOARD-033 (removing the photo removes its files), REQ-BOARD-034
+(car avatar 28 pt in headers, 44 pt in Pit, not in Settings, forms or
+lists); ADR 0040 (photo files in the App Group, only an id in schema V5,
+Vision lift on device with whole-photo fallback, the unused DefaultVehicleHero
+image deleted); four cards: car-profile-data, car-visual,
+car-editor-profile, car-avatar, writers on opus. Plan hash
+633e5347…cfb09."; answer, verbatim: "Approve the package".
+Blocking decisions: none.
 Permitted deviations: none.
 Material assumptions: the simulator's Vision may return no foreground
 instance, so the lifted path is checked on a device (What to Test); checked
 at card `car-visual` by running the fake and the Vision path in tests.
-Next step: ask the owner for the package approval of this Plan hash; then
-flip REQ-BOARD-032, REQ-BOARD-033, REQ-BOARD-034 and ADR 0040, run
-`spec_trace.py lock --write` and dispatch card `car-profile-data`.
+Next step: dispatch card `car-profile-data` from the commit that records its
+Writer steps.
 Requirements: REQ-BOARD-017, REQ-BOARD-029, REQ-BOARD-030, REQ-BOARD-031,
 REQ-BOARD-032, REQ-BOARD-033, REQ-BOARD-034, REQ-DESIGN-005
 Acceptance specs: tests citing each requirement above in their display name,

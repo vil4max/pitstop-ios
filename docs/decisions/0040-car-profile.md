@@ -1,6 +1,6 @@
 # Car Profile: the Owner's Photo, the Chosen Body and the Car Avatar
 
-**Status:** Proposed (RD-012 opening, 2026-09-24; accepted with the round's package approval)\
+**Status:** Accepted (owner, 2026-09-24, RD-012 package approval: "Approve the package")\
 **Task:** RD-012 ([`../tasks/rd-012-car-profile.md`](../tasks/rd-012-car-profile.md))\
 **Builds on:** [`0007-persistence.md`](0007-persistence.md) (versioned schemas, frozen
 shipped versions), [`0036-app-group-store-and-next-service-widget.md`](0036-app-group-store-and-next-service-widget.md)
