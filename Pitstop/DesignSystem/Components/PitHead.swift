@@ -64,6 +64,9 @@ struct PitHead: View {
                 knocks += 1
             }
         }
+        // One shadow from the head's outline: without the group every layer (screen, lenses, glosses) would cast
+        // its own onto the shell, and each animation frame would blur all of them.
+        .compositingGroup()
         .shadow(color: PitColor.headShadow, radius: 2.5 * unit, y: unit)
         .accessibilityHidden(true)
     }

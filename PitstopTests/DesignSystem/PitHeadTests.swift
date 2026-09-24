@@ -111,6 +111,21 @@ struct PitHeadTests {
         }
     }
 
+    @Test("ADR-0039: the head casts one shadow from its outline; no part of it shades the shell below the screen")
+    func oneShadowUnderTheHead() throws {
+        let size: CGFloat = 112
+        let image = try #require(Self.render(PitHead(size: size, finish: .standard), size: size))
+        let unit = size / Geometry.viewBox
+        // The shell just below the bezel, which a shadow of the bezel or the screen would darken.
+        for across in [CGFloat(20), 28, 36] {
+            let shell = Self.brightness(of: image, at: CGPoint(x: across * unit, y: 43.5 * unit))
+            #expect(shell > 0.88, "shell below the screen at x \(across): \(shell)")
+        }
+        // The shadow itself still falls outside the head's lower edge.
+        let below = Self.rgb(of: image, at: CGPoint(x: 28 * unit, y: 55.8 * unit))
+        #expect(below.alpha > 0.02, "no shadow under the head")
+    }
+
     // MARK: Helpers
 
     struct Components {
