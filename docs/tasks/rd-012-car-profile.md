@@ -11,9 +11,9 @@ Plan hash: 633e53470a50acf45215ceab92ed8c21183b6a25346b92f4f1009ce4789cfb09
 
 ## Current status and authorization
 
-Current outcome: cards `car-profile-data` (`5a76746`) and `car-visual`
-(`43e9d47`) landed, each with review round 1 at 0 high/medium; card
-`car-editor-profile` dispatched; `car-avatar` pending.
+Current outcome: cards `car-profile-data` (`5a76746`), `car-visual`
+(`43e9d47`) and `car-editor-profile` (`0a2f7db`, two repairs, round 3
+clean) landed; card `car-avatar` dispatched.
 Authorized scope: the owner in this session on 2026-09-24: "RD-012 делаем как
 pilot round по новому SDLC flow: в старом brief не начинай, оркестратор
 пришлёт задачу, открой её в plan mode."; the RD-012 pilot plan approved
@@ -36,7 +36,7 @@ Permitted deviations: none.
 Material assumptions: the simulator's Vision may return no foreground
 instance, so the lifted path is checked on a device (What to Test); checked
 at card `car-visual` by running the fake and the Vision path in tests.
-Next step: integrate card `car-editor-profile` after repair 2 and its round 3 review.
+Next step: integrate card `car-avatar` when its writer reports; then close the round.
 Requirements: REQ-BOARD-017, REQ-BOARD-029, REQ-BOARD-030, REQ-BOARD-031,
 REQ-BOARD-032, REQ-BOARD-033, REQ-BOARD-034, REQ-DESIGN-005
 Acceptance specs: tests citing each requirement above in their display name,
@@ -272,11 +272,17 @@ Sources: REQ-BOARD-034; ADR 0040 "One component"; mockup:
 
 Intended deviations: none
 
-Boundaries: owned `Pitstop/DesignSystem/Components/` (new `CarAvatar`),
-`Pitstop/Features/Shared/FeatureScaffold.swift`, the header component it
-uses, `Pitstop/Features/Pit/PitSheetParts.swift`,
-`Pitstop/Features/Pit/PitQuestionCard.swift`, and matching tests. No avatar in
-Settings, forms, list rows or widgets.
+Boundaries: traced from the car board state to each surface; owned
+`Pitstop/DesignSystem/Components/` (new `CarAvatar`, and one environment
+value carrying the car's body and photo files), `Pitstop/App/RootView.swift`
+(set that value from the car board state), `Pitstop/DesignSystem/Components/ScreenHeader.swift`
+(an optional avatar before the eyebrow), `Pitstop/Features/Shared/FeatureScaffold.swift`
+(detail screens: Road, Notes, History, Service), `Pitstop/Features/Pit/PitSheetParts.swift`
+(saved state), `Pitstop/Features/Pit/PitQuestionCard.swift`,
+`Pitstop/Features/Pit/PitCaptureView.swift` and `Pitstop/Features/Pit/PitInSheet.swift`
+(only if the value must be passed into a presented sheet), and matching tests.
+Reuse `CarVisual`'s picture resolution and decoder without changing them. No
+avatar on Car Board's own header, in Settings, forms, list rows or widgets.
 
 Output: the writer report, filed under
 `agent-artifacts/2026-09-24/pitstop-rd-012/outputs/car-avatar/`.
@@ -377,7 +383,15 @@ Output: a Repair 2 section appended to the writer report in
   now `070ef30`, `972b699`; repairs `ccf6654`, `e3f878b`); the round 1 low
   at `CarBoardViewModel.swift:159` was dropped from it before it started
   (lows go to the backlog). Round 2 review: 1 medium, a regression from
-  repair 1; repair 2 dispatched (second of three).
+  repair 1; repair 2 dispatched (second of three). Repair 2 READY at
+  `0a2f7db` after a clean rebase onto `f170f5b` (final SHAs: `e47d15e`,
+  `0c0ce81`, `b0042a7`, `fb8ddb3`, `0a2f7db`). Round 3 review: 0
+  high/medium, 2 low (backlog), no regression; the KIT-D-022 rework
+  question after a third round did not arise, because the card closed
+  clean. Landed by `git merge --ff-only`; `just verify` on `0a2f7db` →
+  verify OK. Not checked on screen: the car editor opens only by a tap and
+  the simulator tool's access prompt went unanswered; it joins the 1.2.0
+  What to Test.
 
 ### Round 1 review — car-profile-data (2026-09-24)
 
@@ -393,9 +407,9 @@ Review SHA: 5a76746
 
 Review SHA: 43e9d47
 
-- [low][non-blocking][new] Pitstop/DesignSystem/Components/CarVisual.swift:138 — a cancelled decode can still write `loaded` after a newer photo's decode; with a cache clear in between the frame stays empty until the id changes (carried into the car-avatar dispatch, which reuses the decoder)
-- [low][non-blocking][new] Pitstop/DesignSystem/Components/CarVisual.swift:91 — the lookup and the insert are separate locks, so the hero and the Road tile decode the same file twice on first appearance (carried into the car-avatar dispatch)
-- [low][non-blocking][new] Pitstop/DesignSystem/Components/CarVisual.swift:45 — bitmaps of a replaced photo stay cached until the ninth insert, about 30 MB at most (carried into the car-avatar dispatch)
+- [low][non-blocking][new] Pitstop/DesignSystem/Components/CarVisual.swift:138 — a cancelled decode can still write `loaded` after a newer photo's decode; with a cache clear in between the frame stays empty until the id changes (backlog at close; lows are not repaired, `defect-first-before-commit`)
+- [low][non-blocking][new] Pitstop/DesignSystem/Components/CarVisual.swift:91 — the lookup and the insert are separate locks, so the hero and the Road tile decode the same file twice on first appearance (backlog at close; lows are not repaired, `defect-first-before-commit`)
+- [low][non-blocking][new] Pitstop/DesignSystem/Components/CarVisual.swift:45 — bitmaps of a replaced photo stay cached until the ninth insert, about 30 MB at most (backlog at close; lows are not repaired, `defect-first-before-commit`)
 - [low][non-blocking][new] Pitstop/Infrastructure/SubjectLift/SubjectLifter.swift:9 — the lifter expects the bounded original, but `CarPhotoStore.save` never returns it, so the editor must bound the picked data itself (carried into the car-editor-profile dispatch)
 - [low][non-blocking][new] docs/decisions/0040-car-profile.md:58 — "the hero car keeps a label" contradicts the decorative hero (corrected at close)
 - [low][non-blocking][new] docs/decisions/0009-design-language.md:38 — ADR 0009 still names `AbstractCarView` and `DefaultVehicleHero` and lacks an "amended by ADR 0040" note (corrected at close)
@@ -419,6 +433,13 @@ Review SHA: e3f878b
 - [low][non-blocking][new] Pitstop/Features/CarBoard/CarEditorView.swift:114 — the load-failure line is not announced to VoiceOver, unlike `MarkDoneView` and `TrackSeveralView` (backlog at close)
 - [low][non-blocking][new] PitstopTests/CarBoard/CarEditorTests.swift:56 — the lock test is tagged REQ-BOARD-029, which says nothing about locking; the matrix counts it as that requirement's coverage (backlog at close)
 
+### Round 3 review — car-editor-profile (2026-09-25)
+
+Review SHA: 0a2f7db
+
+- [low][non-blocking][new] PitstopTests/CarBoard/CarEditorTests.swift:137 — the corrected test keeps the name `failedLoadKeepsTheSavedPhoto` while it now asserts the remove is kept (backlog at close)
+- [low][non-blocking][new] PitstopTests/CarBoard/CarEditorTests.swift:156 — no test pins remove, then a successful pick, then a failed pick giving "unchanged" (backlog at close)
+
 ## Untested scope
 
 - The lifted path on real photos (Neural Engine) and `PhotosPicker` with the
@@ -440,11 +461,16 @@ Card `car-visual` (dispatched 2026-09-24):
 
 Card `car-editor-profile` (dispatched 2026-09-25):
 
-- [ ] The save path: bound the picked data, lift it, store the files, then set the photo and the body, deleting the old photo's files after the command and the new files when the command fails; removing runs the command, then deletes; the view model and the composition root carry the lifter: REQ-BOARD-029, REQ-BOARD-030 and REQ-BOARD-033 tests (including no photo data in analytics or log cases) fail first, then `just verify`
-- [ ] The car editor: a Photo row (`PhotosPicker`, "Choose photo", "Remove photo", footer "Stays on this iPhone…"), a Body control (SUV, Sedan), then Name and Mileage, in en, ru and uk, with light, dark and AX-XL previews; first launch asks for no photo: REQ-BOARD-032 and REQ-BOARD-030 tests fail first, then `just verify`
-- [ ] Repair 1: the editor locks Cancel and swipe while a save runs: a failing test for the locked sheet first, then `just verify`
-- [ ] Repair 1: a failed photo load clears the staged photo, says so in the Photo row and lets the same item be picked again: failing tests first, then `just verify`
-- [ ] Repair 2: a failed photo load resets only a staged replacement and keeps a staged remove: a REQ-BOARD-033 test fails first, then `just verify`
+- [x] The save path: bound the picked data, lift it, store the files, then set the photo and the body, deleting the old photo's files after the command and the new files when the command fails; removing runs the command, then deletes; the view model and the composition root carry the lifter: REQ-BOARD-029, REQ-BOARD-030 and REQ-BOARD-033 tests (including no photo data in analytics or log cases) fail first, then `just verify` — e47d15e
+- [x] The car editor: a Photo row (`PhotosPicker`, "Choose photo", "Remove photo", footer "Stays on this iPhone…"), a Body control (SUV, Sedan), then Name and Mileage, in en, ru and uk, with light, dark and AX-XL previews; first launch asks for no photo: REQ-BOARD-032 and REQ-BOARD-030 tests fail first, then `just verify` — 0c0ce81
+- [x] Repair 1: the editor locks Cancel and swipe while a save runs: a failing test for the locked sheet first, then `just verify` — b0042a7
+- [x] Repair 1: a failed photo load clears the staged photo, says so in the Photo row and lets the same item be picked again: failing tests first, then `just verify` — fb8ddb3
+- [x] Repair 2: a failed photo load resets only a staged replacement and keeps a staged remove: a REQ-BOARD-033 test fails first, then `just verify` — 0a2f7db
+
+Card `car-avatar` (dispatched 2026-09-25):
+
+- [ ] A design-system `CarAvatar` (round, the photo or the placeholder for the body, 28 pt and 44 pt, hidden from VoiceOver) and one environment value carrying the car's body and photo files, with light, dark and AX-XL previews: REQ-BOARD-034 tests fail first, then `just verify`
+- [ ] `RootView` sets the value; detail screen headers (Road, Notes, History, Service) show the 28 pt avatar before the eyebrow, and the Pit sheet's saved state and question card show the 44 pt one; Car Board's header, Settings and forms show none: REQ-BOARD-034 tests fail first, then `just verify`
 
 ## Deferred
 
