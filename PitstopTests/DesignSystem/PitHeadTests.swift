@@ -44,7 +44,7 @@ struct PitHeadTests {
         #expect(abs(gloss.x - 27.78) < 0.01 && abs(gloss.y - 27.88) < 0.01)
     }
 
-    @Test("ADR-0038: Reduce Transparency and Increase Contrast draw the head from opaque fills with a firm edge")
+    @Test("ADR-0038: Reduce Transparency and Increase Contrast drop the glosses, glow and halos and firm the edge")
     func accessibilityFinishes() {
         let standard = PitHeadFinish.standard
         #expect(standard.showsGloss && standard.showsGlow && standard.showsHalo)

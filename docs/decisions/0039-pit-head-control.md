@@ -6,7 +6,7 @@ circle as Pit's head and no glass disc behind it; recorded with RD-011 on 2026-0
 **Amends:** [`0009-design-language.md`](0009-design-language.md) ("Two layers: calm content, glass controls" and
 "Pit mark": the Pit control is no longer glass, and Pit is a head, not two capsule eyes)\
 **Builds on:** [`0028-pit-eyes-and-motion.md`](0028-pit-eyes-and-motion.md) (motion language, timings, Reduce
-Motion; unchanged), [`0037-app-icon-pit-head.md`](0037-app-icon-pit-head.md) (head geometry),
+Motion; unchanged; its drawing and the knock's bumps are amended here), [`0037-app-icon-pit-head.md`](0037-app-icon-pit-head.md) (head geometry),
 [`0038-ios27-surface-tiers.md`](0038-ios27-surface-tiers.md) (glass through the design system only)\
 **Contracts:** [`../requirements/product-design.md`](../requirements/product-design.md) "Pit visual identity",
 [`../requirements/pit-behavior-and-motion.md`](../requirements/pit-behavior-and-motion.md) "Poses",
@@ -35,8 +35,10 @@ while the app still drew the eyes in the glass circle. The Poses table and REQ-P
 - **Colours.** Every colour of the head is a `PitColor` role (`headShell…`, `headBezel`, `headVisorTop/Bottom`,
   `headGlow`, `headEye`, `headShadow`, `headPressed`) with light, dark and high-contrast values. The head stays
   pearl with a navy screen in dark mode. A light shadow lifts it off light content.
-- **Reduce Transparency and Increase Contrast.** Both drop the translucent layers (the two glosses, the glow and
-  the eye halos), so the head is drawn from opaque fills (`PitHeadFinish`). Increase Contrast also darkens the
+- **Reduce Transparency and Increase Contrast.** Both drop the see-through decoration: the two glosses, the glow and
+  the eye halos (`PitHeadFinish`). The shell, bezel, screen and lenses are opaque fills; the hairline, the eye
+  highlight and the shadow stay slightly translucent, because they carry the edge, the lens shine and the
+  separation from content, and they show nothing of the content behind the head. Increase Contrast also darkens the
   shell's edge, the bezel and the screen's top, whitens the eyes and thickens the hairline.
 - **Poses as values.** `PitPose` is what the head draws for one `PitState`: per-eye outline, turn and scale, the
   eye offset, the eye tint and glow, and the head's tilt and lift. The values follow the Poses table; where the
@@ -48,8 +50,12 @@ while the app still drew the eyes in the glass circle. The Poses table and REQ-P
   stays within the 10° of proposal §3.6b.
 - **Knock colour.** Only the knock pose lights the eyes in `accentPrimary` and strengthens the glow (REQ-PIT-023).
   The eyes resolve their colours in a dark colour-scheme environment, because the screen is navy in both
-  appearances: `accentPrimary` is then the pale accent (about 7:1 on the screen), where the light accent would
-  sink into the navy.
+  appearances: `accentPrimary` is then the pale accent, where the light accent would sink into the navy. Against
+  the bare screen the pale accent is about 7:1 (`PitKnockColourTests`), and that is what Increase Contrast draws,
+  since it removes the glow (about 8:1 measured on a render). With the knock's full-strength glow, as the mockup
+  draws it (`#7DBAFA` eyes on a `#6FB2FF` glow), a render measures about 1.3:1 between the eyes, 2.4:1 at their
+  outer edges and 3.3:1 below them: the knock reads by the colour change, the inward tilt and the lift, not by eye
+  contrast. Lowering the knock glow is left to the owner (the Poses table asks for a stronger glow).
 - **Head motion.** Only thinking (tilt 6° aside), startle (lift 2 pt) and knock (lift 3 pt, lean in 4°) move the
   head (REQ-PIT-024); every idle action keeps it still, and bounded life (ADR 0028) scales and shifts the eyes,
   never the head. The knock's two bumps are 1.5 pt dips from the lifted pose, so the head stays between rest and

@@ -58,7 +58,9 @@ struct PitKnockColourTests {
         }
     }
 
-    @Test("REQ-PIT-023: the accent eyes read on the face screen in every appearance")
+    /// Against the bare screen, as Increase Contrast draws the knock (it removes the glow). With the glow the knock's
+    /// eye contrast is lower; ADR 0039 records the measured values.
+    @Test("REQ-PIT-023: the accent eyes read on the bare face screen in every appearance")
     func accentReadsOnTheScreen() {
         for highContrast in [false, true] {
             let visor = PitHeadTests.resolve(PitColor.headVisorTop, dark: true, highContrast: highContrast)

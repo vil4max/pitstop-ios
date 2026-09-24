@@ -87,9 +87,10 @@ enum PitHeadGeometry {
 }
 
 /// How the head is finished under the accessibility display settings (ADR 0038 gives glass the same two
-/// variants). Reduce Transparency removes every translucent layer: the glosses, the glow and the eye halos, so the
-/// head is drawn from opaque fills only. Increase Contrast removes them too, and the colour roles darken the shell's
-/// edge, the bezel and the screen, while the hairline gets heavier.
+/// variants). Reduce Transparency drops the see-through decoration: the glosses, the glow and the eye halos. The
+/// hairline, the eye highlight and the shadow stay slightly translucent: they carry the edge, the shine and the
+/// separation, and nothing of the content behind shows through them. Increase Contrast drops the same layers, and
+/// the colour roles darken the shell's edge, the bezel and the screen, while the hairline gets heavier.
 struct PitHeadFinish: Hashable {
     let showsGloss: Bool
     let showsGlow: Bool

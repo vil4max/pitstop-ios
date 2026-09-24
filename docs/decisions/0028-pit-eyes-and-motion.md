@@ -1,6 +1,9 @@
 # Pit Eyes and the Full Motion Language
 
-**Status:** Accepted for implementation (owner request 2026-09-21)\
+**Status:** Accepted for implementation (owner request 2026-09-21); the drawing amended by
+[ADR 0039](0039-pit-head-control.md) (2026-09-24): Pit is drawn as `PitHead` with one `PitPose` per state,
+`PitEyesGlyph`, `PitEyeShape` and `PitEyeGeometry` are removed, and the knock's bumps are dips from the lifted
+pose; the sequences, timings, life and Reduce Motion rules below are unchanged\
 **Task:** PIT-MOTION-001\
 **Builds on:** [`0009-design-language.md`](0009-design-language.md) (Pit mark),
 [`0012-pit-presence-and-attention.md`](0012-pit-presence-and-attention.md),
