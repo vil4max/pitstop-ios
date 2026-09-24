@@ -68,7 +68,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: FU-4 (dispatched); RD-012 waits for the owner.
+Next step: the follow-up batch FU-1…FU-5 is complete; the owner's end-of-round decisions (Blocking decisions), then RD-012.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -112,7 +112,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | FU-2 Next-service widget restyle | `NextServiceWidgetTests`, REQ-DESIGN-004, REQ-WIDGET-011, 012 | RD-009 | done | `159b636`…`4f236bc`; `just verify` per step; review: 6 rounds (1 medium privacy; then clean; 3 medium; 3 medium; 1 medium; 0 high/medium + 1 low wording), all repaired; the owner lifted the repair budget |
 | FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | done | `0f8024f`…`7061361`; `just verify` per step; failing-first; review: 2 medium + 3 low, then 0 high/medium + 1 low (accepted) |
 | FU-5 Mark-as-done merge conflict | REQ-MAINT-040…056 (EARS, proposed) | FU-3 | done | `0ecc595`…`c846429`, numbering `d5db7a5`; `just verify` per step; failing-first and mutation evidence; review: 2 medium + 5 low, then 0 high/medium + 3 low (2 repaired, 1 accepted) |
-| FU-4 RD-011 test strength | `PitControlTests` | RD-011 | in progress | — |
+| FU-4 RD-011 test strength | `PitControlTests`, `UtilityLayer` | RD-011 | done | `4756b9a`…`4e26ddb`; `just verify` per step; mutation evidence; review: 0 high/medium + 1 low, repaired |
 | Release 1.2.0 | `just tf-check` Ready | SYS-008 | planned | — |
 
 Acceptance for each RD slice is its row in
@@ -365,6 +365,16 @@ added here when the slice starts.
   `service.failure.pitRecordKept`. Not checked on screen: the prompt needs
   a Pit capture over the open sheet. The integrator fast-forwarded to
   c846429 and ran `just verify`: passed.
+- 2026-09-24, FU-4 (slice-writer): `just verify` passed before each
+  commit; mutation evidence for each test (tint outside the head group:
+  chin 0.120 against < 0.04; shadow dimmed apart: shell 0.908 against a
+  0.959 blend). The style's compositing group was removed as redundant
+  (identical pixels at ten points), which also changed `UtilityLayer.swift`
+  beyond the test file; the dispatch allowed that route. Review: 0
+  high/medium + 1 low (no shell sample), repaired. All pixel evidence is
+  from `ImageRenderer`, not a device. The integrator fast-forwarded to
+  4e26ddb and ran `just verify`: passed. The follow-up batch FU-1…FU-5 is
+  complete.
 
 ## Untested scope
 
@@ -540,7 +550,8 @@ failing test first; builds on FU-3's per-opening token and save lock):
 FU-4 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001):
 
-- [ ] The two RD-011 test-strength lows: the pressed-tint render test runs over an opaque background so a mis-placed tint fails clearly; the disabled-dimming test guards the button style's own compositing group, whose comment matches its purpose: `PitControlTests`, mutation evidence
+- [x] The two RD-011 test-strength lows: the pressed-tint render test runs over an opaque background so a mis-placed tint fails clearly (4756b9a); the button style's compositing group was removed as redundant instead of guarded (no pixel changed without it; allowed by the dispatch), and the disabled-dimming test guards `PitHead`'s own group (62c5b07): `PitControlTests`, mutation evidence
+- [x] Review repair: the disabled test also checks that the head's shadow dims with it: mutation — 4e26ddb
 
 ## Resume prompt
 
