@@ -85,7 +85,7 @@ enum MarkDoneRecheck: Equatable {
 
     /// `prompted` is the set the owner chose to replace. The choice covers only what the prompt showed: when Pit's
     /// entries within a day changed since, the owner is asked again, and the same-day skip does not apply, since the
-    /// owner chose to remove the prompted entries (REQ-NEW-3).
+    /// owner chose to remove the prompted entries (REQ-NEW-12).
     init(
         recorded: [MaintenanceCompletion],
         date: Date,
@@ -252,8 +252,8 @@ final class ServiceViewModel {
     /// Called only after the user confirmed the work was actually performed (core C5). `replacingPits` is the owner's
     /// "Replace with mine" after the sheet asked about Pit's entries of the same work: what is stored is rechecked
     /// first, and only when Pit's entries within a day are still the ones the prompt showed are they revoked and the
-    /// owner's completion confirmed as one command, so one store transaction; otherwise the sheet asks again
-    /// (REQ-NEW-3). Returns whether the sheet closes as saved; a sheet that closed while this ran gets
+    /// owner's completion confirmed as one command, so one store transaction (REQ-NEW-3); otherwise the sheet asks
+    /// again (REQ-NEW-12). Returns whether the sheet closes as saved; a sheet that closed while this ran gets
     /// false, so it cannot close the sheet open now.
     func confirmDone(
         _ operation: MaintenanceOperationID,
