@@ -31,6 +31,9 @@ intent, not a claim that the work did not happen.
    (`StopTrackingOperationCommand`: vehicle ID and operation ID). No proposal
    maps to it, so Remember and Siri cannot issue it; like
    `revokeMaintenanceCompletion`, only a Service action does.
+   Amended by FU-5 (2026-09-24): `replaceMaintenanceCompletion` joins these
+   user-only commands; no proposal maps to it, and only "Replace with mine"
+   in Mark as done issues it.
 2. **Validation.** The command rejects a blank operation ID
    (`DomainCommandError.emptyOperationID`). The store requires the current
    vehicle (`unknownVehicle` otherwise) and an owner-set policy for that
