@@ -68,7 +68,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: FU-5 (dispatched), then FU-4; RD-012 waits for the owner.
+Next step: FU-4 (dispatched); RD-012 waits for the owner.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -111,8 +111,8 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | FU-1 History and Notes load states | REQ-GRAMMAR-004, core C2 | RD-008 | done | `3ecf307`, `72de89a`; `just verify` per step; 6 of 10 new tests failed first; review: 0 high/medium, 2 out-of-scope lows (owner candidates) |
 | FU-2 Next-service widget restyle | `NextServiceWidgetTests`, REQ-DESIGN-004, REQ-WIDGET-011, 012 | RD-009 | done | `159b636`…`4f236bc`; `just verify` per step; review: 6 rounds (1 medium privacy; then clean; 3 medium; 3 medium; 1 medium; 0 high/medium + 1 low wording), all repaired; the owner lifted the repair budget |
 | FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | done | `0f8024f`…`7061361`; `just verify` per step; failing-first; review: 2 medium + 3 low, then 0 high/medium + 1 low (accepted) |
-| FU-5 Mark-as-done merge conflict | REQ-MAINT-040 (EARS, proposed) | FU-3 | in progress | — |
-| FU-4 RD-011 test strength | `PitControlTests` | RD-011 | planned | — |
+| FU-5 Mark-as-done merge conflict | REQ-MAINT-040…056 (EARS, proposed) | FU-3 | done | `0ecc595`…`c846429`, numbering `d5db7a5`; `just verify` per step; failing-first and mutation evidence; review: 2 medium + 5 low, then 0 high/medium + 3 low (2 repaired, 1 accepted) |
+| FU-4 RD-011 test strength | `PitControlTests` | RD-011 | in progress | — |
 | Release 1.2.0 | `just tf-check` Ready | SYS-008 | planned | — |
 
 Acceptance for each RD slice is its row in
@@ -347,6 +347,24 @@ added here when the slice starts.
   REQ-MAINT-040's text for these goes to FU-5. Not checked on screen. The
   integrator fast-forwarded to 7061361 and ran `just verify`: passed.
   REQ-WIDGET-011/012 restated in EARS form per KIT-D-001 (0e240e0).
+- 2026-09-24, FU-5 (slice-writer): `just verify` passed before each code
+  commit; "Replace with mine" is one store transaction through a new
+  `DomainCommand.replaceMaintenanceCompletion` (one save, rollback on any
+  failure; ADR 0010 and 0031 amendment lines); the prompt lists every Pit
+  entry within ±1 day, Replace revokes exactly those and re-prompts when
+  the set changed; "Save anyway" removed. Review: round 1, 2 medium + 5 low;
+  round 2, 0 high/medium + 3 low: 2 repaired, 1 accepted as a known limit
+  (a Siri, Shortcut or widget entry landing between the recheck and the
+  store command can still sit beside the owner's; plain Mark as done has
+  the same gap). The writer hit an API session limit mid-mutation once and
+  resumed; the integrator confirmed no mutation line remained. The
+  integrator numbered REQ-NEW-1…16 as REQ-MAINT-041…056 (d5db7a5; all
+  proposed, for the owner's end-of-round batch). Unused catalog keys left
+  in place (additions-only rule): `service.done.saveAnyway`,
+  `service.done.alreadyRecorded`, `service.failure.pitAlreadyRecorded`,
+  `service.failure.pitRecordKept`. Not checked on screen: the prompt needs
+  a Pit capture over the open sheet. The integrator fast-forwarded to
+  c846429 and ran `just verify`: passed.
 
 ## Untested scope
 
@@ -513,9 +531,16 @@ FU-5 (writer: a `slice-writer` subagent in its own worktree from the
 dispatch commit; same output and integration as RD-001; fix profile,
 failing test first; builds on FU-3's per-opening token and save lock):
 
-- [ ] REQ-MAINT-040 rewritten in EARS (KIT-D-001) as single-rule requirements, still proposed: the keep-Pit's or replace-with-mine choice, the ±1 day window, completions before the sheet opened not counting (REQ-MAINT-031), the unreadable store keeping the sheet closed, and FU-3's app-closed-sheet behaviour; new rules take `REQ-NEW` placeholders that the integrator numbers: diff review
-- [ ] When Pit records the same operation within ±1 day while Mark as done is open, the owner resolves it with one prompt: keep Pit's entry, or replace it with theirs (Pit's revoked and the owner's confirmed in one store transaction); "Save anyway" and two completions for the same work go away: failing-first tests
-- [ ] Mark-as-done docs: system-overview row, mockup note if the sheet changes: diff review
+- [x] REQ-MAINT-040 rewritten in EARS (KIT-D-001) as single-rule requirements, still proposed: the keep-Pit's or replace-with-mine choice, the ±1 day window, completions before the sheet opened not counting (REQ-MAINT-031), the unreadable store keeping the sheet closed, and FU-3's app-closed-sheet behaviour; new rules take `REQ-NEW` placeholders that the integrator numbers: diff review — 0ecc595, numbered REQ-MAINT-041…056 in d5db7a5
+- [x] When Pit records the same operation within ±1 day while Mark as done is open, the owner resolves it with one prompt: keep Pit's entry, or replace it with theirs (Pit's revoked and the owner's confirmed in one store transaction); "Save anyway" and two completions for the same work go away: failing-first tests — 827ae9c
+- [x] Mark-as-done docs: system-overview row, mockup note if the sheet changes: diff review — 9f7c840
+- [x] Review repair: Replace limited to the entries the prompt named (re-prompt when the set changed); chosen Replace stands after an app-initiated close; fact-only list message; Undo-after-Replace rule; ADR 0010/0031 amendment lines and domain inventory; single-rule split; overview row: failing-first, mutation — 253a464, dda6d9a, c2b4f21, d214777, dbc999a, 23db50f, 7feae92
+- [x] Round-2 repair: swapped-entry re-prompt test; comment citations: mutation — b5fc496, c846429
+
+FU-4 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001):
+
+- [ ] The two RD-011 test-strength lows: the pressed-tint render test runs over an opaque background so a mis-placed tint fails clearly; the disabled-dimming test guards the button style's own compositing group, whose comment matches its purpose: `PitControlTests`, mutation evidence
 
 ## Resume prompt
 
