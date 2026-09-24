@@ -36,7 +36,7 @@ Permitted deviations: none.
 Material assumptions: the simulator's Vision may return no foreground
 instance, so the lifted path is checked on a device (What to Test); checked
 at card `car-visual` by running the fake and the Vision path in tests.
-Next step: integrate card `car-editor-profile` when its writer reports.
+Next step: integrate card `car-editor-profile` after repair 1 and its round 2 review.
 Requirements: REQ-BOARD-017, REQ-BOARD-029, REQ-BOARD-030, REQ-BOARD-031,
 REQ-BOARD-032, REQ-BOARD-033, REQ-BOARD-034, REQ-DESIGN-005
 Acceptance specs: tests citing each requirement above in their display name,
@@ -281,6 +281,31 @@ Settings, forms, list rows or widgets.
 Output: the writer report, filed under
 `agent-artifacts/2026-09-24/pitstop-rd-012/outputs/car-avatar/`.
 
+### car-editor-profile repair 1 dispatch — Lock while saving, surface a failed pick (2026-09-25)
+
+Objective: Make the car editor lock Cancel and swipe while a save runs, make
+a failed photo load clear the staged photo, say so in the Photo row and allow
+the same item to be picked again, and keep the view model's photo id in step
+with a successful photo command.
+
+Sources: REQ-BOARD-029, REQ-BOARD-033; round 1 review findings
+`CarEditorView.swift:70` (medium), `CarEditorView.swift:144` (medium) and
+`CarBoardViewModel.swift:159` (low); ADR 0032 (locking a save sheet, as
+`PlannedEventEditorView` does).
+
+Intended deviations: none
+
+Boundaries: the writer's own branch, rebased onto the round head first
+(KIT-D-024); owned `Pitstop/Features/CarBoard/CarEditorView.swift`,
+`Pitstop/Features/CarBoard/CarBoardViewModel.swift`, the car editor keys in
+`Pitstop/Resources/Localizations/Localizable.xcstrings` (en, ru, uk) for one
+new failed-load line, and matching tests. One commit per finding, each with a
+failing test first.
+
+Output: an updated writer report (READY or BLOCKED, the repair commits,
+gate, `Conflicts found`) appended to
+`agent-artifacts/2026-09-24/pitstop-rd-012/outputs/car-editor-profile/writer-report.md`.
+
 ## Evidence history
 
 - 2026-09-24: round opened; `spec_trace.py --prose` on Car Hero, Car profile
@@ -317,6 +342,16 @@ Output: the writer report, filed under
   placeholder faces right on the hero and the Road tile; the dashed horizon
   shows faintly through the wheels (translucent `contentSecondary`).
 
+- 2026-09-25, card `car-editor-profile`: writer READY at `5f853ba`
+  (`b295e6c`, `5f853ba`), each step failing first and `just verify` green;
+  no ownership gap (Boundaries traced along the data flow). Conflicts found,
+  each settled REQ > mockup > dispatch: the rows follow the mockup (Photo,
+  Name, Body, Mileage); no avatar or thumbnail in the form (REQ-BOARD-034),
+  though the mockup draws one; "Stays on this iPhone…" sits in the Choose
+  photo row as the mockup draws it. The writer added a partial-save message
+  (`carEditor.failure.profileOnly`) and its own ru and uk wording, both for
+  the owner's review. Round 1 review: 2 medium; repair 1 dispatched.
+
 ### Round 1 review — car-profile-data (2026-09-24)
 
 Review SHA: 5a76746
@@ -338,6 +373,16 @@ Review SHA: 43e9d47
 - [low][non-blocking][new] docs/decisions/0040-car-profile.md:58 — "the hero car keeps a label" contradicts the decorative hero (corrected at close)
 - [low][non-blocking][new] docs/decisions/0009-design-language.md:38 — ADR 0009 still names `AbstractCarView` and `DefaultVehicleHero` and lacks an "amended by ADR 0040" note (corrected at close)
 - [low][non-blocking][new] docs/design/ios27-mockups.html:1025 — the mockup draws a soft ground shadow under the lifted car; none is drawn (backlog at close, owner design choice)
+
+### Round 1 review — car-editor-profile (2026-09-25)
+
+Review SHA: 5f853ba
+
+- [medium][blocking][new] Pitstop/Features/CarBoard/CarEditorView.swift:70 — the editor's `SaveSheetScaffold` does not lock while saving, so Cancel or a swipe during a multi-second photo save closes the sheet while the save runs on: the photo the owner cancelled is stored and the old files are deleted, and a late failure alert appears the next time the editor opens (`PlannedEventEditorView`, ADR 0032, locks for this reason)
+- [medium][blocking][new] Pitstop/Features/CarBoard/CarEditorView.swift:144 — when `loadTransferable` fails or returns nil, the previous draft photo silently stays staged with nothing on screen to show it; Save then stores a photo the owner replaced, or reports success when the chosen photo was not saved; picking the same item again does not retry the load
+- [low][non-blocking][new] Pitstop/Features/CarBoard/CarBoardViewModel.swift:159 — the view model's photo id is refreshed only by a successful `load()`; after a replace followed by a failed reload, the next remove discards the old id and leaves the new files on disk (REQ-BOARD-033) (repaired in repair 1)
+- [low][non-blocking][new] Pitstop/Features/CarBoard/CarBoardViewModel.swift:240 — when the mileage fails after the name saved, the message does not say the body and photo were not saved either; a retry resends everything (accepted: the sheet stays open)
+- [low][non-blocking][new] Pitstop/Features/CarBoard/CarEditorView.swift:42 — an undecodable pick gives only the generic save failure; the in-sheet way out is "Remove photo", which removes the saved photo too (backlog at close)
 
 ## Untested scope
 
@@ -362,6 +407,9 @@ Card `car-editor-profile` (dispatched 2026-09-25):
 
 - [ ] The save path: bound the picked data, lift it, store the files, then set the photo and the body, deleting the old photo's files after the command and the new files when the command fails; removing runs the command, then deletes; the view model and the composition root carry the lifter: REQ-BOARD-029, REQ-BOARD-030 and REQ-BOARD-033 tests (including no photo data in analytics or log cases) fail first, then `just verify`
 - [ ] The car editor: a Photo row (`PhotosPicker`, "Choose photo", "Remove photo", footer "Stays on this iPhone…"), a Body control (SUV, Sedan), then Name and Mileage, in en, ru and uk, with light, dark and AX-XL previews; first launch asks for no photo: REQ-BOARD-032 and REQ-BOARD-030 tests fail first, then `just verify`
+- [ ] Repair 1: the editor locks Cancel and swipe while a save runs: a failing test for the locked sheet first, then `just verify`
+- [ ] Repair 1: a failed photo load clears the staged photo, says so in the Photo row and lets the same item be picked again: failing tests first, then `just verify`
+- [ ] Repair 1: the view model's photo id follows a successful photo command, not only a reload: a REQ-BOARD-033 test fails first, then `just verify`
 
 ## Deferred
 
