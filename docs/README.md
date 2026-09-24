@@ -36,6 +36,7 @@ highest affected layer; evidence from operations flows back up.
 - `requirements/product-design.md`
 - `engineering/design-system-module.md`
 - `requirements/app-icon.md`
+- `decisions/0039-pit-head-control.md` — RD-011: Pit's utility control is his head with no glass (amends ADR 0009): icon geometry, head colour roles, Reduce Transparency and Increase Contrast finishes, one pose per state, accent eyes on knock, head tilt and lift only in motion-table states, press feedback
 - `decisions/0037-app-icon-pit-head.md` — ICON-002: the icon shows Pit's round head from the redesign (head, bezel, visor, lens eyes, highlights; four groups), shipped ahead of the redesign; amends ADR 0029
 - `decisions/0029-app-icon-pit-eyes.md` — ICON-001: Liquid Glass app icon from Pit's resting eyes in one Icon Composer document (`Pitstop/AppIcon.icon`), appiconset removed, dark fill specialization key shape, six appearances, how to edit
 - `requirements/car-board-screen.md`

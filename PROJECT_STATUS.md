@@ -1,7 +1,7 @@
 # PitStop — Project Status
 
 **Project State:** Active since 2026-09-23 (owner unfroze it); the iOS 27 redesign round runs on the local branch `redesign/ios27` ([`docs/tasks/redesign-ios27.md`](docs/tasks/redesign-ios27.md))  
-**Next task:** RD-011, the Pit character card (RD-000…RD-010 landed on `redesign/ios27`, ADR 0038) ([`docs/planning/work-plan.md`](docs/planning/work-plan.md)); the round ends with SYS-008 and TestFlight 1.2.0  
+**Next task:** RD-012, the car profile card (RD-000…RD-011 landed on `redesign/ios27`, ADR 0038, ADR 0039) ([`docs/planning/work-plan.md`](docs/planning/work-plan.md)); the round ends with SYS-008 and TestFlight 1.2.0  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
 **TestFlight:** version 1.1.0 (tag `tf-1.1.0-3`); delivery is tag-gated (ADR 0013)
 
@@ -36,8 +36,8 @@ project marker is gitignored.
   [MNT-INT-001 record](docs/planning/investigations/mnt-int-001-maintenance-intelligence.md);
   a real market and source stay owner-only (MNT-INT-003).
 - The app icon shows Pit's round head from the redesign (ICON-002, ADR 0037),
-  ahead of the redesign itself; until RD-011 the app still draws the eyes in
-  the glass circle.
+  and since RD-011 the app draws the same head as the utility control, without
+  glass (ADR 0039).
 - Remaining work: SYS-007 is delivered (ADR 0036); the iOS 27 redesign cards, owner-only device checks, and
   owner decisions. All are in
   [`docs/planning/work-plan.md`](docs/planning/work-plan.md).

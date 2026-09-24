@@ -2,7 +2,8 @@
 
 **Status:** Accepted for implementation (agent decision under owner delegation,
 2026-09-20: "design it yourself, modern, for Swift 6 and iOS 27"); owner review
-pending\
+pending; the Pit control and the Pit mark amended by [ADR 0039](0039-pit-head-control.md) (Pit's head, no
+glass, 2026-09-24)\
 **Task:** CB-002\
 **Contracts:** [`../requirements/product-design.md`](../requirements/product-design.md),
 [`../requirements/screen-grammar.md`](../requirements/screen-grammar.md),

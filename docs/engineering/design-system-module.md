@@ -57,10 +57,17 @@ PitColor.statusUpToDate       (the delivered name for statusPositive)
 PitColor.statusApproaching
 PitColor.statusDue
 PitColor.statusDanger
+
+PitColor.headShellLight, headShell, headShellShade, headHairline, headGloss
+PitColor.headBezel, headVisorTop, headVisorBottom, headVisorGloss, headGlow
+PitColor.headEye, headEyeHighlight, headShadow, headPressed
+                              (Pit's head only; ADR 0039, RD-011)
 ```
 
 System roles come from UIKit semantic colours; custom roles are trait-resolved
-light/dark values, and the tint also resolves Increase Contrast.
+light/dark values, and the tint and the head roles also resolve Increase
+Contrast. The head is an object, so most head roles keep one value in light
+and dark.
 
 No generic runtime `Theme` protocol in P0.
 
@@ -117,8 +124,9 @@ pitGlass(in:)        the only route to Liquid Glass for feature code
 ```
 
 Delivered in RD-000: `StageSurface`, `StatusChip`, `EmptyState`,
-`RemainingShareTrack`, `GlassPill`, `StepStrip`, `pitGlass(in:)`. `CarVisual`,
-`RoadSign` and `PitHead` land with RD-012, RD-002 and RD-011.
+`RemainingShareTrack`, `GlassPill`, `StepStrip`, `pitGlass(in:)`. `PitHead`
+(with `PitHeadGeometry`, `PitPose` and `PitHeadButtonStyle`) landed with RD-011
+(ADR 0039); `CarVisual` and `RoadSign` land with RD-012 and RD-002.
 
 Do not create a wrapper for every SwiftUI control.
 
