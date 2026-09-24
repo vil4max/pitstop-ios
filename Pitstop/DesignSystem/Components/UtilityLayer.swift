@@ -103,6 +103,9 @@ private struct PitHeadPressed<Label: View>: View {
                     .allowsHitTesting(false)
             }
             .scaleEffect(PitHeadPress.scale(isPressed: isPressed))
+            // Dimmed as one object: opacity on the layered head would fade each layer on its own, so the shell would
+            // show through the screen and the screen through the eyes.
+            .compositingGroup()
             .opacity(isEnabled ? 1 : PitHeadPress.disabledOpacity)
             // Feedback, not motion: with Reduce Motion it changes without a spring.
             .animation(reduceMotion ? nil : .spring(duration: 0.2, bounce: 0.3), value: isPressed)

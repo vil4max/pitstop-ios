@@ -1,5 +1,6 @@
 import Foundation
 @testable import Pitstop
+import SwiftUI
 import Testing
 
 /// Pit's control is his head, in the utility layer, inside sheets and in the capture sheet header (RD-011).
@@ -70,6 +71,32 @@ struct PitControlTests {
         let header = try Self.declaration("struct PitMomentHeader", in: "Pitstop/Features/Pit/PitSheetParts.swift")
         #expect(header.contains("PitHead(state: eyes, life: life, size: DesignTokens.pitHeaderHeadSize)"))
         #expect(DesignTokens.pitHeaderHeadSize == 44)
+    }
+
+    @MainActor
+    @Test("ADR-0039: a disabled Pit is dimmed as one object, not layer by layer")
+    func disabledHeadDimsEvenly() throws {
+        // The control draws the head at its fixed 56 pt.
+        let size = DesignTokens.utilityButtonSize
+        func render(enabled: Bool) throws -> CGImage {
+            try #require(PitHeadTests.render(
+                PitUtilityButton(state: .resting) {}
+                    .disabled(!enabled)
+                    .environment(\.dynamicTypeSize, .large)
+                    .frame(width: size, height: size)
+                    .background(PitColor.headShellLight),
+                size: size
+            ))
+        }
+        let unit = size / PitHeadGeometry.viewBox
+        // Inside the left lens, below its highlight.
+        let eye = CGPoint(x: 22 * unit, y: 32 * unit)
+        let enabled = try PitHeadTests.brightness(of: render(enabled: true), at: eye)
+        let disabled = try PitHeadTests.brightness(of: render(enabled: false), at: eye)
+        // As one object the lit eye fades toward the white ground; layer by layer the dark screen shows through it.
+        let ground: CGFloat = 0.7
+        let opacity = CGFloat(PitHeadPress.disabledOpacity)
+        #expect(disabled > opacity * enabled + (1 - opacity) * ground, "eye \(disabled), enabled \(enabled)")
     }
 
     @Test("ADR-0039: pressing the head shrinks and darkens it, as the glass circle's touch feedback did")
