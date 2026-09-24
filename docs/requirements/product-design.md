@@ -307,6 +307,14 @@ Given the stage tier
 When it is rendered
 Then its tint is `accentPrimary` at a token-defined opacity, and no other surface is tinted
 
+### REQ-DESIGN-004 — Features use roles, not literals
+Status: approved (owner, 2026-09-22; scope amendment approved by the owner, 2026-09-24)
+Core: P5
+Source: [Color API](../engineering/design-system-module.md#color-api)
+Given feature code, code in `Shared/` outside `Shared/DesignSystem/`, or widget code in `PitstopWidgets/`
+When `just verify` runs
+Then it fails if such a file contains a colour literal instead of a `PitColor` role
+
 ### REQ-DESIGN-005 — The car without a photo is the placeholder for the chosen body
 Status: approved (owner, 2026-09-22)
 Core: C2

@@ -179,16 +179,6 @@ composition.
 
 ## Requirements
 
-### REQ-DESIGN-004 — Features use roles, not literals
-Status: approved (owner, 2026-09-22)
-Core: P5
-Source: [Color API](#color-api)
-Given feature code
-When `just verify` runs
-Then it fails if a feature file contains a colour literal instead of a `PitColor` role
-
-Proposed amendment (pending owner approval): Given feature code, code in
-`Shared/` outside `Shared/DesignSystem/`, or widget code in
-`PitstopWidgets/`, when `just verify` runs, then it fails if such a file
-contains a colour literal instead of a `PitColor` role. The tests already
-enforce this wider scope since RD-009, for every widget file since FU-2.
+REQ-DESIGN-004 (features use roles, not literals) lives with the other
+design requirements in
+[`../requirements/product-design.md`](../requirements/product-design.md).
