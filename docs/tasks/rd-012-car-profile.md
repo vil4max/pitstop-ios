@@ -11,9 +11,9 @@ Plan hash: 633e53470a50acf45215ceab92ed8c21183b6a25346b92f4f1009ce4789cfb09
 
 ## Current status and authorization
 
-Current outcome: card `car-profile-data` landed (`5a76746`, review round
-1: 0 high/medium, 5 low); cards `car-visual`, `car-editor-profile`,
-`car-avatar` pending.
+Current outcome: cards `car-profile-data` (`5a76746`) and `car-visual`
+(`43e9d47`) landed, each with review round 1 at 0 high/medium; card
+`car-editor-profile` dispatched; `car-avatar` pending.
 Authorized scope: the owner in this session on 2026-09-24: "RD-012 делаем как
 pilot round по новому SDLC flow: в старом brief не начинай, оркестратор
 пришлёт задачу, открой её в plan mode."; the RD-012 pilot plan approved
@@ -36,7 +36,7 @@ Permitted deviations: none.
 Material assumptions: the simulator's Vision may return no foreground
 instance, so the lifted path is checked on a device (What to Test); checked
 at card `car-visual` by running the fake and the Vision path in tests.
-Next step: dispatch card `car-visual`.
+Next step: integrate card `car-editor-profile` when its writer reports.
 Requirements: REQ-BOARD-017, REQ-BOARD-029, REQ-BOARD-030, REQ-BOARD-031,
 REQ-BOARD-032, REQ-BOARD-033, REQ-BOARD-034, REQ-DESIGN-005
 Acceptance specs: tests citing each requirement above in their display name,
@@ -206,7 +206,12 @@ Boundaries: owned `Pitstop/DesignSystem/Components/` (new `CarVisual`, remove
 `DefaultVehicleHero` out), new `Pitstop/Infrastructure/SubjectLift/`,
 `Pitstop/Features/CarBoard/CarHeroView.swift`,
 `Pitstop/Features/CarBoard/CarBoardTileView.swift`,
-`Pitstop/Features/Road/RoadLaneView.swift`, and matching tests. Do not touch
+`Pitstop/Features/Road/RoadLaneView.swift`, and matching tests. Corrected
+by the integrator during the run (wiring only, a dispatch error, not a
+deviation): `Pitstop/Features/CarBoard/CarBoardView.swift`,
+`Pitstop/Features/Road/RoadView.swift`, `Pitstop/App/RootView.swift` (the
+`RoadView` call) and `Pitstop/App/AppCoordinator.swift` (an optional
+`CarPhotoStore` from the group container). Do not touch
 the car editor or headers. Stop if a placeholder cannot render through a
 colour role. Build on card car-profile-data's API: `CarPhotoStore`
 (`save(original:lifted:)` → `CarPhotoID`, `files(for:)`, `delete(_:)`) and
@@ -236,11 +241,21 @@ files, then run `setCarPhoto`, then delete the old id's files; if the command
 fails, delete the new files; on remove, run `setCarPhoto(nil)`, then delete.
 The lift runs on the bounded original (`CarPhotoStore.swift:53`).
 
-Boundaries: owned `Pitstop/Features/CarBoard/CarEditorView.swift`,
-`Pitstop/Features/CarBoard/CarBoardViewModel.swift`, the en/ru/uk string
-catalog entries for the editor, and matching tests (including a test that the
-analytics payload and log cases carry no photo data). Do not touch the store
-schema or `CarVisual` beyond calling them.
+The lifter takes a bounded image (at most 2048 px on the long side) that the
+editor path makes from the picked data itself, because `CarPhotoStore.save`
+does not return one (car-visual round 1 review, `SubjectLifter.swift:9`).
+
+Boundaries: traced from the view to the composition root; owned
+`Pitstop/Features/CarBoard/CarEditorView.swift`,
+`Pitstop/Features/CarBoard/CarBoardView.swift` (the editor call site),
+`Pitstop/Features/CarBoard/CarBoardViewModel.swift`,
+`Pitstop/App/AppCoordinator.swift` (compose `VisionSubjectLifter` into the
+view model), a new `Pitstop/Infrastructure/CarPhoto/CarPhotoPreparation.swift`
+(decode and bound the picked data), the car editor keys in
+`Pitstop/Resources/Localizations/Localizable.xcstrings` (en, ru, uk), and
+matching tests (including a test that the analytics payload and log cases
+carry no photo data). Do not touch the store schema, `CarPhotoStore`,
+`CarVisual` or `SubjectLifter` beyond calling them.
 
 Output: the writer report, filed under
 `agent-artifacts/2026-09-24/pitstop-rd-012/outputs/car-editor-profile/`.
@@ -287,6 +302,21 @@ Output: the writer report, filed under
   `RD-012/car-profile`; worktree removed, branch deleted; `just verify` on
   `5a76746` → verify OK. No screenshots: the card changes no view.
 
+- 2026-09-25, card `car-visual`: writer READY at `43e9d47` (`0a2af54`,
+  `623ae5d`, `43e9d47`), each step failing first and `just verify` green;
+  Conflicts found: the hero car stays decorative for VoiceOver as the mockup
+  (`ios27-mockups.html:462`) draws it, which REQ-BOARD-024 allows, against
+  ADR 0040's "keeps a label" (the ADR wording is corrected at close). The
+  Vision cut-out cannot run on the simulator ("Could not create inference
+  context"), so that shape test is skipped there; the other REQ-BOARD-031
+  tests pass. Landed by `git merge --ff-only`; `just verify` on `43e9d47` →
+  verify OK. Screenshots on the Runtime simulator (`just run-sim`, captured
+  with `xcrun simctl io` because the simulator tool's device-access prompt
+  went unanswered): Car Board light, dark and AX-XXXL, in
+  `agent-artifacts/2026-09-24/pitstop-rd-012/outputs/car-visual/`; the SUV
+  placeholder faces right on the hero and the Road tile; the dashed horizon
+  shows faintly through the wheels (translucent `contentSecondary`).
+
 ### Round 1 review — car-profile-data (2026-09-24)
 
 Review SHA: 5a76746
@@ -296,6 +326,18 @@ Review SHA: 5a76746
 - [low][non-blocking][new] Pitstop/Infrastructure/Persistence/RecordMapping.swift:30 — a stored body value this build cannot read is erased to nil by any unrelated car write; hypothetical while only `suv` and `sedan` exist (accepted)
 - [low][non-blocking][new] Pitstop/Domain/Vehicle/CarProfileCommands.swift:20 — deleting the old photo's files is left to the caller, so a kill between saving files and the command leaves unreferenced files (carried into the car-editor-profile dispatch: order and clean-up)
 - [low][non-blocking][new] PitstopTests/Widgets/NextServiceWidgetTests.swift:340 — the never-migrate test seeds V3; no test pins that the widget leaves the shipped V4 store untouched (backlog at close)
+
+### Round 1 review — car-visual (2026-09-25)
+
+Review SHA: 43e9d47
+
+- [low][non-blocking][new] Pitstop/DesignSystem/Components/CarVisual.swift:138 — a cancelled decode can still write `loaded` after a newer photo's decode; with a cache clear in between the frame stays empty until the id changes (carried into the car-avatar dispatch, which reuses the decoder)
+- [low][non-blocking][new] Pitstop/DesignSystem/Components/CarVisual.swift:91 — the lookup and the insert are separate locks, so the hero and the Road tile decode the same file twice on first appearance (carried into the car-avatar dispatch)
+- [low][non-blocking][new] Pitstop/DesignSystem/Components/CarVisual.swift:45 — bitmaps of a replaced photo stay cached until the ninth insert, about 30 MB at most (carried into the car-avatar dispatch)
+- [low][non-blocking][new] Pitstop/Infrastructure/SubjectLift/SubjectLifter.swift:9 — the lifter expects the bounded original, but `CarPhotoStore.save` never returns it, so the editor must bound the picked data itself (carried into the car-editor-profile dispatch)
+- [low][non-blocking][new] docs/decisions/0040-car-profile.md:58 — "the hero car keeps a label" contradicts the decorative hero (corrected at close)
+- [low][non-blocking][new] docs/decisions/0009-design-language.md:38 — ADR 0009 still names `AbstractCarView` and `DefaultVehicleHero` and lacks an "amended by ADR 0040" note (corrected at close)
+- [low][non-blocking][new] docs/design/ios27-mockups.html:1025 — the mockup draws a soft ground shadow under the lifted car; none is drawn (backlog at close, owner design choice)
 
 ## Untested scope
 
@@ -312,9 +354,14 @@ Card `car-profile-data` (dispatched 2026-09-24):
 
 Card `car-visual` (dispatched 2026-09-24):
 
-- [ ] The owner's SUV and sedan placeholders in the asset catalog and a design-system `CarVisual` that resolves the fallback order (lifted photo, whole photo under the stage mask, placeholder for the body facing right, drawn through a colour role) with a label for the hero, previews in light, dark and AX-XL: REQ-DESIGN-005, REQ-BOARD-030 and REQ-BOARD-031 resolution tests fail first, then `just verify`
-- [ ] A `SubjectLifter` protocol with a Vision implementation (`GenerateForegroundInstanceMaskRequest`, all instances, on device, off the main actor, returning nothing when no subject is found) and a fake: REQ-BOARD-031 tests on synthetic images fail first, then `just verify`
-- [ ] `CarVisual` replaces `AbstractCarView` on the Car Board hero, the tiles and the Road lane, fed by the car's body and photo files; `AbstractCarView` and the unused `DefaultVehicleHero` image are deleted: REQ-BOARD-017 and REQ-DESIGN-005 tests fail first, then `just verify`
+- [x] The owner's SUV and sedan placeholders in the asset catalog and a design-system `CarVisual` that resolves the fallback order (lifted photo, whole photo under the stage mask, placeholder for the body facing right, drawn through a colour role) with a label for the hero, previews in light, dark and AX-XL: REQ-DESIGN-005, REQ-BOARD-030 and REQ-BOARD-031 resolution tests fail first, then `just verify` — 0a2af54
+- [x] A `SubjectLifter` protocol with a Vision implementation (`GenerateForegroundInstanceMaskRequest`, all instances, on device, off the main actor, returning nothing when no subject is found) and a fake: REQ-BOARD-031 tests on synthetic images fail first, then `just verify` — 623ae5d
+- [x] `CarVisual` replaces `AbstractCarView` on the Car Board hero, the tiles and the Road lane, fed by the car's body and photo files; `AbstractCarView` and the unused `DefaultVehicleHero` image are deleted: REQ-BOARD-017 and REQ-DESIGN-005 tests fail first, then `just verify` — 43e9d47
+
+Card `car-editor-profile` (dispatched 2026-09-25):
+
+- [ ] The save path: bound the picked data, lift it, store the files, then set the photo and the body, deleting the old photo's files after the command and the new files when the command fails; removing runs the command, then deletes; the view model and the composition root carry the lifter: REQ-BOARD-029, REQ-BOARD-030 and REQ-BOARD-033 tests (including no photo data in analytics or log cases) fail first, then `just verify`
+- [ ] The car editor: a Photo row (`PhotosPicker`, "Choose photo", "Remove photo", footer "Stays on this iPhone…"), a Body control (SUV, Sedan), then Name and Mileage, in en, ru and uk, with light, dark and AX-XL previews; first launch asks for no photo: REQ-BOARD-032 and REQ-BOARD-030 tests fail first, then `just verify`
 
 ## Deferred
 
