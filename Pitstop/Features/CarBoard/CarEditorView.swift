@@ -50,12 +50,15 @@ struct CarEditorDraft: Equatable {
         photoLoadFailed = false
     }
 
-    /// Stages the loaded bytes and returns `true`. Without bytes nothing stays staged, not even an earlier
-    /// pick the owner meant to replace, so Save can never store a photo nobody sees; the saved photo is kept.
-    /// `false` tells the view to clear the picker selection, so the same item can be picked again.
+    /// Stages the loaded bytes and returns `true`. Without bytes an earlier pick is dropped, so Save can never
+    /// store a photo nobody sees, while a staged remove stays: the owner removed the photo and a failed pick
+    /// must not bring it back (REQ-BOARD-033). `false` tells the view to clear the picker selection, so the
+    /// same item can be picked again.
     mutating func finishPhotoLoad(_ data: Data?) -> Bool {
         guard let data else {
-            photo = .unchanged
+            if case .replace = photo {
+                photo = .unchanged
+            }
             photoLoadFailed = true
             return false
         }

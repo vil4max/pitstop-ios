@@ -133,23 +133,51 @@ struct CarEditorTests {
         #expect(!draft.showsRemovePhoto)
     }
 
-    @Test("REQ-BOARD-033: a failed pick over a saved photo keeps the saved photo, and the next pick clears the line")
+    @Test("REQ-BOARD-033: after Remove photo, a pick that fails to load keeps the remove; a new pick clears the line")
     func failedLoadKeepsTheSavedPhoto() {
         var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: true)
         draft.removePhoto()
         draft.beginPhotoLoad()
         let failed = draft.finishPhotoLoad(nil)
         #expect(!failed)
-        #expect(draft.photo == .unchanged, "a failed pick must not remove or replace the saved photo")
-        #expect(draft.showsRemovePhoto)
+        #expect(draft.photo == .remove, "a failed pick brought back the photo the owner removed")
+        #expect(!draft.showsRemovePhoto)
         #expect(draft.photoLoadFailed)
 
         draft.beginPhotoLoad()
         #expect(!draft.photoLoadFailed, "the line outlives the next attempt")
         let failedAgain = draft.finishPhotoLoad(nil)
         #expect(!failedAgain)
+        #expect(draft.photo == .remove)
         draft.removePhoto()
         #expect(!draft.photoLoadFailed, "the line outlives a remove")
+    }
+
+    @Test("REQ-BOARD-033: a pick that fails to load after an earlier pick drops that pick and keeps the saved photo")
+    func failedLoadDropsAnEarlierPickOverASavedPhoto() {
+        var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: true)
+        draft.beginPhotoLoad()
+        let loaded = draft.finishPhotoLoad(Data([0xFF, 0xD8]))
+        #expect(loaded)
+
+        draft.beginPhotoLoad()
+        let failed = draft.finishPhotoLoad(nil)
+
+        #expect(!failed)
+        #expect(draft.photo == .unchanged, "the earlier pick stays staged unseen")
+        #expect(draft.showsRemovePhoto, "the saved photo can still be removed")
+        #expect(draft.photoLoadFailed)
+    }
+
+    @Test("REQ-BOARD-033: with nothing staged, a pick that fails to load changes nothing")
+    func failedLoadOverNothingStagedChangesNothing() {
+        var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: true)
+        draft.beginPhotoLoad()
+        let failed = draft.finishPhotoLoad(nil)
+
+        #expect(!failed)
+        #expect(draft.photo == .unchanged)
+        #expect(draft.showsRemovePhoto)
     }
 
     @Test("REQ-BOARD-029: the Photo row shows the failed-load line")
