@@ -91,6 +91,20 @@ struct NextServiceWidgetView: View {
         }
     }
 
+    /// What VoiceOver reads for the small and rectangular families, whichever layout is shown: a line dropped for
+    /// room leaves the screen, not the spoken summary. `ViewThatFits` keeps only the chosen layout in the
+    /// accessibility tree, so combining its children would silence the dropped lines.
+    private var spokenSummary: Text {
+        switch content {
+        case let .operation(summary):
+            Text("\(summary.operation.widgetTitle), \(Text(summary.word.widgetLabel)), \(summary.fact.widgetText)")
+        case .empty:
+            Text("\(Text("widget.nextService.empty.headline")), \(Text("widget.nextService.empty.detail"))")
+        case .unavailable:
+            Text("widget.nextService.unavailable")
+        }
+    }
+
     /// The Lock Screen renders this family in one vibrant tint, so the glyph's shape, not its colour, tells the state
     /// (REQ-DESIGN-001); the operation name joins the accent group. When the text does not fit, lines go by priority
     /// instead of being clipped (owner, FU-2): the fact goes first, then the status word, leaving its glyph; the name
@@ -118,12 +132,13 @@ struct NextServiceWidgetView: View {
             }
         }
         .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(spokenSummary)
         .privacySensitive()
-        .accessibilityElement(children: .combine)
     }
 
-    /// Without the word, the status is its glyph alone, read by VoiceOver as the word, leading the name as on the small
-    /// widget: on two whole lines when they fit the slot, otherwise on one line that may shrink.
+    /// Without the word, the status is its glyph alone (VoiceOver still reads the word in `spokenSummary`), leading the
+    /// name as on the small widget: on two whole lines when they fit the slot, otherwise on one line that may shrink.
     private func rectangularOperation(
         _ summary: NextServiceSummary,
         showsFact: Bool,
@@ -147,7 +162,6 @@ struct NextServiceWidgetView: View {
             } else {
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
                     StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
-                        .accessibilityRepresentation { Text(summary.word.widgetLabel) }
                     // Two lines report their full height, so a slot too short for them rejects this layout.
                     name
                         .lineLimit(nameLines)
@@ -207,8 +221,9 @@ struct NextServiceWidgetView: View {
         // The chosen layout starts at the top of the widget. `minHeight: 0` keeps the frame at the widget's height;
         // with a maximum alone it would grow to a taller layout and be centred.
         .frame(maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(spokenSummary)
         .privacySensitive()
-        .accessibilityElement(children: .combine)
     }
 
     private var smallEyebrow: some View {
@@ -222,8 +237,9 @@ struct NextServiceWidgetView: View {
             .widgetAccentable()
     }
 
-    /// Without the word (the last resort), the status is its glyph alone, in the status colour and read by VoiceOver
-    /// as the word. It leads the name, so the name keeps the widget's whole height for up to three lines.
+    /// Without the word (the last resort), the status is its glyph alone, in the status colour; VoiceOver still reads
+    /// the word in `spokenSummary`. The glyph leads the name, so the name keeps the widget's whole height for up to
+    /// three lines.
     private func smallOperation(
         _ summary: NextServiceSummary,
         showsEyebrow: Bool,
@@ -248,7 +264,6 @@ struct NextServiceWidgetView: View {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
                         .foregroundStyle(summary.status.color)
-                        .accessibilityRepresentation { Text(summary.word.widgetLabel) }
                     name
                         .lineLimit(3)
                         // The name is the main information left, so it may shrink further to stay whole.

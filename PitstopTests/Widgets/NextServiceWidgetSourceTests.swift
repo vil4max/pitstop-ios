@@ -159,6 +159,27 @@ struct NextServiceWidgetSourceTests {
         #expect(containerLimits.isEmpty, "a container limits or shrinks the status word")
     }
 
+    /// Only the chosen `ViewThatFits` layout is in the accessibility tree, so combining children would silence a line
+    /// dropped for room. Each family reads one label built from the whole content instead.
+    @Test("REQ-WIDGET-004: VoiceOver reads name, status word and fact whichever layout is shown")
+    func familiesSpeakTheWholeContent() throws {
+        let code = try code()
+        for name in ["small", "rectangular"] {
+            let start = try #require(code.range(of: "    private var \(name): some View {"), "no \(name) family")
+            let body = try member(from: start.lowerBound, in: code)
+            #expect(body.contains(".accessibilityElement(children: .ignore)"), "the \(name) family combines children")
+            #expect(body.contains(".accessibilityLabel(spokenSummary)"), "the \(name) family has no whole label")
+        }
+        let start = try #require(code.range(of: "    private var spokenSummary: Text {"), "no spoken summary")
+        let summary = try member(from: start.lowerBound, in: code)
+        for text in [
+            "summary.operation.widgetTitle", "summary.word.widgetLabel", "summary.fact.widgetText",
+            "widget.nextService.empty.headline", "widget.nextService.empty.detail", "widget.nextService.unavailable",
+        ] {
+            #expect(summary.contains(text), "the spoken summary leaves out \(text)")
+        }
+    }
+
     @Test("REQ-DESIGN-001: the small widget says the status as a chip of word, shared glyph and colour")
     func smallDrawsTheStatusChip() throws {
         let chip = "StatusChip(Text(summary.word.widgetLabel), glyph: summary.status.glyph, "
