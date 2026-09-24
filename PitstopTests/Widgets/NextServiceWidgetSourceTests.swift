@@ -164,6 +164,13 @@ struct NextServiceWidgetSourceTests {
         let chip = try #require(lines.firstIndex { $0.hasPrefix("StatusChip(") }, "no status chip")
         let modifiers = lines[(chip + 1)...].prefix { $0.hasPrefix(".") || $0.hasPrefix("//") }
         #expect(!modifiers.contains { $0.contains("lineLimit") || $0.contains("minimumScaleFactor") })
+        // A limit on a stack around the chip reaches the chip's word through the environment just the same.
+        let operation = try helper("smallOperation").split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+        let containerLimits = zip(operation, operation.dropFirst()).filter { closing, next in
+            closing.hasPrefix("}") && (next.hasPrefix(".lineLimit") || next.hasPrefix(".minimumScaleFactor"))
+        }
+        #expect(containerLimits.isEmpty, "a stack around the chip limits or shrinks its word")
     }
 
     @Test("REQ-WIDGET-004: the Lock Screen rectangular widget drops the fact, then the word; name and status stay")
