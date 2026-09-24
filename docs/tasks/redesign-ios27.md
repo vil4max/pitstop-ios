@@ -68,7 +68,7 @@ Material assumptions: the design-rule check (REQ-DESIGN-002, 004) runs as a
 Swift Testing suite inside `just verify`, because `Tooling/**` belongs to the
 shared Runtime and `baseline.py` rejects drift in `Tooling/.swiftlint.yml`;
 verified by `just verify` failing on a planted literal.
-Next step: FU-3 (dispatched when it starts), then FU-5, FU-4; RD-012 waits for the owner.
+Next step: FU-3 (dispatched), then FU-5, FU-4; RD-012 waits for the owner.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -110,7 +110,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | RD-012 | planned | — |
 | FU-1 History and Notes load states | REQ-GRAMMAR-004, core C2 | RD-008 | done | `3ecf307`, `72de89a`; `just verify` per step; 6 of 10 new tests failed first; review: 0 high/medium, 2 out-of-scope lows (owner candidates) |
 | FU-2 Next-service widget restyle | `NextServiceWidgetTests`, REQ-DESIGN-004, REQ-WIDGET-011, 012 | RD-009 | done | `159b636`…`4f236bc`; `just verify` per step; review: 6 rounds (1 medium privacy; then clean; 3 medium; 3 medium; 1 medium; 0 high/medium + 1 low wording), all repaired; the owner lifted the repair budget |
-| FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | planned | — |
+| FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | in progress | — |
 | FU-5 Mark-as-done merge conflict | REQ-MAINT-040 (EARS, proposed) | FU-3 | planned | — |
 | FU-4 RD-011 test strength | `PitControlTests` | RD-011 | planned | — |
 | Release 1.2.0 | `just tf-check` Ready | SYS-008 | planned | — |
@@ -488,6 +488,11 @@ widget in the mockup is not delivered and stays out of scope):
 - [x] Owner decision ("keep the main information, a tap opens the details"): lines drop by priority, then name and status kept readable, whole VoiceOver content: `NextServiceWidgetSourceTests`, failing-first — cb92aff, f33297c, 0b01fab, 034c39e, f6bf572
 - [x] Review repair: smaller status word before wrapping, names wrap before lower lines drop, glyph cap, redacted spoken label, test gaps, fitting notes: `just verify`, failing-first — e9b8a9b, d76a378, ec8ed13, 7b57838, db97ed3, 8cd046f, 0fa9da0, fc5d2eb, 4f236bc
 - [x] REQ-WIDGET-011 and 012 approved by the owner; tests retagged: `just verify` — 9aadb81
+
+FU-3 (writer: a `slice-writer` subagent in its own worktree from the
+dispatch commit; same output and integration as RD-001):
+
+- [ ] A Mark-as-done save that is still running when its sheet closes writes nothing into the state of a sheet opened afterwards (snapshot, message, announcement), and the owner's save still completes or fails visibly: failing-first REQ-MAINT-040 tests
 
 ## Resume prompt
 
