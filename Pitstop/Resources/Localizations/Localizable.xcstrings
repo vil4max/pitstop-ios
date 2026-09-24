@@ -5089,6 +5089,50 @@
         }
       }
     },
+    "service.done.conflict.entry %@ %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ at %2$lld km"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ на пробеге %2$lld км"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ на пробігу %2$lld км"
+          }
+        }
+      }
+    },
+    "service.done.conflict.many %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pit already saved this work as done more than once: %@. Keep Pit's entries, or replace them with yours?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пит уже несколько раз записал эту работу как сделанную: %@. Оставить записи Пита или заменить их вашей?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Піт уже кілька разів записав цю роботу як зроблену: %@. Залишити записи Піта чи замінити їх вашим?"
+          }
+        }
+      }
+    },
     "service.done.conflict.odometer %@ %lld" : {
       "localizations" : {
         "en" : {
@@ -5173,6 +5217,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Залишити запис Піта"
+          }
+        }
+      }
+    },
+    "service.done.keepPits.many" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep Pit's entries"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставить записи Пита"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Залишити записи Піта"
           }
         }
       }

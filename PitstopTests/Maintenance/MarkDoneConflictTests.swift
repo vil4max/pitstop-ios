@@ -43,7 +43,7 @@ struct MarkDoneConflictTests {
 
             #expect(await !service.confirmDone(.engineOilService, on: ownersDate, odometerText: ""))
 
-            #expect(service.state.markDoneConflict == MarkDoneConflict(pitEntry: pits))
+            #expect(service.state.markDoneConflict == MarkDoneConflict(pitEntries: [pits]))
             #expect(service.state.markDoneConflictNotices == 1)
             #expect(service.state.failure == nil)
             #expect(await store.executed.count == commands, "nothing written before the owner decides")
@@ -66,18 +66,105 @@ struct MarkDoneConflictTests {
     func promptNamesPitsEntry() {
         let vehicleID = VehicleID()
         let date = now.formatted(date: .long, time: .omitted)
-        let withOdometer = MarkDoneConflict(pitEntry: MaintenanceCompletion(
+        let measured = MaintenanceCompletion(
             vehicleID: vehicleID, operationID: .engineOilService, performedAt: now, odometerKm: 85000
-        ))
-        let withoutOdometer = MarkDoneConflict(pitEntry: MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: .engineOilService, performedAt: now
-        ))
+        )
+        let unmeasured = MaintenanceCompletion(vehicleID: vehicleID, operationID: .engineOilService, performedAt: now)
+        let withOdometer = MarkDoneConflict(pitEntries: [measured])
+        let withoutOdometer = MarkDoneConflict(pitEntries: [unmeasured])
 
         #expect(withOdometer.message.contains(date))
-        #expect(withOdometer.message.contains("85000") || withOdometer.message.contains("85,000")
-            || withOdometer.message.contains("85 000") || withOdometer.message.contains("85\u{a0}000"))
+        #expect(Self.namesOdometer(withOdometer.message))
         #expect(withoutOdometer.message.contains(date))
         #expect(withOdometer.message != withoutOdometer.message)
+    }
+
+    /// 85,000 km as any locale may write it.
+    private static func namesOdometer(_ message: String) -> Bool {
+        ["85000", "85,000", "85 000", "85\u{a0}000", "85\u{202f}000"].contains { message.contains($0) }
+    }
+
+    @Test("REQ-MAINT-040: with two Pit entries within a day, the prompt names both, and Replace revokes exactly those")
+    func twoEntriesAreNamedAndReplaced() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        let yesterday = try await pitRecords(store, on: now - day, odometerKm: 85000)
+        let today = try await pitRecords(store, on: now, odometerKm: nil)
+
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+
+        let conflict = try #require(service.state.markDoneConflict)
+        #expect(Set(conflict.pitEntries.map(\.id)) == [yesterday.id, today.id])
+        #expect(conflict.message.contains(yesterday.performedAt.formatted(date: .long, time: .omitted)))
+        #expect(conflict.message.contains(today.performedAt.formatted(date: .long, time: .omitted)))
+        #expect(Self.namesOdometer(conflict.message))
+        #expect(conflict.keepTitle == "service.done.keepPits.many")
+        #expect(MarkDoneConflict(pitEntries: [today]).keepTitle == "service.done.keepPits")
+        let commands = await store.executed.count
+
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "86000", replacingPits: true))
+
+        let written = await Array(store.executed.dropFirst(commands))
+        guard case let .replaceMaintenanceCompletion(replace) = written.first, written.count == 1 else {
+            Issue.record("expected one replace command, got \(written)")
+            return
+        }
+        #expect(replace.replacedIDs == [yesterday.id, today.id])
+        #expect(await oil(store).map(\.odometerKm) == [86000])
+    }
+
+    @Test("REQ-NEW-12: a Pit entry recorded after the prompt is not replaced unseen: it asks again, writing nothing")
+    func newEntryAfterThePromptAsksAgain() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        let first = try await pitRecords(store, on: now, odometerKm: 85000)
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+        let second = try await pitRecords(store, on: now - day, odometerKm: nil)
+        let commands = await store.executed.count
+
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000", replacingPits: true))
+
+        #expect(await store.executed.count == commands, "nothing written")
+        #expect(Set(service.state.markDoneConflict?.pitEntries.map(\.id) ?? []) == [first.id, second.id])
+        #expect(service.state.markDoneConflictNotices == 2, "the new prompt is announced")
+        // Replace again, now for what the prompt shows.
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "86000", replacingPits: true))
+        #expect(await oil(store).map(\.odometerKm) == [86000])
+    }
+
+    @Test("REQ-NEW-12: an entry that vanished after the prompt changes the choice, so it asks again for what is left")
+    func vanishedEntryAsksAgain() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        let kept = try await pitRecords(store, on: now, odometerKm: 85000)
+        let gone = try await pitRecords(store, on: now - day, odometerKm: nil)
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+        _ = try await store.execute(.revokeMaintenanceCompletion(.init(completionID: gone.id)), now: now)
+        let commands = await store.executed.count
+
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000", replacingPits: true))
+
+        #expect(await store.executed.count == commands, "nothing written")
+        #expect(service.state.markDoneConflict?.pitEntries.map(\.id) == [kept.id])
+    }
+
+    @Test("REQ-NEW-12: Pit recording the owner's own entry after the prompt does not skip the chosen Replace")
+    func identicalEntryDoesNotSkipReplace() async throws {
+        let store = FakeCarMemoryStore()
+        let service = await openedService(store)
+        let prompted = try await pitRecords(store, on: now - day, odometerKm: 85000)
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
+        // Pit now records exactly what the owner typed.
+        let identical = try await pitRecords(store, on: now, odometerKm: 86000)
+
+        #expect(
+            await !service.confirmDone(.engineOilService, on: now, odometerText: "86000", replacingPits: true),
+            "not closed as already recorded while the prompted entry is still stored"
+        )
+        #expect(Set(service.state.markDoneConflict?.pitEntries.map(\.id) ?? []) == [prompted.id, identical.id])
+
+        #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "86000", replacingPits: true))
+        #expect(await oil(store).map(\.odometerKm) == [86000], "one completion of the work")
     }
 
     @Test("REQ-NEW-2: keeping Pit's entry records nothing from the sheet, closes it and shows Pit's entry")
@@ -166,7 +253,7 @@ struct MarkDoneConflictTests {
         let code = try PitInSheetTests.source("Pitstop/Features/Service/MarkDoneView.swift").split(separator: "\n")
             .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
             .joined(separator: "\n")
-        #expect(code.contains("Button(\"service.done.keepPits\")"))
+        #expect(code.contains("Button(conflict.keepTitle)"))
         #expect(code.contains("Button(\"service.done.replaceWithMine\")"))
         #expect(!code.contains("saveAnyway"))
         #expect(!code.contains("anyway"))

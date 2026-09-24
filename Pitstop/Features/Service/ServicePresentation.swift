@@ -139,13 +139,26 @@ extension ServiceViewState {
 }
 
 extension MarkDoneConflict {
-    /// The prompt, shown in the sheet and spoken to VoiceOver: it names Pit's entry, since it may be dated a day away
-    /// from the owner's or carry another odometer (REQ-MAINT-040).
+    /// The prompt, shown in the sheet and spoken to VoiceOver: it names every entry of Pit's that Replace would
+    /// revoke, since each may be dated a day away from the owner's or carry another odometer (REQ-MAINT-040).
     var message: String {
-        let date = pitEntry.performedAt.formatted(date: .long, time: .omitted)
-        if let odometerKm = pitEntry.odometerKm {
-            return String(localized: "service.done.conflict.odometer \(date) \(odometerKm)")
+        guard pitEntries.count > 1 else {
+            guard let pitEntry = pitEntries.first else { return "" }
+            let date = pitEntry.performedAt.formatted(date: .long, time: .omitted)
+            if let odometerKm = pitEntry.odometerKm {
+                return String(localized: "service.done.conflict.odometer \(date) \(odometerKm)")
+            }
+            return String(localized: "service.done.conflict \(date)")
         }
-        return String(localized: "service.done.conflict \(date)")
+        let entries = pitEntries.map { entry in
+            let date = entry.performedAt.formatted(date: .long, time: .omitted)
+            guard let odometerKm = entry.odometerKm else { return date }
+            return String(localized: "service.done.conflict.entry \(date) \(odometerKm)")
+        }
+        return String(localized: "service.done.conflict.many \(entries.formatted(.list(type: .and)))")
+    }
+
+    var keepTitle: LocalizedStringKey {
+        pitEntries.count > 1 ? "service.done.keepPits.many" : "service.done.keepPits"
     }
 }

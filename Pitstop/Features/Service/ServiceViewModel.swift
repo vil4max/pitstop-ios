@@ -58,9 +58,10 @@ struct ServiceViewState: Equatable {
     }
 }
 
-/// What the open Mark as done sheet asks about: Pit's entry dated nearest the owner's date (REQ-MAINT-040).
+/// What the open Mark as done sheet asks about: every entry Pit recorded within a day of the owner's date, nearest
+/// first. "Replace with mine" revokes exactly these (REQ-MAINT-040, REQ-NEW-3).
 struct MarkDoneConflict: Equatable {
-    let pitEntry: MaintenanceCompletion
+    let pitEntries: [MaintenanceCompletion]
 }
 
 /// An open Mark as done sheet: its operation and the completions stored for it when it opened.
@@ -79,22 +80,46 @@ enum MarkDoneRecheck: Equatable {
     /// The same work within a day of this date, differing from the owner's entry: writing would record it twice, so
     /// the owner keeps Pit's entries or replaces them (REQ-MAINT-040). Nearest to the owner's date first.
     case conflict([MaintenanceCompletion])
+    /// The owner chose "Replace with mine", and Pit's entries within a day are exactly the ones the prompt showed.
+    case replace(Set<UUID>)
 
-    init(recorded: [MaintenanceCompletion], date: Date, odometerKm: Int?, calendar: Calendar = .current) {
+    /// `prompted` is the set the owner chose to replace. The choice covers only what the prompt showed: when Pit's
+    /// entries within a day changed since, the owner is asked again, and the same-day skip does not apply, since the
+    /// owner chose to remove the prompted entries (REQ-NEW-3).
+    init(
+        recorded: [MaintenanceCompletion],
+        date: Date,
+        odometerKm: Int?,
+        replacing prompted: Set<UUID>? = nil,
+        calendar: Calendar = .current
+    ) {
+        let nearby = Self.nearby(recorded, date: date, calendar: calendar)
+        if let prompted, !nearby.isEmpty {
+            self = Set(nearby.map(\.id)) == prompted ? .replace(prompted) : .conflict(nearby)
+            return
+        }
         let sameDay = recorded.filter { calendar.isDate($0.performedAt, inSameDayAs: date) }
         if !sameDay.isEmpty, odometerKm == nil || sameDay.contains(where: { $0.odometerKm == odometerKm }) {
             self = .alreadyRecorded
             return
         }
-        // Whole calendar days apart: "yesterday" is one day away at any hour.
+        self = nearby.isEmpty ? .write : .conflict(nearby)
+    }
+
+    /// Completions dated on `date`'s day, the day before or the day after, nearest first, then newest. Whole calendar
+    /// days apart: "yesterday" is one day away at any hour.
+    private static func nearby(
+        _ recorded: [MaintenanceCompletion],
+        date: Date,
+        calendar: Calendar
+    ) -> [MaintenanceCompletion] {
         let day = calendar.startOfDay(for: date)
         let daysAway = { (completion: MaintenanceCompletion) in
             abs(calendar.dateComponents([.day], from: day, to: calendar.startOfDay(for: completion.performedAt))
                 .day ?? .max)
         }
-        let nearby = recorded.filter { daysAway($0) <= 1 }
+        return recorded.filter { daysAway($0) <= 1 }
             .sorted { (daysAway($0), $1.performedAt) < (daysAway($1), $0.performedAt) }
-        self = nearby.isEmpty ? .write : .conflict(nearby)
     }
 }
 
@@ -225,9 +250,10 @@ final class ServiceViewModel {
     }
 
     /// Called only after the user confirmed the work was actually performed (core C5). `replacingPits` is the owner's
-    /// "Replace with mine" after the sheet asked about Pit's entry of the same work: what is stored is rechecked first,
-    /// then Pit's entries within a day are revoked and the owner's completion confirmed as one command, so one store
-    /// transaction (REQ-NEW-3). Returns whether the sheet closes as saved; a sheet that closed while this ran gets
+    /// "Replace with mine" after the sheet asked about Pit's entries of the same work: what is stored is rechecked
+    /// first, and only when Pit's entries within a day are still the ones the prompt showed are they revoked and the
+    /// owner's completion confirmed as one command, so one store transaction; otherwise the sheet asks again
+    /// (REQ-NEW-3). Returns whether the sheet closes as saved; a sheet that closed while this ran gets
     /// false, so it cannot close the sheet open now.
     func confirmDone(
         _ operation: MaintenanceOperationID,
@@ -244,6 +270,7 @@ final class ServiceViewModel {
         // Everything after the first await checks that this sheet is still the open one: Cancel and a swipe close it
         // while it saves, and another Mark as done may open before the save returns (REQ-NEW-10).
         let sheet = markDoneSheet
+        let prompted = replacingPits ? state.markDoneConflict.map { Set($0.pitEntries.map(\.id)) } : nil
         // Pit can record this work while the sheet is open (REQ-PIT-026), so what is stored is checked again now. Only
         // a completion recorded since the sheet opened counts: the owner's own earlier ones, even from the same day,
         // do not (REQ-NEW-6). The same work is never recorded twice, and what the owner typed is dropped only by their
@@ -255,7 +282,7 @@ final class ServiceViewModel {
             return failMarkDone(startedIn: sheet)
         }
         let replaced: Set<UUID>
-        switch MarkDoneRecheck(recorded: recorded, date: date, odometerKm: odometerKm) {
+        switch MarkDoneRecheck(recorded: recorded, date: date, odometerKm: odometerKm, replacing: prompted) {
         case .write:
             replaced = []
         case .alreadyRecorded:
@@ -269,9 +296,10 @@ final class ServiceViewModel {
             state.failure = nil
             state.markDoneConflict = nil
             return true
-        case let .conflict(entries) where replacingPits:
-            // The owner chose their entry: the choice stands even if the app closed the sheet meanwhile.
-            replaced = Set(entries.map(\.id))
+        case let .replace(ids):
+            // The owner chose their entry over exactly these: the choice stands even if the app closed the sheet
+            // meanwhile.
+            replaced = ids
         case let .conflict(entries):
             // Only the open sheet can ask. Once it closed, Pit's entry is kept and the owner's is not recorded; the
             // reloaded list shows Pit's record and says why (REQ-NEW-9).
@@ -281,7 +309,7 @@ final class ServiceViewModel {
                 return false
             }
             state.failure = nil
-            state.markDoneConflict = entries.first.map(MarkDoneConflict.init(pitEntry:))
+            state.markDoneConflict = MarkDoneConflict(pitEntries: entries)
             state.markDoneConflictNotices += 1
             return false
         }

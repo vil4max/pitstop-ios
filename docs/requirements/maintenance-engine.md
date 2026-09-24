@@ -615,14 +615,15 @@ operation while the sheet was open, dated on the entered day, the day before
 or the day after, and that entry differs from the owner's (another of those
 days, or an odometer typed here that Pit's entry lacks or does not match),
 the app shall record nothing, keep the sheet open and ask once, in place and to VoiceOver,
-whether to keep Pit's entry or replace it with the owner's, naming the date
-of Pit's entry and its odometer when it has one; the app shall never record
-the owner's completion beside Pit's for the same work.
+whether to keep Pit's entries or replace them with the owner's, naming the
+date of every such entry of Pit's and its odometer when it has one; the app
+shall never record the owner's completion beside Pit's for the same work.
 Acceptance: Given Mark as done is open for engine oil and Pit records an oil
 change today at 85,000 km, When the owner confirms today at 86,000 km, or
 yesterday with the odometer empty, Then nothing is written, the sheet stays
 open with "Keep Pit's entry" and "Replace with mine", VoiceOver announces the
-prompt, and no action records both completions.
+prompt, and no action records both completions; Given Pit also recorded
+the oil change yesterday at 84,900 km, Then the prompt names both entries.
 
 ### REQ-NEW-1 — The entry Pit already recorded is not recorded again
 Status: proposed
@@ -650,10 +651,10 @@ it as the last completion.
 Status: proposed
 Core: C2, C5
 Source: FU-5
-When the owner chooses "Replace with mine", the app shall recheck what is
-stored and then, in one store transaction, revoke every completion of that
-operation Pit recorded while the sheet was open within a day of the entered
-date and record the owner's completion, then close the sheet as saved; if the
+When the owner chooses "Replace with mine" and Pit's entries within a day of
+the entered date are still exactly the ones the prompt named, the app shall,
+in one store transaction, revoke those entries and record the owner's
+completion, then close the sheet as saved; if the
 transaction fails, the app shall store neither change and say in the sheet
 that nothing was saved.
 Acceptance: Given the prompt of REQ-MAINT-040, When the owner replaces Pit's
@@ -661,6 +662,21 @@ entry, Then the owner's completion is the only one of that work stored and a
 single command wrote it; When that command fails, Then Pit's completion is
 still stored, the owner's is not, and the sheet stays open saying it was not
 saved.
+
+### REQ-NEW-12 — Replace covers only the entries the owner was shown
+Status: proposed
+Core: C2, C5
+Source: FU-5 review
+If, when the owner chooses "Replace with mine", Pit's entries within a day of
+the entered date differ from the ones the prompt named (one was added or one
+is gone, including an entry equal to the owner's) and at least one is still
+stored, the app shall write nothing and ask again, naming the entries stored
+now.
+Acceptance: Given the prompt named Pit's entry for today, When Pit records
+the same work yesterday and the owner then replaces, Then nothing is written
+and the prompt names both entries; Given Pit meanwhile records exactly the
+owner's entry, Then the sheet does not close as already recorded but asks
+again.
 
 ### REQ-NEW-4 — Editing the entry withdraws the prompt
 Status: proposed

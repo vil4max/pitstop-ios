@@ -82,7 +82,7 @@ struct MarkDoneAfterCaptureTests {
         try await captureOilChange(store)
 
         #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: "86000"))
-        #expect(service.state.markDoneConflict?.pitEntry.odometerKm == 85000)
+        #expect(service.state.markDoneConflict?.pitEntries.map(\.odometerKm) == [85000])
         #expect(service.state.failure == nil)
         #expect(await store.completions.count == 1, "nothing written before the owner decides")
 

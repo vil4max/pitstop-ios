@@ -43,7 +43,7 @@ struct MarkDoneView: View {
                     // One choice, in place next to the input: the same work is never recorded twice, and what was
                     // typed is dropped only by the owner's choice (REQ-MAINT-040).
                     Section {
-                        Button("service.done.keepPits") { save(onKeepPits) }
+                        Button(conflict.keepTitle) { save(onKeepPits) }
                             .disabled(isSaving)
                             .accessibilityIdentifier("service.done.keepPits")
                         Button("service.done.replaceWithMine") { save { await onConfirm(date, odometer, true) } }
@@ -93,21 +93,20 @@ struct MarkDoneView: View {
 
 #if DEBUG
     #Preview("Mark as done, Pit's entry") {
-        MarkDoneView(
-            operation: .engineOilService,
-            conflict: MarkDoneConflict(pitEntry: MaintenanceCompletion(
-                vehicleID: VehicleID(), operationID: .engineOilService, performedAt: .now, odometerKm: 85000
-            ))
-        ) { _, _, _ in false }
+        let entry = MaintenanceCompletion(
+            vehicleID: VehicleID(), operationID: .engineOilService, performedAt: .now, odometerKm: 85000
+        )
+        MarkDoneView(operation: .engineOilService, conflict: MarkDoneConflict(pitEntries: [entry])) { _, _, _ in false }
     }
 
-    #Preview("Mark as done, Pit's entry, dark AX") {
-        MarkDoneView(
-            operation: .engineOilService,
-            conflict: MarkDoneConflict(pitEntry: MaintenanceCompletion(
-                vehicleID: VehicleID(), operationID: .engineOilService, performedAt: .now
-            ))
-        ) { _, _, _ in false }
+    #Preview("Mark as done, two Pit entries, dark AX") {
+        let entries = [
+            MaintenanceCompletion(vehicleID: VehicleID(), operationID: .engineOilService, performedAt: .now),
+            MaintenanceCompletion(
+                vehicleID: VehicleID(), operationID: .engineOilService, performedAt: .now - 86400, odometerKm: 84900
+            ),
+        ]
+        MarkDoneView(operation: .engineOilService, conflict: MarkDoneConflict(pitEntries: entries)) { _, _, _ in false }
             .preferredColorScheme(.dark)
             .dynamicTypeSize(.accessibility3)
     }
