@@ -149,7 +149,7 @@ struct NextServiceWidgetSourceTests {
         let kept = try removing(block: "showsFact", from: removing(block: "showsEyebrow", from: operation))
         #expect(kept.contains("summary.operation.widgetTitle"), "the name must not depend on a dropped line")
         #expect(kept.contains("StatusChip("), "the status must not depend on a dropped line")
-        #expect(kept.contains("StatusGlyphView(glyph: summary.status.glyph"), "the last resort keeps the glyph")
+        #expect(kept.contains(#/StatusGlyphView\(\s*glyph: summary\.status\.glyph/#), "the last resort keeps the glyph")
         #expect(!kept.contains("summary.fact.widgetText") && !kept.contains("smallEyebrow"))
         // A spacer outside the fact would add a gap to every fact-less layout and could reject one that fits.
         #expect(!kept.contains("Spacer("), "the spacer belongs to the fact")
@@ -246,6 +246,23 @@ struct NextServiceWidgetSourceTests {
         )
         // Only the very last Lock Screen layout, a one-line name, may shrink.
         #expect(lastResort.contains { $0.hasPrefix(".minimumScaleFactor(nameLines == 1 ?") && $0.hasSuffix(": 1)") })
+    }
+
+    /// A glyph that scales with body text reaches about 34 pt at the largest size, a quarter of the Lock Screen slot,
+    /// and cuts the one name the rule keeps. Beside the name the glyph is capped, and the one-line last resort may
+    /// shrink its name to half.
+    @Test("REQ-WIDGET-004: beside the name the status glyph is capped, and the last Lock Screen name may halve")
+    func glyphBesideTheNameLeavesItsRoom() throws {
+        let capped = #/
+            StatusGlyphView\( \s* glyph: \s summary\.status\.glyph, \s*
+            size: \s min\(statusGlyphSize, \s DesignTokens\.statusGlyphBesideNameMaxSize\) \s* \)
+        /#
+        for helper in ["smallOperation", "rectangularOperation"] {
+            let code = try self.helper(helper)
+            let elseBranch = try #require(code.range(of: "} else {"), "\(helper) has no glyph-only layout")
+            #expect(code[elseBranch.upperBound...].contains(capped), "\(helper) does not cap the glyph beside the name")
+        }
+        #expect(try helper("rectangularOperation").contains(".minimumScaleFactor(nameLines == 1 ? 0.5 : 1)"))
     }
 
     /// Only the chosen `ViewThatFits` layout is in the accessibility tree, so combining children would silence a line

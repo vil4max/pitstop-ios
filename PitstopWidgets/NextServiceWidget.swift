@@ -173,12 +173,16 @@ struct NextServiceWidgetView: View {
                 }
             } else {
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
-                    StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
+                    // Capped, so at the largest text sizes the glyph does not take the width the name needs.
+                    StatusGlyphView(
+                        glyph: summary.status.glyph,
+                        size: min(statusGlyphSize, DesignTokens.statusGlyphBesideNameMaxSize)
+                    )
                     // Two lines report their full height, so a slot too short for them rejects this layout. Only the
                     // very last layout, a one-line name, may shrink.
                     name
                         .lineLimit(nameLines)
-                        .minimumScaleFactor(nameLines == 1 ? 0.6 : 1)
+                        .minimumScaleFactor(nameLines == 1 ? 0.5 : 1)
                         .fixedSize(horizontal: false, vertical: nameLines > 1)
                 }
             }
@@ -277,8 +281,12 @@ struct NextServiceWidgetView: View {
                 StatusChip(Text(summary.word.widgetLabel), glyph: summary.status.glyph, color: summary.status.color)
             } else {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    StatusGlyphView(glyph: summary.status.glyph, size: statusGlyphSize)
-                        .foregroundStyle(summary.status.color)
+                    // Capped, so at the largest text sizes the glyph does not take the width the name needs.
+                    StatusGlyphView(
+                        glyph: summary.status.glyph,
+                        size: min(statusGlyphSize, DesignTokens.statusGlyphBesideNameMaxSize)
+                    )
+                    .foregroundStyle(summary.status.color)
                     name
                         .lineLimit(3)
                         // The name is the main information left, so it may shrink further to stay whole.

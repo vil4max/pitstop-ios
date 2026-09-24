@@ -24,6 +24,9 @@ enum DesignTokens {
     static let statusGlyphSize: CGFloat = 9
     /// The status glyph beside the word on the Lock Screen rectangular widget, whose text is larger than a chip's.
     static let lockScreenStatusGlyphSize: CGFloat = 11
+    /// The largest a status glyph grows when it stands beside a widget's operation name instead of its word, so at the
+    /// largest text sizes the name, not the glyph, keeps the width.
+    static let statusGlyphBesideNameMaxSize: CGFloat = 20
     static let shareTrackHeight: CGFloat = 5
     static let emptyStateDiscSize: CGFloat = 64
     /// The glyph disc on the small "Remember" widget: smaller than the empty state's, so the headline and the hint
