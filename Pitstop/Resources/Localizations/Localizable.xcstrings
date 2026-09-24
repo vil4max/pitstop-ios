@@ -5221,6 +5221,28 @@
         }
       }
     },
+    "service.failure.pitAlreadyRecorded" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not saved: Pit had already saved this work for that date, and it is on the list now. Mark it again only if you want your entry recorded as well."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не сохранено: Пит уже сохранил эту работу на эту дату, она уже в списке. Отмечайте её снова, только если хотите записать и свои данные."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не збережено: Піт уже зберіг цю роботу на цю дату, вона вже в списку. Позначайте її знову, лише якщо хочете записати й свої дані."
+          }
+        }
+      }
+    },
     "service.failure.report" : {
       "localizations" : {
         "en" : {

@@ -25,7 +25,7 @@ struct ServiceView: View {
         }
         .toolbar { toolbarItems }
         .task { await viewModel.load() }
-        .alert("service.failure.notSaved", isPresented: listFailureBinding) {
+        .alert(failureTitle(viewModel.state.listFailure), isPresented: listFailureBinding) {
             Button("common.ok") { viewModel.dismissFailure() }
         }
         .pitActivity(
@@ -53,7 +53,7 @@ struct ServiceView: View {
         .deleteReportConfirmation(viewModel)
         .pitSheet(item: sheetBinding) { sheet in
             sheetContent(sheet)
-                .alert(failureTitle, isPresented: failureBinding) {
+                .alert(failureTitle(viewModel.state.failure), isPresented: failureBinding) {
                     Button("common.ok") { viewModel.dismissFailure() }
                 }
         }
@@ -228,13 +228,14 @@ struct ServiceView: View {
         )
     }
 
-    private var failureTitle: LocalizedStringKey {
-        switch viewModel.state.failure {
+    private func failureTitle(_ failure: ServiceFailure?) -> LocalizedStringKey {
+        switch failure {
         case .invalidInterval: "service.failure.interval"
         case .invalidOdometer: "carEditor.failure.odometer"
         case .futureDate: "service.failure.future"
         case .invalidReport: "service.failure.report"
         case .reportOdometerMissing: "service.failure.reportOdometer"
+        case .pitAlreadyRecorded: "service.failure.pitAlreadyRecorded"
         case .notSaved, .none: "service.failure.notSaved"
         }
     }

@@ -91,8 +91,8 @@ struct MarkDoneSheetClosedTests {
         #expect(!service.state.isMarkDoneAlreadyRecorded, "the cabin filter sheet shows no message about oil")
         #expect(service.state.markDoneAlreadyRecordedNotices == notices, "and announces none")
         #expect(service.state.failure == nil)
-        // The owner's entry was not recorded, and the list says so.
-        #expect(service.state.listFailure == .notSaved)
+        // The owner's entry was not recorded, and the list says Pit's record is why.
+        #expect(service.state.listFailure == .pitAlreadyRecorded)
         #expect(await store.base.completions.count { $0.operationID == .engineOilService } == 1, "only Pit's")
     }
 
@@ -133,6 +133,29 @@ struct MarkDoneSheetClosedTests {
         #expect(service.state.listFailure == .notSaved)
         #expect(service.state.failure == nil, "no sheet is open to show it, and the next one is about other work")
         #expect(await store.base.completions.isEmpty)
+    }
+
+    @Test(
+        "REQ-MAINT-040: an entry a closed sheet could not ask about is reported as Pit's record, with the list reloaded"
+    )
+    func closedSheetsConflictNamesPitsRecord() async throws {
+        let store = HeldStore()
+        let service = await openedService(store)
+        #expect(await service.track(.engineOilService, kilometersText: "10000", monthsText: "12"))
+        await openMarkDone(service, .engineOilService)
+        // Siri saves Pit's record without reloading Service; the owner's odometer differs and the recheck is slow.
+        try await pitRecords(.engineOilService, odometerKm: nil, in: store)
+        let oilSave = await confirmOilAndHold(service, store, at: .completionsRead, odometerText: "86000")
+
+        service.markDoneClosed()
+        await store.release()
+
+        #expect(await !oilSave.value)
+        // Not "try again": a retry would record Pit's work a second time without asking.
+        #expect(service.state.listFailure == .pitAlreadyRecorded)
+        #expect(service.state.operations.first { $0.id == .engineOilService }?.lastCompletion != nil,
+                "the list shows Pit's record before the owner decides whether to mark it again")
+        #expect(await store.base.completions.count == 1, "only Pit's")
     }
 
     @Test("REQ-MAINT-040: Service tells the view model when a Mark as done sheet closes, however it closes")

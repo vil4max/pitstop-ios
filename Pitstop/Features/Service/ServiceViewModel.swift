@@ -101,6 +101,9 @@ enum ServiceFailure: Equatable {
     case invalidReport
     /// A reported distance needs the mileage it was read at.
     case reportOdometerMissing
+    /// A Mark as done sheet closed before it could ask about Pit's record of the same work and date, so the owner's
+    /// entry was not recorded. Unlike `notSaved` it invites no retry, which would record Pit's work again unasked.
+    case pitAlreadyRecorded
 }
 
 @MainActor
@@ -252,8 +255,13 @@ final class ServiceViewModel {
         case .askOwner where anyway:
             break
         case .askOwner:
-            // Only the open sheet can ask; once it closed, the owner's entry is not recorded and the list says so.
-            guard markDoneSheet == sheet else { return failMarkDone(startedIn: sheet) }
+            // Only the open sheet can ask. Once it closed, the entry is not recorded; the reloaded list shows Pit's
+            // record and says why, so marking it again is an informed choice.
+            guard markDoneSheet == sheet else {
+                await load()
+                state.listFailure = .pitAlreadyRecorded
+                return false
+            }
             state.failure = nil
             state.isMarkDoneAlreadyRecorded = true
             state.markDoneAlreadyRecordedNotices += 1
