@@ -18,8 +18,8 @@ Not scheduled: ENG-UIT-001 (UI test target for App Intents Testing; not added
 now per ADR 0023, decision 6) and INV-CAP-004 (microphone start from an
 external entry; needs a voice capture path in Pit).
 
-SYS-008 (iPhone Duo layout hardening) closes the redesign round, after
-RD-012. Owner decision (2026-09-23): harden the layouts on the iOS 27.0 SDK
+SYS-008 (iPhone Duo layout hardening) follows TestFlight 1.2.0 as its own
+round, for 1.3.0 (owner, 2026-09-24: "1.2.0 after RD-012"). Owner decision (2026-09-23): harden the layouts on the iOS 27.0 SDK
 and keep the Xcode 27.0 toolchain; no iOS 27.1 API. Apple's
 [Xcode 27.1 beta release notes](https://developer.apple.com/documentation/xcode-release-notes/xcode-27_1-release-notes)
 list the iPhone Duo Simulator runtime, and
