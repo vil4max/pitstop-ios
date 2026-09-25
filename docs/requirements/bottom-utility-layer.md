@@ -26,6 +26,20 @@ This is a utility layer, not root navigation.
 - not only top-trailing;
 - not a Car Board tile.
 
+### About
+
+Settings ends with an About section: the version and build, one line saying
+who makes PitStop and how, and a row that opens the public source code. The
+line names the developer as "vil4max" and calls AI coding agents tools, not
+authors; it names no AI product. Because the same binary could go to the App
+Store, the text never says "lab", "experiment", "beta", "demo" or
+"AI-powered", and never suggests that the user's data feeds an AI process
+(App Review Guidelines 2.1(a), 2.2, 5.1.2). The link goes only to
+`github.com/vil4max/pitstop-ios`, which is public. English wording (owner,
+2026-09-25): "Pitstop is an independent app by vil4max, built with AI coding
+agents and reviewed and released by its developer. The source code is open
+on GitHub." Russian and Ukrainian follow the same meaning.
+
 ## Pit
 
 - bottom-trailing;
@@ -187,3 +201,11 @@ Source: [Pit](#pit), [Safe areas and scrolling](#safe-areas-and-scrolling)
 Given a sheet other than the Pit Capture Surface is presented
 When the sheet or the keyboard is shown
 Then Pit stays visible at the bottom-trailing spot of the sheet, above the keyboard, Settings is not shown over the sheet, and both return to their layer positions when the sheet closes
+
+### REQ-UTILITY-013 — About says who makes PitStop and links the source
+Status: proposed (owner chose the wording, the name and the order on 2026-09-25; lands after SYS-008)
+Core: P5
+Source: [About](#about)
+Given Settings is open
+When the About section is shown
+Then it shows the version and build, the line "Pitstop is an independent app by vil4max, built with AI coding agents and reviewed and released by its developer. The source code is open on GitHub." in the user's language (en, ru, uk), and a "Source code on GitHub" row that opens github.com/vil4max/pitstop-ios, and no text in it says lab, experiment, beta, demo or AI-powered
