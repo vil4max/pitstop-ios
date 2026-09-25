@@ -10,26 +10,27 @@ struct CarEditorDraft: Equatable {
     private(set) var photo: CarPhotoEdit = .unchanged
     /// The last pick could not be loaded; the Photo row says so until the next pick or a remove.
     private(set) var photoLoadFailed = false
-    /// The body the board showed when the editor opened; choosing it again is no change (REQ-BOARD-030).
-    private let shownBody: CarBody
-    private let hasSavedPhoto: Bool
+    /// The car as the editor opened over it; Save compares the draft with this, so a field left alone stays
+    /// unchanged even when Pit recorded a newer value while the editor was open (REQ-PIT-026).
+    let opening: CarEditorOpening
 
-    init(car: ProvisionalCarContext, body: CarBody, hasPhoto: Bool) {
+    init(opening: CarEditorOpening) {
+        let car = opening.car
         name = car.isProvisional ? "" : car.name
         odometer = car.odometerKm.map(String.init) ?? ""
-        self.body = body
-        shownBody = body
-        hasSavedPhoto = hasPhoto
+        body = opening.body
+        self.opening = opening
     }
 
-    /// `nil` unless the owner picked a body other than the one shown, so SUV is never written for them.
+    /// `nil` unless the owner picked a body other than the one shown, so SUV is never written for them
+    /// (REQ-BOARD-030).
     var bodyChange: CarBody? {
-        body == shownBody ? nil : body
+        body == opening.body ? nil : body
     }
 
     var showsRemovePhoto: Bool {
         switch photo {
-        case .unchanged: hasSavedPhoto
+        case .unchanged: opening.hasPhoto
         case .replace: true
         case .remove: false
         }
@@ -42,7 +43,7 @@ struct CarEditorDraft: Equatable {
 
     /// Removing a pick that was never saved just drops it; a saved photo is removed on save (REQ-BOARD-033).
     mutating func removePhoto() {
-        photo = hasSavedPhoto ? .remove : .unchanged
+        photo = opening.hasPhoto ? .remove : .unchanged
         photoLoadFailed = false
     }
 
@@ -78,16 +79,16 @@ struct CarEditorView: View {
     @State private var pickedItem: PhotosPickerItem?
     @State private var isLoadingPhoto = false
 
+    /// Only the first `opening` counts: the board reloads under the sheet, and the draft keeps the car it opened
+    /// over.
     init(
-        car: ProvisionalCarContext,
-        body: CarBody,
-        hasPhoto: Bool,
+        opening: CarEditorOpening,
         canChoosePhoto: Bool,
         onSave: @escaping (CarEditorDraft) async -> Bool
     ) {
         self.canChoosePhoto = canChoosePhoto
         self.onSave = onSave
-        _draft = State(initialValue: CarEditorDraft(car: car, body: body, hasPhoto: hasPhoto))
+        _draft = State(initialValue: CarEditorDraft(opening: opening))
     }
 
     var body: some View {
@@ -185,28 +186,31 @@ struct CarEditorView: View {
 }
 
 #if DEBUG
+    private let previewKestrel = CarEditorOpening(
+        car: ProvisionalCarContext(vehicle: Vehicle(id: Vehicle.provisionalID, name: "Kestrel"), observedKm: 47560),
+        body: .sedan,
+        hasPhoto: true,
+        isMileageCurrent: true,
+        mileageObservedAt: nil
+    )
+
     #Preview("Car editor, saved photo, light") {
-        CarEditorView(
-            car: ProvisionalCarContext(vehicle: Vehicle(id: Vehicle.provisionalID, name: "Kestrel"), observedKm: 47560),
-            body: .sedan,
-            hasPhoto: true,
-            canChoosePhoto: true
-        ) { _ in false }
+        CarEditorView(opening: previewKestrel, canChoosePhoto: true) { _ in false }
             .preferredColorScheme(.light)
     }
 
     #Preview("Car editor, saved photo, dark") {
-        CarEditorView(
-            car: ProvisionalCarContext(vehicle: Vehicle(id: Vehicle.provisionalID, name: "Kestrel"), observedKm: 47560),
-            body: .sedan,
-            hasPhoto: true,
-            canChoosePhoto: true
-        ) { _ in false }
+        CarEditorView(opening: previewKestrel, canChoosePhoto: true) { _ in false }
             .preferredColorScheme(.dark)
     }
 
     #Preview("Car editor, first launch, AX-XL") {
-        CarEditorView(car: .firstLaunch, body: .suv, hasPhoto: false, canChoosePhoto: true) { _ in false }
+        CarEditorView(
+            opening: CarEditorOpening(
+                car: .firstLaunch, body: .suv, hasPhoto: false, isMileageCurrent: false, mileageObservedAt: nil
+            ),
+            canChoosePhoto: true
+        ) { _ in false }
             .dynamicTypeSize(.accessibility3)
     }
 #endif

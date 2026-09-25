@@ -37,13 +37,15 @@ struct CarBoardView: View {
         .pitActivity(.modalTask, while: isEditingCar)
         .pitSheet(isPresented: $isEditingCar) {
             CarEditorView(
-                car: viewModel.state.car,
-                body: viewModel.state.carBody,
-                hasPhoto: viewModel.state.carPhoto != nil,
+                opening: viewModel.editorOpening,
                 canChoosePhoto: viewModel.state.canStorePhoto
             ) { draft in
                 await viewModel.saveCar(
-                    name: draft.name, odometerText: draft.odometer, body: draft.bodyChange, photo: draft.photo
+                    name: draft.name,
+                    odometerText: draft.odometer,
+                    body: draft.bodyChange,
+                    photo: draft.photo,
+                    opening: draft.opening
                 )
             }
             .alert(failureTitle, isPresented: failureBinding) {

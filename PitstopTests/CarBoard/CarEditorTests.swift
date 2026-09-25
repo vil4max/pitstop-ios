@@ -9,6 +9,11 @@ private let kestrel = ProvisionalCarContext(
     observedKm: 47560
 )
 
+/// An editor opened over `car`; the mileage fields matter only to a save, not to the draft.
+private func opening(_ car: ProvisionalCarContext, body: CarBody, hasPhoto: Bool) -> CarEditorOpening {
+    CarEditorOpening(car: car, body: body, hasPhoto: hasPhoto, isMileageCurrent: true, mileageObservedAt: nil)
+}
+
 @MainActor
 @Suite("Car editor")
 struct CarEditorTests {
@@ -17,7 +22,7 @@ struct CarEditorTests {
 
     @Test("REQ-BOARD-032: a first-launch editor asks for no photo, shows the SUV and saves nothing untouched")
     func firstLaunchEditorAsksForNothing() async {
-        let draft = CarEditorDraft(car: .firstLaunch, body: .suv, hasPhoto: false)
+        let draft = CarEditorDraft(opening: opening(.firstLaunch, body: .suv, hasPhoto: false))
 
         #expect(draft.body == .suv)
         #expect(draft.photo == .unchanged)
@@ -55,7 +60,9 @@ struct CarEditorTests {
     /// alert behind (ADR 0032, as the planned-date editor does).
     @Test("REQ-BOARD-029: the car editor locks Cancel and swipe-to-dismiss while a save runs")
     func editorLocksWhileSaving() throws {
-        let editor = CarEditorView(car: kestrel, body: .suv, hasPhoto: true, canChoosePhoto: true) { _ in true }
+        let editor = CarEditorView(opening: opening(kestrel, body: .suv, hasPhoto: true), canChoosePhoto: true) { _ in
+            true
+        }
         let locks = try #require(
             Mirror(reflecting: editor.body).descendant("locksWhileSaving") as? Bool,
             "the car editor is no longer a SaveSheetScaffold"
@@ -67,7 +74,7 @@ struct CarEditorTests {
 
     @Test("REQ-BOARD-030: the editor shows the car's body and sends a change only when the owner makes one")
     func bodyChangeIsTheOwners() {
-        var draft = CarEditorDraft(car: kestrel, body: .sedan, hasPhoto: false)
+        var draft = CarEditorDraft(opening: opening(kestrel, body: .sedan, hasPhoto: false))
         #expect(draft.body == .sedan)
         #expect(draft.bodyChange == nil)
 
@@ -91,7 +98,7 @@ struct CarEditorTests {
 
     @Test("REQ-BOARD-033: removing the photo is offered only while there is one, and saves as a remove")
     func removeIsOfferedWithAPhoto() {
-        var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: true)
+        var draft = CarEditorDraft(opening: opening(kestrel, body: .suv, hasPhoto: true))
         #expect(draft.showsRemovePhoto)
 
         draft.removePhoto()
@@ -106,7 +113,7 @@ struct CarEditorTests {
 
     @Test("REQ-BOARD-033: removing a photo picked in this sheet, with none saved, changes nothing")
     func removingAnUnsavedPickChangesNothing() {
-        var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: false)
+        var draft = CarEditorDraft(opening: opening(kestrel, body: .suv, hasPhoto: false))
         draft.choosePhoto(Data([0xFF, 0xD8]))
         #expect(draft.showsRemovePhoto)
 
@@ -117,7 +124,7 @@ struct CarEditorTests {
 
     @Test("REQ-BOARD-029: a pick that cannot be loaded clears the staged photo, says so, and asks for a fresh pick")
     func failedLoadClearsTheStagedPhoto() {
-        var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: false)
+        var draft = CarEditorDraft(opening: opening(kestrel, body: .suv, hasPhoto: false))
         draft.beginPhotoLoad()
         let loaded = draft.finishPhotoLoad(Data([0xFF, 0xD8]))
         #expect(loaded)
@@ -135,7 +142,7 @@ struct CarEditorTests {
 
     @Test("REQ-BOARD-033: after Remove photo, a pick that fails to load keeps the remove; a new pick clears the line")
     func failedLoadKeepsTheSavedPhoto() {
-        var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: true)
+        var draft = CarEditorDraft(opening: opening(kestrel, body: .suv, hasPhoto: true))
         draft.removePhoto()
         draft.beginPhotoLoad()
         let failed = draft.finishPhotoLoad(nil)
@@ -155,7 +162,7 @@ struct CarEditorTests {
 
     @Test("REQ-BOARD-033: a pick that fails to load after an earlier pick drops that pick and keeps the saved photo")
     func failedLoadDropsAnEarlierPickOverASavedPhoto() {
-        var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: true)
+        var draft = CarEditorDraft(opening: opening(kestrel, body: .suv, hasPhoto: true))
         draft.beginPhotoLoad()
         let loaded = draft.finishPhotoLoad(Data([0xFF, 0xD8]))
         #expect(loaded)
@@ -171,7 +178,7 @@ struct CarEditorTests {
 
     @Test("REQ-BOARD-033: with nothing staged, a pick that fails to load changes nothing")
     func failedLoadOverNothingStagedChangesNothing() {
-        var draft = CarEditorDraft(car: kestrel, body: .suv, hasPhoto: true)
+        var draft = CarEditorDraft(opening: opening(kestrel, body: .suv, hasPhoto: true))
         draft.beginPhotoLoad()
         let failed = draft.finishPhotoLoad(nil)
 

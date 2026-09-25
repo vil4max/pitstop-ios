@@ -41,6 +41,21 @@ enum CarPhotoEdit: Equatable, Sendable {
     case remove
 }
 
+/// The car as the editor showed it when it opened. Pit can record a mileage or a name while the editor is open
+/// (REQ-PIT-026) and the board reloads under it, so a save compares the draft with this, not with the reloaded
+/// car: a field the owner left alone is never written back over a newer value, as Mark as done keeps what was
+/// stored when its sheet opened.
+struct CarEditorOpening: Equatable {
+    let car: ProvisionalCarContext
+    let body: CarBody
+    /// Whether a photo was shown, so the editor offers to remove it.
+    let hasPhoto: Bool
+    /// Whether the shown mileage was recent enough to count; a stale one is re-recorded even unchanged.
+    let isMileageCurrent: Bool
+    /// When the shown mileage was observed; a different date at save means something newer was recorded since.
+    let mileageObservedAt: Date?
+}
+
 @MainActor
 @Observable
 final class CarBoardViewModel {
@@ -59,6 +74,8 @@ final class CarBoardViewModel {
     private var photoID: CarPhotoID?
     /// Whether the shown mileage is recent enough to count; a stale one is re-recorded even unchanged.
     private var isMileageCurrent = false
+    /// When the shown mileage was observed, so an editor can tell whether a newer one arrived while it was open.
+    private var mileageObservedAt: Date?
 
     init(
         store: any CarMemoryStore,
@@ -75,6 +92,17 @@ final class CarBoardViewModel {
         self.now = now
         self.calendar = calendar
         state = CarBoardViewState(canStorePhoto: photos != nil, isStorageTemporary: persistence == .temporary)
+    }
+
+    /// What the car editor opening now shows; the editor keeps it until it closes.
+    var editorOpening: CarEditorOpening {
+        CarEditorOpening(
+            car: state.car,
+            body: state.carBody,
+            hasPhoto: state.carPhoto != nil,
+            isMileageCurrent: isMileageCurrent,
+            mileageObservedAt: mileageObservedAt
+        )
     }
 
     func load() async {
@@ -94,6 +122,7 @@ final class CarBoardViewModel {
             vehicleID = vehicle.id
             photoID = vehicle.photoID
             isMileageCurrent = context.mileage == .known
+            mileageObservedAt = context.observedAt
             state.car = ProvisionalCarContext(vehicle: vehicle, observedKm: context.observedKm)
             state.carBody = vehicle.body
             state.carPhoto = vehicle.photoID.flatMap { photoPreparation?.photos.files(for: $0) }
@@ -132,11 +161,13 @@ final class CarBoardViewModel {
     /// A blank name means "leave it as it is": the editor may have been opened over stale state, and
     /// a placeholder must never be written back as a user-supplied fact (core C2). `body` is `nil`, or the
     /// body already shown, when the owner did not change it, so SUV is never written on the owner's behalf.
+    /// `opening` is the car the editor opened over; without one, the car as loaded now stands in for it.
     func saveCar(
         name: String,
         odometerText: String,
         body: CarBody? = nil,
-        photo: CarPhotoEdit = .unchanged
+        photo: CarPhotoEdit = .unchanged,
+        opening: CarEditorOpening? = nil
     ) async -> Bool {
         let kilometers = InputParsing.kilometers(from: odometerText)
         if case .invalid = kilometers {
@@ -157,7 +188,8 @@ final class CarBoardViewModel {
             return fail(.saveFailed)
         }
         let replacedPhotoID = photoID
-        let commands = changes(name: name, kilometers: kilometers, body: body, photo: photo, newPhotoID: newPhotoID)
+        let commands = changes(name: name, kilometers: kilometers, opening: opening ?? editorOpening)
+            + profileChanges(body: body, photo: photo, newPhotoID: newPhotoID)
 
         var savedAnything = false
         for command in commands {
@@ -187,28 +219,28 @@ final class CarBoardViewModel {
         return true
     }
 
-    /// The commands a save runs, in order: the name and the mileage first, as before the car had a
-    /// profile, then the body, and the photo last, so the old photo's files go only once nothing can fail.
-    private func changes(
-        name: String,
-        kilometers: WholeNumberInput,
-        body: CarBody?,
-        photo: CarPhotoEdit,
-        newPhotoID: CarPhotoID?
-    ) -> [DomainCommand] {
+    /// The name and mileage commands, which a save runs first, as before the car had a profile. Each is written
+    /// only when the owner changed it from what the editor opened over: Pit may have recorded a newer one
+    /// meanwhile, and an untouched field must not put the old value back (REQ-PIT-026).
+    private func changes(name: String, kilometers: WholeNumberInput, opening: CarEditorOpening) -> [DomainCommand] {
         guard let vehicleID else { return [] }
         var commands: [DomainCommand] = []
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedName.isEmpty, trimmedName != state.car.name {
+        if !trimmedName.isEmpty, trimmedName != opening.car.name, trimmedName != state.car.name {
             let fact = VehicleFact(field: .name, value: trimmedName)
             commands.append(.recordVehicleFact(.init(vehicleID: vehicleID, fact: fact)))
         }
-        // The same number is still worth recording when the shown mileage is stale: it tells the
-        // engine where the car is today (REQ-BOARD-026).
-        if case let .value(value) = kilometers, value != state.car.odometerKm || !isMileageCurrent {
+        if case let .value(value) = kilometers, recordsReading(value, opening: opening) {
             let reading = OdometerReading(vehicleID: vehicleID, value: Double(value), recordedAt: now())
             commands.append(.recordOdometerReading(.init(reading: reading)))
         }
+        return commands
+    }
+
+    /// The body, then the photo last, so the old photo's files go only once nothing can fail.
+    private func profileChanges(body: CarBody?, photo: CarPhotoEdit, newPhotoID: CarPhotoID?) -> [DomainCommand] {
+        guard let vehicleID else { return [] }
+        var commands: [DomainCommand] = []
         if let body, body != state.carBody {
             commands.append(.setCarBody(.init(vehicleID: vehicleID, body: body)))
         }
@@ -223,6 +255,18 @@ final class CarBoardViewModel {
             break
         }
         return commands
+    }
+
+    /// Whether the editor's mileage is recorded. An edited number is, unless it is already the current mileage. The
+    /// number the editor opened with is recorded again only over a stale mileage, since it tells the engine where
+    /// the car is today (REQ-BOARD-026), and only while that mileage is still the newest: once anything newer was
+    /// recorded, the untouched number would move the mileage backwards.
+    private func recordsReading(_ value: Int, opening: CarEditorOpening) -> Bool {
+        guard value == opening.car.odometerKm else {
+            return value != state.car.odometerKm || !isMileageCurrent
+        }
+        let nothingNewer = mileageObservedAt == opening.mileageObservedAt && state.car.odometerKm == value
+        return !opening.isMileageCurrent && nothingNewer
     }
 
     /// The picked photo's new id once its files are stored, or `nil` when the photo does not change.
