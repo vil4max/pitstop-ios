@@ -73,9 +73,9 @@ verified by `just verify` failing on a planted literal.
 Release scope, owner in this session on 2026-09-24 ("1.2.0 after RD-012
 (Recommended)"): TestFlight 1.2.0 ships after the RD-012 pilot round, and
 SYS-008 becomes the next round, for 1.3.0.
-Next step: Release 1.2.0: the version bump, `just release --check` and the
-gate review of `main..redesign/ios27`; then the owner's word to fast-forward
-and push `main`, `just tf-check` and the `tf-1.2.0-1` tag.
+Next step: the owner's word to fast-forward `main` onto `redesign/ios27` and
+push it; then `just tf-check` and, once it prints Ready, the `tf-1.2.0-1` tag
+with the What to Test in `docs/operations/releases/1.2.0.md`.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -140,7 +140,7 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | done | `0f8024f`…`7061361`; `just verify` per step; failing-first; review: 2 medium + 3 low, then 0 high/medium + 1 low (accepted) |
 | FU-5 Mark-as-done merge conflict | REQ-MAINT-040…056 (EARS, proposed) | FU-3 | done | `0ecc595`…`c846429`, numbering `d5db7a5`; `just verify` per step; failing-first and mutation evidence; review: 2 medium + 5 low, then 0 high/medium + 3 low (2 repaired, 1 accepted) |
 | FU-4 RD-011 test strength | `PitControlTests`, `UtilityLayer` | RD-011 | done | `4756b9a`…`4e26ddb`; `just verify` per step; mutation evidence; review: 0 high/medium + 1 low, repaired |
-| Release 1.2.0 | `just tf-check` Ready | RD-012 | in progress | version bump `f660d4f`, `just release --check` OK; gate review (opus, `swift-code-reviewer`, `main..redesign/ios27` at `f660d4f`): HOLD on one medium, the car editor writing back a mileage or name Pit recorded while it was open, fixed in [`fix-car-editor-stale-draft.md`](fix-car-editor-stale-draft.md); one low (stale "(REQ-MAINT-040, proposed)" comments in `ServiceViewModel.swift:29`, `:278`) to FU-7; pushing `main` waits for the owner's word |
+| Release 1.2.0 | `just tf-check` Ready | RD-012 | in progress | version bump `f660d4f`, `just release --check` OK; gate review (opus, `swift-code-reviewer`, `main..redesign/ios27` at `f660d4f`): HOLD on one medium, the car editor writing back a mileage or name Pit recorded while it was open, fixed in [`fix-car-editor-stale-draft.md`](fix-car-editor-stale-draft.md) (`c2d58cd`, `c5cc28e`, two review rounds, closed); one low (stale "(REQ-MAINT-040, proposed)" comments in `ServiceViewModel.swift:29`, `:278`) to FU-7; pushing `main` waits for the owner's word |
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | Release 1.2.0 | planned (1.3.0) | — |
 
 Acceptance for each RD slice is its row in
