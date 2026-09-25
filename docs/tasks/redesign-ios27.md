@@ -73,8 +73,9 @@ verified by `just verify` failing on a planted literal.
 Release scope, owner in this session on 2026-09-24 ("1.2.0 after RD-012
 (Recommended)"): TestFlight 1.2.0 ships after the RD-012 pilot round, and
 SYS-008 becomes the next round, for 1.3.0.
-Next step: RD-012 runs in `rd-012-car-profile.md`; this brief resumes at
-Release 1.2.0 once that round closes, then SYS-008.
+Next step: Release 1.2.0: the version bump, `just release --check` and the
+gate review of `main..redesign/ios27`; then the owner's word to fast-forward
+and push `main`, `just tf-check` and the `tf-1.2.0-1` tag.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -133,13 +134,13 @@ All slices commit on the local branch `redesign/ios27`, cut from `main` at
 | RD-009 Widgets | WidgetEntryTests | RD-000 | done | `5f724f1`…`b49448b`; `just verify` per step; review: 0 high/medium + 3 low, repaired; then 0 high/medium + 3 low, accepted |
 | RD-010 Utility layer in sheets | REQ-UTILITY-012, REQ-PIT-026 | RD-000 | done | `a161608`…`250b36e`; `just verify` per step; review: 1 high + 3 medium + 1 low; 1 medium + 3 low; 1 medium + 4 low; 1 medium + 1 low; then 0 high/medium + 1 pre-existing low (follow-up); four repair iterations, the third and fourth approved by the owner |
 | RD-011 Pit character | REQ-PIT-022…024 | RD-000 | done | `69a7113`…`dce4225`; `just verify` per step; review: 1 medium + 6 low, all repaired; then 0 high/medium + 2 low (test strength), accepted |
-| RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | moved | runs as the Agentic SDLC pilot round in [`rd-012-car-profile.md`](rd-012-car-profile.md) (owner, 2026-09-24) |
+| RD-012 Car profile | REQ-BOARD-017, 029…031, REQ-DESIGN-005 | RD-001 | done | the Agentic SDLC pilot round, [`rd-012-car-profile.md`](rd-012-car-profile.md): `f899c21`…`069ce11`, matrix 8 of 8 OK, fast-forwarded onto `redesign/ios27` |
 | FU-1 History and Notes load states | REQ-GRAMMAR-004, core C2 | RD-008 | done | `3ecf307`, `72de89a`; `just verify` per step; 6 of 10 new tests failed first; review: 0 high/medium, 2 out-of-scope lows (owner candidates) |
 | FU-2 Next-service widget restyle | `NextServiceWidgetTests`, REQ-DESIGN-004, REQ-WIDGET-011, 012 | RD-009 | done | `159b636`…`4f236bc`; `just verify` per step; review: 6 rounds (1 medium privacy; then clean; 3 medium; 3 medium; 1 medium; 0 high/medium + 1 low wording), all repaired; the owner lifted the repair budget |
 | FU-3 Mark-as-done save after its sheet closes | REQ-MAINT-040 tests | RD-010 | done | `0f8024f`…`7061361`; `just verify` per step; failing-first; review: 2 medium + 3 low, then 0 high/medium + 1 low (accepted) |
 | FU-5 Mark-as-done merge conflict | REQ-MAINT-040…056 (EARS, proposed) | FU-3 | done | `0ecc595`…`c846429`, numbering `d5db7a5`; `just verify` per step; failing-first and mutation evidence; review: 2 medium + 5 low, then 0 high/medium + 3 low (2 repaired, 1 accepted) |
 | FU-4 RD-011 test strength | `PitControlTests`, `UtilityLayer` | RD-011 | done | `4756b9a`…`4e26ddb`; `just verify` per step; mutation evidence; review: 0 high/medium + 1 low, repaired |
-| Release 1.2.0 | `just tf-check` Ready | RD-012 | planned | — |
+| Release 1.2.0 | `just tf-check` Ready | RD-012 | in progress | version bump, `just release --check` and the gate review on `redesign/ios27`; pushing `main` waits for the owner's word |
 | SYS-008 iPhone Duo hardening | REQ-ADAPT (proposed in the card) | Release 1.2.0 | planned (1.3.0) | — |
 
 Acceptance for each RD slice is its row in
