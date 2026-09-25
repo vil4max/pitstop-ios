@@ -73,9 +73,10 @@ verified by `just verify` failing on a planted literal.
 Release scope, owner in this session on 2026-09-24 ("1.2.0 after RD-012
 (Recommended)"): TestFlight 1.2.0 ships after the RD-012 pilot round, and
 SYS-008 becomes the next round, for 1.3.0.
-Next step: record the owner's device answers for the `tf-1.2.0-1` build in
-`docs/operations/releases/1.2.0.md` (a FAIL opens a fix card with the build);
-then SYS-008 as its own round on the kit's round flow, for 1.3.0.
+Next step: wait for the owner's device answers for build 1.2.0 (7)
+(`tf-1.2.0-1`) and record them in `docs/operations/releases/1.2.0.md` (a FAIL
+opens a fix card with the build); then SYS-008 as its own round on the kit's
+round flow, for 1.3.0, opened in plan mode.
 Out of scope: iOS 27.1 API, a Runtime or toolchain change, a snapshot-testing
 dependency, the SYS-007 widget avatar, camera entry for the car photo, and
 every item under "Owner decisions pending" in the work plan.
@@ -95,23 +96,44 @@ repository.
 
 ## State
 
-2026-09-24 handoff before a context reset proposed by the SDLC Orchestrator.
-RD-000…RD-011 and the follow-up cards FU-1…FU-5 landed on `redesign/ios27`
-with `just verify`, independent review and a backup push each; nothing is
-running, no writer worktree is left, and `main` and tags are untouched.
-Changed since the last handoff: FU-1…FU-5, REQ-WIDGET-011/012 approved,
-REQ-MAINT-040…056 proposed, UI-TB-001 added to the work plan.
+2026-09-25 handoff before a context reset proposed by the SDLC Orchestrator.
+Nothing is running: no writer, no worktree, no local branch besides `main`;
+`main` is level with `origin/main` at `e92c8ab`.
+
+- RD-000…RD-011 and FU-1…FU-5 landed; RD-012, the first round on the kit's
+  Agentic SDLC flow, closed in [`rd-012-car-profile.md`](rd-012-car-profile.md)
+  (matrix 8 of 8 OK); the 1.2.0 gate fix closed in
+  [`fix-car-editor-stale-draft.md`](fix-car-editor-stale-draft.md); the kit
+  alignment card closed in [`kit-alignment.md`](kit-alignment.md).
+- TestFlight 1.2.0 shipped: `main` fast-forwarded to `bfc0ecc` and pushed on
+  the owner's word, tag `tf-1.2.0-1`, build 1.2.0 (7) available since
+  2026-09-25 09:01. `redesign/ios27` and `RD-012/car-profile` are deleted.
+- After the release, on `main` and pushed: the release-state docs
+  (`b421f27`), build 7 named for What to Test (`f4b4e31`), REQ-UTILITY-013
+  proposed with ABOUT-001 queued after SYS-008 (`9eb5fd9`), the LAB-001
+  App Review note (`f7a22ad`), and the README's reader-facing top (`e92c8ab`).
+- Waiting on the owner: the device check of build 1.2.0 (7), What to Test
+  items 1–16 in `docs/operations/releases/1.2.0.md`.
+- Queued after it: SYS-008 (1.3.0, its own round on the kit's round flow),
+  then ABOUT-001; FIX-LOAD-001/002, FU-6, FU-7 and LAB-001 in the work plan.
+- Owner decisions still open (Owner decisions pending in the work plan): the
+  RD-012 design-session items (ground shadow, the saved-header alignment,
+  the placeholder tint in dark, the editor's ru/uk and partial-save wording).
+- Process rules since the pilot (owner, relayed by the orchestrator,
+  2026-09-25): no backup pushes of task branches; only `main` (with the
+  owner's word in this session) and `tf-`/`v` tags reach origin. Pilot debrief
+  notes: `agent-artifacts/2026-09-24/pitstop-pilot-debrief/outputs/notes.md`.
 
 The rest of this round (SYS-008) runs on the kit's round flow
 (`docs/ai-os/task-lifecycle.md`, "Round in the Agentic SDLC flow"); the
-`Next step:` line above is the single continuation. No merge into `main`,
-push of `main` or tag without the owner's word in the session.
+`Next step:` line above is the single continuation. No push of `main` or tag
+without the owner's word in the session.
 
 ## Baselines
 
-- Last landed commit before this handoff: `9e6a960` (also `origin/redesign/ios27`).
-- `redesign/ios27` was cut from `main` at `ab6b60c`; `main` is still at `ab6b60c`.
-- Review verdicts, screenshots and writer logs: `agent-artifacts/2026-09-23/pitstop-ios27-redesign/outputs/` and `work/`.
+- `main` and `origin/main`: `e92c8ab`; the 1.2.0 release commit is `bfc0ecc` (tag `tf-1.2.0-1`).
+- The redesign branch was cut from `main` at `ab6b60c` and fast-forwarded into it at `bfc0ecc`.
+- Review verdicts, screenshots and writer logs: `agent-artifacts/2026-09-23/pitstop-ios27-redesign/outputs/`, and for RD-012 and the gate fix `agent-artifacts/2026-09-24/pitstop-rd-012/outputs/`.
 - The Xcode 27.2 beta iOS 27.2 simulator runtime (8 GB) is installed; the iPhone Duo Simulator needs Xcode 27.1 (owner download).
 
 ## Slices
