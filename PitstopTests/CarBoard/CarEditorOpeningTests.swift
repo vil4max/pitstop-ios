@@ -4,6 +4,58 @@ import Testing
 
 private let now = DomainFixtures.Odometers.baseDate
 
+/// The in-memory store, except that reading the odometer can fail while commands still save, as when a read
+/// hits a locked store that a write then gets through.
+private actor ReadingReadFailingStore: CarMemoryStore {
+    let base: FakeCarMemoryStore
+    private var failsReadingReads = false
+
+    init(base: FakeCarMemoryStore) {
+        self.base = base
+    }
+
+    func failReadingReads() {
+        failsReadingReads = true
+    }
+
+    func currentVehicle() async throws(CarMemoryStoreError) -> Vehicle {
+        try await base.currentVehicle()
+    }
+
+    func odometerReadings() async throws(CarMemoryStoreError) -> [OdometerReading] {
+        guard !failsReadingReads else { throw .storageFailure }
+        return try await base.odometerReadings()
+    }
+
+    func notes() async throws(CarMemoryStoreError) -> [Note] {
+        try await base.notes()
+    }
+
+    func historyEvents() async throws(CarMemoryStoreError) -> [HistoryEvent] {
+        try await base.historyEvents()
+    }
+
+    func maintenancePolicies() async throws(CarMemoryStoreError) -> [MaintenancePolicy] {
+        try await base.maintenancePolicies()
+    }
+
+    func maintenanceCompletions() async throws(CarMemoryStoreError) -> [MaintenanceCompletion] {
+        try await base.maintenanceCompletions()
+    }
+
+    func plannedEvents() async throws(CarMemoryStoreError) -> [PlannedDatedEvent] {
+        try await base.plannedEvents()
+    }
+
+    func vehicleServiceReports() async throws(CarMemoryStoreError) -> [VehicleServiceReport] {
+        try await base.vehicleServiceReports()
+    }
+
+    func execute(_ command: DomainCommand, now: Date) async throws(CarMemoryStoreError) -> CommandResult {
+        try await base.execute(command, now: now)
+    }
+}
+
 /// Pit opens inside the car editor sheet (REQ-PIT-026), and a capture closing over the sheet reloads the board.
 /// The editor then saves only what the owner changed since it opened.
 @MainActor
@@ -96,5 +148,72 @@ struct CarEditorOpeningTests {
         #expect(readings.map(\.valueInKilometers) == [47560, 47560])
         #expect(readings.last?.recordedAt == now)
         #expect(model.state.mileageRecency == .today)
+    }
+
+    // MARK: The board has not caught up with Pit
+
+    /// Pit records 48 200 km in the store, and the board's reload after the capture does not show it.
+    private static func pitRecordsUnseen(_ kilometers: Double, in store: FakeCarMemoryStore) async throws {
+        let vehicleID = try await store.currentVehicle().id
+        let reading = OdometerReading(vehicleID: vehicleID, value: kilometers, recordedAt: now)
+        _ = try await store.execute(.recordOdometerReading(.init(reading: reading)), now: now)
+    }
+
+    @Test("REQ-BOARD-026, REQ-PIT-026: after Pit's capture, a failed board reload does not let the stale mileage back")
+    func failedReloadKeepsPitMileage() async throws {
+        let (store, model, opening) = try await Self.boardWithOpenEditor(readingAge: 100 * 86400)
+        let draft = CarEditorDraft(opening: opening)
+        try await Self.pitRecordsUnseen(48200, in: store)
+        await store.failEverything()
+        await model.load()
+        #expect(model.state.isLoadFailed)
+        #expect(model.state.mileage == .kilometers(47560), "the failed reload keeps the board's cache")
+        await store.recover()
+
+        #expect(await model.saveCar(
+            name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: opening
+        ))
+
+        #expect(await store.readings.map(\.valueInKilometers) == [47560, 48200], "the untouched mileage was recorded")
+        #expect(model.state.mileage == .kilometers(48200))
+        #expect(await store.vehicle.chosenBody == .sedan)
+    }
+
+    @Test("REQ-BOARD-026, REQ-PIT-026: saving before the board reloads after Pit's capture keeps Pit's mileage")
+    func saveBeforeReloadKeepsPitMileage() async throws {
+        let (store, model, opening) = try await Self.boardWithOpenEditor(readingAge: 100 * 86400)
+        let draft = CarEditorDraft(opening: opening)
+        try await Self.pitRecordsUnseen(48200, in: store)
+
+        #expect(await model.saveCar(
+            name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: opening
+        ))
+
+        #expect(await store.readings.map(\.valueInKilometers) == [47560, 48200], "the untouched mileage was recorded")
+        #expect(model.state.mileage == .kilometers(48200))
+        #expect(await store.vehicle.chosenBody == .sedan)
+    }
+
+    @Test("REQ-BOARD-026: when the store cannot be read at save, nothing untouched is written and the body is saved")
+    func unreadableStoreWritesNothingUntouched() async throws {
+        let base = FakeCarMemoryStore(vehicle: Vehicle(id: Vehicle.provisionalID, name: "Kestrel"))
+        let vehicleID = try await base.currentVehicle().id
+        let reading = OdometerReading(
+            vehicleID: vehicleID, value: 47560, recordedAt: now.addingTimeInterval(-100 * 86400)
+        )
+        _ = try await base.execute(.recordOdometerReading(.init(reading: reading)), now: now)
+        let store = ReadingReadFailingStore(base: base)
+        let model = CarBoardViewModel(store: store, now: { now })
+        await model.load()
+        let draft = CarEditorDraft(opening: model.editorOpening)
+        await store.failReadingReads()
+
+        #expect(await model.saveCar(
+            name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: draft.opening
+        ))
+
+        #expect(await base.readings.map(\.valueInKilometers) == [47560], "an untouched mileage was recorded unread")
+        #expect(await base.vehicle.chosenBody == .sedan)
+        #expect(await base.vehicle.name == "Kestrel")
     }
 }

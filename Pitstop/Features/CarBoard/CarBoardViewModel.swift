@@ -188,8 +188,11 @@ final class CarBoardViewModel {
             return fail(.saveFailed)
         }
         let replacedPhotoID = photoID
-        let commands = changes(name: name, kilometers: kilometers, opening: opening ?? editorOpening)
-            + profileChanges(body: body, photo: photo, newPhotoID: newPhotoID)
+        let opening = opening ?? editorOpening
+        let reRecordsOpeningMileage = await openingMileageIsStaleAndNewest(kilometers, opening: opening)
+        let commands = changes(
+            name: name, kilometers: kilometers, opening: opening, reRecordsOpeningMileage: reRecordsOpeningMileage
+        ) + profileChanges(body: body, photo: photo, newPhotoID: newPhotoID)
 
         var savedAnything = false
         for command in commands {
@@ -222,7 +225,12 @@ final class CarBoardViewModel {
     /// The name and mileage commands, which a save runs first, as before the car had a profile. Each is written
     /// only when the owner changed it from what the editor opened over: Pit may have recorded a newer one
     /// meanwhile, and an untouched field must not put the old value back (REQ-PIT-026).
-    private func changes(name: String, kilometers: WholeNumberInput, opening: CarEditorOpening) -> [DomainCommand] {
+    private func changes(
+        name: String,
+        kilometers: WholeNumberInput,
+        opening: CarEditorOpening,
+        reRecordsOpeningMileage: Bool
+    ) -> [DomainCommand] {
         guard let vehicleID else { return [] }
         var commands: [DomainCommand] = []
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -230,7 +238,9 @@ final class CarBoardViewModel {
             let fact = VehicleFact(field: .name, value: trimmedName)
             commands.append(.recordVehicleFact(.init(vehicleID: vehicleID, fact: fact)))
         }
-        if case let .value(value) = kilometers, recordsReading(value, opening: opening) {
+        if case let .value(value) = kilometers,
+           recordsReading(value, opening: opening, reRecordsOpeningMileage: reRecordsOpeningMileage)
+        {
             let reading = OdometerReading(vehicleID: vehicleID, value: Double(value), recordedAt: now())
             commands.append(.recordOdometerReading(.init(reading: reading)))
         }
@@ -258,15 +268,38 @@ final class CarBoardViewModel {
     }
 
     /// Whether the editor's mileage is recorded. An edited number is, unless it is already the current mileage. The
-    /// number the editor opened with is recorded again only over a stale mileage, since it tells the engine where
-    /// the car is today (REQ-BOARD-026), and only while that mileage is still the newest: once anything newer was
-    /// recorded, the untouched number would move the mileage backwards.
-    private func recordsReading(_ value: Int, opening: CarEditorOpening) -> Bool {
+    /// number the editor opened with is recorded only as `reRecordsOpeningMileage` says.
+    private func recordsReading(_ value: Int, opening: CarEditorOpening, reRecordsOpeningMileage: Bool) -> Bool {
         guard value == opening.car.odometerKm else {
             return value != state.car.odometerKm || !isMileageCurrent
         }
-        let nothingNewer = mileageObservedAt == opening.mileageObservedAt && state.car.odometerKm == value
-        return !opening.isMileageCurrent && nothingNewer
+        return reRecordsOpeningMileage
+    }
+
+    /// Whether the untouched number the editor opened with is recorded again: only over a stale mileage, since it
+    /// tells the engine where the car is today (REQ-BOARD-026), and only while that mileage is still the newest,
+    /// since otherwise it would move the mileage backwards. The newest observation is read from the store, not the
+    /// board: the board's reload after Pit's capture may have failed or not run yet (REQ-PIT-026). When the store
+    /// cannot be read, nothing untouched is written.
+    private func openingMileageIsStaleAndNewest(
+        _ kilometers: WholeNumberInput,
+        opening: CarEditorOpening
+    ) async -> Bool {
+        guard case let .value(value) = kilometers, value == opening.car.odometerKm, !opening.isMileageCurrent else {
+            return false
+        }
+        do {
+            let context = try await MaintenanceContext(
+                now: now(),
+                latestReading: store.odometerReadings().latest,
+                completions: store.maintenanceCompletions(),
+                reports: store.vehicleServiceReports()
+            )
+            return context.observedAt == opening.mileageObservedAt
+                && context.observedKm.map { Int($0.rounded()) } == value
+        } catch {
+            return false
+        }
     }
 
     /// The picked photo's new id once its files are stored, or `nil` when the photo does not change.
