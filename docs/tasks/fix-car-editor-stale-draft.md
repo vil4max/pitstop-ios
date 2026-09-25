@@ -1,9 +1,9 @@
 # Task — The car editor must not write back fields Pit changed while it was open
 
 Assignee: Pitstop (local_1b8d76c5-4a66-436c-9d0f-8e59157a2252), host Claude desktop
-State: claimed
+State: done
 Requested by: owner (direct, 2026-09-24) — found by the Release 1.2.0 gate review
-Evidence: pending
+Evidence: `c2d58cd`, `c5cc28e` on `redesign/ios27`; failing tests first (4 issues, then 3 issues, each recording the old mileage); `just verify` → verify OK on `c5cc28e`; review round 1: 1 medium, repaired; review round 2: 0 high/medium, the gate finding fully closed, no regression
 Depends-on: rd-012-car-profile
 Parallelism: none
 Profile: fix
@@ -11,7 +11,7 @@ user-visible: Saving the car editor after Pit recorded a new mileage or name no 
 
 ## Current status and authorization
 
-Current outcome: claimed; a release blocker for TestFlight 1.2.0.
+Current outcome: done; the 1.2.0 gate finding is closed.
 Authorized scope: the owner approved the RD-012 pilot plan in the Pitstop
 session on 2026-09-24 (ExitPlanMode), whose ship stage runs the gate review of
 `main..redesign/ios27` before asking to push `main`; the owner chose "1.2.0
@@ -20,7 +20,7 @@ release blocker inside that stage. No new requirement.
 Blocking decisions: none.
 Permitted deviations: none.
 Material assumptions: none.
-Next step: dispatch the writer from the commit that adds this brief.
+Next step: none; Release 1.2.0 continues in `redesign-ios27.md`.
 Requirements: REQ-PIT-026, REQ-BOARD-026
 Acceptance specs: a failing test first for each scenario below, then passing
 in `just verify`.
@@ -86,15 +86,30 @@ test first for a failed and for a skipped reload after Pit's capture.
 
 Output: a Repair 1 section appended to the writer report.
 
+- 2026-09-25: repair 1 READY at `c5cc28e` after a clean rebase onto
+  `7efe392` (the first commit is now `c2d58cd`): before an untouched stale
+  mileage is recorded again, the store's newest mileage observation
+  (readings, completions and reports) is read; a failed read writes nothing
+  untouched. Three new tests failed first. Landed by `git merge --ff-only`
+  onto `redesign/ios27`; `just verify` on `c5cc28e` → verify OK.
+
+### Round 2 review — fix-car-editor-stale-draft (2026-09-25)
+
+Review SHA: c5cc28e
+
+- [low][non-blocking][new] Pitstop/Features/CarBoard/CarBoardViewModel.swift:300 — an untouched stale-mileage confirmation whose store read fails closes the editor as saved although nothing was recorded (backlog: FU-6)
+- [low][non-blocking][new] Pitstop/Features/CarBoard/CarBoardViewModel.swift:192 — the store read and the write are separate actor calls, so another in-process writer (an App Intent) could land a mileage in the milliseconds between them (backlog: FU-6)
+- [low][non-blocking][new] PitstopTests/CarBoard/CarEditorOpeningTests.swift:156 — no test covers Pit saving a completion or a dashboard reading while the reload fails (backlog: FU-7)
+
 ## Untested scope
 
 - Pit over the car editor on screen (needs taps): 1.2.0 What to Test item 16.
 
 ## Writer steps
 
-- [ ] Repair 1: the stale same-number save reads the store's newest mileage first and writes nothing untouched when that read fails: REQ-BOARD-026 tests with a failed and a skipped reload fail first, then `just verify`
-- [ ] The editor saves only the fields the owner changed since it opened, and the stale-mileage same-number save still records a reading when nothing newer arrived: REQ-PIT-026 and REQ-BOARD-026 tests (Pit records a mileage and a name while the editor is open, then a body-only save) fail first, then `just verify`
+- [x] Repair 1: the stale same-number save reads the store's newest mileage first and writes nothing untouched when that read fails: REQ-BOARD-026 tests with a failed and a skipped reload fail first, then `just verify` — c5cc28e
+- [x] The editor saves only the fields the owner changed since it opened, and the stale-mileage same-number save still records a reading when nothing newer arrived: REQ-PIT-026 and REQ-BOARD-026 tests (Pit records a mileage and a name while the editor is open, then a body-only save) fail first, then `just verify` — c2d58cd
 
 ## Current checklist
 
-- [ ] failing tests first, fix, `just verify`, one review, `State: done`
+- [x] failing tests first, fix, `just verify`, one review, `State: done`
