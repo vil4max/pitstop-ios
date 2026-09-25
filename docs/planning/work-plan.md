@@ -1,7 +1,7 @@
 # Work Plan
 
 **Status:** Active since 2026-09-23 (owner unfroze it); see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Next task:** Release 1.2.0 (RD-012 landed on `RD-012/car-profile`, [`../tasks/rd-012-car-profile.md`](../tasks/rd-012-car-profile.md)); the redesign round is tracked in [`../tasks/redesign-ios27.md`](../tasks/redesign-ios27.md)  
+**Next task:** SYS-008 (1.3.0), after the owner's device check of `tf-1.2.0-1` ([`../operations/releases/1.2.0.md`](../operations/releases/1.2.0.md)); FIX-LOAD-001/002, FU-6, FU-7 and LAB-001 are queued  
 **Scope:** open work only. A delivered task leaves this file; ADRs and `git log` keep its record  
 **WIP limit:** 1 implementation task **In progress** (solo)  
 **Estimates:** ideal focused dev days  

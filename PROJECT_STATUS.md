@@ -1,9 +1,9 @@
 # PitStop — Project Status
 
-**Project State:** Active since 2026-09-23 (owner unfroze it); the iOS 27 redesign round runs on the local branch `redesign/ios27` ([`docs/tasks/redesign-ios27.md`](docs/tasks/redesign-ios27.md))  
-**Next task:** Release 1.2.0 (RD-000…RD-011 on `redesign/ios27`; RD-012, the car profile and the first round on the kit's round flow, landed on `RD-012/car-profile`, ADR 0040, [`docs/tasks/rd-012-car-profile.md`](docs/tasks/rd-012-car-profile.md)) ([`docs/planning/work-plan.md`](docs/planning/work-plan.md)); SYS-008 follows for 1.3.0  
+**Project State:** Active since 2026-09-23 (owner unfroze it); the iOS 27 redesign and the RD-012 car profile shipped to TestFlight 1.2.0 from `main` ([`docs/tasks/redesign-ios27.md`](docs/tasks/redesign-ios27.md), [`docs/tasks/rd-012-car-profile.md`](docs/tasks/rd-012-car-profile.md))  
+**Next task:** the owner's device check of `tf-1.2.0-1` (What to Test in [`docs/operations/releases/1.2.0.md`](docs/operations/releases/1.2.0.md)), then SYS-008 for 1.3.0 ([`docs/planning/work-plan.md`](docs/planning/work-plan.md))  
 **Repository:** public `vil4max/pitstop-ios` with rewritten history (ADR 0014)  
-**TestFlight:** version 1.1.0 (tag `tf-1.1.0-3`); delivery is tag-gated (ADR 0013)
+**TestFlight:** version 1.2.0 (tag `tf-1.2.0-1`, 2026-09-25); delivery is tag-gated (ADR 0013)
 
 Work follows the spec pyramid ([`docs/core.md`](docs/core.md)) and the agent
 development loop ([`docs/engineering/agent-loop-and-gitflow.md`](docs/engineering/agent-loop-and-gitflow.md)).
