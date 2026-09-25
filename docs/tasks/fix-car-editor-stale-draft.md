@@ -56,6 +56,35 @@ opened.
 ## Evidence history
 
 - 2026-09-25: claimed from `redesign/ios27` at `f660d4f`.
+- 2026-09-25: writer READY at `bb3284c` (a `CarEditorOpening` snapshot;
+  scenario tests failed first with 4 issues); `just verify` OK; `hasPhoto`
+  stands in for the photo id because the photo commands act on the current
+  id. Round 1 review: 1 medium; repair 1 dispatched.
+
+### Round 1 review — fix-car-editor-stale-draft (2026-09-25)
+
+Review SHA: bb3284c
+
+- [medium][blocking][new] Pitstop/Features/CarBoard/CarBoardViewModel.swift:268 — "nothing newer arrived" is read from the board's cached mileage, which a failed or unfinished reload after Pit's capture leaves stale; a stale opening, Pit records 48 200 km, the reload fails or lags, a body-only save records 47 560 km dated now and the mileage goes backwards again
+
+### Repair 1 dispatch — Decide the stale same-number save from the store (2026-09-25)
+
+Objective: Before an untouched stale mileage is recorded again, read the
+store's newest mileage observation; record it only when that read succeeds
+and nothing newer than the opening exists, and never write an untouched
+field when the read fails.
+
+Sources: REQ-BOARD-026, REQ-PIT-026; round 1 review finding
+`CarBoardViewModel.swift:268` (medium).
+
+Intended deviations: none
+
+Boundaries: rebase onto the round head first (KIT-D-024); owned
+`Pitstop/Features/CarBoard/CarBoardViewModel.swift` and
+`PitstopTests/CarBoard/CarEditorOpeningTests.swift`; one commit, a failing
+test first for a failed and for a skipped reload after Pit's capture.
+
+Output: a Repair 1 section appended to the writer report.
 
 ## Untested scope
 
@@ -63,6 +92,7 @@ opened.
 
 ## Writer steps
 
+- [ ] Repair 1: the stale same-number save reads the store's newest mileage first and writes nothing untouched when that read fails: REQ-BOARD-026 tests with a failed and a skipped reload fail first, then `just verify`
 - [ ] The editor saves only the fields the owner changed since it opened, and the stale-mileage same-number save still records a reading when nothing newer arrived: REQ-PIT-026 and REQ-BOARD-026 tests (Pit records a mileage and a name while the editor is open, then a body-only save) fail first, then `just verify`
 
 ## Current checklist
