@@ -9,9 +9,8 @@ Parallelism: none
 
 ## Current status and authorization
 
-Current outcome: RD-000…RD-011 landed on `redesign/ios27`; the overnight run
-ended at the RD-011 boundary on 2026-09-24 (RD-012 was out of the night's
-scope).
+Current outcome: the round through RD-012 shipped as TestFlight 1.2.0 build 7
+(`tf-1.2.0-1`); its device check is pending, then SYS-008 for 1.3.0.
 Authorized scope: owner, in this session on 2026-09-23, answering the plan
 questions and approving the plan: "Yes, unfreeze now"; "Whole backlog,
 per-card gates" (the whole sequence is approved once; each card is briefed
