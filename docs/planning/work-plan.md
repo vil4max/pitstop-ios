@@ -59,6 +59,28 @@ on screen" until a snapshot-testing card exists.
 | LAB-001 | Check whether Pitstop ships any lab experiment (for example the DEBUG-only Foundation Models path, ADR 0027) and name kit KIT-D-046's rule in `docs/core.md`: a lab experiment reaches TestFlight only, gated at run time by StoreKit's `AppTransaction` environment (Xcode or sandbox), never the App Store | 0.5d | RD-012 | planned | Each experiment listed with its gate; the core rule proposed for the owner's approval; gated code described in the App Review Notes, because a switched-off experiment in the Store binary is a hidden or dormant feature under App Review 2.3.1(a), and which `AppTransaction` environment App Review sees is unverified (orchestrator, 2026-09-25) |
 | ABOUT-001 | Profile: round. Settings → About gains the line on who makes PitStop and how, and a "Source code on GitHub" row (REQ-UTILITY-013, proposed; the rules come from the orchestrator's check of the kit and the App Review Guidelines, `agent-artifacts/2026-09-25/app-disclosure/outputs/answer.md`); Pitstop only | 0.5d | SYS-008 | planned (owner, 2026-09-25: after SYS-008) | REQ-UTILITY-013 approved in the round's package; en, ru and uk strings; the link opens the public repository; no banned word in any language |
 
+## Backlog (not scheduled)
+
+Documentation and investigation items the owner approved for the backlog on
+2026-09-29. None is scheduled and none changes app behaviour; the owner turns
+a row into a card when it is picked up. Competitor names are public products.
+
+| ID | Item | Related |
+|---|---|---|
+| RES-001 | Competitive research doc: the competitor taxonomy, grouped by the mental model each app teaches (CARFAX, Fuelio, Drivvo, Car AI, Car Maintenance Reminders, LubeLogger, AUTOsist), and the comparison matrix, in `docs/planning/` or `docs/requirements/` | [`../engineering/product-review-process.md`](../engineering/product-review-process.md) |
+| RES-002 | Tier-1 scenario test: record the taps, screens and fields for scenarios A–F in 5 competitor apps | RES-001 |
+| RES-003 | LubeLogger domain teardown: a table of concept, semantics, PitStop equivalent, lesson, and why not copy | RES-001; [`../requirements/domain-model.md`](../requirements/domain-model.md) |
+| INV-VEH-005 | Investigation: odometer freshness for a shared car; the register has no entry for it yet | [`investigations.md`](investigations.md); ADR 0017 (current mileage when stale); ADR 0004 defers shared cars |
+| INV-SYS-005 | CarPlay value check: a deferred investigation stub; the register entry holds one line today | [`investigations.md`](investigations.md); [`roadmap.md`](roadmap.md), "V2 / deferred" |
+| INV-PROD-006 | Investigation: naming gate, with a scorecard and the decision rule at the day-30 beta review | [`../operations/release-and-beta.md`](../operations/release-and-beta.md), "Phase decision after day 30" |
+| BETA-001 | Beta review: add 3 "what is the app for" questions to the interview questions | [`../operations/release-and-beta.md`](../operations/release-and-beta.md), "Interview questions" |
+| NAME-001 | Name availability check (trademark, App Store, domain) before public launch | INV-PROD-006 |
+| OBS-001 | Document the Remember end-to-end trace | [`../operations/observability.md`](../operations/observability.md) |
+| OBS-002 | Document the maintenance snapshot rebuild trace in the same form as OBS-001 | [`../operations/observability.md`](../operations/observability.md), "Maintenance engine logging contract" |
+| INV-ARCH-005 | CloudKit sync conflict experiment: an investigation note with a verdict; migration fixtures only | [`investigations.md`](investigations.md); ADR 0007 |
+| DOCS-003 | Optional: a lab-note template (Question, Spike, Result, Decision) in the investigation register | [`investigations.md`](investigations.md), whose completion template has more fields |
+| ENG-005 | Check whether a `main` ruleset requiring `verify` is still pending after ADR 0014; add it or close it | [`../engineering/quality-and-ci.md`](../engineering/quality-and-ci.md), "GitHub quality enforcement" (no required status check today); ADR 0013, ADR 0014 |
+
 ## Owner-only work
 
 | ID | Item | Source |
