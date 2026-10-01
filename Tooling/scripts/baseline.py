@@ -12,7 +12,7 @@ Errors (the file checks only in an app that set `pipeline: shared`; before
 that they are warnings):
   - .github/workflows/tests.yml and testflight.yml differ from the Runtime templates
   - ci_scripts/ci_post_clone.sh next to the project differs from its template
-  - Tooling/.swiftlint.yml and .swiftformat differ from the Runtime templates
+  - Tooling/.swiftlint.yml and .swift-format differ from the Runtime templates
   - Tooling/runtime.yml names a bare, machine-shared simulator or lacks the
     baseline simulator.device_type / simulator.os
   - MARKETING_VERSION is not MAJOR.MINOR.PATCH in every configuration
@@ -129,7 +129,7 @@ def main() -> int:
             warnings.append(f"installed Runtime {installed[:10] or 'unknown'} is not the Runtime checkout ({head}); run `just harness-update`")
 
     style_issues: list[str] = []
-    for app_name, template_name in ((".swiftlint.yml", "swiftlint.yml"), (".swiftformat", "swiftformat")):
+    for app_name, template_name in ((".swiftlint.yml", "swiftlint.yml"), (".swift-format", "swift-format")):
         copy, template = tooling / app_name, templates / template_name
         if not template.is_file():
             style_issues.append(f"Tooling/templates/{template_name} is not installed; run `just harness-update`")

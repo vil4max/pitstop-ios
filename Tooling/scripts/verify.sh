@@ -2,6 +2,31 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# An installed Tooling/scripts/verify.sh targets the app around it (below, DoD).
+# The Runtime source checkout has no app to build: its own `just verify` is the
+# contract-test gate instead, every tests/*.sh plus each generator's --check
+# (none exist yet) (KIT-D-037).
+if [[ "$(basename "$(dirname "$SCRIPT_DIR")")" != "Tooling" ]]; then
+  exec "$SCRIPT_DIR/run-contract-tests.sh"
+fi
+
+# An installed Tooling/ that cannot find its own scripts is broken (a partial
+# install, an interrupted worktree checkout) rather than missing an optional
+# extra: fail with one clear message instead of whichever script happens to
+# crash first with a raw "No such file" (KIT-D-037). capabilities.sh and
+# baseline.py stay optional below (older minimal installations may lack
+# either) and are not required here.
+required_scripts=(lib.sh verification-state.py format.sh lint.sh build.sh test.sh)
+missing_scripts=()
+for required in "${required_scripts[@]}"; do
+  [[ -f "$SCRIPT_DIR/$required" ]] || missing_scripts+=("$required")
+done
+if [[ "${#missing_scripts[@]}" -gt 0 ]]; then
+  echo "verify: installed Tooling/scripts/ is missing ${missing_scripts[*]}; run \`just harness-update\` to repair it" >&2
+  exit 1
+fi
+
 # shellcheck source=lib.sh
 source "$SCRIPT_DIR/lib.sh"
 # Older minimal installations may not include backend capability detection.
@@ -13,10 +38,12 @@ fi
 receipt() { python3 "$SCRIPT_DIR/verification-state.py" "$@"; }
 receipt invalidate
 # The shared baseline first: drifted pipeline files or simulator settings fail
-# before any build. The Runtime checkout, when present, adds lag and style warnings.
-runtime_checkout="${IOS_AGENT_RUNTIME_ROOT:-$HOME/Developer/Personal/agent-tools/ios-agent-toolchain}"
+# before any build. A sibling Runtime source checkout, when IOS_AGENT_RUNTIME_ROOT
+# names one, adds lag and style warnings; there is no default path to reach back
+# into (KIT-D-037) — without it, baseline just skips that comparison.
 if [[ -f "$SCRIPT_DIR/baseline.py" ]]; then
-  if [[ -d "$runtime_checkout/scripts" && "${CI:-}" != true ]]; then
+  runtime_checkout="${IOS_AGENT_RUNTIME_ROOT:-}"
+  if [[ -n "$runtime_checkout" && -d "$runtime_checkout/scripts" && "${CI:-}" != true ]]; then
     python3 "$SCRIPT_DIR/baseline.py" "$(project_root)" --runtime "$runtime_checkout"
   else
     python3 "$SCRIPT_DIR/baseline.py" "$(project_root)"

@@ -5,12 +5,12 @@ Agent Runtime slice from [ios-agent-toolchain](https://github.com/vil4max/ios-ag
 | Path | Role |
 |------|------|
 | `justfile` | Runtime recipes — imported by the app root `justfile` |
-| `Brewfile` | CLI deps (`just`, `swiftlint`, `swiftformat`, `xcbeautify`, …) |
+| `Brewfile` | CLI deps (`just`, `swiftlint`, `xcbeautify`, …); swift-format comes with Xcode |
 | `runtime.yml` | App-owned: scheme / project / simulator / lint-format-test flags |
 | `runtime.local.yml.example` | Copy to `runtime.local.yml` for local overrides (gitignored) |
 | `runtime.manifest.json` | Declared Runtime commands / capabilities |
 | `.runtime-lock` | Automatic content identity used for compatible worktree materialization |
-| `.swiftformat` / `.swiftlint.yml` | **App-owned** style configs (`just format` / `just lint`) |
+| `.swift-format` / `.swiftlint.yml` | **App-owned** style configs (`just format` / `just lint`) |
 | `scripts/` | Shell implementations invoked by recipes |
 | `backend/` | Build adapters (`xcodebuild` baseline; others optional) |
 | `docs/host-backends.md` | Notes on optional host build adapters |
@@ -22,7 +22,7 @@ Agent Runtime slice from [ios-agent-toolchain](https://github.com/vil4max/ios-ag
 |----------|-------|-----------------------------------|
 | `Tooling/**` except app-owned files below | Runtime | overwrites |
 | `Tooling/runtime.yml` | App | not touched (`install --reset-config`) |
-| `Tooling/.swiftlint.yml` / `.swiftformat` | App | not touched (`install --reset-style`) |
+| `Tooling/.swiftlint.yml` / `.swift-format` | App | not touched (`install --reset-style`) |
 | App root `justfile` | App | never overwritten after first create |
 | App root `scripts/*` | App | never touched |
 
@@ -39,5 +39,8 @@ just verify
 just run-sim
 ```
 
-`just harness-update` refreshes this slice from
-`~/Developer/Personal/agent-tools/ios-agent-toolchain` or `IOS_AGENT_RUNTIME_ROOT`.
+`just harness-update` refreshes this slice from the Runtime source checkout:
+`IOS_AGENT_RUNTIME_ROOT` when set, else `ios-agent-toolchain` under
+`AGENT_TOOLS_ROOT` (the directory that holds the kit, the Runtime and the bank),
+else `~/Developer/Personal/agent-tools/ios-agent-toolchain`. `just baseline` looks
+in the same places.

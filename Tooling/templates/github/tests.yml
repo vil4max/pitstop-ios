@@ -47,11 +47,14 @@ jobs:
         run: xcodebuild -version
 
       # Hosted images lack some of these; a self-hosted Mac already has them.
+      # swift-format is not installed: the Xcode toolchain provides it, so it is
+      # only checked, and the step fails if the selected Xcode lacks it.
       - name: Install Runtime tools
         run: |
-          for tool in just yq swiftlint swiftformat xcbeautify; do
+          for tool in just yq swiftlint xcbeautify; do
             command -v "$tool" >/dev/null || brew install "$tool"
           done
+          xcrun --find swift-format
 
       - name: just ci
         run: just ci

@@ -1,11 +1,11 @@
-# Style configuration (SwiftLint / SwiftFormat)
+# Style configuration (SwiftLint / swift-format)
 
 How style is configured in Runtime **0.2.1+**, what the default templates contain, and how to tighten rules safely.
 
 Canonical templates in this repo:
 
 - [`templates/swiftlint.yml`](../templates/swiftlint.yml) → installed as `Tooling/.swiftlint.yml`
-- [`templates/swiftformat`](../templates/swiftformat) → installed as `Tooling/.swiftformat`
+- [`templates/swift-format`](../templates/swift-format) → installed as `Tooling/.swift-format`
 
 Runtime commands: `just lint` / `just format` / `just verify` (see [api.md](api.md)).
 
@@ -14,8 +14,8 @@ Runtime commands: `just lint` / `just format` / `just verify` (see [api.md](api.
 | File | Owner | `install --force` / `just harness-update` | Reset |
 |------|-------|------------------------------------------|-------|
 | `Tooling/.swiftlint.yml` | **Runtime** with `pipeline: shared`, otherwise app | overwritten from the template on the shared pipeline; otherwise kept | `install.sh … --reset-style` |
-| `Tooling/.swiftformat` | **Runtime** with `pipeline: shared`, otherwise app | same | `install.sh … --reset-style` |
-| `templates/swiftlint.yml` / `templates/swiftformat` | Runtime (this repo) | the one style of every app on the shared pipeline | edit here; every app picks it up with its next update |
+| `Tooling/.swift-format` | **Runtime** with `pipeline: shared`, otherwise app | same | `install.sh … --reset-style` |
+| `templates/swiftlint.yml` / `templates/swift-format` | Runtime (this repo) | the one style of every app on the shared pipeline | edit here; every app picks it up with its next update |
 
 Every app on the shared pipeline has the same style (owner decision,
 2026-09-21): an app-local rule change fails `just baseline` and is overwritten by
@@ -32,7 +32,7 @@ Also related (not style engines, but gates):
 | Key in `Tooling/runtime.yml` | Default | Effect |
 |------------------------------|---------|--------|
 | `lint` | `true` | when `false`, `just lint` / verify skip SwiftLint |
-| `format` | `true` | when `false`, `just format` / verify skip SwiftFormat |
+| `format` | `true` | when `false`, `just format` / verify skip swift-format |
 
 ## How to improve (manual)
 
@@ -40,7 +40,7 @@ Also related (not style engines, but gates):
 
 1. Edit the app files (committed with the app):
    - `Tooling/.swiftlint.yml`
-   - `Tooling/.swiftformat`
+   - `Tooling/.swift-format`
 2. From the app root:
 
 ```bash
@@ -51,11 +51,11 @@ just verify
 
 3. Commit the Tooling style files with the app. `just harness-update` will **not** wipe them.
 
-4. Optionally log the change in the harness [friction-log.md](friction-log.md) if you expect the same tightening in a second app.
+4. Optionally log the change in the harness [backlog](planning/backlog.md) if you expect the same tightening in a second app.
 
 ### B. Tighten the **default for all new / reset apps**
 
-1. Edit the harness templates (`templates/swiftlint.yml`, `templates/swiftformat`).
+1. Edit the harness templates (`templates/swiftlint.yml`, `templates/swift-format`).
 2. Update this doc when the behavior changes. The installed `.runtime-lock` is
    generated automatically from Runtime content; no manual version bump exists.
 3. Existing apps keep their app-owned configs until you explicitly reset:
@@ -68,7 +68,7 @@ Or only reset style without forcing the whole slice: `--reset-style` alone is en
 
 ### C. Promote a recipe (not style) into Runtime
 
-If the improvement is a **new `just` command**, not a lint rule — use [friction-log.md](friction-log.md) (second repeat / second app → harness).
+If the improvement is a **new `just` command**, not a lint rule — use the [backlog](planning/backlog.md) (second repeat / second app → harness).
 
 ---
 
@@ -91,7 +91,7 @@ SwiftLint enables its **built-in default rule set**, then applies the overrides 
 | Key / setting | Value in template | Meaning |
 |---------------|-------------------|---------|
 | `disabled_rules` | list | Rules that would otherwise run but are turned **off** |
-| `disabled_rules` → `trailing_whitespace` | disabled | Does **not** fail on trailing spaces at end of lines (SwiftFormat often owns whitespace) |
+| `disabled_rules` → `trailing_whitespace` | disabled | Does **not** fail on trailing spaces at end of lines (swift-format owns whitespace) |
 | `opt_in_rules` | list | Extra rules enabled on top of defaults |
 | `opt_in_rules` → `empty_count` | enabled | Prefers `.isEmpty` over `.count == 0` (and similar empty checks) |
 | `opt_in_rules` → `force_unwrapping` | enabled (warning) | Flags `!` unwraps; the owner's Swift policy allows them only with a justification |
@@ -137,50 +137,64 @@ swiftlint lint --config Tooling/.swiftlint.yml
 
 ---
 
-## SwiftFormat — current default setup
+## swift-format — current default setup
 
-File: `Tooling/.swiftformat` (from `templates/swiftformat`).
+File: `Tooling/.swift-format` (from `templates/swift-format`), a JSON file.
 
-Tool versions on the reference Mac when this doc was written: SwiftFormat **0.62.x**.
+Tool: Apple's swift-format, shipped in the Xcode toolchain (Xcode 16 or later) and run as `xcrun swift-format`.
+Nothing is installed with Homebrew, and the version is the toolchain's: `just env` prints it (`main` today), so it
+cannot be pinned apart from Xcode.
 
-### Options in the template (every setting)
+### Settings in the template (every setting)
 
-| Option | Value | Meaning |
-|--------|-------|---------|
-| `--swiftversion` | `6.0` | Compiler version SwiftFormat may assume; every app builds with Xcode 27 (Swift 6) |
-| `--indent` | `4` | Indent width: **4 spaces** (matches Brain `swift-formatting` preference) |
-| `--maxwidth` | `120` | Wrap / width guidance aligned with SwiftLint `line_length: 120` |
-| `--disable consecutiveBlankLines` | disabled | Do **not** enforce collapsing consecutive blank lines |
-| `--disable blankLinesAtStartOfScope` | disabled | Do **not** remove/require blank lines at the start of `{ … }` scopes (keeps room for project taste / MARK layout) |
-| `--exclude Pods` | excluded | Skip CocoaPods tree |
-| `--exclude .build` | excluded | Skip SwiftPM build dir |
-| `--exclude DerivedData` | excluded | Skip DerivedData if under the tree |
+| Key | Value | Meaning |
+|-----|-------|---------|
+| `version` | `1` | Configuration schema version |
+| `lineLength` | `120` | Wrap width, aligned with SwiftLint `line_length: 120` (swift-format's own default is 100) |
+| `indentation.spaces` | `4` | Indent width: **4 spaces** (swift-format's own default is 2) |
+| `rules.NoAccessLevelOnExtensionDeclaration` | `false` | Rule off. Keeps `private extension Foo { … }` as the apps write it; the rule would move the access level onto every member |
+| `rules.UseLetInEveryBoundCaseVariable` | `false` | Rule off. Keeps the hoisted `case let .loaded(value, date)`; the rule would rewrite it to `case .loaded(let value, let date)` |
+| `rules.OrderedImports` | `false` | Rule off. Keeps the import order the apps already have; the rule would sort it differently |
 
-### Not set in the template (SwiftFormat defaults apply)
+The three disabled rules keep today's code style: with them on, swift-format would rewrite `private extension`,
+hoisted `case let` and the import order in every app.
 
-Examples absent today:
+### Not set in the template (swift-format defaults apply)
 
-- `--allman`, `--semicolons`, `--commas`, `--wraparguments`, `--trimwhitespace` — tool defaults
-- `--header` / file header insertion — not used
-- `--swiftversion` — not auto-synced to the Xcode project’s `SWIFT_VERSION`
-- `--trailing-commas` — the default (added to multiline collections), which SwiftLint's `trailing_comma: mandatory_comma` agrees with
-- rule enable lists beyond the two `--disable` entries — all other SwiftFormat rules stay at defaults
+- every other rule stays at its default (on, except the few that swift-format ships off, such as `NeverForceUnwrap`)
+- `respectsExistingLineBreaks` `true`, `maximumBlankLines` `1`, `lineBreakBeforeEachArgument` `false`
+- `multiElementCollectionTrailingCommas` `true`: multiline collections get a trailing comma, which SwiftLint's
+  `trailing_comma: mandatory_comma` agrees with
+- no exclude list: swift-format has no exclude option (see the file list below)
 
-List rules for your CLI:
+Print the effective configuration of an app, and see what the formatter would change:
 
 ```bash
-swiftformat --rules
-swiftformat --config Tooling/.swiftformat --dryrun .
+xcrun swift-format dump-configuration --effective --configuration Tooling/.swift-format
+xcrun swift-format lint --strict --configuration Tooling/.swift-format App/File.swift
 ```
 
-### How Runtime invokes SwiftFormat
+### How Runtime invokes swift-format
 
 `Tooling/scripts/format.sh`:
 
 1. Skip if `runtime.yml` `format: false`.
-2. Require `swiftformat` on `PATH`.
-3. Config path: `Tooling/.swiftformat`, else app-root `.swiftformat`, else harness `templates/swiftformat`.
-4. Run: `swiftformat <app-root> --config <conf>` (formats in place).
+2. Require the Xcode toolchain's swift-format: `xcrun --find swift-format` must succeed. Otherwise the script exits 1
+   and says the Xcode toolchain provides it; there is no Homebrew repair.
+3. Config path: `Tooling/.swift-format`, else app-root `.swift-format`, else harness `templates/swift-format`.
+4. File list: swift-format has no exclude option, so Runtime passes the tracked Swift files from `git ls-files`,
+   minus any under `Pods`, `.build`, `DerivedData` and `.claude`. It never walks the project root. The root must be a
+   git repository, and a new file is formatted once it is added to git.
+5. Locally: `xcrun swift-format format --in-place --parallel --configuration <conf> <files>` (formats in place).
+   With `CI=true`: `xcrun swift-format lint --strict …`, so any warning fails and nothing is rewritten.
+
+### Apps installed with the previous formatter
+
+`install.sh` (and so `just harness-update`) writes `Tooling/.swift-format` and removes the previous formatter's config
+files: the app's own in `Tooling/` and at the app root, and the template copy under `Tooling/templates/`. Nothing reads
+them any more, and no flag keeps them. The app then needs one
+format commit, because swift-format wraps and indents some constructs differently; list that commit in
+`.git-blame-ignore-revs`.
 
 ---
 
@@ -196,7 +210,7 @@ Not SwiftLint — a separate verify gate (see [dod.md](dod.md)).
 
 ### Brew formulas
 
-See [brewfile.md](brewfile.md): `swiftlint` and `swiftformat` are required when the matching `runtime.yml` flags are `true`.
+See [brewfile.md](brewfile.md): `swiftlint` is required when `lint: true`. swift-format is not a Brewfile entry; it comes with Xcode and is required when `format: true`.
 
 ---
 
@@ -211,13 +225,15 @@ See [brewfile.md](brewfile.md): `swiftlint` and `swiftformat` are required when 
 [ ] Friction log updated if the same tightening is needed in a second app
 ```
 
-## Paths in `excluded` / `--exclude`
+## Paths in `excluded`
 
-Both tools resolve exclusion paths against the directory of the config file.
-The configs live in `Tooling/`, so an entry must start with `../` to reach the
+SwiftLint resolves `excluded` paths against the directory of its config file.
+The config lives in `Tooling/`, so an entry must start with `../` to reach the
 repository root: `../DerivedData`, `../.claude`. Unprefixed entries only work
 for a config placed at the root. Apps installed before 2026-09-21 carry
 unprefixed entries that never matched; add the `../` lines by hand —
-`harness-update` does not rewrite app-owned style files. The template also
-aligns two SwiftLint rules with SwiftFormat's output (`trailing_comma`,
-`opening_brace`); copy those blocks if the linter warns about formatted code.
+`harness-update` does not rewrite app-owned style files. swift-format has no
+exclusions at all; `format.sh` hands it an explicit file list (see above). The
+template also aligns two SwiftLint rules with swift-format's output
+(`trailing_comma`, `opening_brace`); copy those blocks if the linter warns about
+formatted code.

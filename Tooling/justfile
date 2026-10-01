@@ -202,7 +202,7 @@ baseline *args:
     #!/usr/bin/env bash
     set -euo pipefail
     root="{{ justfile_directory() }}"
-    runtime="${IOS_AGENT_RUNTIME_ROOT:-$HOME/Developer/Personal/agent-tools/ios-agent-toolchain}"
+    runtime="${IOS_AGENT_RUNTIME_ROOT:-${AGENT_TOOLS_ROOT:-$HOME/Developer/Personal/agent-tools}/ios-agent-toolchain}"
     for d in "$root/Tooling/scripts" "$root/scripts"; do
       if [[ -f "$d/baseline.py" ]]; then
         if [[ -d "$runtime/scripts" ]]; then exec python3 "$d/baseline.py" "$root" --runtime "$runtime" "$@"; fi

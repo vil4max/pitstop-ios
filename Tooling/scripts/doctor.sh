@@ -61,12 +61,9 @@ fi
 xtc="$(cap_field host.xcode_tools configured)"
 if [[ "$xtc" == true ]]; then
   add_check host.xcode_tools.configured true "Apple xcode-tools MCP configured"
-elif is_cursor_host; then
-  # Documented contract: required on Cursor hosts only.
-  add_check host.xcode_tools.configured false "enable Apple xcode-tools MCP in Cursor"
 else
-  WARNINGS+=("xcode-tools MCP not configured — optional outside Cursor")
-  add_check host.xcode_tools.configured true "xcode-tools MCP optional: not a Cursor session"
+  WARNINGS+=("xcode-tools MCP not configured — optional; builds use xcodebuild")
+  add_check host.xcode_tools.configured true "xcode-tools MCP optional: not configured"
 fi
 
 xth="$(cap_field host.xcode_tools healthy)"

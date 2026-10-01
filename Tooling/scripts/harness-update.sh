@@ -8,9 +8,11 @@ else
   APP_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 fi
 
-RUNTIME_ROOT="${IOS_AGENT_RUNTIME_ROOT:-$HOME/Developer/Personal/agent-tools/ios-agent-toolchain}"
+# The Runtime checkout sits beside the kit, under AGENT_TOOLS_ROOT; the literal is the
+# current-layout default of a session without it.
+RUNTIME_ROOT="${IOS_AGENT_RUNTIME_ROOT:-${AGENT_TOOLS_ROOT:-$HOME/Developer/Personal/agent-tools}/ios-agent-toolchain}"
 if [[ ! -d "$RUNTIME_ROOT/scripts" ]]; then
-  echo "Runtime root not found: $RUNTIME_ROOT (set IOS_AGENT_RUNTIME_ROOT)" >&2
+  echo "Runtime root not found: $RUNTIME_ROOT (set IOS_AGENT_RUNTIME_ROOT, or AGENT_TOOLS_ROOT for its parent)" >&2
   exit 1
 fi
 
@@ -41,7 +43,7 @@ echo "Source Runtime lock  ${LATEST:0:12}"
 managed_drift() {
   grep -qE '^pipeline:[[:space:]]*"?shared"?[[:space:]]*(#.*)?$' "$APP_ROOT/Tooling/runtime.yml" 2>/dev/null || return 0
   local wf project style
-  for style in swiftlint.yml:.swiftlint.yml swiftformat:.swiftformat; do
+  for style in swiftlint.yml:.swiftlint.yml swift-format:.swift-format; do
     cmp -s "$RUNTIME_ROOT/templates/${style%%:*}" "$APP_ROOT/Tooling/${style#*:}" || { echo "Tooling/${style#*:}"; return 0; }
   done
   for wf in tests.yml testflight.yml; do

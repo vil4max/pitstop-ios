@@ -55,6 +55,14 @@
       "availability": "ready"
     },
     {
+      "name": "sim-clean",
+      "availability": "ready"
+    },
+    {
+      "name": "baseline",
+      "availability": "ready"
+    },
+    {
       "name": "tf-check",
       "availability": "ready"
     },
@@ -79,7 +87,7 @@
     "swift",
     "simulator",
     "swiftlint",
-    "swiftformat"
+    "swift-format"
   ],
   "capabilities_optional_execute": [
     "host.xcode_tools.healthy",
@@ -87,14 +95,11 @@
     "swiftpm",
     "fastlane"
   ],
-  "host_requirements_cursor": [
-    "host.xcode_tools.configured"
-  ],
   "install_targets": {
     "runtime_slice": "Tooling/",
     "app_owned_root_justfile": true,
     "app_owned_runtime_yml": true,
     "app_owned_swiftlint": true,
-    "app_owned_swiftformat": true
+    "app_owned_swift_format": true
   }
 }

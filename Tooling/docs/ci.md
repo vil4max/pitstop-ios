@@ -14,7 +14,7 @@ checked, not copied by hand:
 - `pipeline: shared` in `Tooling/runtime.yml` makes every install and
   `just harness-update` rewrite `.github/workflows/tests.yml`, `testflight.yml`
   and `ci_scripts/ci_post_clone.sh` from the Runtime templates, and
-  `Tooling/.swiftlint.yml` / `.swiftformat` from the style templates
+  `Tooling/.swiftlint.yml` / `.swift-format` from the style templates
   ([style-config.md](style-config.md)). A template
   change reaches every app with its next update; hand edits are overwritten.
 - `just baseline` (and the start of `just verify`) fails when a managed file
@@ -23,7 +23,11 @@ checked, not copied by hand:
   `MARKETING_VERSION` is not one `MAJOR.MINOR.PATCH` in every configuration.
 - It warns — and `just baseline --strict` fails — when the app has not opted in,
   its installed Runtime lags the Runtime checkout, or other workflows sit next to
-  the shared ones. Before the opt-in, file drift is a warning too.
+  the shared ones. Before the opt-in, file drift is a warning too. `just baseline`
+  looks for the checkout at `IOS_AGENT_RUNTIME_ROOT`, else
+  `$AGENT_TOOLS_ROOT/ios-agent-toolchain`, else
+  `~/Developer/Personal/agent-tools/ios-agent-toolchain`, and skips the lag
+  comparison when there is none.
 
 Why a gate and not a checklist: within one day three apps had three pipelines,
 and a workflow copied by hand went stale the next time its template changed.
@@ -43,7 +47,7 @@ Runtime `ci.sh` runs the same gate as `just verify` and writes the test result
 bundle to `build/ci/results/tests.xcresult`. With `CI=true` (GitHub sets it on
 hosted and self-hosted runners):
 
-- `just format` checks with `swiftformat --lint` and fails instead of rewriting;
+- `just format` checks with `swift-format lint --strict` (any warning fails) instead of rewriting;
 - xcodebuild signs ad hoc (`CODE_SIGN_IDENTITY=-`, keeps Keychain access for
   tests); `ci.signing: none` in `Tooling/runtime.yml` disables signing instead;
 - code coverage is on and parallel testing is off.
@@ -169,6 +173,20 @@ Xcode MCP work. The directory is outside every repository on purpose: slots kept
 per repository let one app's tests push the load to about 800 on 10 cores and
 fail another app's gate.
 
+## Git hooks: no builds on push
+
+A git push hook builds nothing and starts no simulator (owner decision,
+2026-09-29). Builds and tests run in `just verify` locally and in the `Tests`
+workflow (`just ci`); the Runtime installs no git hook. At push time only the
+kit's global pre-push hook runs: the private-data scan of a public repository
+and the protected-path approval. An app's own tracked `pre-commit` may run fast
+checks such as `just format` and `just lint`, never a build or a simulator.
+
+Why: Drive Check's pre-push hook ran its smoke tests on a simulator. It blocked
+a push on a Mac without a simulator runtime, and it tested whatever was on
+disk, including another session's unfinished edits, while `just verify` and
+CI already run the same tests.
+
 ## First TestFlight for a new app (owner, App Store Connect)
 
 An app without an App Store Connect record gets one once:
@@ -212,7 +230,10 @@ An app without an App Store Connect record gets one once:
    script printed "Successfully updated" while leaving the number at 1;
    reproduced from a `ci_scripts` working directory with `CI_BUILD_NUMBER=106`.
 4. Move app-specific CI steps into the app's `ci` recipe; delete app copies of
-   Runtime scripts (`build-slot.sh`, TestFlight promotion, tf-check).
+   Runtime scripts (`build-slot.sh`, TestFlight promotion, tf-check). Remove
+   any git hook that builds or runs tests (a tracked `.githooks/pre-push` and
+   the `.git/hooks/pre-push` file that runs it); see
+   [Git hooks](#git-hooks-no-builds-on-push).
 5. Set the repository variables; for a private repository, the self-hosted runner.
 6. Verify: a push to `main` gives a green `Tests` run and moves nothing; then
    `just tf-check` and a `tf-` tag give one Xcode Cloud build.

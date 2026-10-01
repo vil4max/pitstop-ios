@@ -1,11 +1,15 @@
 # Optional host backends (not required for just build)
 
-## Apple xcode-tools (Cursor)
+## Simulator interaction
 
-Enable the built-in Xcode MCP in Cursor. Keep Xcode open with the app project for a healthy toolset (`BuildProject`, tests, etc.).
+Simulator interaction (launch, screenshot, tap, inspect) uses Claude Code's
+built-in iOS Simulator tool. XcodeBuildMCP and the xcode-tools MCP are reserve
+backends: off by default, reversible, not part of the default loadout
+(KIT-D-008).
 
-Runtime still builds via `xcodebuild` when tools are empty or Xcode is closed.
+## XcodeBuildMCP and xcode-tools (reserve)
 
-## XcodeBuildMCP (optional)
-
-Third-party CLI MCP for simulator workflows without Xcode UI. Never required for `just build`.
+Both return from reserve only for a task that specifically needs them — LLDB
+and physical-device workflows have no built-in-tool equivalent today. Runtime
+builds (`just build`, `just test`, `just run-sim`) always run through the
+Runtime itself, never through an MCP path, and never require either.

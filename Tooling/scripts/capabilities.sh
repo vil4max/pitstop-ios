@@ -5,11 +5,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib.sh
 source "$SCRIPT_DIR/lib.sh"
 
-# Cursor sessions expose these markers; xcode-tools MCP is required only there.
-is_cursor_host() {
-  [[ -n "${CURSOR_TRACE_ID:-}" || -n "${CURSOR_AGENT:-}" ]]
-}
-
 cap_json_obj() {
   local configured="$1" available="$2" healthy="$3"
   printf '{"configured":%s,"available":%s,"healthy":%s}' "$configured" "$available" "$healthy"
@@ -18,6 +13,15 @@ cap_json_obj() {
 check_bin() {
   local name="$1"
   if have "$name"; then
+    cap_json_obj true true true
+  else
+    cap_json_obj false false false
+  fi
+}
+
+# swift-format is not on PATH: the Xcode toolchain provides it through xcrun.
+swift_format_cap() {
+  if xcrun --find swift-format >/dev/null 2>&1; then
     cap_json_obj true true true
   else
     cap_json_obj false false false
@@ -57,8 +61,9 @@ simulator_cap() {
   fi
 }
 
+# Claude Code keeps user-scope MCP servers under "mcpServers" in ~/.claude.json.
 mcp_json_path() {
-  echo "${CURSOR_MCP_JSON:-$HOME/.cursor/mcp.json}"
+  echo "$HOME/.claude.json"
 }
 
 xcode_tools_configured() {
@@ -123,7 +128,7 @@ emit_capabilities_json() {
   printf '"swift":%s,' "$(swift_cap)"
   printf '"simulator":%s,' "$(simulator_cap)"
   printf '"swiftlint":%s,' "$(check_bin swiftlint)"
-  printf '"swiftformat":%s,' "$(check_bin swiftformat)"
+  printf '"swift-format":%s,' "$(swift_format_cap)"
   printf '"just":%s,' "$(check_bin just)"
   printf '"git":%s,' "$(check_bin git)"
   printf '"gh":%s,' "$(check_bin gh)"

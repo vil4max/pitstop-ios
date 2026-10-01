@@ -1,0 +1,12 @@
+{
+ "version": 1,
+ "lineLength": 120,
+ "indentation": {
+  "spaces": 4
+ },
+ "rules": {
+  "NoAccessLevelOnExtensionDeclaration": false,
+  "UseLetInEveryBoundCaseVariable": false,
+  "OrderedImports": false
+ }
+}

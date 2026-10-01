@@ -19,7 +19,7 @@ excluded:
 line_length: 120
 identifier_name:
   min_length: 2
-# Agree with SwiftFormat, which runs first in `just verify`: it adds trailing
+# Agree with swift-format, which runs first in `just verify`: it adds trailing
 # commas to multiline collections and puts the brace of a multiline header on
 # its own line. Without these options every run warns about formatter output.
 trailing_comma:

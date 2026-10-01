@@ -20,7 +20,7 @@ def fingerprint():
     runtime = Path(__file__).resolve().parent.parent
     for directory in (runtime / 'scripts', runtime / 'backend'):
         paths.update(p for p in directory.rglob('*') if p.is_file() or p.is_symlink())
-    for path in [root / 'runtime.local.yml', *[runtime / name for name in ('runtime.yml', 'runtime.local.yml', '.swiftlint.yml', '.swiftformat', 'Brewfile', '.runtime-lock', 'justfile')]]:
+    for path in [root / 'runtime.local.yml', *[runtime / name for name in ('runtime.yml', 'runtime.local.yml', '.swiftlint.yml', '.swift-format', 'Brewfile', '.runtime-lock', 'justfile')]]:
         if path.exists():
             paths.add(path)
     digest = hashlib.sha256()

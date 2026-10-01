@@ -258,6 +258,12 @@ sim_udid() {
     name="$(sim_name)"
     reserved="$(sim_udid_configured)"
   fi
+  # A session uses its own device only: a leftover reservation in
+  # runtime.local.yml pointed OneCart's session at its old app-level device.
+  if [[ -n "$reserved" ]] && sim_session_name >/dev/null; then
+    echo "simulator: ignoring the reserved udid $reserved in this agent session; sessions use only their own device ($name)" >&2
+    reserved=""
+  fi
   /usr/bin/python3 "$SCRIPT_HOME/sim-device.py" resolve "$name" "$(sim_device_type)" "$(sim_os)" "$reserved"
 }
 
