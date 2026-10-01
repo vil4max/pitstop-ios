@@ -18,6 +18,15 @@ changed is in the [changelog](CHANGELOG.md) and the
 - **Requirement-to-test matrix:** a round closes only when every requirement it cites has a passing test named with its ID — see the [RD-012 task brief](docs/tasks/rd-012-car-profile.md) and the other [task briefs](docs/tasks/).
 - **Recorded decisions:** [decision records](docs/decisions/) and the [commit history](https://github.com/vil4max/pitstop-ios/commits/main), one reviewable change per commit.
 
+### Follow one requirement
+
+1. **Requirement:** `REQ-BOARD-032`, "First launch never asks for a photo", in [`docs/requirements/car-board-screen.md`](docs/requirements/car-board-screen.md) (lines 509-515): status approved, 2026-09-24.
+2. **Task brief:** [`docs/tasks/rd-012-car-profile.md`](docs/tasks/rd-012-car-profile.md) is the brief of the round that introduced it; its coverage matrix lists the requirement as passed.
+3. **Tests:** [`PitstopTests/CarBoard/CarEditorTests.swift`](PitstopTests/CarBoard/CarEditorTests.swift#L23) (lines 23 and 46), two tests named with the requirement ID.
+4. **Hosted CI:** the [Tests run of 2026-10-01](https://github.com/vil4max/pitstop-ios/actions/runs/36840699484); its log shows both tests passing. Run logs need a signed-in GitHub account.
+
+The tools that check the requirement trace and the task briefs, the process rules and the decision log are private; ids such as `KIT-D-NNN` in docs and commit messages refer to that private decision log. The requirement-to-test matrix is kept in the task briefs and is not checked by CI.
+
 ## Stack
 
 iOS 27+ · Xcode 27+ · Swift 6 language mode · SwiftUI · SwiftData · Vision · Foundation Models (off by default) · App Intents · WidgetKit · Swift Testing + XCTest · en / uk / ru · MVVM
