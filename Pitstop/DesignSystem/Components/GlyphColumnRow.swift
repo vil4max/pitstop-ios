@@ -51,7 +51,8 @@ struct GlyphColumnRow<Content: View, Accessory: View>: View {
     }
 
     var body: some View {
-        let layout = dynamicTypeSize.isAccessibilitySize
+        let layout =
+            dynamicTypeSize.isAccessibilitySize
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
             : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
         // Read on the main actor: the alignment closure below is Sendable.
@@ -217,7 +218,10 @@ struct MoreMenuLabel: View {
                 GlyphColumnRow(glyph: .ring, color: PitColor.accentPrimary, showsSeparator: true) {
                     Text(verbatim: "Winter tyres").font(PitTypography.headline)
                 } accessory: {
-                    Menu {} label: { MoreMenuLabel() }
+                    Menu {
+                    } label: {
+                        MoreMenuLabel()
+                    }
                 }
             }
         }

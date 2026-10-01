@@ -45,15 +45,17 @@ struct PitEyeGeometryTests {
     @Test("REQ-PIT-004: life after a state change is bounded, irregular, and ends still")
     func lifeIsBoundedAndIrregular() {
         for state in [PitState.fixedGaze, .sideGaze, .resting] {
-            let steps = PitEyeLifePlan.steps(for: state, activity: .capturing, random: draws([0.1, 0.9, 0.4, 0.7, 0.2]))
+            let steps = PitEyeLifePlan.steps(
+                for: state, activity: .capturing, random: draws([0.1, 0.9, 0.4, 0.7, 0.2]))
             #expect(steps.count >= 2)
             #expect(steps.last?.life.gaze == .zero && steps.last?.life.breath == 1)
             let moving = steps.dropLast().map(\.delay)
             #expect(moving.reduce(0, +) <= PitEyeLifePlan.window)
             #expect(Set(steps.map(\.delay)).count > 1)
-            #expect(steps.allSatisfy {
-                $0.delay >= PitEyeLifePlan.minimumInterval && $0.delay <= PitEyeLifePlan.maximumInterval
-            })
+            #expect(
+                steps.allSatisfy {
+                    $0.delay >= PitEyeLifePlan.minimumInterval && $0.delay <= PitEyeLifePlan.maximumInterval
+                })
         }
     }
 
@@ -72,11 +74,13 @@ struct PitEyeGeometryTests {
     func lifeKinds() {
         let random = draws([0.1, 0.95, 0.3, 0.8])
         let saccades = PitEyeLifePlan.steps(for: .fixedGaze, activity: [], random: random).dropLast()
-        #expect(saccades
-            .allSatisfy { $0.life.kind == .saccade && abs($0.life.gaze.x) <= 0.1 && abs($0.life.gaze.y) <= 0.08 })
+        #expect(
+            saccades
+                .allSatisfy { $0.life.kind == .saccade && abs($0.life.gaze.x) <= 0.1 && abs($0.life.gaze.y) <= 0.08 })
         #expect(saccades.contains { $0.life.gaze != .zero })
-        #expect(PitEyeLifePlan.steps(for: .sideGaze, activity: [], random: random)
-            .allSatisfy { $0.life.kind == .drift })
+        #expect(
+            PitEyeLifePlan.steps(for: .sideGaze, activity: [], random: random)
+                .allSatisfy { $0.life.kind == .drift })
         let breaths = PitEyeLifePlan.steps(for: .resting, activity: [], random: random)
         #expect(breaths.allSatisfy { $0.life.gaze == .zero })
         #expect(breaths.contains { $0.life.breath > 1 })

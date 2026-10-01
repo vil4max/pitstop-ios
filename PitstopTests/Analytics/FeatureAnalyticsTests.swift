@@ -70,12 +70,18 @@ struct FeatureAnalyticsTests {
             now: past
         )
         // Same stale-mileage setup as the ADR 0017 tests: oil done at 50,000 km, last reading 120 days old.
-        _ = try await store.execute(.confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: .engineOilService, performedAt: past, odometerKm: 50000
-        ))), now: past)
-        _ = try await store.execute(.recordOdometerReading(.init(reading: OdometerReading(
-            vehicleID: vehicleID, value: 51000, recordedAt: past
-        ))), now: past)
+        _ = try await store.execute(
+            .confirmMaintenanceCompletion(
+                .init(
+                    completion: MaintenanceCompletion(
+                        vehicleID: vehicleID, operationID: .engineOilService, performedAt: past, odometerKm: 50000
+                    ))), now: past)
+        _ = try await store.execute(
+            .recordOdometerReading(
+                .init(
+                    reading: OdometerReading(
+                        vehicleID: vehicleID, value: 51000, recordedAt: past
+                    ))), now: past)
         let moment = MaintenanceFixture.date(120)
         let model = try PitQuestionViewModel(
             questions: FakePitQuestionStore(registry: PitQuestionRegistry.product()),

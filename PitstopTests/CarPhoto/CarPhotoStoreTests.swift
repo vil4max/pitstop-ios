@@ -29,11 +29,12 @@ private struct PhotoDirectory {
 /// A plain fictional picture: no real car, no real place.
 private func image(width: Int, height: Int, alpha: Bool = false) throws -> CGImage {
     let info = alpha ? CGImageAlphaInfo.premultipliedLast : CGImageAlphaInfo.noneSkipLast
-    let context = try #require(CGContext(
-        data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-        space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: info.rawValue
-    ))
+    let context = try #require(
+        CGContext(
+            data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: info.rawValue
+        ))
     context.setFillColor(CGColor(red: 0.2, green: 0.4, blue: 0.6, alpha: 1))
     context.fill(CGRect(x: 0, y: 0, width: width / 2, height: height))
     return try #require(context.makeImage())
@@ -194,7 +195,8 @@ struct CarPhotoStoreTests {
     @Test("REQ-BOARD-029: the production directory is next to the store in the App Group container")
     func productionDirectoryIsNextToTheStore() {
         let container = URL(fileURLWithPath: "/tmp/group")
-        #expect(CarPhotoStore.directory(inGroupContainer: container)
-            == StoreLocation.groupStoreURL(in: container).deletingLastPathComponent())
+        #expect(
+            CarPhotoStore.directory(inGroupContainer: container)
+                == StoreLocation.groupStoreURL(in: container).deletingLastPathComponent())
     }
 }

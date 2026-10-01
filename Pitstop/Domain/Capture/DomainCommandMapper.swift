@@ -68,25 +68,29 @@ public struct DomainCommandMapper: Sendable {
             )
             return .recordVehicleServiceReport(RecordVehicleServiceReportCommand(report: report))
         case let .vehicleEvent(kind, date, odometerKm, amount):
-            return .recordVehicleEvent(RecordVehicleEventCommand(event: HistoryEvent(
-                id: recordID,
-                vehicleID: vehicleID,
-                kind: kind,
-                date: date,
-                odometerKm: odometerKm,
-                amount: amount,
-                note: validated.proposal.rawText
-            )))
+            return .recordVehicleEvent(
+                RecordVehicleEventCommand(
+                    event: HistoryEvent(
+                        id: recordID,
+                        vehicleID: vehicleID,
+                        kind: kind,
+                        date: date,
+                        odometerKm: odometerKm,
+                        amount: amount,
+                        note: validated.proposal.rawText
+                    )))
         case let .expense(kind, date, odometerKm, amount):
-            return .recordExpense(RecordExpenseCommand(event: HistoryEvent(
-                id: recordID,
-                vehicleID: vehicleID,
-                kind: kind,
-                date: date,
-                odometerKm: odometerKm,
-                amount: amount,
-                note: validated.proposal.rawText
-            )))
+            return .recordExpense(
+                RecordExpenseCommand(
+                    event: HistoryEvent(
+                        id: recordID,
+                        vehicleID: vehicleID,
+                        kind: kind,
+                        date: date,
+                        odometerKm: odometerKm,
+                        amount: amount,
+                        note: validated.proposal.rawText
+                    )))
         }
     }
 }

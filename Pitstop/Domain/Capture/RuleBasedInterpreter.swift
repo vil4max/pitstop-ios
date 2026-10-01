@@ -162,7 +162,8 @@ private struct Reading {
     /// catalog operation. An overdue insurance, inspection or parking fine is not the car's countdown.
     var mentionsServiceOverdue: Bool {
         guard mentionsOverdue else { return false }
-        let namesService = namesScheduledService || containsWord(["service", "servicing", "maintenance"])
+        let namesService =
+            namesScheduledService || containsWord(["service", "servicing", "maintenance"])
             || containsStem(["сервис", "сервіс", "обслуж", "обслуг", "техобслуж"])
         return namesService || operation != nil
     }
@@ -180,8 +181,8 @@ private struct Reading {
         var sign: Double?
         for index in words.indices {
             guard let value = joinedNumber(from: index), let next = nextWord(after: index, skippingDigits: true),
-                  !Self.isMileageWord(word(after: next, from: index) ?? ""),
-                  let marked = countdownSign(before: index, unitWord: next) ?? continuation(before: index, sign)
+                !Self.isMileageWord(word(after: next, from: index) ?? ""),
+                let marked = countdownSign(before: index, unitWord: next) ?? continuation(before: index, sign)
             else { continue }
             sign = marked
             if distance == nil, Self.units.contains(next) {
@@ -202,7 +203,7 @@ private struct Reading {
     var hasOverdueMarkedValue: Bool {
         words.indices.contains { index in
             guard joinedNumber(from: index) != nil, let next = nextWord(after: index, skippingDigits: true),
-                  Self.isUnitOrDayWord(next)
+                Self.isUnitOrDayWord(next)
             else { return false }
             return countdownSign(before: index, unitWord: next) == -1
         }
@@ -216,8 +217,9 @@ private struct Reading {
         // "Odometer 92000 km overdue for oil": a number right after a mileage word is where the car is.
         guard previous.map(Self.isMileageWord) != true else { return nil }
         let afterUnit = Self.isUnitOrDayWord(unitWord) ? word(after: unitWord, from: index) : nil
-        if let previous, Self.overdueMarkers.contains(previous) || (previous == "by" && beforePrevious == "overdue")
-            || (previous == "на" && beforePrevious.map(Self.overdueMarkers.contains) == true)
+        if let previous,
+            Self.overdueMarkers.contains(previous) || (previous == "by" && beforePrevious == "overdue")
+                || (previous == "на" && beforePrevious.map(Self.overdueMarkers.contains) == true)
         {
             return -1
         }
@@ -255,7 +257,8 @@ private struct Reading {
     private func continuation(before index: Int, _ sign: Double?) -> Double? {
         guard let sign, index > 0 else { return nil }
         let previous = words[index - 1]
-        let joined = Self.conjunctions.contains(previous) || Self.units.contains(previous)
+        let joined =
+            Self.conjunctions.contains(previous) || Self.units.contains(previous)
             || Self.mileUnits.contains(previous)
         return joined ? sign : nil
     }
@@ -266,7 +269,8 @@ private struct Reading {
         for index in words.indices {
             guard let value = joinedNumber(from: index) else { continue }
             let before = previousWord(before: index).map(Self.isMileageWord) ?? false
-            let after = nextWord(after: index, skippingDigits: true)
+            let after =
+                nextWord(after: index, skippingDigits: true)
                 .flatMap { word(after: $0, from: index) }.map(Self.isMileageWord) ?? false
             if before || after, DomainCommandLimits.isPlausibleOdometer(value), value >= 100 {
                 return value
@@ -313,16 +317,18 @@ private struct Reading {
             }
             let unitFollows = following.map(Self.units.contains) ?? false
             let previous = previousWord(before: index)
-            let markerPrecedes = previous.map { word in
-                word.hasPrefix("пробег") || word.hasPrefix("одометр") || Self.mileageWords.contains(word)
-                    || (allowingLooseMarkers && Self.looseMileageMarkers.contains(word))
-            } ?? false
+            let markerPrecedes =
+                previous.map { word in
+                    word.hasPrefix("пробег") || word.hasPrefix("одометр") || Self.mileageWords.contains(word)
+                        || (allowingLooseMarkers && Self.looseMileageMarkers.contains(word))
+                } ?? false
             guard unitFollows || markerPrecedes else { continue }
             // Plausibility first: nothing converts the value to an integer before it is in range.
             guard DomainCommandLimits.isPlausibleOdometer(value), value >= 100,
-                  Decimal(value) != amount else { continue }
+                Decimal(value) != amount
+            else { continue }
             // A four-digit number after "в", "с", or "since" is a year, not a mileage.
-            if !unitFollows, (1900 ... 2100).contains(Int(value)), previous.map(Self.yearMarkers.contains) ?? false {
+            if !unitFollows, (1900...2100).contains(Int(value)), previous.map(Self.yearMarkers.contains) ?? false {
                 continue
             }
             candidates.append(value)

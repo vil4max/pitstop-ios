@@ -93,7 +93,7 @@ final class PitCaptureEyes {
 
     init(
         scheduler: PitIdleScheduler = PitIdleScheduler(),
-        random: @escaping () -> Double = { Double.random(in: 0 ..< 1) },
+        random: @escaping () -> Double = { Double.random(in: 0..<1) },
         sleep: @escaping @Sendable (TimeInterval) async throws -> Void = { seconds in
             try await Task.sleep(for: .seconds(seconds))
         },
@@ -235,11 +235,13 @@ final class PitCaptureEyes {
             while !Task.isCancelled {
                 guard let self else { return }
                 let sinceLastAction = lastListeningAction.map { now() - $0 } ?? PitIdleScheduler.cooldown
-                guard let plan = scheduler.nextPlan(
-                    .listening,
-                    activity: fullActivity,
-                    sinceLastAction: sinceLastAction
-                ) else {
+                guard
+                    let plan = scheduler.nextPlan(
+                        .listening,
+                        activity: fullActivity,
+                        sinceLastAction: sinceLastAction
+                    )
+                else {
                     // Still cooling down, busy, or a turn of stillness: wait and draw again.
                     let remaining = PitIdleScheduler.cooldown - sinceLastAction
                     try? await sleep(remaining > 0 ? remaining : PitIdleScheduler.cooldown)

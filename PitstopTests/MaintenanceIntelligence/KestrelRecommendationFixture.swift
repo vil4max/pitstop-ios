@@ -12,7 +12,7 @@ enum KestrelRecommendationFixture {
     static let transmission = "7-speed dual-clutch"
     static let drivetrain = "AWD"
     static let serviceRegime = "normal"
-    static let modelYears = 2024 ... 2026
+    static let modelYears = 2024...2026
 
     static let calendar: Calendar = {
         var calendar = Calendar(identifier: .gregorian)

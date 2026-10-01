@@ -11,7 +11,8 @@ public struct RoadProjector: Sendable {
         let rate = MileageRateEstimator.rate(
             from: context.mileageObservations, now: context.now, calendar: context.calendar
         )
-        let candidates = context.maintenanceStates.compactMap(Self.milestone(from:))
+        let candidates =
+            context.maintenanceStates.compactMap(Self.milestone(from:))
             .map { Self.annotated($0, rate: rate, now: context.now, calendar: context.calendar) }
             + context.plannedEvents.compactMap { Self.milestone(from: $0, now: context.now) }
         let placed = candidates.filter(\.proximity.isFinite).sorted(by: Self.isAhead)
@@ -32,13 +33,14 @@ public struct RoadProjector: Sendable {
             initialCount = min(inHorizon, RoadRules.initialSlotLimit)
         }
 
-        let summary: RoadSemanticSummary = if let nearest = slots.first?.lead {
-            .nearest(nearest, alsoAhead: placed.count - 1, waitingForMileage: waiting.count)
-        } else if let blocked = waiting.first {
-            .nearest(blocked, alsoAhead: 0, waitingForMileage: waiting.count - 1)
-        } else {
-            .noKnownMilestones(trackedWithoutBaseline: context.maintenanceStates.count { !$0.hasBaseline })
-        }
+        let summary: RoadSemanticSummary =
+            if let nearest = slots.first?.lead {
+                .nearest(nearest, alsoAhead: placed.count - 1, waitingForMileage: waiting.count)
+            } else if let blocked = waiting.first {
+                .nearest(blocked, alsoAhead: 0, waitingForMileage: waiting.count - 1)
+            } else {
+                .noKnownMilestones(trackedWithoutBaseline: context.maintenanceStates.count { !$0.hasBaseline })
+            }
 
         return RoadProjection(
             slots: slots,
@@ -58,10 +60,10 @@ public struct RoadProjector: Sendable {
         _ milestone: RoadMilestone, rate: MileageRate?, now: Date, calendar: Calendar
     ) -> RoadMilestone {
         guard milestone.dimension == .distance, let remainingKm = milestone.remainingKm, let rate,
-              let range = MileageRateEstimator.dateRange(
-                  remainingKm: remainingKm, rate: rate, timeAnchor: milestone.anchorDate,
-                  now: now, calendar: calendar
-              )
+            let range = MileageRateEstimator.dateRange(
+                remainingKm: remainingKm, rate: rate, timeAnchor: milestone.anchorDate,
+                now: now, calendar: calendar
+            )
         else { return milestone }
         return milestone.annotated(with: range)
     }
@@ -120,13 +122,14 @@ public struct RoadProjector: Sendable {
         // A planned date is a day stored as its start, so an unfinished day still to come counts as a whole
         // one: at 10:00, tomorrow is "1 day left", not "almost" (ADR 0032). Passed days count whole days past.
         let days = Int(remaining > 0 ? remaining.rounded(.up) : remaining.rounded(.towardZero))
-        let state: RoadMilestoneState = if remaining <= 0 {
-            .due
-        } else if remaining <= Double(RoadRules.horizonDays) * MaintenanceRules.approachFraction {
-            .approaching
-        } else {
-            .upcoming
-        }
+        let state: RoadMilestoneState =
+            if remaining <= 0 {
+                .due
+            } else if remaining <= Double(RoadRules.horizonDays) * MaintenanceRules.approachFraction {
+                .approaching
+            } else {
+                .upcoming
+            }
         return RoadMilestone(
             subject: .planned(event.kind, id: event.id),
             state: state,
@@ -183,7 +186,8 @@ public struct RoadProjector: Sendable {
                 slots.append(open)
             }
         }
-        return slots
+        return
+            slots
             .sorted { lhs, rhs in
                 guard let left = lhs.first, let right = rhs.first else { return !lhs.isEmpty }
                 return isAhead(left, right)

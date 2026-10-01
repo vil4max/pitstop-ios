@@ -16,7 +16,7 @@ struct PostHogConfiguration: Equatable, Sendable {
         let key = (info?[Self.apiKeyInfoKey] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let host = (info?[Self.hostInfoKey] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !key.isEmpty, !key.contains("$("), !key.contains(where: \.isWhitespace),
-              let url = Self.batchURL(host: host)
+            let url = Self.batchURL(host: host)
         else { return nil }
         projectAPIKey = key
         batchURL = url
@@ -27,8 +27,8 @@ struct PostHogConfiguration: Equatable, Sendable {
         guard !host.isEmpty, !host.contains("$(") else { return nil }
         let base = host.contains("://") ? host : "https://" + host
         guard var components = URLComponents(string: base),
-              components.scheme == "https",
-              let name = components.host, !name.isEmpty
+            components.scheme == "https",
+            let name = components.host, !name.isEmpty
         else { return nil }
         components.path = "/batch/"
         components.query = nil

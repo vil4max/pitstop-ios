@@ -70,7 +70,8 @@ public enum PitIdleAction: String, Hashable, Sendable, CaseIterable {
     public func beats(returningTo base: PitState) -> [PitBeat] {
         switch self {
         case .blink: [PitBeat(.blink, hold: Self.blinkHold), PitBeat(base)]
-        case .doubleBlink: [
+        case .doubleBlink:
+            [
                 PitBeat(.blink, hold: 0.12), PitBeat(base, hold: 0.16), PitBeat(.blink, hold: 0.12), PitBeat(base),
             ]
         case .lookLeft: [PitBeat(.lookLeft, hold: Self.lookHold), PitBeat(base)]
@@ -115,7 +116,7 @@ public struct PitIdleScheduler: Sendable {
 
     private let random: @Sendable () -> Double
 
-    public init(random: @escaping @Sendable () -> Double = { Double.random(in: 0 ..< 1) }) {
+    public init(random: @escaping @Sendable () -> Double = { Double.random(in: 0..<1) }) {
         self.random = random
     }
 
@@ -217,7 +218,8 @@ public struct PitAttentionPolicy: Sendable {
         guard allowsInterruption(activity) else { return nil }
         guard sinceLastInterruption >= Self.interruptionCooldown else { return nil }
         guard sinceLastDismissal >= Self.dismissalCooldown else { return nil }
-        return questions
+        return
+            questions
             .filter { $0.resolution == .unresolved && $0.context == context && $0.unlocks != nil }
             .max { ($0.priority, $1.id) < ($1.priority, $0.id) }
     }

@@ -38,9 +38,12 @@ struct MarkDoneAfterCaptureTests {
     /// What Pit writes while the sheet is open: its own completion of the work, as the store holds a confirmed capture.
     private func pitRecords(_ store: FakeCarMemoryStore, on date: Date, odometerKm: Int?) async throws {
         let vehicleID = await store.vehicle.id
-        try await store.execute(.confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: .engineOilService, performedAt: date, odometerKm: odometerKm
-        ))), now: now)
+        try await store.execute(
+            .confirmMaintenanceCompletion(
+                .init(
+                    completion: MaintenanceCompletion(
+                        vehicleID: vehicleID, operationID: .engineOilService, performedAt: date, odometerKm: odometerKm
+                    ))), now: now)
     }
 
     @Test(
@@ -111,11 +114,13 @@ struct MarkDoneAfterCaptureTests {
             .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
             .joined(separator: "\n")
         let change = try #require(code.range(of: ".onChange(of: conflictNotices)"))
-        #expect(code[change.upperBound...].prefix(200).contains(
-            "AccessibilityNotification.Announcement(conflict.message).post()"
-        ))
-        #expect(try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift")
-            .contains("conflictNotices: viewModel.state.markDoneConflictNotices"))
+        #expect(
+            code[change.upperBound...].prefix(200).contains(
+                "AccessibilityNotification.Announcement(conflict.message).post()"
+            ))
+        #expect(
+            try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift")
+                .contains("conflictNotices: viewModel.state.markDoneConflictNotices"))
     }
 
     @Test("REQ-MAINT-044: after the prompt, an entry edited to match Pit's is not recorded twice")
@@ -145,8 +150,9 @@ struct MarkDoneAfterCaptureTests {
             .joined(separator: "\n")
         #expect(code.contains(".onChange(of: date) { onEdit() }"))
         #expect(code.contains(".onChange(of: odometer) { onEdit() }"))
-        #expect(try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift")
-            .contains("onEdit: viewModel.markDoneInputChanged"))
+        #expect(
+            try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift")
+                .contains("onEdit: viewModel.markDoneInputChanged"))
     }
 
     @Test("REQ-MAINT-047: Mark as done does not open while the store cannot be read, and says it was not saved")
@@ -222,10 +228,14 @@ struct MarkDoneAfterCaptureTests {
 
         let completions = await store.completions
         #expect(completions.count == 2)
-        #expect(completions.contains { $0.odometerKm == 85000 && Calendar.current.isDate(
-            $0.performedAt,
-            inSameDayAs: now
-        ) })
+        #expect(
+            completions.contains {
+                $0.odometerKm == 85000
+                    && Calendar.current.isDate(
+                        $0.performedAt,
+                        inSameDayAs: now
+                    )
+            })
     }
 
     @Test("REQ-MAINT-046: a completion stored after Service last loaded but before the sheet opened is not Pit's")
@@ -266,9 +276,10 @@ struct MarkDoneAfterCaptureTests {
         #expect(await service.confirmDone(.engineOilService, on: now, odometerText: "84000"))
         let later = now + 0.02 * day
         let afterReading = TestViewModels.service(store, now: later)
-        #expect(await afterReading.enterReport(
-            .engineOilService, distanceText: "-300", unit: .kilometers, daysText: "", odometerText: "84000"
-        ))
+        #expect(
+            await afterReading.enterReport(
+                .engineOilService, distanceText: "-300", unit: .kilometers, daysText: "", odometerText: "84000"
+            ))
         #expect(afterReading.state.operations.first?.countingReport != nil)
 
         await openMarkDone(afterReading, .engineOilService)

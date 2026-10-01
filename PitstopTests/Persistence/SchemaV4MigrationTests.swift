@@ -11,9 +11,10 @@ private func seed(_ writer: LegacyStoreWriter) -> VehicleID {
     let vehicleID = writer.car()
     writer.insert(OdometerReading(vehicleID: vehicleID, value: 38800, recordedAt: now))
     writer.insert(MaintenanceFixture.custom(.engineOilService, km: 15000, months: 12), vehicleID: vehicleID)
-    writer.insert(MaintenanceCompletion(
-        vehicleID: vehicleID, operationID: .engineOilService, performedAt: now - 200 * 86400, odometerKm: 30000
-    ))
+    writer.insert(
+        MaintenanceCompletion(
+            vehicleID: vehicleID, operationID: .engineOilService, performedAt: now - 200 * 86400, odometerKm: 30000
+        ))
     return vehicleID
 }
 

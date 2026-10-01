@@ -49,11 +49,13 @@ struct HistoryEventEditorView: View {
                 }
                 Section("history.editor.note") {
                     TextField("history.editor.note.placeholder", text: $draft.note, axis: .vertical)
-                        .lineLimit(2 ... 6)
+                        .lineLimit(2...6)
                         .pitReportsEditing()
                         .accessibilityIdentifier("history.editor.note")
                 }
             }
-        } save: { await onSave(draft) }
+        } save: {
+            await onSave(draft)
+        }
     }
 }

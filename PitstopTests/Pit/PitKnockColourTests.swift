@@ -46,12 +46,15 @@ struct PitKnockColourTests {
         let accent = PitHeadTests.resolve(PitColor.accentPrimary, dark: true)
         let lit = PitHeadTests.resolve(PitColor.headEye, dark: false)
         for scheme in [ColorScheme.light, .dark] {
-            let knock = try #require(PitHeadTests.render(
-                PitHead(state: .knock, size: size, finish: .standard).environment(\.colorScheme, scheme), size: size
-            ))
-            let resting = try #require(PitHeadTests.render(
-                PitHead(state: .resting, size: size, finish: .standard).environment(\.colorScheme, scheme), size: size
-            ))
+            let knock = try #require(
+                PitHeadTests.render(
+                    PitHead(state: .knock, size: size, finish: .standard).environment(\.colorScheme, scheme), size: size
+                ))
+            let resting = try #require(
+                PitHeadTests.render(
+                    PitHead(state: .resting, size: size, finish: .standard).environment(\.colorScheme, scheme),
+                    size: size
+                ))
             #expect(Self.close(PitHeadTests.rgb(of: knock, at: point), accent), "knock in \(scheme)")
             let restingPoint = Self.posed(CGPoint(x: 22, y: 32), in: PitPose(.resting), unit: unit)
             #expect(Self.close(PitHeadTests.rgb(of: resting, at: restingPoint), lit), "resting in \(scheme)")

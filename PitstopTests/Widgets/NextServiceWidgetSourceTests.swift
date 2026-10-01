@@ -7,8 +7,8 @@ import Testing
 @Suite("Next-service widget source")
 struct NextServiceWidgetSourceTests {
     private static let file = URL(filePath: #filePath)
-        .deletingLastPathComponent() // Widgets
-        .deletingLastPathComponent() // PitstopTests
+        .deletingLastPathComponent()  // Widgets
+        .deletingLastPathComponent()  // PitstopTests
         .deletingLastPathComponent()
         .appending(path: "PitstopWidgets/NextServiceWidget.swift")
 
@@ -23,10 +23,10 @@ struct NextServiceWidgetSourceTests {
     /// A declaration of `NextServiceWidgetView` at member level, from its first line to its closing brace.
     private func member(from start: String.Index, in code: String) throws -> Substring {
         let end = try #require(
-            code.range(of: "\n    }\n", range: start ..< code.endIndex),
+            code.range(of: "\n    }\n", range: start..<code.endIndex),
             "a member of the view does not close"
         )
-        return code[start ..< end.upperBound]
+        return code[start..<end.upperBound]
     }
 
     /// One family's view property of `NextServiceWidgetView` with the helpers named after it (`smallOperation`,
@@ -58,11 +58,12 @@ struct NextServiceWidgetSourceTests {
     /// `code` without its `if <condition> {` block, from that line to the brace at the same indentation.
     private func removing(block condition: String, from code: String) throws -> String {
         let opening = try #require(code.range(of: "if \(condition) {"), "no `if \(condition)` block")
-        let lineStart = code[..<opening.lowerBound].lastIndex(of: "\n").map { code.index(after: $0) }
+        let lineStart =
+            code[..<opening.lowerBound].lastIndex(of: "\n").map { code.index(after: $0) }
             ?? code.startIndex
-        let indentation = code[lineStart ..< opening.lowerBound]
+        let indentation = code[lineStart..<opening.lowerBound]
         let closing = try #require(
-            code.range(of: "\n\(indentation)}", range: opening.upperBound ..< code.endIndex),
+            code.range(of: "\n\(indentation)}", range: opening.upperBound..<code.endIndex),
             "the `if \(condition)` block does not close"
         )
         return String(code[..<lineStart] + code[closing.upperBound...])
@@ -214,9 +215,10 @@ struct NextServiceWidgetSourceTests {
         let fits = try #require(lines.firstIndex(of: "ViewThatFits(in: .horizontal) {"), "no one-line word row")
         let chains = modifierChains(after: "Text(summary.word.widgetLabel)", in: lines)
         #expect(chains.count == 3, "the word row has one line, a smaller line, then a wrap")
-        #expect(lines[(fits + 1)...].prefix(while: { $0 != "}" }).filter {
-            $0.hasPrefix("Text(summary.word.widgetLabel)")
-        }.count == 3, "every word variant sits inside the horizontal fit")
+        #expect(
+            lines[(fits + 1)...].prefix(while: { $0 != "}" }).filter {
+                $0.hasPrefix("Text(summary.word.widgetLabel)")
+            }.count == 3, "every word variant sits inside the horizontal fit")
         if chains.count == 3 {
             #expect(chains[0].contains(".lineLimit(1)"))
             #expect(chains[1].contains(".lineLimit(1)") && chains[1].contains { $0.hasPrefix(".font(") })
@@ -284,7 +286,8 @@ struct NextServiceWidgetSourceTests {
     /// and cuts the one name the rule keeps. Beside the name the glyph is capped in every glyph-only layout.
     @Test("REQ-WIDGET-011: beside the name the status glyph is capped")
     func glyphBesideTheNameLeavesItsRoom() throws {
-        let capped = #/
+        let capped =
+            #/
             StatusGlyphView\( \s* glyph: \s summary\.status\.glyph, \s*
             size: \s min\(statusGlyphSize, \s DesignTokens\.statusGlyphBesideNameMaxSize\) \s* \)
         /#
@@ -333,7 +336,8 @@ struct NextServiceWidgetSourceTests {
 
     @Test("REQ-DESIGN-001: the small widget says the status as a chip of word, shared glyph and colour")
     func smallDrawsTheStatusChip() throws {
-        let chip = "StatusChip(Text(summary.word.widgetLabel), glyph: summary.status.glyph, "
+        let chip =
+            "StatusChip(Text(summary.word.widgetLabel), glyph: summary.status.glyph, "
             + "color: summary.status.color)"
         #expect(try family("small").contains(chip))
     }
@@ -362,9 +366,10 @@ struct NextServiceWidgetSourceTests {
         let code = try code()
         for family in ["systemSmall", "accessoryRectangular", "accessoryInline"] {
             let start = try #require(code.range(of: "#Preview(as: .\(family))"), "no \(family) preview")
-            let end = code.range(of: "#Preview", range: start.upperBound ..< code.endIndex)?.lowerBound
+            let end =
+                code.range(of: "#Preview", range: start.upperBound..<code.endIndex)?.lowerBound
                 ?? code.endIndex
-            let preview = code[start.upperBound ..< end]
+            let preview = code[start.upperBound..<end]
             #expect(preview.contains("content: .empty"), "the \(family) preview has no sparse state")
         }
     }

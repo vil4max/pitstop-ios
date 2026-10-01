@@ -59,13 +59,15 @@ enum PitEyeLifePlan {
             guard elapsed + delay <= window else { break }
             elapsed += delay
             inhaled.toggle()
-            let gaze = hasGaze
+            let gaze =
+                hasGaze
                 ? CGPoint(x: reach.x * (random() * 2 - 1), y: reach.y * (random() * 2 - 1))
                 : .zero
-            steps.append(PitEyeLifeStep(
-                delay: delay,
-                life: PitEyeLife(gaze: gaze, breath: inhaled ? 1.015 : 1, kind: kind)
-            ))
+            steps.append(
+                PitEyeLifeStep(
+                    delay: delay,
+                    life: PitEyeLife(gaze: gaze, breath: inhaled ? 1.015 : 1, kind: kind)
+                ))
         }
         let settle = minimumInterval + random() * (maximumInterval - minimumInterval)
         steps.append(PitEyeLifeStep(delay: settle, life: PitEyeLife(kind: kind)))

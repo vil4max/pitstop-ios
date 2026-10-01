@@ -8,22 +8,29 @@ private typealias Kestrel = KestrelRecommendationFixture
 struct RecommendationProvenanceTests {
     @Test("REQ-DOMAIN-004, ADR-0020: every fictional rule is expressible with its source, edition and market")
     func everyRuleIsExpressible() {
-        #expect(Kestrel.schedule.map(\.operationID) == [
-            .engineOilService, .dsgService, .awdCouplingService, .brakeFluid,
-        ])
+        #expect(
+            Kestrel.schedule.map(\.operationID) == [
+                .engineOilService, .dsgService, .awdCouplingService, .brakeFluid,
+            ])
         let rules = Dictionary(uniqueKeysWithValues: Kestrel.schedule.map { ($0.operationID, $0.rule) })
-        #expect(rules[.engineOilService] == RecommendationRule(
-            distanceKm: 15000,
-            months: 12,
-            anchoring: .completionBased
-        ))
+        #expect(
+            rules[.engineOilService]
+                == RecommendationRule(
+                    distanceKm: 15000,
+                    months: 12,
+                    anchoring: .completionBased
+                ))
         #expect(rules[.dsgService] == RecommendationRule(distanceKm: 60000, months: nil, anchoring: .completionBased))
-        #expect(rules[.awdCouplingService] == RecommendationRule(
-            distanceKm: 45000, months: 36, anchoring: .completionBased
-        ))
-        #expect(rules[.brakeFluid] == RecommendationRule(
-            distanceKm: nil, months: 24, anchoring: .fixedGridFromFirstRegistration
-        ))
+        #expect(
+            rules[.awdCouplingService]
+                == RecommendationRule(
+                    distanceKm: 45000, months: 36, anchoring: .completionBased
+                ))
+        #expect(
+            rules[.brakeFluid]
+                == RecommendationRule(
+                    distanceKm: nil, months: 24, anchoring: .fixedGridFromFirstRegistration
+                ))
 
         for record in Kestrel.schedule {
             #expect(record.provenance.source.edition == "XM-2024.1")
@@ -44,9 +51,11 @@ struct RecommendationProvenanceTests {
         #expect(grid(Kestrel.day(2026, 1, 15)) == Kestrel.day(2027, 3, 10))
         #expect(grid(Kestrel.day(2027, 5, 1)) == Kestrel.day(2029, 3, 10))
         // A completion-based rule has no grid, which is what production does today (ADR 0020 Q3).
-        #expect(Kestrel.oil.rule.nextGridDate(
-            after: Kestrel.day(2026, 1, 15), firstRegistration: Kestrel.firstRegistration, calendar: Kestrel.calendar
-        ) == nil)
+        #expect(
+            Kestrel.oil.rule.nextGridDate(
+                after: Kestrel.day(2026, 1, 15), firstRegistration: Kestrel.firstRegistration,
+                calendar: Kestrel.calendar
+            ) == nil)
     }
 
     @Test("REQ-DOMAIN-004: the oil procedure has three required components, each with provenance")
@@ -106,34 +115,37 @@ struct RecommendationProvenanceTests {
         let dualClutch = try #require(effective.first { $0.operationID == .dsgService })
         #expect(dualClutch.source == .defaultRecommendation && dualClutch.distanceIntervalKm == 60000)
         // The custom policy sits beside the recommendation; it never rewrites it.
-        #expect(recommended.contains {
-            $0.operationID == .engineOilService && $0.source == .defaultRecommendation
-                && $0.distanceIntervalKm == 15000 && $0.timeIntervalMonths == 12
-        })
+        #expect(
+            recommended.contains {
+                $0.operationID == .engineOilService && $0.source == .defaultRecommendation
+                    && $0.distanceIntervalKm == 15000 && $0.timeIntervalMonths == 12
+            })
         #expect(Kestrel.oil == before)
     }
 
     @Test("ADR-0020: a fixed-grid rule is not projected into a production policy that would lose the grid")
     func fixedGridIsNotProjectedIntoProduction() {
-        #expect(RecommendationResolver.project(Kestrel.brakeFluid, facts: Kestrel.matchingFacts)
-            == .notRepresentable(.noAnchoringField))
+        #expect(
+            RecommendationResolver.project(Kestrel.brakeFluid, facts: Kestrel.matchingFacts)
+                == .notRepresentable(.noAnchoringField))
         let projected = RecommendationResolver.policies(from: Kestrel.schedule, facts: Kestrel.matchingFacts)
         #expect(projected.map(\.operationID) == [.engineOilService, .dsgService, .awdCouplingService])
     }
 
     @Test("MNT-INT-002: the production-model gaps a real source would hit are listed")
     func productionGapsAreListed() {
-        #expect(RecommendationResolver.productionGaps(of: Kestrel.schedule) == [
-            .noProvenance,
-            .noAnchoringField,
-            .noFirstRegistrationDate,
-            .noProcedureType,
-            .noVehicleFact(.market),
-            .noVehicleFact(.engine),
-            .noVehicleFact(.transmission),
-            .noVehicleFact(.drivetrain),
-            .noVehicleFact(.serviceRegime),
-        ])
+        #expect(
+            RecommendationResolver.productionGaps(of: Kestrel.schedule) == [
+                .noProvenance,
+                .noAnchoringField,
+                .noFirstRegistrationDate,
+                .noProcedureType,
+                .noVehicleFact(.market),
+                .noVehicleFact(.engine),
+                .noVehicleFact(.transmission),
+                .noVehicleFact(.drivetrain),
+                .noVehicleFact(.serviceRegime),
+            ])
     }
 
     @Test("MNT-INT-002: the fixture names only a fictional make, model, market and reserved domain")

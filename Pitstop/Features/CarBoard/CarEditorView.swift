@@ -161,7 +161,9 @@ struct CarEditorView: View {
                 }
             }
             .task(id: pickedItem) { await loadPickedPhoto() }
-        } save: { await onSave(draft) }
+        } save: {
+            await onSave(draft)
+        }
     }
 
     /// Only the bytes are read here; decoding, bounding and the lift wait for Save and run off the main
@@ -211,6 +213,6 @@ struct CarEditorView: View {
             ),
             canChoosePhoto: true
         ) { _ in false }
-            .dynamicTypeSize(.accessibility3)
+        .dynamicTypeSize(.accessibility3)
     }
 #endif

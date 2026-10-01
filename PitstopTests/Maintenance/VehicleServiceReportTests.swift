@@ -55,8 +55,9 @@ private func oil(
     currentKm: Double?,
     day: Double
 ) throws -> MaintenanceOperationState {
-    try #require(dashboardStates(policies, completions, reports: reports, currentKm: currentKm, day: day)
-        .first { $0.id == .engineOilService })
+    try #require(
+        dashboardStates(policies, completions, reports: reports, currentKm: currentKm, day: day)
+            .first { $0.id == .engineOilService })
 }
 
 @Suite("Dashboard reading as a maintenance anchor")
@@ -136,8 +137,9 @@ struct VehicleServiceReportEngineTests {
         let earlier = Fixture.completion(.engineOilService, km: 30000, day: 5)
         let kept = try oil([Fixture.oil10k], [earlier], reports: [dashboard], currentKm: 38800, day: 10)
         #expect(!kept.isReportSuperseded && kept.anchorKm == 40000 && !kept.isDecidedByReport)
-        let shorter = try oil([Fixture.custom(.engineOilService, km: 15000)], [earlier], reports: [dashboard],
-                              currentKm: 38800, day: 10)
+        let shorter = try oil(
+            [Fixture.custom(.engineOilService, km: 15000)], [earlier], reports: [dashboard],
+            currentKm: 38800, day: 10)
         #expect(shorter.anchorKm == 42000 && shorter.isDecidedByReport)
     }
 
@@ -240,12 +242,15 @@ struct VehicleServiceReportEngineTests {
         #expect(distance.status == .due && distance.remainingKm == -300)
         let days = try oil([], reports: [dashboardReport(days: -10, day: 0)], currentKm: nil, day: 0)
         #expect(days.status == .due && days.remainingDays == -10)
-        try DomainCommand.recordVehicleServiceReport(.init(report: dashboardReport(
-            distance: -300,
-            days: -10,
-            odometer: 40000,
-            day: 0
-        )))
+        try DomainCommand.recordVehicleServiceReport(
+            .init(
+                report: dashboardReport(
+                    distance: -300,
+                    days: -10,
+                    odometer: 40000,
+                    day: 0
+                ))
+        )
         .validate(now: Fixture.date(0))
     }
 
@@ -282,9 +287,10 @@ struct VehicleServiceReportServiceTests {
     func untrackedOperationStaysUntilDeleted() async {
         let store = FakeCarMemoryStore(vehicle: Vehicle.provisional(id: Fixture.vehicleID))
         let service = model(store)
-        #expect(await service.enterReport(
-            .cabinFilter, distanceText: "", unit: .kilometers, daysText: "45", odometerText: ""
-        ))
+        #expect(
+            await service.enterReport(
+                .cabinFilter, distanceText: "", unit: .kilometers, daysText: "45", odometerText: ""
+            ))
         #expect(service.state.operations.map(\.id) == [.cabinFilter])
         #expect(service.state.operations.first?.policy == nil)
         // Not tracked by a rule, so the owner can still track it with an interval of their own.
@@ -309,9 +315,10 @@ struct VehicleServiceReportServiceTests {
         let store = FakeCarMemoryStore(vehicle: Vehicle.provisional(id: Fixture.vehicleID))
         let service = model(store)
         #expect(await service.track(.engineOilService, kilometersText: "15000", monthsText: ""))
-        #expect(await service.enterReport(
-            .engineOilService, distanceText: "3 200", unit: .kilometers, daysText: "", odometerText: "38800"
-        ))
+        #expect(
+            await service.enterReport(
+                .engineOilService, distanceText: "3 200", unit: .kilometers, daysText: "", odometerText: "38800"
+            ))
         #expect(await service.confirmStopTracking(.engineOilService))
         let operation = service.state.operations.first
         #expect(operation?.id == .engineOilService && operation?.policy == nil && operation?.report != nil)
@@ -323,9 +330,10 @@ struct VehicleServiceReportServiceTests {
         let store = FakeCarMemoryStore(vehicle: Vehicle.provisional(id: Fixture.vehicleID))
         let service = model(store)
         #expect(service.state.defaultReportUnit == .kilometers)
-        #expect(await service.enterReport(
-            .engineOilService, distanceText: "2000", unit: .miles, daysText: "", odometerText: "38800"
-        ))
+        #expect(
+            await service.enterReport(
+                .engineOilService, distanceText: "2000", unit: .miles, daysText: "", odometerText: "38800"
+            ))
         let stored = await store.reports.first
         #expect(stored?.remainingDistance == 2000 && stored?.distanceUnit == .miles && stored?.odometerKm == 38800)
         #expect(service.state.defaultReportUnit == .miles)
@@ -335,9 +343,10 @@ struct VehicleServiceReportServiceTests {
     func overdueTypedWithMinus() async {
         let store = FakeCarMemoryStore(vehicle: Vehicle.provisional(id: Fixture.vehicleID))
         let service = model(store)
-        #expect(await service.enterReport(
-            .engineOilService, distanceText: "-300", unit: .kilometers, daysText: "-5", odometerText: "40000"
-        ))
+        #expect(
+            await service.enterReport(
+                .engineOilService, distanceText: "-300", unit: .kilometers, daysText: "-5", odometerText: "40000"
+            ))
         let stored = await store.reports.first
         #expect(stored?.remainingDistance == -300 && stored?.remainingDays == -5)
         #expect(service.state.operations.first?.status == .due)
@@ -356,9 +365,10 @@ struct VehicleServiceReportServiceTests {
     func invalidEntryWritesNothing(distance: String, days: String, odometer: String, failure: ServiceFailure) async {
         let store = FakeCarMemoryStore(vehicle: Vehicle.provisional(id: Fixture.vehicleID))
         let service = model(store)
-        #expect(await !service.enterReport(
-            .engineOilService, distanceText: distance, unit: .kilometers, daysText: days, odometerText: odometer
-        ))
+        #expect(
+            await !service.enterReport(
+                .engineOilService, distanceText: distance, unit: .kilometers, daysText: days, odometerText: odometer
+            ))
         #expect(service.state.failure == failure)
         #expect(await store.executed.isEmpty)
     }
@@ -368,17 +378,19 @@ struct VehicleServiceReportServiceTests {
         let store = FakeCarMemoryStore(vehicle: Vehicle.provisional(id: Fixture.vehicleID))
         let morning = Fixture.date(10)
         let afternoon = Fixture.date(10.02)
-        #expect(await ServiceViewModel(store: store, now: { morning }).enterReport(
-            .engineOilService, distanceText: "-300", unit: .kilometers, daysText: "", odometerText: "40000"
-        ))
+        #expect(
+            await ServiceViewModel(store: store, now: { morning }).enterReport(
+                .engineOilService, distanceText: "-300", unit: .kilometers, daysText: "", odometerText: "40000"
+            ))
         let later = ServiceViewModel(store: store, now: { afternoon })
         #expect(await later.confirmDone(.engineOilService, on: afternoon, odometerText: "40050"))
         #expect(later.state.operations.first?.isReportSuperseded == true)
         #expect(later.state.operations.first?.status != .due)
 
-        #expect(await later.enterReport(
-            .engineOilService, distanceText: "15000", unit: .kilometers, daysText: "", odometerText: "40050"
-        ))
+        #expect(
+            await later.enterReport(
+                .engineOilService, distanceText: "15000", unit: .kilometers, daysText: "", odometerText: "40050"
+            ))
         #expect(later.state.operations.first?.countingReport?.remainingDistance == 15000)
     }
 

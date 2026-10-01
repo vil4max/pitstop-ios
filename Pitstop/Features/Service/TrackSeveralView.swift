@@ -317,14 +317,18 @@ private struct IntervalSection: View {
                 .accessibilityIdentifier("trackSeveral.km.\(operation.rawValue)")
             QuickPickRow(values: IntervalQuickPicks.kilometers, current: model.entry(for: operation).kilometers) {
                 Text("trackSeveral.pick.km \($0.formatted())")
-            } onPick: { model.pickKilometers($0, for: operation) }
+            } onPick: {
+                model.pickKilometers($0, for: operation)
+            }
             TextField("service.track.months", text: months)
                 .keyboardType(.numberPad)
                 .pitReportsEditing()
                 .accessibilityIdentifier("trackSeveral.months.\(operation.rawValue)")
             QuickPickRow(values: IntervalQuickPicks.months, current: model.entry(for: operation).months) {
                 Text("trackSeveral.pick.months \($0)")
-            } onPick: { model.pickMonths($0, for: operation) }
+            } onPick: {
+                model.pickMonths($0, for: operation)
+            }
         } header: {
             operation.titleText
         } footer: {
@@ -448,16 +452,20 @@ extension DriveAnswer {
                 )
                 QuickPickRow(values: IntervalQuickPicks.kilometers, current: "10000") {
                     Text("trackSeveral.pick.km \($0.formatted())")
-                } onPick: { _ in }
+                } onPick: { _ in
+                }
                 QuickPickRow(values: IntervalQuickPicks.months, current: "") {
                     Text("trackSeveral.pick.months \($0)")
-                } onPick: { _ in }
+                } onPick: { _ in
+                }
                 StackedActions {
-                    Button {} label: {
+                    Button {
+                    } label: {
                         ProminentLabel(Text("trackSeveral.confirm \(3)"))
                     }
                     .buttonStyle(.borderedProminent)
-                    Button {} label: {
+                    Button {
+                    } label: {
                         ProminentLabel(Text("trackSeveral.confirm \(3)"))
                     }
                     .buttonStyle(.borderedProminent)

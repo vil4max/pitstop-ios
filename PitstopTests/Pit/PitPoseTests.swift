@@ -87,10 +87,12 @@ struct PitPoseTests {
                 (pose.left, PitHeadGeometry.leftEyeCenter),
                 (pose.right, PitHeadGeometry.rightEyeCenter),
             ] {
-                let bounds = Self.lensBounds(eye, center: CGPoint(
-                    x: center.x + pose.eyeOffset.x,
-                    y: center.y + pose.eyeOffset.y
-                ))
+                let bounds = Self.lensBounds(
+                    eye,
+                    center: CGPoint(
+                        x: center.x + pose.eyeOffset.x,
+                        y: center.y + pose.eyeOffset.y
+                    ))
                 #expect(screen.contains(bounds), "\(state): \(bounds)")
             }
         }

@@ -7,9 +7,10 @@ private typealias Fixture = MaintenanceFixture
 @Suite("Dashboard reading on Road")
 struct VehicleServiceReportRoadTests {
     private func milestone(_ states: [MaintenanceOperationState], day: Double) throws -> RoadMilestone {
-        let projection = RoadProjector().project(RoadContext(
-            now: Fixture.date(day), maintenanceStates: states, calendar: Fixture.utc
-        ))
+        let projection = RoadProjector().project(
+            RoadContext(
+                now: Fixture.date(day), maintenanceStates: states, calendar: Fixture.utc
+            ))
         return try #require(projection.slots.first?.lead)
     }
 

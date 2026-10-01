@@ -55,13 +55,14 @@ struct SwiftDataPitQuestionStoreTests {
 
         #expect(asked(after: 13 * hour) == nil)
         #expect(asked(after: PitAttentionPolicy.dismissalCooldown)?.id == oil)
-        #expect(policy.question(
-            registry: registry,
-            states: states,
-            activity: .idle,
-            context: .road,
-            now: now + PitAttentionPolicy.dismissalCooldown
-        ) == nil)
+        #expect(
+            policy.question(
+                registry: registry,
+                states: states,
+                activity: .idle,
+                context: .road,
+                now: now + PitAttentionPolicy.dismissalCooldown
+            ) == nil)
     }
 
     @Test("ADR-0016: a command for an unregistered question is rejected and nothing is saved")
@@ -100,19 +101,21 @@ struct SwiftDataPitQuestionStoreTests {
     func unreadableResolutionStaysClosed() async throws {
         let container = try PersistenceContainer.make(storeURL: nil)
         let context = ModelContext(container)
-        context.insert(PitstopSchemaV2.PitQuestionStateRecord(
-            questionID: oil, resolution: "retired-resolution", lastAskedAt: now, lastDismissedAt: nil,
-            resolvedAt: now
-        ))
+        context.insert(
+            PitstopSchemaV2.PitQuestionStateRecord(
+                questionID: oil, resolution: "retired-resolution", lastAskedAt: now, lastDismissedAt: nil,
+                resolvedAt: now
+            ))
         try context.save()
         let store = try SwiftDataPitQuestionStore(modelContainer: container, registry: PitQuestionFixtures.registry())
         let later = now + 3650 * 24 * hour
 
         let states = try await store.questionStates()
         #expect(states.map(\.resolution) == [.closed])
-        #expect(try PitAttentionPolicy().question(
-            registry: PitQuestionFixtures.registry(), states: states, activity: .idle, context: .service, now: later
-        ) == nil)
+        #expect(
+            try PitAttentionPolicy().question(
+                registry: PitQuestionFixtures.registry(), states: states, activity: .idle, context: .service, now: later
+            ) == nil)
         await #expect(throws: PitQuestionStoreError.notReturned) {
             try await store.execute(.asked(questionID: oil), now: later)
         }

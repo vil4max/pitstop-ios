@@ -38,7 +38,8 @@ struct AppShortcutsTests {
             let shortTitle = try #require(shortcut["shortTitle"] as? [String: Any], "No shortTitle (\(format))")
             return try ShortcutMetadata(
                 intent: #require(shortcut["actionIdentifier"] as? String, "No actionIdentifier (\(format))"),
-                phrases: templates
+                phrases:
+                    templates
                     .map { try #require($0["key"] as? String, "Phrase template without key (\(format))") },
                 shortTitleKey: #require(shortTitle["key"] as? String, "Short title without key (\(format))"),
                 systemImageName: #require(shortcut["systemImageName"] as? String, "No systemImageName (\(format))")

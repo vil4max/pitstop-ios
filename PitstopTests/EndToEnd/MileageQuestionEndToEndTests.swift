@@ -36,11 +36,15 @@ private struct App {
     func seedStaleMileage() async throws {
         let vehicleID = try await store.currentVehicle().id
         let past = MaintenanceFixture.date(0)
-        try await store.execute(.setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenanceFixture.oil10k)),
-                                now: past)
-        try await store.execute(.confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: .engineOilService, performedAt: past, odometerKm: 50000
-        ))), now: past)
+        try await store.execute(
+            .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenanceFixture.oil10k)),
+            now: past)
+        try await store.execute(
+            .confirmMaintenanceCompletion(
+                .init(
+                    completion: MaintenanceCompletion(
+                        vehicleID: vehicleID, operationID: .engineOilService, performedAt: past, odometerKm: 50000
+                    ))), now: past)
     }
 
     func questionState() async throws -> PitQuestionState? {

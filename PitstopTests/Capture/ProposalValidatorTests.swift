@@ -32,10 +32,13 @@ struct ProposalValidatorTests {
         let permit = try #require(ConfirmationPolicy().permit(for: result, userConfirmed: false))
         let command = try DomainCommandMapper().command(for: permit, now: captureTestNow)
 
-        #expect(command == .createNote(CreateNoteCommand(
-            vehicleID: DomainFixtures.Vehicles.defaultID,
-            rawText: "Напомни про страховку в марте"
-        )))
+        #expect(
+            command
+                == .createNote(
+                    CreateNoteCommand(
+                        vehicleID: DomainFixtures.Vehicles.defaultID,
+                        rawText: "Напомни про страховку в марте"
+                    )))
     }
 
     @Test("ADR-0006: a capture made for another vehicle writes no structured fact to the current one")
@@ -69,10 +72,13 @@ struct ProposalValidatorTests {
         let permit = try #require(ConfirmationPolicy().permit(for: result, userConfirmed: false))
         let command = try DomainCommandMapper().command(for: permit, now: captureTestNow)
 
-        #expect(command == .createNote(CreateNoteCommand(
-            vehicleID: DomainFixtures.Vehicles.defaultID,
-            rawText: "85500"
-        )))
+        #expect(
+            command
+                == .createNote(
+                    CreateNoteCommand(
+                        vehicleID: DomainFixtures.Vehicles.defaultID,
+                        rawText: "85500"
+                    )))
     }
 
     @Test(

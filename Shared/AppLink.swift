@@ -21,11 +21,11 @@ enum AppLink: String, CaseIterable, Sendable {
     /// query, fragment, user, password or port makes it no link at all.
     init?(url: URL) {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              components.scheme?.lowercased() == Self.scheme,
-              components.path.isEmpty || components.path == "/",
-              components.query == nil, components.fragment == nil,
-              components.user == nil, components.password == nil, components.port == nil,
-              let host = components.host?.lowercased()
+            components.scheme?.lowercased() == Self.scheme,
+            components.path.isEmpty || components.path == "/",
+            components.query == nil, components.fragment == nil,
+            components.user == nil, components.password == nil, components.port == nil,
+            let host = components.host?.lowercased()
         else { return nil }
         self.init(rawValue: host)
     }

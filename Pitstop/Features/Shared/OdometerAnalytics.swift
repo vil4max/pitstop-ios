@@ -7,10 +7,12 @@ enum OdometerAnalyticsEvent: AnalyticsEncodable, Hashable {
     var analyticsEvent: AnalyticsEvent {
         switch self {
         case let .odometerUpdated(source, anomalyConfirmation):
-            AnalyticsEvent(name: .odometerUpdated, properties: [
-                .source: AnalyticsValue(source),
-                .anomalyConfirmation: AnalyticsValue(anomalyConfirmation),
-            ])
+            AnalyticsEvent(
+                name: .odometerUpdated,
+                properties: [
+                    .source: AnalyticsValue(source),
+                    .anomalyConfirmation: AnalyticsValue(anomalyConfirmation),
+                ])
         }
     }
 }

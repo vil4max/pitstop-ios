@@ -72,7 +72,8 @@ public struct ModelDraftMapper: Sendable {
         switch draft.kind {
         case .maintenanceCompletion:
             guard draft.reportsCompletedAction, case let .named(operation) = draft.operation,
-                  MaintenanceOperationID.catalog.contains(operation) else { return nil }
+                MaintenanceOperationID.catalog.contains(operation)
+            else { return nil }
             return MemoryProposal(
                 sourceInputID: input.id,
                 kind: .maintenanceCompletion,

@@ -51,7 +51,7 @@ public struct PitDeferralPath: Hashable, Sendable {
     /// safe default (core C3).
     public func hasReturned(_ state: PitQuestionState, now: Date) -> Bool {
         guard case let .notBefore(interval) = returnRule(after: state.resolution),
-              let resolvedAt = state.resolvedAt
+            let resolvedAt = state.resolvedAt
         else { return false }
         return now.timeIntervalSince(resolvedAt) >= interval
     }
@@ -66,9 +66,10 @@ public struct PitQuestionDefinition: Identifiable, Hashable, Sendable {
     public let value: PitQuestionValue
     public let deferral: PitDeferralPath
 
-    public init(id: String, context: VisibleFeature, priority: Int, value: PitQuestionValue,
-                deferral: PitDeferralPath)
-    {
+    public init(
+        id: String, context: VisibleFeature, priority: Int, value: PitQuestionValue,
+        deferral: PitDeferralPath
+    ) {
         self.id = id
         self.context = context
         self.priority = priority

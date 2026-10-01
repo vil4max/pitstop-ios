@@ -115,8 +115,9 @@ enum MarkDoneRecheck: Equatable {
     ) -> [MaintenanceCompletion] {
         let day = calendar.startOfDay(for: date)
         let daysAway = { (completion: MaintenanceCompletion) in
-            abs(calendar.dateComponents([.day], from: day, to: calendar.startOfDay(for: completion.performedAt))
-                .day ?? .max)
+            abs(
+                calendar.dateComponents([.day], from: day, to: calendar.startOfDay(for: completion.performedAt))
+                    .day ?? .max)
         }
         return recorded.filter { daysAway($0) <= 1 }
             .sorted { (daysAway($0), $1.performedAt) < (daysAway($1), $0.performedAt) }
@@ -212,9 +213,10 @@ final class ServiceViewModel {
     func readMarkDoneOpening(_ operation: MaintenanceOperationID) async -> MarkDoneOpening? {
         do {
             let vehicleID = try await store.currentVehicle().id
-            let known = try await Set(store.maintenanceCompletions()
-                .filter { $0.vehicleID == vehicleID && $0.operationID == operation }
-                .map(\.id))
+            let known = try await Set(
+                store.maintenanceCompletions()
+                    .filter { $0.vehicleID == vehicleID && $0.operationID == operation }
+                    .map(\.id))
             return MarkDoneOpening(operation: operation, completionIDs: known)
         } catch {
             return nil

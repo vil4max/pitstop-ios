@@ -16,9 +16,10 @@ struct HistoryMonthTests {
     ) -> Date {
         var calendar = gregorian
         calendar.timeZone = zone
-        return calendar.date(from: DateComponents(
-            year: year, month: month, day: day, hour: hour, minute: minute, second: second
-        ))!
+        return calendar.date(
+            from: DateComponents(
+                year: year, month: month, day: day, hour: hour, minute: minute, second: second
+            ))!
     }
 
     private static func event(_ kind: HistoryEventKind, on date: Date, id: String? = nil) -> HistoryEvent {
@@ -55,11 +56,12 @@ struct HistoryMonthTests {
         let months = timeline.months(calendar: Self.gregorian, timeZone: Self.utc)
 
         #expect(months.map { Self.yearMonth($0, in: Self.utc) } == [[2026, 9], [2026, 6], [2026, 5]])
-        #expect(months.map(\.entries) == [
-            [.event(wash), .event(mileage)],
-            [.completion(oil), .event(visit)],
-            [.event(insurance)],
-        ])
+        #expect(
+            months.map(\.entries) == [
+                [.event(wash), .event(mileage)],
+                [.completion(oil), .event(visit)],
+                [.event(insurance)],
+            ])
         #expect(months.flatMap(\.entries) == timeline.entries, "grouping never reorders or drops an entry")
     }
 

@@ -94,16 +94,17 @@ final class RoadViewModel {
             context: context
         )
         let history = try await HistoryTimeline(events: store.historyEvents(), completions: completions)
-        return RoadProjector().project(RoadContext(
-            now: now,
-            maintenanceStates: states,
-            plannedEvents: planned.map(\.roadEvent),
-            history: history,
-            mileageObservations: MileageObservation.history(
-                readings: readings, completions: completions, reports: reports
-            ),
-            calendar: calendar
-        ))
+        return RoadProjector().project(
+            RoadContext(
+                now: now,
+                maintenanceStates: states,
+                plannedEvents: planned.map(\.roadEvent),
+                history: history,
+                mileageObservations: MileageObservation.history(
+                    readings: readings, completions: completions, reports: reports
+                ),
+                calendar: calendar
+            ))
     }
 
     // MARK: - Planned dates
@@ -134,7 +135,7 @@ final class RoadViewModel {
         let moment = now()
         let lower = min(existing?.date ?? today, today)
         let upper = calendar.startOfDay(for: PlannedEventLimits.latestDate(now: moment))
-        return lower ... max(lower, upper)
+        return lower...max(lower, upper)
     }
 
     /// The owner enters the date directly, so it is already confirmed; the command still checks its
@@ -147,10 +148,11 @@ final class RoadViewModel {
         let label = draft.label.trimmingCharacters(in: .whitespacesAndNewlines)
             .split(whereSeparator: \.isNewline).joined(separator: " ")
         guard PlannedEventLimits.isLabelWithinLimit(label) else { return fail(.labelTooLong) }
-        let kind: PlannedDatedEvent.Kind = switch draft.kind {
-        case .insuranceExpiry: .insuranceExpiry
-        case .other: .other(label: label.isEmpty ? nil : label)
-        }
+        let kind: PlannedDatedEvent.Kind =
+            switch draft.kind {
+            case .insuranceExpiry: .insuranceExpiry
+            case .other: .other(label: label.isEmpty ? nil : label)
+            }
         do {
             let vehicleID = try await store.currentVehicle().id
             let event = PlannedDatedEvent(
@@ -160,7 +162,8 @@ final class RoadViewModel {
                 date: date,
                 createdAt: existing?.createdAt ?? moment
             )
-            let command: DomainCommand = existing == nil
+            let command: DomainCommand =
+                existing == nil
                 ? .addPlannedEvent(AddPlannedEventCommand(event: event))
                 : .updatePlannedEvent(UpdatePlannedEventCommand(event: event))
             try await store.execute(command, now: moment)

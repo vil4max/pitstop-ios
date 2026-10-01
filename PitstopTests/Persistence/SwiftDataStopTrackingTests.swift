@@ -113,13 +113,14 @@ struct SwiftDataStopTrackingTests {
         into container: ModelContainer
     ) throws {
         let context = ModelContext(container)
-        context.insert(PitstopSchemaV1.MaintenancePolicyRecord(
-            vehicleID: vehicle.rawValue,
-            operationID: policy.operationID.rawValue,
-            distanceIntervalKm: policy.distanceIntervalKm,
-            timeIntervalMonths: policy.timeIntervalMonths,
-            source: source
-        ))
+        context.insert(
+            PitstopSchemaV1.MaintenancePolicyRecord(
+                vehicleID: vehicle.rawValue,
+                operationID: policy.operationID.rawValue,
+                distanceIntervalKm: policy.distanceIntervalKm,
+                timeIntervalMonths: policy.timeIntervalMonths,
+                source: source
+            ))
         try context.save()
     }
 }

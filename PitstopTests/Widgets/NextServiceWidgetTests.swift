@@ -56,11 +56,12 @@ struct NextServiceContentTests {
 
     @Test("REQ-WIDGET-004: one tracked operation shows its name, status word and the fact that decided it")
     func oneOperation() throws {
-        let content = NextServiceContent(facts: facts(
-            [MaintenanceFixture.custom(.engineOilService, km: 15000, months: 12)],
-            completions: [completion(.engineOilService, daysAgo: 200, km: 30000)],
-            reading: reading(38800)
-        ), now: now)
+        let content = NextServiceContent(
+            facts: facts(
+                [MaintenanceFixture.custom(.engineOilService, km: 15000, months: 12)],
+                completions: [completion(.engineOilService, daysAgo: 200, km: 30000)],
+                reading: reading(38800)
+            ), now: now)
         let shown = try summary(content)
         #expect(shown.operation == .engineOilService)
         #expect(shown.status == .upToDate && shown.word == .upToDate)
@@ -74,19 +75,28 @@ struct NextServiceContentTests {
         let commands: [DomainCommand] = [
             .recordOdometerReading(.init(reading: reading(38800))),
             // Approaching by distance: 1,000 of 15,000 km left.
-            .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenanceFixture.custom(
-                .engineOilService, km: 15000
-            ))),
+            .setMaintenancePolicy(
+                .init(
+                    vehicleID: vehicleID,
+                    policy: MaintenanceFixture.custom(
+                        .engineOilService, km: 15000
+                    ))),
             .confirmMaintenanceCompletion(.init(completion: completion(.engineOilService, daysAgo: 100, km: 24800))),
             // Due by date: 24 months have passed.
-            .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenanceFixture.custom(
-                .brakeFluid, months: 24
-            ))),
+            .setMaintenancePolicy(
+                .init(
+                    vehicleID: vehicleID,
+                    policy: MaintenanceFixture.custom(
+                        .brakeFluid, months: 24
+                    ))),
             .confirmMaintenanceCompletion(.init(completion: completion(.brakeFluid, daysAgo: 800, km: nil))),
             // Unknown: tracked, never done.
-            .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenanceFixture.custom(
-                .cabinFilter, km: 20000
-            ))),
+            .setMaintenancePolicy(
+                .init(
+                    vehicleID: vehicleID,
+                    policy: MaintenanceFixture.custom(
+                        .cabinFilter, km: 20000
+                    ))),
         ]
         for command in commands {
             try await store.execute(command, now: now)
@@ -95,13 +105,15 @@ struct NextServiceContentTests {
         await model.load()
         let first = try #require(model.state.operations.first)
 
-        let shown = try await summary(NextServiceContent(facts: NextServiceFacts(
-            hasVehicle: true,
-            policies: store.maintenancePolicies(),
-            completions: store.maintenanceCompletions(),
-            reports: store.vehicleServiceReports(),
-            latestReading: store.odometerReadings().latest
-        ), now: now))
+        let shown = try await summary(
+            NextServiceContent(
+                facts: NextServiceFacts(
+                    hasVehicle: true,
+                    policies: store.maintenancePolicies(),
+                    completions: store.maintenanceCompletions(),
+                    reports: store.vehicleServiceReports(),
+                    latestReading: store.odometerReadings().latest
+                ), now: now))
         #expect(first.id == .brakeFluid)
         #expect(shown == NextServiceSummary(first))
         #expect(shown.word == .due)
@@ -109,20 +121,24 @@ struct NextServiceContentTests {
 
     @Test("REQ-WIDGET-005: a tracked operation without a baseline is unknown and says nothing is counted")
     func unknownOperation() throws {
-        let shown = try summary(NextServiceContent(facts: facts(
-            [MaintenanceFixture.custom(.cabinFilter, km: 20000)], reading: reading(38800)
-        ), now: now))
+        let shown = try summary(
+            NextServiceContent(
+                facts: facts(
+                    [MaintenanceFixture.custom(.cabinFilter, km: 20000)], reading: reading(38800)
+                ), now: now))
         #expect(shown.status == .unknown && shown.word == .unknown)
         #expect(shown.fact == .noBaseline)
     }
 
     @Test("REQ-WIDGET-005: a status that rests on the date alone says so and names the missing distance")
     func partialOperation() throws {
-        let shown = try summary(NextServiceContent(facts: facts(
-            [MaintenanceFixture.custom(.engineOilService, km: 15000, months: 12)],
-            completions: [completion(.engineOilService, daysAgo: 30, km: nil)],
-            reading: reading(38800)
-        ), now: now))
+        let shown = try summary(
+            NextServiceContent(
+                facts: facts(
+                    [MaintenanceFixture.custom(.engineOilService, km: 15000, months: 12)],
+                    completions: [completion(.engineOilService, daysAgo: 30, km: nil)],
+                    reading: reading(38800)
+                ), now: now))
         #expect(shown.status == .upToDate && shown.word == .upToDateByDate)
         guard case let .progress(.daysLeft(days)?, block: .completionMileageMissing) = shown.fact else {
             Issue.record("Unexpected fact \(shown.fact)")
@@ -134,11 +150,12 @@ struct NextServiceContentTests {
     @Test("ADR-0036: Service still says the partial state in its own words after the shared decision")
     func serviceWordingUnchanged() throws {
         let context = MaintenanceContext(now: now, latestReading: reading(38800))
-        let state = try #require(MaintenanceEngine().states(
-            policies: [MaintenanceFixture.custom(.engineOilService, km: 15000, months: 12)],
-            completions: [completion(.engineOilService, daysAgo: 30, km: nil)],
-            context: context
-        ).first)
+        let state = try #require(
+            MaintenanceEngine().states(
+                policies: [MaintenanceFixture.custom(.engineOilService, km: 15000, months: 12)],
+                completions: [completion(.engineOilService, daysAgo: 30, km: nil)],
+                context: context
+            ).first)
         let days = try #require(state.remainingDays)
         #expect(state.statusLabel == "service.status.upToDate.byDate")
         // `Text` values do not compare by their words, so the decision behind the line is compared.
@@ -179,11 +196,13 @@ struct NextServiceScheduleTests {
             [MaintenanceFixture.custom(.brakeFluid, months: 12)],
             completions: [MaintenanceCompletion(vehicleID: vehicleID, operationID: .brakeFluid, performedAt: done)]
         )
-        let days = try #require({ () -> Int? in
-            guard case let .operation(summary) = NextServiceContent(facts: shown, now: now),
-                  case let .progress(.daysLeft(days)?, _) = summary.fact else { return nil }
-            return days
-        }())
+        let days = try #require(
+            { () -> Int? in
+                guard case let .operation(summary) = NextServiceContent(facts: shown, now: now),
+                    case let .progress(.daysLeft(days)?, _) = summary.fact
+                else { return nil }
+                return days
+            }())
         let expected = anchor - Double(days) * 86400
         let change = try #require(NextServiceSchedule.nextChange(facts: shown, after: now))
         #expect(change >= expected && change <= expected + 60)
@@ -258,7 +277,7 @@ private func fingerprint(of store: URL) -> [String: String] {
 /// so the comparison sees only what the reader did.
 private func settledFingerprint(of store: URL) async throws -> [String: String] {
     var previous = fingerprint(of: store)
-    for _ in 0 ..< 20 {
+    for _ in 0..<20 {
         try await Task.sleep(for: .milliseconds(100))
         let current = fingerprint(of: store)
         if current == previous {
@@ -276,20 +295,29 @@ struct NextServiceStoreReaderTests {
         let id = try await store.currentVehicle().id
         let commands: [DomainCommand] = [
             .recordOdometerReading(.init(reading: OdometerReading(vehicleID: id, value: 38800, recordedAt: now))),
-            .setMaintenancePolicy(.init(vehicleID: id, policy: MaintenanceFixture.custom(
-                .engineOilService, km: 15000, months: 12
-            ))),
-            .confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-                vehicleID: id, operationID: .engineOilService, performedAt: now - 200 * 86400, odometerKm: 30000
-            ))),
+            .setMaintenancePolicy(
+                .init(
+                    vehicleID: id,
+                    policy: MaintenanceFixture.custom(
+                        .engineOilService, km: 15000, months: 12
+                    ))),
+            .confirmMaintenanceCompletion(
+                .init(
+                    completion: MaintenanceCompletion(
+                        vehicleID: id, operationID: .engineOilService, performedAt: now - 200 * 86400, odometerKm: 30000
+                    ))),
             .createNote(.init(vehicleID: id, rawText: "Fictional note the widget must never read")),
-            .recordVehicleServiceReport(.init(report: VehicleServiceReport(
-                vehicleID: id, operationID: .engineOilService, reportedAt: now, odometerKm: 38800,
-                remainingDistance: 3200, distanceUnit: .kilometers, remainingDays: 45, source: .manualEntry
-            ))),
-            .recordVehicleServiceReport(.init(report: VehicleServiceReport(
-                vehicleID: id, operationID: .brakeFluid, reportedAt: now, remainingDays: 90
-            ))),
+            .recordVehicleServiceReport(
+                .init(
+                    report: VehicleServiceReport(
+                        vehicleID: id, operationID: .engineOilService, reportedAt: now, odometerKm: 38800,
+                        remainingDistance: 3200, distanceUnit: .kilometers, remainingDays: 45, source: .manualEntry
+                    ))),
+            .recordVehicleServiceReport(
+                .init(
+                    report: VehicleServiceReport(
+                        vehicleID: id, operationID: .brakeFluid, reportedAt: now, remainingDays: 90
+                    ))),
         ]
         for command in commands {
             try await store.execute(command, now: now)
@@ -325,9 +353,13 @@ struct NextServiceStoreReaderTests {
         let app = try await seeded(at: url)
         #expect(try NextServiceStoreReader.facts(at: url).policies.map(\.operationID) == [.engineOilService])
         let id = try await app.currentVehicle().id
-        try await app.execute(.setMaintenancePolicy(.init(vehicleID: id, policy: MaintenanceFixture.custom(
-            .brakeFluid, months: 24
-        ))), now: now)
+        try await app.execute(
+            .setMaintenancePolicy(
+                .init(
+                    vehicleID: id,
+                    policy: MaintenanceFixture.custom(
+                        .brakeFluid, months: 24
+                    ))), now: now)
         let policies = try NextServiceStoreReader.facts(at: url).policies.map(\.operationID)
         #expect(policies == [.brakeFluid, .engineOilService])
     }

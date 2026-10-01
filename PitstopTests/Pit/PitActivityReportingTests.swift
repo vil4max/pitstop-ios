@@ -82,7 +82,7 @@ struct PitActivityReportingTests {
     }
 
     private func settle() async {
-        for _ in 0 ..< 60 {
+        for _ in 0..<60 {
             await Task.yield()
         }
     }

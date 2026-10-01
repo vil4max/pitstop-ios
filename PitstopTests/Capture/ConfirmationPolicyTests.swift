@@ -24,16 +24,18 @@ struct ConfirmationPolicyTests {
             extractedEventKind: .service,
             extractedAmount: 100
         )
-        let first = policy.outcome(for: ProposalValidator().validate(
-            proposal,
-            input: capture,
-            context: captureContext()
-        ))
-        let second = policy.outcome(for: ProposalValidator().validate(
-            proposal,
-            input: capture,
-            context: captureContext()
-        ))
+        let first = policy.outcome(
+            for: ProposalValidator().validate(
+                proposal,
+                input: capture,
+                context: captureContext()
+            ))
+        let second = policy.outcome(
+            for: ProposalValidator().validate(
+                proposal,
+                input: capture,
+                context: captureContext()
+            ))
         #expect(first == second)
         // No kind built from extracted structure may skip confirmation except notes and readings.
         let mayAutoAccept: Set<ProposalKind> = [.rawNote, .contextualNote, .odometerReading]
@@ -152,10 +154,14 @@ struct ConfirmationPolicyTests {
         #expect(policy.outcome(for: result) == .confirmCompact)
         let permit = try #require(policy.permit(for: result, userConfirmed: true))
         let command = try DomainCommandMapper().command(for: permit, now: captureTestNow)
-        #expect(command == .setMaintenancePolicy(SetMaintenancePolicyCommand(
-            vehicleID: DomainFixtures.Vehicles.defaultID,
-            policy: MaintenancePolicy(operationID: .engineOilService, distanceIntervalKm: 7500, source: .userCustom)
-        )))
+        #expect(
+            command
+                == .setMaintenancePolicy(
+                    SetMaintenancePolicyCommand(
+                        vehicleID: DomainFixtures.Vehicles.defaultID,
+                        policy: MaintenancePolicy(
+                            operationID: .engineOilService, distanceIntervalKm: 7500, source: .userCustom)
+                    )))
     }
 
     @Test("REQ-CAPTURE-019: a valid low-risk reading maps to a command without confirmation")
@@ -255,10 +261,13 @@ struct ConfirmationPolicyTests {
         let permit = try #require(policy.permit(for: fallback, userConfirmed: false))
         let command = try DomainCommandMapper().command(for: permit, now: captureTestNow)
 
-        #expect(command == .createNote(CreateNoteCommand(
-            vehicleID: DomainFixtures.Vehicles.defaultID,
-            rawText: "заменить дворники"
-        )))
+        #expect(
+            command
+                == .createNote(
+                    CreateNoteCommand(
+                        vehicleID: DomainFixtures.Vehicles.defaultID,
+                        rawText: "заменить дворники"
+                    )))
     }
 
     @Test("ADR-0006: a low-confidence name is confirmed even though naming is low risk")

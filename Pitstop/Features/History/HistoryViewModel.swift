@@ -121,7 +121,8 @@ final class HistoryViewModel {
                 amount: amount,
                 note: note.isEmpty ? nil : note
             )
-            let command: DomainCommand = existing == nil
+            let command: DomainCommand =
+                existing == nil
                 ? .recordVehicleEvent(RecordVehicleEventCommand(event: event))
                 : .correctVehicleEvent(CorrectVehicleEventCommand(event: event))
             try await store.execute(command, now: now())

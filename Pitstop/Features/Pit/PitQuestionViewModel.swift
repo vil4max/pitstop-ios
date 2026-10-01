@@ -102,10 +102,10 @@ final class PitQuestionViewModel {
     /// once it is relevant again (core C3). A read failure keeps the question: the facts are unknown.
     func revalidate() async {
         guard case let .asking(question) = phase,
-              let relevant = try? await relevance(at: now()).relevant,
-              !relevant.contains(question.id),
-              // An answer started while the facts were read wins; it still records a fresh reading.
-              phase == .asking(question)
+            let relevant = try? await relevance(at: now()).relevant,
+            !relevant.contains(question.id),
+            // An answer started while the facts were read wins; it still records a fresh reading.
+            phase == .asking(question)
         else { return }
         answerText = ""
         failure = nil

@@ -4,7 +4,7 @@ import SwiftUI
 /// Car Board, History and Pit never drift apart.
 enum FeatureFormat {
     /// Amounts are stated as entered: up to two decimals, no padded zeros.
-    static let amountStyle: Decimal.FormatStyle = .number.precision(.fractionLength(0 ... 2))
+    static let amountStyle: Decimal.FormatStyle = .number.precision(.fractionLength(0...2))
 
     static func amount(_ amount: Decimal) -> String {
         amount.formatted(amountStyle)

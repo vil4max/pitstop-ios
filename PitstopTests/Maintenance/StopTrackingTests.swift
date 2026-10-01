@@ -12,24 +12,29 @@ struct StopTrackingTests {
         let model = TestViewModels.service(store, now: now)
         let vehicleID = await store.vehicle.id
         _ = try await store.execute(
-            .recordOdometerReading(.init(reading: OdometerReading(
-                vehicleID: vehicleID,
-                value: 59200,
-                recordedAt: now
-            ))),
+            .recordOdometerReading(
+                .init(
+                    reading: OdometerReading(
+                        vehicleID: vehicleID,
+                        value: 59200,
+                        recordedAt: now
+                    ))),
             now: now
         )
         _ = try await store.execute(
-            .recordVehicleEvent(.init(event: DomainFixtures.History.serviceVisit
-                    .dated(now.addingTimeInterval(-86400)))),
+            .recordVehicleEvent(
+                .init(
+                    event: DomainFixtures.History.serviceVisit
+                        .dated(now.addingTimeInterval(-86400)))),
             now: now
         )
         #expect(await model.track(.engineOilService, kilometersText: "10000", monthsText: ""))
-        #expect(await model.confirmDone(
-            .engineOilService,
-            on: now.addingTimeInterval(-20 * 86400),
-            odometerText: "50000"
-        ))
+        #expect(
+            await model.confirmDone(
+                .engineOilService,
+                on: now.addingTimeInterval(-20 * 86400),
+                odometerText: "50000"
+            ))
         return model
     }
 
@@ -153,11 +158,12 @@ struct StopTrackingTests {
         let model = TestViewModels.service(store, now: now)
         // The only mileage is 200 days old, so this distance rule alone makes the Pit mileage question relevant.
         #expect(await model.track(.engineOilService, kilometersText: "10000", monthsText: ""))
-        #expect(await model.confirmDone(
-            .engineOilService,
-            on: now.addingTimeInterval(-200 * 86400),
-            odometerText: "50000"
-        ))
+        #expect(
+            await model.confirmDone(
+                .engineOilService,
+                on: now.addingTimeInterval(-200 * 86400),
+                odometerText: "50000"
+            ))
         let registry = try PitQuestionRegistry.product()
         #expect(try await !registry.relevantQuestionIDs(maintenance: states(store)).isEmpty)
 

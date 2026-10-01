@@ -58,8 +58,11 @@ struct RememberSpeech {
     func option(_ answer: ClarificationAnswer) -> LocalizedStringResource? {
         switch answer {
         // An ID without a title is offered as it is stored, as the Service screen shows it.
-        case let .operation(operation): resource(operationKey(operation) ?? String
-                .LocalizationValue(operation.rawValue))
+        case let .operation(operation):
+            resource(
+                operationKey(operation)
+                    ?? String
+                    .LocalizationValue(operation.rawValue))
         case let .eventKind(kind): resource(eventKindKey(kind))
         case .unknown: unknownOption
         case .odometerKm, .amount, .policyInterval: nil
@@ -148,16 +151,18 @@ struct RememberSpeech {
         var parts: [String] = []
         if let distance {
             let value = Int(abs(distance).rounded())
-            let key: String.LocalizationValue = switch (unit, distance < 0) {
-            case (.kilometers, false): "service.report.km \(value)"
-            case (.kilometers, true): "service.report.overKm \(value)"
-            case (.miles, false): "service.report.mi \(value)"
-            case (.miles, true): "service.report.overMi \(value)"
-            }
+            let key: String.LocalizationValue =
+                switch (unit, distance < 0) {
+                case (.kilometers, false): "service.report.km \(value)"
+                case (.kilometers, true): "service.report.overKm \(value)"
+                case (.miles, false): "service.report.mi \(value)"
+                case (.miles, true): "service.report.overMi \(value)"
+                }
             parts.append(String(localized: resource(key)))
         }
         if let days {
-            let key: String.LocalizationValue = days < 0
+            let key: String.LocalizationValue =
+                days < 0
                 ? "service.report.overDays \(abs(days))" : "service.report.days \(days)"
             parts.append(String(localized: resource(key)))
         }

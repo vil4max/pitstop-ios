@@ -156,9 +156,10 @@ public struct RememberPipeline: Sendable {
     }
 
     /// The user declined the proposed meaning, or answered "I don't know". The wording is kept.
-    public func preserveRaw(_ input: CaptureInput,
-                            kind _: ProposalKind) async throws(RememberError) -> RememberOutcome
-    {
+    public func preserveRaw(
+        _ input: CaptureInput,
+        kind _: ProposalKind
+    ) async throws(RememberError) -> RememberOutcome {
         try await save(input, proposal: rawProposal(for: input), degraded: true)
     }
 
@@ -232,12 +233,13 @@ public struct RememberPipeline: Sendable {
                 throw .notSaved
             }
             report(.clarificationRequired, input, kind: proposal.kind, outcome: outcome)
-            return .needsClarification(ClarificationRequest(
-                input: input,
-                proposal: proposal,
-                question: question,
-                remaining: Array(missing.dropFirst())
-            ))
+            return .needsClarification(
+                ClarificationRequest(
+                    input: input,
+                    proposal: proposal,
+                    question: question,
+                    remaining: Array(missing.dropFirst())
+                ))
         case .preserveRaw:
             // Unsupported or untrusted structure. The wording is still saved (REQ-CAPTURE-006). A raw
             // note that itself fails validation cannot be saved at all, so it is reported, not retried.
@@ -309,13 +311,14 @@ public struct RememberPipeline: Sendable {
         kind: ProposalKind? = nil,
         outcome: ConfirmationOutcome? = nil
     ) {
-        observer.record(CaptureStageEvent(
-            correlationID: input.id,
-            stage: stage,
-            source: input.source,
-            proposalKind: kind,
-            outcome: outcome
-        ))
+        observer.record(
+            CaptureStageEvent(
+                correlationID: input.id,
+                stage: stage,
+                source: input.source,
+                proposalKind: kind,
+                outcome: outcome
+            ))
     }
 }
 

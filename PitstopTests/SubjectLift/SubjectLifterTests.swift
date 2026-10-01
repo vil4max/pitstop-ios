@@ -8,11 +8,12 @@ import UniformTypeIdentifiers
 /// Synthetic pictures only: blocks and shapes of colour, never a real car or place.
 private enum Synthetic {
     static func context(width: Int, height: Int) throws -> CGContext {
-        try #require(CGContext(
-            data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ))
+        try #require(
+            CGContext(
+                data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+                space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            ))
     }
 
     /// One flat colour: nothing stands out from a background.
@@ -35,12 +36,13 @@ private enum Synthetic {
 
     static func jpeg(_ image: CGImage) throws -> Data {
         let data = NSMutableData()
-        let destination = try #require(CGImageDestinationCreateWithData(
-            data,
-            UTType.jpeg.identifier as CFString,
-            1,
-            nil
-        ))
+        let destination = try #require(
+            CGImageDestinationCreateWithData(
+                data,
+                UTType.jpeg.identifier as CFString,
+                1,
+                nil
+            ))
         CGImageDestinationAddImage(destination, image, nil)
         try #require(CGImageDestinationFinalize(destination))
         return data as Data
@@ -62,10 +64,11 @@ private struct PhotoDirectory {
 /// Alpha of the pixel at the top-left corner, read from a copy drawn into a known layout.
 private func cornerAlpha(of image: CGImage) throws -> UInt8 {
     var pixel = [UInt8](repeating: 0, count: 4)
-    let context = try #require(CGContext(
-        data: &pixel, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
-        space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-    ))
+    let context = try #require(
+        CGContext(
+            data: &pixel, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+            space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ))
     // Only the image's top-left pixel lands on the 1×1 canvas.
     context.draw(image, in: CGRect(x: 0, y: 1 - image.height, width: image.width, height: image.height))
     return pixel[3]
@@ -143,11 +146,13 @@ struct SubjectLifterTests {
         let files = try #require(directory.store.files(for: id))
 
         #expect(files.lifted != nil)
-        guard case let .lifted(image) = CarPicture.resolve(
-            body: .suv,
-            photo: files,
-            decode: CarPhotoDecoder.decode
-        ) else {
+        guard
+            case let .lifted(image) = CarPicture.resolve(
+                body: .suv,
+                photo: files,
+                decode: CarPhotoDecoder.decode
+            )
+        else {
             Issue.record("a saved cut-out is drawn lifted")
             return
         }

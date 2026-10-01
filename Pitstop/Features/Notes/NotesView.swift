@@ -201,7 +201,8 @@ private struct NoteRow: View {
 
     var body: some View {
         // At accessibility sizes the glyph moves under the text on the trailing edge, so the text keeps the width.
-        let layout = dynamicTypeSize.isAccessibilitySize
+        let layout =
+            dynamicTypeSize.isAccessibilitySize
             ? AnyLayout(VStackLayout(alignment: .trailing, spacing: 4))
             : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
         let isAccessibilitySize = dynamicTypeSize.isAccessibilitySize
@@ -287,7 +288,9 @@ private struct NoteRow: View {
         PreviewMatrix {
             VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
                 NoteContextChips(chips: [nil, .carWash, .service, .shopping], selection: nil) { _ in }
-                NoteList(notes: notes) { _ in } onToggleArchive: { _ in }
+                NoteList(notes: notes) { _ in
+                } onToggleArchive: { _ in
+                }
             }
         }
     }

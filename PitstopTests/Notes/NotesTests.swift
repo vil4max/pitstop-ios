@@ -29,7 +29,7 @@ struct NotesDomainTests {
         "REQ-CAPTURE-021: a note update must change something and may not blank the text",
         arguments: [
             (UpdateNoteCommand(noteID: UUID()), DomainCommandError.emptyNoteUpdate),
-            (UpdateNoteCommand(noteID: UUID(), rawText: "  "), .emptyNoteText)
+            (UpdateNoteCommand(noteID: UUID(), rawText: "  "), .emptyNoteText),
         ]
     )
     func invalidUpdateIsRejected(command: UpdateNoteCommand, expected: DomainCommandError) {

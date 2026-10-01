@@ -84,9 +84,11 @@ struct ServiceShareTrackTests {
         #expect(operation.drawnUsedShare(mileage: mileage) == nil)
     }
 
-    @Test("ADR-0038: a mileage observation 89 days old still counts; 91 days old does not", arguments: [
-        (89.0, true), (91.0, false),
-    ])
+    @Test(
+        "ADR-0038: a mileage observation 89 days old still counts; 91 days old does not",
+        arguments: [
+            (89.0, true), (91.0, false),
+        ])
     func ninetyDayBoundary(age: Double, draws: Bool) throws {
         let policy = Fixture.custom(.engineOilService, km: 10000, months: 12)
         let done = Fixture.completion(.engineOilService, km: 50000)

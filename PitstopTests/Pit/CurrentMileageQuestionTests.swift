@@ -53,9 +53,10 @@ struct CurrentMileageQuestionTests {
     func nothingTrackedIsNotAsked() throws {
         let registry = try PitQuestionRegistry.product()
         #expect(registry.relevantQuestionIDs(maintenance: []).isEmpty)
-        #expect(policy.question(
-            registry: registry, states: [], relevant: [], activity: .idle, context: .service, now: now
-        ) == nil)
+        #expect(
+            policy.question(
+                registry: registry, states: [], relevant: [], activity: .idle, context: .service, now: now
+            ) == nil)
     }
 
     @Test("ADR-0017: a question without a relevance rule is never relevant")
@@ -101,8 +102,9 @@ struct CurrentMileageQuestionTests {
         let askedLongAgo = PitQuestionState(questionID: questionID, lastAskedAt: now - 13 * hour)
         #expect(ask([askedLongAgo])?.id == questionID)
         // Another question's dismissal silences this one too: the budget is global.
-        let otherDismissed = PitQuestionState(questionID: "retired", lastAskedAt: now - 8 * day,
-                                              lastDismissedAt: now - 6 * day)
+        let otherDismissed = PitQuestionState(
+            questionID: "retired", lastAskedAt: now - 8 * day,
+            lastDismissedAt: now - 6 * day)
         #expect(ask([otherDismissed]) == nil)
     }
 
@@ -112,13 +114,15 @@ struct CurrentMileageQuestionTests {
     )
     func resolvedIsNotAskedAgain(resolution: PitQuestion.Resolution) throws {
         // Past every cooldown, inside every declared return interval (14 days is the shortest).
-        let state = PitQuestionState(questionID: questionID, resolution: resolution, lastAskedAt: now - 13 * day,
-                                     lastDismissedAt: resolution == .dismissed ? now - 13 * day : nil,
-                                     resolvedAt: now - 13 * day)
-        #expect(try policy.question(
-            registry: PitQuestionRegistry.product(), states: [state], relevant: [questionID],
-            activity: .idle, context: .service, now: now
-        ) == nil)
+        let state = PitQuestionState(
+            questionID: questionID, resolution: resolution, lastAskedAt: now - 13 * day,
+            lastDismissedAt: resolution == .dismissed ? now - 13 * day : nil,
+            resolvedAt: now - 13 * day)
+        #expect(
+            try policy.question(
+                registry: PitQuestionRegistry.product(), states: [state], relevant: [questionID],
+                activity: .idle, context: .service, now: now
+            ) == nil)
     }
 }
 
@@ -132,15 +136,22 @@ struct PitQuestionViewModelTests {
         let store = FakeCarMemoryStore()
         let vehicleID = await store.vehicle.id
         let past = MaintenanceFixture.date(readingDay)
-        try await store.execute(.setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenanceFixture.oil10k)),
-                                now: past)
-        try await store.execute(.confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: .engineOilService, performedAt: MaintenanceFixture.date(0),
-            odometerKm: 50000
-        ))), now: past)
-        try await store.execute(.recordOdometerReading(.init(reading: OdometerReading(
-            vehicleID: vehicleID, value: 51000, recordedAt: past
-        ))), now: past)
+        try await store.execute(
+            .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenanceFixture.oil10k)),
+            now: past)
+        try await store.execute(
+            .confirmMaintenanceCompletion(
+                .init(
+                    completion: MaintenanceCompletion(
+                        vehicleID: vehicleID, operationID: .engineOilService, performedAt: MaintenanceFixture.date(0),
+                        odometerKm: 50000
+                    ))), now: past)
+        try await store.execute(
+            .recordOdometerReading(
+                .init(
+                    reading: OdometerReading(
+                        vehicleID: vehicleID, value: 51000, recordedAt: past
+                    ))), now: past)
         return try (store, FakePitQuestionStore(registry: PitQuestionRegistry.product()))
     }
 

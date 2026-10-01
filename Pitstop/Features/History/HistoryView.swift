@@ -288,7 +288,7 @@ extension MaintenanceOperationID {
                 MaintenanceCompletion(
                     vehicleID: vehicle, operationID: .engineOilService,
                     performedAt: visitDay.addingTimeInterval(60), odometerKm: 42500
-                ),
+                )
             ]
         )
         PreviewMatrix {

@@ -81,7 +81,8 @@ struct PitQuestionReturnTests {
         arguments: [PitQuestion.Resolution.answered, .dismissed]
     )
     func neverStaysNever(resolution: PitQuestion.Resolution) throws {
-        let command: (String) -> PitQuestionCommand = resolution == .answered
+        let command: (String) -> PitQuestionCommand =
+            resolution == .answered
             ? { .answered(questionID: $0) }
             : { .dismissed(questionID: $0) }
         let states = try [

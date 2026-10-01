@@ -58,9 +58,11 @@ struct PostHogAnalyticsClientTests {
             #expect(reserved == Set(PostHogPayload.privacyProperties.keys), "\(source.name.rawValue): \(reserved)")
             let closed = properties.filter { !$0.key.hasPrefix("$") }
             #expect(Set(closed.keys).isSubset(of: analyticsTaxonomy[source.name] ?? []))
-            #expect(closed.mapValues { $0 as? String } == Dictionary(
-                uniqueKeysWithValues: source.properties.map { ($0.key.rawValue, $0.value.encoded) }
-            ))
+            #expect(
+                closed.mapValues { $0 as? String }
+                    == Dictionary(
+                        uniqueKeysWithValues: source.properties.map { ($0.key.rawValue, $0.value.encoded) }
+                    ))
         }
     }
 
@@ -214,7 +216,7 @@ struct PostHogAnalyticsClientTests {
         await posthog.flush()
 
         let batch = try DecodedBatch(#require(transport.bodies.first))
-        #expect(batch.eventNames == events[3 ..< 8].map(\.name.rawValue))
+        #expect(batch.eventNames == events[3..<8].map(\.name.rawValue))
     }
 
     // MARK: Delivery
@@ -290,9 +292,10 @@ struct PostHogAnalyticsClientTests {
     @Test("ADR-0022: backoff doubles up to its cap")
     func backoffIsCapped() {
         let policy = PostHogAnalyticsClient.Policy()
-        #expect([1, 2, 3, 5, 6, 30].map(policy.backoff(afterAttempt:)) == [
-            .seconds(2), .seconds(4), .seconds(8), .seconds(32), .seconds(60), .seconds(60),
-        ])
+        #expect(
+            [1, 2, 3, 5, 6, 30].map(policy.backoff(afterAttempt:)) == [
+                .seconds(2), .seconds(4), .seconds(8), .seconds(32), .seconds(60), .seconds(60),
+            ])
     }
 
     @Test("ADR-0022: a network failure never reaches the feature that tracked the event")

@@ -73,8 +73,8 @@ struct PitURLRoutingTests {
 @Suite("Remember widget source")
 struct CaptureWidgetSourceTests {
     private static let repositoryRoot = URL(filePath: #filePath)
-        .deletingLastPathComponent() // SystemCapture
-        .deletingLastPathComponent() // PitstopTests
+        .deletingLastPathComponent()  // SystemCapture
+        .deletingLastPathComponent()  // PitstopTests
         .deletingLastPathComponent()
 
     /// The `Shared/` code the widget calls into: its link (`CaptureSurface`, `AppLink`) and the design roles.
@@ -101,8 +101,8 @@ struct CaptureWidgetSourceTests {
     private func smallFamilyCode() throws -> Substring {
         let code = try code()
         let start = try #require(code.range(of: "default:"), "no default branch in CaptureWidgetView")
-        let end = code.range(of: "#Preview", range: start.upperBound ..< code.endIndex)?.lowerBound ?? code.endIndex
-        return code[start.upperBound ..< end]
+        let end = code.range(of: "#Preview", range: start.upperBound..<code.endIndex)?.lowerBound ?? code.endIndex
+        return code[start.upperBound..<end]
     }
 
     @Test("ADR-0025: the Remember widget reads no data: one static entry that never reloads")
@@ -152,35 +152,36 @@ struct WidgetExtensionTests {
         "intent.captureSurface.type",
         "intent.captureSurface.pit",
     ]
-    private static let widgetKeys = [
-        "control.openPit.title",
-        "control.openPit.description",
-        "widget.capture.title",
-        "widget.capture.description",
-        "widget.capture.action",
-        "widget.capture.hint",
-        "widget.nextService.title",
-        "widget.nextService.description",
-        "widget.nextService.empty.headline",
-        "widget.nextService.empty.detail",
-        "widget.nextService.unavailable",
-        "widget.nextService.inline %@ %@",
-        "widget.status.unknown",
-        "widget.status.upToDate",
-        "widget.status.upToDate.byDate",
-        "widget.status.approaching",
-        "widget.status.approaching.byDate",
-        "widget.status.due",
-        "widget.fact.inKm %lld",
-        "widget.fact.overKm %lld",
-        "widget.fact.reached",
-        "widget.fact.almost",
-        "widget.fact.mileageUnknown",
-        "widget.fact.mileageStale",
-        "widget.fact.distanceNotCounted",
-        "widget.fact.noBaseline",
-        "widget.fact.nothingCounted",
-    ] + MaintenanceOperationID.catalog.map { "widget.operation.\($0.rawValue)" }
+    private static let widgetKeys =
+        [
+            "control.openPit.title",
+            "control.openPit.description",
+            "widget.capture.title",
+            "widget.capture.description",
+            "widget.capture.action",
+            "widget.capture.hint",
+            "widget.nextService.title",
+            "widget.nextService.description",
+            "widget.nextService.empty.headline",
+            "widget.nextService.empty.detail",
+            "widget.nextService.unavailable",
+            "widget.nextService.inline %@ %@",
+            "widget.status.unknown",
+            "widget.status.upToDate",
+            "widget.status.upToDate.byDate",
+            "widget.status.approaching",
+            "widget.status.approaching.byDate",
+            "widget.status.due",
+            "widget.fact.inKm %lld",
+            "widget.fact.overKm %lld",
+            "widget.fact.reached",
+            "widget.fact.almost",
+            "widget.fact.mileageUnknown",
+            "widget.fact.mileageStale",
+            "widget.fact.distanceNotCounted",
+            "widget.fact.noBaseline",
+            "widget.fact.nothingCounted",
+        ] + MaintenanceOperationID.catalog.map { "widget.operation.\($0.rawValue)" }
 
     private func extensionBundle() throws -> Bundle {
         let plugIns = try #require(Bundle.main.builtInPlugInsURL, "The test host has no PlugIns directory")
@@ -211,7 +212,8 @@ struct WidgetExtensionTests {
     func extensionIsEmbedded() throws {
         let widgets = try extensionBundle()
         #expect(widgets.bundleIdentifier == "dev.vil4max.pitstop.widgets")
-        let point = (widgets
+        let point =
+            (widgets
             .object(forInfoDictionaryKey: "NSExtension") as? [String: Any])?["NSExtensionPointIdentifier"]
         #expect(point as? String == "com.apple.widgetkit-extension")
         for key in ["CFBundleShortVersionString", "CFBundleVersion"] {

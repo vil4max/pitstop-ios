@@ -72,8 +72,9 @@ struct PitSheetMomentTests {
 
         #expect(PitSheetMoment(capture: .composing, question: .asking(asked)) == .composing(.question(asked)))
         #expect(PitSheetMoment(capture: .composing, question: .working(asked)) == .composing(.question(asked)))
-        #expect(PitSheetMoment(capture: .composing, question: .answered(kilometers: 43100))
-            == .composing(.answered(kilometers: 43100)))
+        #expect(
+            PitSheetMoment(capture: .composing, question: .answered(kilometers: 43100))
+                == .composing(.answered(kilometers: 43100)))
         // The capture's own clarification is the one question on screen; Pit's question is not drawn beside it.
         #expect(PitSheetMoment(capture: .clarifying(request), question: .asking(asked)) == .clarifying(request))
         #expect(PitSheetMoment(capture: .working, question: .asking(asked)) == .working)
@@ -85,8 +86,9 @@ struct PitSheetMomentTests {
     )
     func rememberIsPinnedWhileWriting(size: DynamicTypeSize) {
         #expect(PitSheetMoment(capture: .composing, question: .silent).rememberAction(at: size)?.placement == .pinned)
-        #expect(PitSheetMoment(capture: .composing, question: .answered(kilometers: 43100)).rememberAction(at: size)?
-            .placement == .pinned)
+        #expect(
+            PitSheetMoment(capture: .composing, question: .answered(kilometers: 43100)).rememberAction(at: size)?
+                .placement == .pinned)
     }
 
     @Test(
@@ -96,10 +98,12 @@ struct PitSheetMomentTests {
     func rememberIsPinnedWithAQuestionAtAccessibilitySizes(size: DynamicTypeSize) {
         let asked = PitAskedQuestion.currentMileage(lastKnownKm: 42500)
 
-        #expect(PitSheetMoment(capture: .composing, question: .asking(asked)).rememberAction(at: size)?
-            .placement == .pinned)
-        #expect(PitSheetMoment(capture: .composing, question: .working(asked)).rememberAction(at: size)?
-            .placement == .pinned)
+        #expect(
+            PitSheetMoment(capture: .composing, question: .asking(asked)).rememberAction(at: size)?
+                .placement == .pinned)
+        #expect(
+            PitSheetMoment(capture: .composing, question: .working(asked)).rememberAction(at: size)?
+                .placement == .pinned)
     }
 
     @Test(
@@ -109,10 +113,12 @@ struct PitSheetMomentTests {
     func rememberIsInlineWithAQuestion(size: DynamicTypeSize) {
         let asked = PitAskedQuestion.currentMileage(lastKnownKm: 42500)
 
-        #expect(PitSheetMoment(capture: .composing, question: .asking(asked)).rememberAction(at: size)?
-            .placement == .inline)
-        #expect(PitSheetMoment(capture: .composing, question: .working(asked)).rememberAction(at: size)?
-            .placement == .inline)
+        #expect(
+            PitSheetMoment(capture: .composing, question: .asking(asked)).rememberAction(at: size)?
+                .placement == .inline)
+        #expect(
+            PitSheetMoment(capture: .composing, question: .working(asked)).rememberAction(at: size)?
+                .placement == .inline)
     }
 
     @Test(
@@ -122,20 +128,24 @@ struct PitSheetMomentTests {
     func oneProminentAction(size: DynamicTypeSize) {
         let asked = PitAskedQuestion.currentMileage(lastKnownKm: 42500)
 
-        #expect(PitSheetMoment(capture: .composing, question: .asking(asked)).rememberAction(at: size)?
-            .isProminent == false)
-        #expect(PitSheetMoment(capture: .composing, question: .working(asked)).rememberAction(at: size)?
-            .isProminent == false)
+        #expect(
+            PitSheetMoment(capture: .composing, question: .asking(asked)).rememberAction(at: size)?
+                .isProminent == false)
+        #expect(
+            PitSheetMoment(capture: .composing, question: .working(asked)).rememberAction(at: size)?
+                .isProminent == false)
         #expect(PitSheetMoment(capture: .composing, question: .silent).rememberAction(at: size)?.isProminent == true)
-        #expect(PitSheetMoment(capture: .composing, question: .answered(kilometers: 43100)).rememberAction(at: size)?
-            .isProminent == true)
+        #expect(
+            PitSheetMoment(capture: .composing, question: .answered(kilometers: 43100)).rememberAction(at: size)?
+                .isProminent == true)
     }
 
     @Test("REQ-PIT-021: outside the composing moment there is no Remember action")
     func noRememberOutsideComposing() {
         #expect(PitSheetMoment(capture: .working, question: .silent).rememberAction(at: .large) == nil)
-        #expect(PitSheetMoment(capture: .saved(.notes, preservedRaw: true), question: .silent)
-            .rememberAction(at: .accessibility5) == nil)
+        #expect(
+            PitSheetMoment(capture: .saved(.notes, preservedRaw: true), question: .silent)
+                .rememberAction(at: .accessibility5) == nil)
     }
 
     @Test("REQ-CAPTURE-005: Close on the composer cancels the unsent words and writes nothing")

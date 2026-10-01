@@ -242,7 +242,7 @@ struct CarBoardViewModelTests {
             ("84\u{202F}200", .value(84200)),
             ("٨٤٢٠٠", .invalid),
             ("12km", .invalid),
-            ("99999999999999999999", .invalid)
+            ("99999999999999999999", .invalid),
         ]
     )
     func mileageParsing(text: String, expected: WholeNumberInput) {

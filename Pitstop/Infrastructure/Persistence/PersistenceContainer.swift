@@ -22,11 +22,12 @@ enum PersistenceContainer {
     /// `storeURL == nil` builds an in-memory container for tests and previews.
     static func make(storeURL: URL?) throws -> ModelContainer {
         let schema = Schema(versionedSchema: PitstopSchemaV5.self)
-        let configuration = if let storeURL {
-            ModelConfiguration(schema: schema, url: storeURL)
-        } else {
-            ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-        }
+        let configuration =
+            if let storeURL {
+                ModelConfiguration(schema: schema, url: storeURL)
+            } else {
+                ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            }
         return try ModelContainer(for: schema, migrationPlan: PitstopMigrationPlan.self, configurations: configuration)
     }
 

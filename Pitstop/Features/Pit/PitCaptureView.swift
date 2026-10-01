@@ -139,7 +139,7 @@ struct PitCaptureView: View {
     private func composer(text: Binding<String>, mode: Binding<RememberMode>) -> some View {
         VStack(alignment: .leading, spacing: Self.spacing) {
             TextField("pit.placeholder", text: text, axis: .vertical)
-                .lineLimit(3 ... 8)
+                .lineLimit(3...8)
                 .focused($isFocused)
                 .padding(DesignTokens.tilePadding)
                 .background(PitColor.surfaceSecondary, in: RoundedRectangle(cornerRadius: 18, style: .continuous))

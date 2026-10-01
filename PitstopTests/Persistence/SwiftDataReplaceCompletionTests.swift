@@ -59,10 +59,11 @@ struct SwiftDataReplaceCompletionTests {
         // One of the completions to replace is gone.
         await #expect(throws: CarMemoryStoreError.unknownCompletion) {
             try await store.execute(
-                .replaceMaintenanceCompletion(.init(
-                    replacedIDs: [fixture.pits.id, UUID()],
-                    completion: fixture.owners
-                )),
+                .replaceMaintenanceCompletion(
+                    .init(
+                        replacedIDs: [fixture.pits.id, UUID()],
+                        completion: fixture.owners
+                    )),
                 now: now
             )
         }

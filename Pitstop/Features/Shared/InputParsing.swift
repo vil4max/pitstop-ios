@@ -22,8 +22,8 @@ enum InputParsing {
         guard !trimmed.isEmpty else { return .absent }
         let normalized = trimmed.replacingOccurrences(of: ",", with: ".").filter { !$0.isWhitespace }
         guard normalized.wholeMatch(of: /[0-9]+(\.[0-9]{1,2})?/) != nil,
-              let value = Decimal(string: normalized, locale: Locale(identifier: "en_US_POSIX")),
-              value > 0
+            let value = Decimal(string: normalized, locale: Locale(identifier: "en_US_POSIX")),
+            value > 0
         else { return .invalid }
         return .value(value)
     }

@@ -269,15 +269,16 @@ private struct MilestoneRow: View {
 #if DEBUG
     #Preview("Road milestone list") {
         let now = Date.now
-        let road = RoadProjector().project(RoadContext(
-            now: now,
-            maintenanceStates: [],
-            plannedEvents: [
-                PlannedVehicleEvent(kind: .insuranceExpiry, date: now.addingTimeInterval(-3 * 86400)),
-                PlannedVehicleEvent(kind: .other, date: now.addingTimeInterval(38 * 86400), label: "Winter tyres"),
-                PlannedVehicleEvent(kind: .other, date: now.addingTimeInterval(121 * 86400)),
-            ]
-        ))
+        let road = RoadProjector().project(
+            RoadContext(
+                now: now,
+                maintenanceStates: [],
+                plannedEvents: [
+                    PlannedVehicleEvent(kind: .insuranceExpiry, date: now.addingTimeInterval(-3 * 86400)),
+                    PlannedVehicleEvent(kind: .other, date: now.addingTimeInterval(38 * 86400), label: "Winter tyres"),
+                    PlannedVehicleEvent(kind: .other, date: now.addingTimeInterval(121 * 86400)),
+                ]
+            ))
         let list = RoadMilestoneList(road)
         PreviewMatrix {
             GroupedSection(title: "road.ahead.title") {

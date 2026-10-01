@@ -66,7 +66,8 @@ struct PitQuestionCard: View {
     @ViewBuilder
     private func heading(@ViewBuilder _ words: () -> some View) -> some View {
         if let carAvatar {
-            let layout = dynamicTypeSize.isAccessibilitySize
+            let layout =
+                dynamicTypeSize.isAccessibilitySize
                 ? AnyLayout(VStackLayout(alignment: .leading, spacing: DesignTokens.tileSpacing))
                 : AnyLayout(HStackLayout(spacing: 10))
             layout {

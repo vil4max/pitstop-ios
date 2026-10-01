@@ -12,22 +12,25 @@ struct StatusRedactionTests {
     private static let statuses: [MaintenanceStatus] = [.unknown, .upToDate, .approaching, .due]
 
     private func pixels(_ view: some View, redacted: Bool) throws -> Data {
-        let renderer = ImageRenderer(content: view
-            .privacySensitive()
-            .redacted(reason: redacted ? .privacy : [])
-            .padding(4)
-            .background(PitColor.surfaceSecondary)
-            .environment(\.colorScheme, .light))
+        let renderer = ImageRenderer(
+            content:
+                view
+                .privacySensitive()
+                .redacted(reason: redacted ? .privacy : [])
+                .padding(4)
+                .background(PitColor.surfaceSecondary)
+                .environment(\.colorScheme, .light))
         renderer.scale = 2
         let image = try #require(renderer.cgImage, "the view did not render")
         let bytesPerRow = image.width * 4
         var data = Data(count: bytesPerRow * image.height)
         try data.withUnsafeMutableBytes { buffer in
-            let context = try #require(CGContext(
-                data: buffer.baseAddress, width: image.width, height: image.height, bitsPerComponent: 8,
-                bytesPerRow: bytesPerRow, space: CGColorSpaceCreateDeviceRGB(),
-                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-            ))
+            let context = try #require(
+                CGContext(
+                    data: buffer.baseAddress, width: image.width, height: image.height, bitsPerComponent: 8,
+                    bytesPerRow: bytesPerRow, space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                ))
             context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
         }
         return data

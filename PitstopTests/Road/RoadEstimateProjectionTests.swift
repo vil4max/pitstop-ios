@@ -59,15 +59,16 @@ private enum EstimatedRoad {
         let states = MaintenanceEngine().states(
             policies: policies, completions: completions, context: context, calendar: utc
         )
-        return RoadProjector().project(RoadContext(
-            now: today,
-            maintenanceStates: states,
-            plannedEvents: planned,
-            mileageObservations: withReadings
-                ? MileageObservation.history(readings: readings, completions: completions)
-                : [],
-            calendar: utc
-        ))
+        return RoadProjector().project(
+            RoadContext(
+                now: today,
+                maintenanceStates: states,
+                plannedEvents: planned,
+                mileageObservations: withReadings
+                    ? MileageObservation.history(readings: readings, completions: completions)
+                    : [],
+                calendar: utc
+            ))
     }
 
     /// Everything Road decides: what is placed, in which order, in which slot, with which state,
@@ -80,10 +81,11 @@ private enum EstimatedRoad {
             }.joined(separator: "+")
         }.joined(separator: "|")
         let waiting = projection.waitingForMileage.map(\.id).joined(separator: ",")
-        let summary = switch projection.semanticSummary {
-        case let .noKnownMilestones(tracked): "none-\(tracked)"
-        case let .nearest(milestone, ahead, waitingCount): "\(milestone.id)-\(ahead)-\(waitingCount)"
-        }
+        let summary =
+            switch projection.semanticSummary {
+            case let .noKnownMilestones(tracked): "none-\(tracked)"
+            case let .nearest(milestone, ahead, waitingCount): "\(milestone.id)-\(ahead)-\(waitingCount)"
+            }
         return "\(slots)#\(waiting)#\(projection.horizon)#\(projection.initialSlotCount)#\(summary)"
     }
 }

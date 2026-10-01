@@ -6,20 +6,21 @@ private typealias Fix = MaintenanceFixture
 /// Two planned dates 10 days apart share a slot, one far date has its own, and engine oil with stale mileage
 /// waits for mileage.
 private func mixedRoad() -> RoadProjection {
-    RoadProjector().project(RoadContext(
-        now: Fix.date(200),
-        maintenanceStates: Fix.states(
-            [Fix.oil10k],
-            [Fix.completion(.engineOilService, km: 50000)],
-            currentKm: nil,
-            day: 200
-        ),
-        plannedEvents: [
-            PlannedVehicleEvent(kind: .other, date: Fix.date(320), label: "Winter tyres"),
-            PlannedVehicleEvent(kind: .insuranceExpiry, date: Fix.date(240)),
-            PlannedVehicleEvent(kind: .plannedVisit, date: Fix.date(250)),
-        ]
-    ))
+    RoadProjector().project(
+        RoadContext(
+            now: Fix.date(200),
+            maintenanceStates: Fix.states(
+                [Fix.oil10k],
+                [Fix.completion(.engineOilService, km: 50000)],
+                currentKm: nil,
+                day: 200
+            ),
+            plannedEvents: [
+                PlannedVehicleEvent(kind: .other, date: Fix.date(320), label: "Winter tyres"),
+                PlannedVehicleEvent(kind: .insuranceExpiry, date: Fix.date(240)),
+                PlannedVehicleEvent(kind: .plannedVisit, date: Fix.date(250)),
+            ]
+        ))
 }
 
 @Suite("Road milestone list")

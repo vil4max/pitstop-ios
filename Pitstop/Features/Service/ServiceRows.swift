@@ -85,7 +85,8 @@ struct OperationRow: View {
 
     /// At accessibility sizes the more menu moves under "Mark as done", so the button keeps the row's width.
     private var actions: some View {
-        let layout = dynamicTypeSize.isAccessibilitySize
+        let layout =
+            dynamicTypeSize.isAccessibilitySize
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
             : AnyLayout(HStackLayout(alignment: .center, spacing: 8))
         return layout {
@@ -113,9 +114,11 @@ struct OperationRow: View {
             Button("service.report.enter", systemImage: "gauge.with.dots.needle.33percent", action: onEnterReport)
                 .accessibilityIdentifier("service.report.enter.\(operation.id.rawValue)")
             if operation.report != nil {
-                Button("service.report.delete", systemImage: "gauge.badge.minus", role: .destructive,
-                       action: onDeleteReport)
-                    .accessibilityIdentifier("service.report.delete.\(operation.id.rawValue)")
+                Button(
+                    "service.report.delete", systemImage: "gauge.badge.minus", role: .destructive,
+                    action: onDeleteReport
+                )
+                .accessibilityIdentifier("service.report.delete.\(operation.id.rawValue)")
             }
             if operation.policy?.source == .userCustom {
                 Button("service.stopTracking", systemImage: "eye.slash", role: .destructive, action: onStopTracking)
@@ -163,7 +166,13 @@ struct OperationRow: View {
                         operation: operation,
                         usedShare: operation.drawnUsedShare(mileage: context.mileage),
                         showsSeparator: index > 0
-                    ) {} onChangeInterval: {} onUndo: {} onStopTracking: {} onEnterReport: {} onDeleteReport: {}
+                    ) {
+                    } onChangeInterval: {
+                    } onUndo: {
+                    } onStopTracking: {
+                    } onEnterReport: {
+                    } onDeleteReport: {
+                    }
                 }
             }
         }

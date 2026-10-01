@@ -46,8 +46,10 @@ struct VehicleServiceReportCaptureTests {
         arguments: [
             ("машина показывает 91500 км", ProposalKind.odometerReading, 91500.0, MaintenanceOperationID?.none),
             ("dashboard shows 91500 km", .odometerReading, 91500, nil),
-            ("поменял масло на 84200 км, машина пишет следующее через 15000 км", .maintenanceCompletion, 84200,
-             .engineOilService),
+            (
+                "поменял масло на 84200 км, машина пишет следующее через 15000 км", .maintenanceCompletion, 84200,
+                .engineOilService
+            ),
             ("заменил лампу приборной панели, пробег 91500 км", .odometerReading, 91500, nil),
         ]
     )
@@ -94,13 +96,15 @@ struct VehicleServiceReportCaptureTests {
 
     @Test("REQ-MAINT-039: other phrases that say overdue keep their earlier interpretation")
     func overdueElsewhereFallsThrough() async throws {
-        let odometer = try #require(try await RuleBasedInterpreter().interpret(
-            input("страховка просрочена, пробег 91500 км")
-        ))
+        let odometer = try #require(
+            try await RuleBasedInterpreter().interpret(
+                input("страховка просрочена, пробег 91500 км")
+            ))
         #expect(odometer.kind == .odometerReading && odometer.extractedOdometerKm == 91500)
-        let washing = try #require(try await RuleBasedInterpreter().interpret(
-            input("washed the car, parking fine overdue")
-        ))
+        let washing = try #require(
+            try await RuleBasedInterpreter().interpret(
+                input("washed the car, parking fine overdue")
+            ))
         #expect(washing.kind == .vehicleEvent && washing.extractedEventKind == .carWash)
     }
 
@@ -171,9 +175,11 @@ struct VehicleServiceReportCaptureTests {
     func replayKeepsNewerReading() async throws {
         let store = FakeCarMemoryStore()
         let flow = pipeline(store)
-        guard case let .needsConfirmation(pending) = try await flow.remember(
-            input("dashboard says oil service in 45 days"), mode: .interpreted
-        ) else {
+        guard
+            case let .needsConfirmation(pending) = try await flow.remember(
+                input("dashboard says oil service in 45 days"), mode: .interpreted
+            )
+        else {
             Issue.record("expected a confirmation")
             return
         }
@@ -192,9 +198,11 @@ struct VehicleServiceReportCaptureTests {
     func questionsComeOneAtATime() async throws {
         let store = FakeCarMemoryStore()
         let flow = pipeline(store)
-        guard case let .needsClarification(first) = try await flow.remember(
-            input("dashboard says service in 3200 km and 45 days"), mode: .interpreted
-        ) else {
+        guard
+            case let .needsClarification(first) = try await flow.remember(
+                input("dashboard says service in 3200 km and 45 days"), mode: .interpreted
+            )
+        else {
             Issue.record("expected a question")
             return
         }
@@ -215,10 +223,12 @@ struct VehicleServiceReportCaptureTests {
         }
         // Nothing is written before the owner confirms, however many answers were given.
         #expect(await store.executed.isEmpty)
-        #expect(pending.content == .vehicleServiceReport(
-            operationID: .engineOilService, reportedAt: now, odometerKm: 38800,
-            remainingDistance: 3200, unit: .kilometers, remainingDays: 45
-        ))
+        #expect(
+            pending.content
+                == .vehicleServiceReport(
+                    operationID: .engineOilService, reportedAt: now, odometerKm: 38800,
+                    remainingDistance: 3200, unit: .kilometers, remainingDays: 45
+                ))
 
         let outcome = try await flow.confirm(pending)
         guard case let .saved(.vehicleServiceReportRecorded(report), preservedRaw) = outcome else {
@@ -250,9 +260,11 @@ struct VehicleServiceReportCaptureTests {
     func cancellingWritesNothing() async throws {
         let store = FakeCarMemoryStore()
         let flow = pipeline(store)
-        guard case let .needsClarification(question) = try await flow.remember(
-            input("dashboard says service in 45 days"), mode: .interpreted
-        ) else {
+        guard
+            case let .needsClarification(question) = try await flow.remember(
+                input("dashboard says service in 45 days"), mode: .interpreted
+            )
+        else {
             Issue.record("expected a question")
             return
         }
@@ -274,9 +286,11 @@ struct VehicleServiceReportCaptureTests {
     func unknownKeepsWords() async throws {
         let store = FakeCarMemoryStore()
         let flow = pipeline(store)
-        guard case let .needsClarification(question) = try await flow.remember(
-            input("dashboard says service in 45 days"), mode: .interpreted
-        ) else {
+        guard
+            case let .needsClarification(question) = try await flow.remember(
+                input("dashboard says service in 45 days"), mode: .interpreted
+            )
+        else {
             Issue.record("expected a question")
             return
         }
@@ -295,9 +309,11 @@ struct VehicleServiceReportCaptureTests {
             sourceInputID: capture.id, kind: .vehicleServiceReport, rawText: "dashboard says oil service",
             extractedOperationID: .engineOilService
         )
-        let validation = ProposalValidator().validate(proposal, input: capture, context: ProposalValidationContext(
-            vehicle: .provisional(), now: now
-        ))
+        let validation = ProposalValidator().validate(
+            proposal, input: capture,
+            context: ProposalValidationContext(
+                vehicle: .provisional(), now: now
+            ))
         #expect(validation == .incomplete(proposal, missing: [.remainingValue]))
         #expect(ConfirmationPolicy().outcome(for: validation) == .clarify)
     }
@@ -310,9 +326,11 @@ struct VehicleServiceReportCaptureTests {
             extractedOdometerKm: 38800, extractedOperationID: .engineOilService,
             extractedRemainingDistance: 2000, extractedRemainingDistanceUnit: .miles
         )
-        let checked = try validated(proposal, input: capture, context: ProposalValidationContext(
-            vehicle: .provisional(), now: now
-        ))
+        let checked = try validated(
+            proposal, input: capture,
+            context: ProposalValidationContext(
+                vehicle: .provisional(), now: now
+            ))
         let permit = try #require(ConfirmationPolicy().permit(for: checked, userConfirmed: true))
         let command = try DomainCommandMapper().command(for: permit, now: now)
         guard case let .recordVehicleServiceReport(record) = command else {

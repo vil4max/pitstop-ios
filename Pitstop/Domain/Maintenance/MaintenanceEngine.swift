@@ -283,20 +283,23 @@ public struct MaintenanceEngine: Sendable {
         var candidates: [Candidate<Int>] = []
         if let interval = policy?.distanceIntervalKm, let completionKm = last?.odometerKm {
             // The next anchor derives from the actual completion, early or late (REQ-MAINT-003, 018).
-            candidates.append(Candidate(
-                anchor: completionKm + interval, baseline: Double(completionKm),
-                denominator: Double(interval), fromReport: false
-            ))
+            candidates.append(
+                Candidate(
+                    anchor: completionKm + interval, baseline: Double(completionKm),
+                    denominator: Double(interval), fromReport: false
+                ))
         }
         if let report, let anchor = report.anchorKm, let odometerKm = report.odometerKm,
-           let remaining = report.remainingDistanceKm
+            let remaining = report.remainingDistanceKm
         {
-            candidates.append(Candidate(
-                anchor: anchor, baseline: Double(odometerKm),
-                denominator: Self.denominator(ownerInterval: policy?.distanceIntervalKm.map(Double.init),
-                                              reported: remaining),
-                fromReport: true
-            ))
+            candidates.append(
+                Candidate(
+                    anchor: anchor, baseline: Double(odometerKm),
+                    denominator: Self.denominator(
+                        ownerInterval: policy?.distanceIntervalKm.map(Double.init),
+                        reported: remaining),
+                    fromReport: true
+                ))
         }
         return candidates.min { ($0.anchor, $0.fromReport ? 1 : 0) < ($1.anchor, $1.fromReport ? 1 : 0) }
     }
@@ -309,12 +312,13 @@ public struct MaintenanceEngine: Sendable {
     ) -> Candidate<Date>? {
         var candidates: [Candidate<Date>] = []
         if let months = policy?.timeIntervalMonths, let last,
-           let anchor = calendar.date(byAdding: .month, value: months, to: last.performedAt)
+            let anchor = calendar.date(byAdding: .month, value: months, to: last.performedAt)
         {
-            candidates.append(Candidate(
-                anchor: anchor, baseline: last.performedAt.timeIntervalSinceReferenceDate,
-                denominator: anchor.timeIntervalSince(last.performedAt), fromReport: false
-            ))
+            candidates.append(
+                Candidate(
+                    anchor: anchor, baseline: last.performedAt.timeIntervalSinceReferenceDate,
+                    denominator: anchor.timeIntervalSince(last.performedAt), fromReport: false
+                ))
         }
         if let report, let anchor = report.anchorDate(calendar: calendar), let days = report.remainingDays {
             // With an owner interval the share is measured against it, in the length that interval has
@@ -322,11 +326,12 @@ public struct MaintenanceEngine: Sendable {
             let ownerLength = policy?.timeIntervalMonths
                 .flatMap { calendar.date(byAdding: .month, value: $0, to: report.reportedAt) }
                 .map { $0.timeIntervalSince(report.reportedAt) }
-            candidates.append(Candidate(
-                anchor: anchor, baseline: report.reportedAt.timeIntervalSinceReferenceDate,
-                denominator: Self.denominator(ownerInterval: ownerLength, reported: Double(days) * 86400),
-                fromReport: true
-            ))
+            candidates.append(
+                Candidate(
+                    anchor: anchor, baseline: report.reportedAt.timeIntervalSinceReferenceDate,
+                    denominator: Self.denominator(ownerInterval: ownerLength, reported: Double(days) * 86400),
+                    fromReport: true
+                ))
         }
         return candidates.min { ($0.anchor, $0.fromReport ? 1 : 0) < ($1.anchor, $1.fromReport ? 1 : 0) }
     }

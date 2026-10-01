@@ -75,7 +75,7 @@ extension View {
     #Preview("Grouped section") {
         PreviewMatrix {
             GroupedSection(title: "service.tracked", footer: "service.nextVisit.footer") {
-                ForEach(0 ..< 3, id: \.self) { index in
+                ForEach(0..<3, id: \.self) { index in
                     Text(verbatim: "Row \(index + 1)")
                         .font(PitTypography.headline)
                         .padding(.vertical, 12)

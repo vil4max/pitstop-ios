@@ -25,9 +25,10 @@ struct LegacyStoreWriter {
         isProvisional: Bool = true,
         createdAt: Date = .now
     ) -> VehicleID {
-        context.insert(PitstopSchemaV1.VehicleRecord(
-            id: id.rawValue, name: name, isProvisional: isProvisional, createdAt: createdAt
-        ))
+        context.insert(
+            PitstopSchemaV1.VehicleRecord(
+                id: id.rawValue, name: name, isProvisional: isProvisional, createdAt: createdAt
+            ))
         return id
     }
 

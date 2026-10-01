@@ -68,7 +68,7 @@ public enum PlannedEventLimits {
     }
 
     public static func isPlausibleDate(_ date: Date, now: Date) -> Bool {
-        (earliestDate(now: now) ... latestDate(now: now)).contains(date)
+        (earliestDate(now: now)...latestDate(now: now)).contains(date)
     }
 
     /// A label is one line of visible text within the limit. Trimming is the caller's job, so a

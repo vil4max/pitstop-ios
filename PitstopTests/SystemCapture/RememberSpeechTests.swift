@@ -118,8 +118,9 @@ struct RememberSpeechTests {
     func otherRepliesDoNotChange() {
         let locale = Locale(identifier: "en")
         for reply in Self.replies.dropFirst(5) {
-            #expect(spoken(RememberSpeech(locale: locale, isVoiceOnly: true).reply(reply))
-                == spoken(RememberSpeech(locale: locale).reply(reply)))
+            #expect(
+                spoken(RememberSpeech(locale: locale, isVoiceOnly: true).reply(reply))
+                    == spoken(RememberSpeech(locale: locale).reply(reply)))
         }
     }
 
@@ -141,14 +142,16 @@ struct RememberSpeechTests {
     func repeatedQuestionDiffers() {
         let speech = RememberSpeech(locale: Locale(identifier: "en"))
         for field in [ProposalField.odometerKm, .amount] {
-            #expect(spoken(speech.question(.value(field, repeated: true)))
-                != spoken(speech.question(.value(field, repeated: false))))
+            #expect(
+                spoken(speech.question(.value(field, repeated: true)))
+                    != spoken(speech.question(.value(field, repeated: false))))
         }
     }
 
     @Test("ADR-0026: offered answers carry the titles Pit shows, translated and distinct")
     func optionsAreTitled() {
-        let answers = MaintenanceOperationID.catalog.map(ClarificationAnswer.operation)
+        let answers =
+            MaintenanceOperationID.catalog.map(ClarificationAnswer.operation)
             + HistoryEventKind.userSelectable.map(ClarificationAnswer.eventKind)
             + [.unknown]
         for language in ["en", "ru", "uk"] {
@@ -192,10 +195,13 @@ struct RememberSpeechTests {
 
         // Numbers are spoken with the locale's grouping ("84,200"), so only the digits are compared.
         #expect(completion.filter(\.isNumber) == "84200" && !completion.contains("operation."))
-        #expect(completion.contains(String(localized: LocalizedStringResource(
-            "operation.engineOilService",
-            locale: Locale(identifier: "en")
-        ))))
+        #expect(
+            completion.contains(
+                String(
+                    localized: LocalizedStringResource(
+                        "operation.engineOilService",
+                        locale: Locale(identifier: "en")
+                    ))))
         #expect(lower.filter(\.isNumber) == "8500091500")
     }
 }

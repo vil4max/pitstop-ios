@@ -156,9 +156,10 @@ struct RememberIntentHandler: Sendable {
         case .operationID, .eventKind:
             let options = Self.options(for: field)
             let answer = try await ask(.cancel, input: input, kind: kind) {
-                try await prompter.answer(.pick(
-                    field, options: options, forDashboardReading: kind == .vehicleServiceReport
-                ))
+                try await prompter.answer(
+                    .pick(
+                        field, options: options, forDashboardReading: kind == .vehicleServiceReport
+                    ))
             }
             switch answer {
             case let .picked(choice)? where options.contains(choice):
@@ -201,15 +202,15 @@ struct RememberIntentHandler: Sendable {
     /// fallback to the words (ADR 0026).
     static func clarificationAnswer(_ text: String, for field: ProposalField) -> ClarificationAnswer? {
         guard let first = text.firstIndex(where: \.isASCIIDigit),
-              let last = text.lastIndex(where: \.isASCIIDigit),
-              onlyUnitsFollow(text[text.index(after: last)...], for: field)
+            let last = text.lastIndex(where: \.isASCIIDigit),
+            onlyUnitsFollow(text[text.index(after: last)...], for: field)
         else { return nil }
-        let number = String(text[first ... last])
+        let number = String(text[first...last])
         switch field {
         case .odometerKm:
             guard let kilometers = InputParsing.kilometers(from: number).intValue,
-                  kilometers >= 1,
-                  DomainCommandLimits.isPlausibleOdometer(Double(kilometers))
+                kilometers >= 1,
+                DomainCommandLimits.isPlausibleOdometer(Double(kilometers))
             else { return nil }
             return .odometerKm(Double(kilometers))
         case .amount:
@@ -234,7 +235,7 @@ struct RememberIntentHandler: Sendable {
 
     /// Abbreviations too short to match as prefixes without catching unrelated words.
     private static let unitAbbreviations: [ProposalField: Set<String>] = [
-        .amount: ["р", "руб", "грв"],
+        .amount: ["р", "руб", "грв"]
     ]
 
     private static func onlyUnitsFollow(_ tail: Substring, for field: ProposalField) -> Bool {

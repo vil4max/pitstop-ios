@@ -83,16 +83,18 @@ struct PitHead: View {
     private var shell: some View {
         ZStack(alignment: .topLeading) {
             Circle()
-                .fill(RadialGradient(
-                    stops: [
-                        .init(color: PitColor.headShellLight, location: 0),
-                        .init(color: PitColor.headShell, location: Geometry.shellLightMidStop),
-                        .init(color: PitColor.headShellShade, location: 1),
-                    ],
-                    center: Geometry.shellLightCenter,
-                    startRadius: 0,
-                    endRadius: Geometry.shellLightReach * 2 * Geometry.headRadius * unit
-                ))
+                .fill(
+                    RadialGradient(
+                        stops: [
+                            .init(color: PitColor.headShellLight, location: 0),
+                            .init(color: PitColor.headShell, location: Geometry.shellLightMidStop),
+                            .init(color: PitColor.headShellShade, location: 1),
+                        ],
+                        center: Geometry.shellLightCenter,
+                        startRadius: 0,
+                        endRadius: Geometry.shellLightReach * 2 * Geometry.headRadius * unit
+                    )
+                )
                 .place(circle: Geometry.headCenter, radius: Geometry.headRadius, unit: unit)
             Circle()
                 .stroke(PitColor.headHairline, lineWidth: shownFinish.hairlineWidth * unit)
@@ -131,20 +133,24 @@ struct PitHead: View {
                 .fill(PitColor.headBezel)
                 .place(Geometry.bezel, unit: unit)
             Capsule()
-                .fill(LinearGradient(
-                    colors: [PitColor.headVisorTop, PitColor.headVisorBottom],
-                    startPoint: .top,
-                    endPoint: .bottom
-                ))
+                .fill(
+                    LinearGradient(
+                        colors: [PitColor.headVisorTop, PitColor.headVisorBottom],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
                 .place(Geometry.visor, unit: unit)
             if shownFinish.showsGlow {
                 Capsule()
-                    .fill(EllipticalGradient(
-                        colors: [PitColor.headGlow.opacity(pose.glow), PitColor.headGlow.opacity(0)],
-                        center: Geometry.glowCenter,
-                        startRadiusFraction: 0,
-                        endRadiusFraction: Geometry.glowReach
-                    ))
+                    .fill(
+                        EllipticalGradient(
+                            colors: [PitColor.headGlow.opacity(pose.glow), PitColor.headGlow.opacity(0)],
+                            center: Geometry.glowCenter,
+                            startRadiusFraction: 0,
+                            endRadiusFraction: Geometry.glowReach
+                        )
+                    )
                     .place(Geometry.visor, unit: unit)
             }
             if shownFinish.showsGloss {

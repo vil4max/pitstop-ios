@@ -7,8 +7,8 @@ import Testing
 @Suite("Pit control")
 struct PitControlTests {
     private static let repositoryRoot = URL(filePath: #filePath)
-        .deletingLastPathComponent() // DesignSystem
-        .deletingLastPathComponent() // PitstopTests
+        .deletingLastPathComponent()  // DesignSystem
+        .deletingLastPathComponent()  // PitstopTests
         .deletingLastPathComponent()
 
     private static func source(_ path: String) throws -> String {
@@ -79,14 +79,15 @@ struct PitControlTests {
         // The control draws the head at its fixed 56 pt.
         let size = DesignTokens.utilityButtonSize
         func render(enabled: Bool) throws -> CGImage {
-            try #require(PitHeadTests.render(
-                PitUtilityButton(state: .resting) {}
-                    .disabled(!enabled)
-                    .environment(\.dynamicTypeSize, .large)
-                    .frame(width: size, height: size)
-                    .background(PitColor.headShellLight),
-                size: size
-            ))
+            try #require(
+                PitHeadTests.render(
+                    PitUtilityButton(state: .resting) {}
+                        .disabled(!enabled)
+                        .environment(\.dynamicTypeSize, .large)
+                        .frame(width: size, height: size)
+                        .background(PitColor.headShellLight),
+                    size: size
+                ))
         }
         let unit = size / PitHeadGeometry.viewBox
         let enabledImage = try render(enabled: true), disabledImage = try render(enabled: false)
@@ -117,13 +118,14 @@ struct PitControlTests {
         /// Over an opaque light ground: on a transparent render the faint navy tint barely changes the premultiplied
         /// brightness of the empty chin area, so a misplaced tint would pass or fail on 8-bit rounding.
         func render(pressed: Bool) throws -> CGImage {
-            try #require(PitHeadTests.render(
-                PitHead(state: .knock, size: size, finish: .standard)
-                    .environment(\.pitHeadPressed, pressed)
-                    .frame(width: size, height: size)
-                    .background(PitColor.headShellLight),
-                size: size
-            ))
+            try #require(
+                PitHeadTests.render(
+                    PitHead(state: .knock, size: size, finish: .standard)
+                        .environment(\.pitHeadPressed, pressed)
+                        .frame(width: size, height: size)
+                        .background(PitColor.headShellLight),
+                    size: size
+                ))
         }
         let pressed = try render(pressed: true), plain = try render(pressed: false)
         // Below the lifted chin, where the head was at rest: no tint crescent. A tint left at the resting position

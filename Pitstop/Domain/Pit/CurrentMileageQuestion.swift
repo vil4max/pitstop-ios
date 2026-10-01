@@ -13,9 +13,9 @@ public enum CurrentMileageQuestion {
         value: PitQuestionValue(
             unlocks: .serviceStatus,
             claim: """
-            Every tracked operation whose distance rule was blocked by unknown or stale mileage gets \
-            remaining kilometres on Service, and its mileage milestone leaves Road's waiting list.
-            """
+                Every tracked operation whose distance rule was blocked by unknown or stale mileage gets \
+                remaining kilometres on Service, and its mileage milestone leaves Road's waiting list.
+                """
         ),
         deferral: PitDeferralPath(
             // A reading holds exactly as long as the engine counts it as current; after that the question
@@ -24,9 +24,9 @@ public enum CurrentMileageQuestion {
             afterDeferral: .notBefore(14 * 24 * 60 * 60),
             afterDismissal: .never,
             withoutAnswer: """
-            Service keeps the distance rule blocked and names the reason; a time rule still decides a \
-            partial status. The user can record mileage in the car editor at any time.
-            """
+                Service keeps the distance rule blocked and names the reason; a time rule still decides a \
+                partial status. The user can record mileage in the car editor at any time.
+                """
         )
     )
 
@@ -41,13 +41,14 @@ public extension PitQuestionRegistry {
     /// The registered questions whose answer would change something for the car right now. A question
     /// outside this set is not offered, however eligible it is otherwise (core C3, REQ-PIT-009).
     func relevantQuestionIDs(maintenance: [MaintenanceOperationState]) -> Set<String> {
-        Set(definitions.map(\.id).filter { id in
-            switch id {
-            case CurrentMileageQuestion.id: CurrentMileageQuestion.isRelevant(maintenance)
-            // A question with no relevance rule is never relevant, so it can never be asked by accident.
-            default: false
-            }
-        })
+        Set(
+            definitions.map(\.id).filter { id in
+                switch id {
+                case CurrentMileageQuestion.id: CurrentMileageQuestion.isRelevant(maintenance)
+                // A question with no relevance rule is never relevant, so it can never be asked by accident.
+                default: false
+                }
+            })
     }
 }
 

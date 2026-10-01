@@ -9,11 +9,12 @@ import UniformTypeIdentifiers
 
 /// A plain fictional picture: one block of colour, no real car and no real place.
 private func block(red: CGFloat, green: CGFloat, blue: CGFloat, width: Int = 80, height: Int = 60) throws -> CGImage {
-    let context = try #require(CGContext(
-        data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-        space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-    ))
+    let context = try #require(
+        CGContext(
+            data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ))
     context.setFillColor(CGColor(red: red, green: green, blue: blue, alpha: 1))
     context.fill(CGRect(x: 0, y: 0, width: width, height: height))
     return try #require(context.makeImage())
@@ -26,12 +27,13 @@ private struct PhotoFolder {
     func write(_ image: CGImage, named name: String) throws -> URL {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         let url = root.appending(path: name)
-        let destination = try #require(CGImageDestinationCreateWithURL(
-            url as CFURL,
-            UTType.png.identifier as CFString,
-            1,
-            nil
-        ))
+        let destination = try #require(
+            CGImageDestinationCreateWithURL(
+                url as CFURL,
+                UTType.png.identifier as CFString,
+                1,
+                nil
+            ))
         CGImageDestinationAddImage(destination, image, nil)
         try #require(CGImageDestinationFinalize(destination))
         return url
@@ -46,8 +48,8 @@ private struct PhotoFolder {
 @Suite("Car avatar")
 struct CarAvatarTests {
     private static let repositoryRoot = URL(filePath: #filePath)
-        .deletingLastPathComponent() // DesignSystem
-        .deletingLastPathComponent() // PitstopTests
+        .deletingLastPathComponent()  // DesignSystem
+        .deletingLastPathComponent()  // PitstopTests
         .deletingLastPathComponent()
 
     /// The avatar rendered at 1x on transparency at its own size, with no frame imposed from outside.
@@ -108,8 +110,9 @@ struct CarAvatarTests {
         }
         for dark in [false, true] {
             let traits = UITraitCollection(userInterfaceStyle: dark ? .dark : .light)
-            #expect(UIColor(CarAvatar.backgroundColor).resolvedColor(with: traits)
-                .isEqual(UIColor(PitColor.surfaceTintStrong).resolvedColor(with: traits)))
+            #expect(
+                UIColor(CarAvatar.backgroundColor).resolvedColor(with: traits)
+                    .isEqual(UIColor(PitColor.surfaceTintStrong).resolvedColor(with: traits)))
         }
     }
 

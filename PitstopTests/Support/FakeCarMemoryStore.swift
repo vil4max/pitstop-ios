@@ -176,7 +176,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
             return try insertEvent(record.event)
         case let .correctVehicleEvent(correct):
             guard let index = events.firstIndex(where: { $0.id == correct.event.id }),
-                  events[index].vehicleID == correct.event.vehicleID
+                events[index].vehicleID == correct.event.vehicleID
             else { throw .unknownEvent }
             events[index] = correct.event
             return .eventCorrected(correct.event)

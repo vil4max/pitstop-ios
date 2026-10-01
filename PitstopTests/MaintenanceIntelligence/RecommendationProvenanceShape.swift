@@ -93,7 +93,7 @@ struct Applicability: Hashable, Sendable {
         let named = ApplicabilityDimension.allCases.filter { requirements[$0] != nil }
         for dimension in named {
             if let fact = facts.values[dimension], let requirement = requirements[dimension],
-               !requirement.isSatisfied(by: fact)
+                !requirement.isSatisfied(by: fact)
             {
                 return .mismatch(dimension)
             }
@@ -179,12 +179,13 @@ enum RecommendationResolver {
         // ADR 0020 Q3: a policy without an anchoring field is completion-based, so a grid rule
         // projected into today's policy would silently move with every completion.
         guard record.rule.anchoring == .completionBased else { return .notRepresentable(.noAnchoringField) }
-        return .policy(MaintenancePolicy(
-            operationID: record.operationID,
-            distanceIntervalKm: record.rule.distanceKm,
-            timeIntervalMonths: record.rule.months,
-            source: .defaultRecommendation
-        ))
+        return .policy(
+            MaintenancePolicy(
+                operationID: record.operationID,
+                distanceIntervalKm: record.rule.distanceKm,
+                timeIntervalMonths: record.rule.months,
+                source: .defaultRecommendation
+            ))
     }
 
     static func policies(

@@ -37,8 +37,9 @@ struct MaintenanceEngineTests {
     )
     func timeBoundaries(day: Double, expected: MaintenanceStatus) throws {
         let done = [Fix.completion(.brakeFluid, km: nil)]
-        let state = try #require(Fix.states([Fix.custom(.brakeFluid, months: 12)], done, currentKm: nil, day: day)
-            .first)
+        let state = try #require(
+            Fix.states([Fix.custom(.brakeFluid, months: 12)], done, currentKm: nil, day: day)
+                .first)
         #expect(state.status == expected)
         #expect(state.distanceBlock == nil)
     }
@@ -66,8 +67,9 @@ struct MaintenanceEngineTests {
     @Test("REQ-MAINT-003: the next anchor is the completion mileage plus the owner's interval")
     func ownerIntervalDerivesAnchor() throws {
         let done = [Fix.completion(.engineOilService, km: 12300)]
-        let state = try #require(Fix.states([Fix.custom(.engineOilService, km: 7500)], done, currentKm: 13000, day: 5)
-            .first)
+        let state = try #require(
+            Fix.states([Fix.custom(.engineOilService, km: 7500)], done, currentKm: 13000, day: 5)
+                .first)
         #expect(state.anchorKm == 19800)
     }
 
@@ -101,10 +103,11 @@ struct MaintenanceEngineTests {
 
     @Test("ADR-0020: operation IDs are stored identity, so the catalog's raw values never change")
     func operationIDsAreStable() {
-        #expect(MaintenanceOperationID.catalog.map(\.rawValue) == [
-            "engineOilService", "dsgService", "awdCouplingService", "brakeFluid", "cabinFilter", "airFilter",
-            "sparkPlugs",
-        ])
+        #expect(
+            MaintenanceOperationID.catalog.map(\.rawValue) == [
+                "engineOilService", "dsgService", "awdCouplingService", "brakeFluid", "cabinFilter", "airFilter",
+                "sparkPlugs",
+            ])
     }
 
     @Test("REQ-MAINT-004: completing one operation never changes another operation's state")
@@ -147,12 +150,13 @@ struct MaintenanceEngineTests {
             completions: [done]
         )
         #expect(context.mileage == .stale)
-        let state = try #require(MaintenanceEngine().states(
-            policies: [DomainFixtures.Maintenance.standardOilPolicy],
-            completions: [done],
-            context: context,
-            calendar: Fix.utc
-        ).first)
+        let state = try #require(
+            MaintenanceEngine().states(
+                policies: [DomainFixtures.Maintenance.standardOilPolicy],
+                completions: [done],
+                context: context,
+                calendar: Fix.utc
+            ).first)
         #expect(state.distanceBlock == .mileageStale && state.remainingKm == nil)
         // The time rule still decides, but the state admits it is only half the picture (core C2).
         #expect(state.status == .upToDate && state.isPartial)
@@ -184,12 +188,13 @@ struct MaintenanceEngineTests {
             latestReading: Fix.reading(68500, day: 0),
             completions: [done]
         )
-        let state = try #require(MaintenanceEngine().states(
-            policies: [Fix.oil10k],
-            completions: [done],
-            context: context,
-            calendar: Fix.utc
-        ).first)
+        let state = try #require(
+            MaintenanceEngine().states(
+                policies: [Fix.oil10k],
+                completions: [done],
+                context: context,
+                calendar: Fix.utc
+            ).first)
         #expect(context.observedKm == 70000)
         #expect(state.anchorKm == 80000 && state.remainingKm == 10000 && state.remainingFraction == 1)
     }

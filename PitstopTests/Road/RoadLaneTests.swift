@@ -7,11 +7,12 @@ private typealias Fix = MaintenanceFixture
 
 /// Planned dates alone are enough to build a road: 40 and 50 days out share a slot, 120 days is its own.
 private func plannedRoad(days: [Double]) -> RoadProjection {
-    RoadProjector().project(RoadContext(
-        now: Fix.date(0),
-        maintenanceStates: [],
-        plannedEvents: days.map { PlannedVehicleEvent(kind: .other, date: Fix.date($0)) }
-    ))
+    RoadProjector().project(
+        RoadContext(
+            now: Fix.date(0),
+            maintenanceStates: [],
+            plannedEvents: days.map { PlannedVehicleEvent(kind: .other, date: Fix.date($0)) }
+        ))
 }
 
 private func resolved(_ color: Color, dark: Bool) -> UIColor {
@@ -77,15 +78,18 @@ struct RoadLaneTests {
 
     @Test("REQ-ROAD-029: no sign or row colour is the danger colour, in light or dark")
     func noDangerColour() throws {
-        let waiting = try #require(RoadProjector().project(RoadContext(
-            now: Fix.date(200),
-            maintenanceStates: Fix.states(
-                [Fix.oil10k],
-                [Fix.completion(.engineOilService, km: 50000)],
-                currentKm: nil,
-                day: 200
-            )
-        )).waitingForMileage.first)
+        let waiting = try #require(
+            RoadProjector().project(
+                RoadContext(
+                    now: Fix.date(200),
+                    maintenanceStates: Fix.states(
+                        [Fix.oil10k],
+                        [Fix.completion(.engineOilService, km: 50000)],
+                        currentKm: nil,
+                        day: 200
+                    )
+                )
+            ).waitingForMileage.first)
         let placed = plannedRoad(days: [-3, 5, 40]).slots.flatMap(\.milestones)
         let states: [RoadMilestoneState] = [.upcoming, .approaching, .due, .overdue]
         let colours = states.map(\.color) + (placed + [waiting]).map(\.color)
@@ -98,15 +102,18 @@ struct RoadLaneTests {
 
     @Test("REQ-DESIGN-001: a sign waiting for mileage is dashed and secondary, never the ahead accent")
     func waitingSignIsSecondary() throws {
-        let waiting = try #require(RoadProjector().project(RoadContext(
-            now: Fix.date(200),
-            maintenanceStates: Fix.states(
-                [Fix.oil10k],
-                [Fix.completion(.engineOilService, km: 50000)],
-                currentKm: nil,
-                day: 200
-            )
-        )).waitingForMileage.first)
+        let waiting = try #require(
+            RoadProjector().project(
+                RoadContext(
+                    now: Fix.date(200),
+                    maintenanceStates: Fix.states(
+                        [Fix.oil10k],
+                        [Fix.completion(.engineOilService, km: 50000)],
+                        currentKm: nil,
+                        day: 200
+                    )
+                )
+            ).waitingForMileage.first)
 
         #expect(waiting.glyph == .dashed)
         for dark in [false, true] {

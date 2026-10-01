@@ -93,10 +93,11 @@ enum PitColor {
     private static let accentDark = RGB(0.49, 0.73, 0.98)
 
     private static func dynamic(light: RGB, dark: RGB) -> Color {
-        Color(uiColor: UIColor { traits in
-            let rgb = traits.userInterfaceStyle == .dark ? dark : light
-            return UIColor(red: rgb.red, green: rgb.green, blue: rgb.blue, alpha: 1)
-        })
+        Color(
+            uiColor: UIColor { traits in
+                let rgb = traits.userInterfaceStyle == .dark ? dark : light
+                return UIColor(red: rgb.red, green: rgb.green, blue: rgb.blue, alpha: 1)
+            })
     }
 
     /// The same value in every appearance: part of an object, not a surface.
@@ -110,24 +111,27 @@ enum PitColor {
     }
 
     private static func dynamic(light: RGB, dark: RGB, highContrastLight: RGB, highContrastDark: RGB) -> Color {
-        Color(uiColor: UIColor { traits in
-            let isHigh = traits.accessibilityContrast == .high
-            let rgb = switch (traits.userInterfaceStyle == .dark, isHigh) {
-            case (false, false): light
-            case (true, false): dark
-            case (false, true): highContrastLight
-            case (true, true): highContrastDark
-            }
-            return rgb.uiColor
-        })
+        Color(
+            uiColor: UIColor { traits in
+                let isHigh = traits.accessibilityContrast == .high
+                let rgb =
+                    switch (traits.userInterfaceStyle == .dark, isHigh) {
+                    case (false, false): light
+                    case (true, false): dark
+                    case (false, true): highContrastLight
+                    case (true, true): highContrastDark
+                    }
+                return rgb.uiColor
+            })
     }
 
     private static func tint(_ opacity: DesignTokens.TintOpacity) -> Color {
-        Color(uiColor: UIColor { traits in
-            let isDark = traits.userInterfaceStyle == .dark
-            let rgb = isDark ? accentDark : accentLight
-            let alpha = opacity.value(dark: isDark, highContrast: traits.accessibilityContrast == .high)
-            return UIColor(red: rgb.red, green: rgb.green, blue: rgb.blue, alpha: alpha)
-        })
+        Color(
+            uiColor: UIColor { traits in
+                let isDark = traits.userInterfaceStyle == .dark
+                let rgb = isDark ? accentDark : accentLight
+                let alpha = opacity.value(dark: isDark, highContrast: traits.accessibilityContrast == .high)
+                return UIColor(red: rgb.red, green: rgb.green, blue: rgb.blue, alpha: alpha)
+            })
     }
 }

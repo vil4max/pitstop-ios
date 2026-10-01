@@ -17,7 +17,8 @@ struct PitMomentHeader: View {
             if title == .saved, let avatar = carAvatar {
                 // At accessibility sizes the title wraps under the avatar, as in `ScreenHeader`, instead of giving
                 // up the avatar's width in the row.
-                let layout = dynamicTypeSize.isAccessibilitySize
+                let layout =
+                    dynamicTypeSize.isAccessibilitySize
                     ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
                     : AnyLayout(HStackLayout(spacing: 12))
                 layout {
@@ -227,13 +228,22 @@ extension View {
                     ],
                     onChoose: { _ in }
                 )
-                Button {} label: { PitActionLabel(title: "pit.save", prominent: true) }
-                    .pitPrimaryAction()
-                Button {} label: { PitActionLabel(title: "pit.save", prominent: true) }
-                    .pitPrimaryAction()
-                    .disabled(true)
-                Button {} label: { PitActionLabel(title: "pit.confirm.asNote") }
-                    .pitSecondaryAction()
+                Button {
+                } label: {
+                    PitActionLabel(title: "pit.save", prominent: true)
+                }
+                .pitPrimaryAction()
+                Button {
+                } label: {
+                    PitActionLabel(title: "pit.save", prominent: true)
+                }
+                .pitPrimaryAction()
+                .disabled(true)
+                Button {
+                } label: {
+                    PitActionLabel(title: "pit.confirm.asNote")
+                }
+                .pitSecondaryAction()
             }
             // The root sets the car; here a fictional SUV with no photo, so "Saved." shows its avatar, beside the
             // title in the default rows and above it in the AX-XL rows.

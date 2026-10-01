@@ -12,12 +12,13 @@ private func project(
     planned: [PlannedVehicleEvent] = [],
     history: HistoryTimeline = .empty
 ) -> RoadProjection {
-    RoadProjector().project(RoadContext(
-        now: Fix.date(day),
-        maintenanceStates: Fix.states(policies, done, currentKm: currentKm, day: day),
-        plannedEvents: planned,
-        history: history
-    ))
+    RoadProjector().project(
+        RoadContext(
+            now: Fix.date(day),
+            maintenanceStates: Fix.states(policies, done, currentKm: currentKm, day: day),
+            plannedEvents: planned,
+            history: history
+        ))
 }
 
 private func subjects(_ slots: some Sequence<RoadSlot>) -> [[RoadMilestone.Subject]] {
@@ -45,11 +46,12 @@ struct RoadProjectorTests {
             planned: [insurance]
         )
         let all = Set(road.slots.flatMap(\.milestones).map(\.subject))
-        #expect(all == [
-            .maintenance(.engineOilService),
-            .maintenance(.brakeFluid),
-            .planned(.insuranceExpiry, id: insurance.id),
-        ])
+        #expect(
+            all == [
+                .maintenance(.engineOilService),
+                .maintenance(.brakeFluid),
+                .planned(.insuranceExpiry, id: insurance.id),
+            ])
         #expect(road.slots.first?.lead?.subject == .maintenance(.brakeFluid))
         #expect(road.slots.first?.lead?.state == .due)
     }
@@ -74,7 +76,7 @@ struct RoadProjectorTests {
 
     @Test("REQ-ROAD-010: a large past is one compact marker with a count and the latest date")
     func pastIsCompressed() {
-        let events = (0 ..< 40).map { index in
+        let events = (0..<40).map { index in
             HistoryEvent(vehicleID: Fix.vehicleID, kind: .carWash, date: Fix.date(Double(index)))
         }
         let road = project([], [], currentKm: nil, day: 100, history: HistoryTimeline(events: events, completions: []))
@@ -117,14 +119,16 @@ struct RoadProjectorTests {
     @Test("REQ-ROAD-007: a distance-or-time milestone is labelled by its deciding dimension and never converted")
     func noConversionBetweenDimensions() throws {
         let policy = DomainFixtures.Maintenance.standardOilPolicy
-        let byTime = try #require(project(
-            [policy], [Fix.completion(.engineOilService, km: 50000)], currentKm: 51000, day: 350
-        ).slots.first?.lead)
+        let byTime = try #require(
+            project(
+                [policy], [Fix.completion(.engineOilService, km: 50000)], currentKm: 51000, day: 350
+            ).slots.first?.lead)
         #expect(byTime.dimension == .time && byTime.remainingKm == nil && byTime.remainingDays == 16)
 
-        let stale = try #require(project(
-            [policy], [Fix.completion(.engineOilService, km: 50000)], currentKm: nil, day: 200
-        ).slots.first?.lead)
+        let stale = try #require(
+            project(
+                [policy], [Fix.completion(.engineOilService, km: 50000)], currentKm: nil, day: 200
+            ).slots.first?.lead)
         #expect(stale.dimension == .time && stale.remainingKm == nil && stale.mileageDependency == .mileageStale)
     }
 
@@ -145,7 +149,7 @@ struct RoadProjectorTests {
     @Test("ADR-0008: the default viewport holds at most four slots; later ones are reached by scrolling")
     func initialViewportIsCapped() {
         // Six dated events 25 days apart: all inside six months, none close enough to cluster.
-        let planned = (0 ..< 6).map { index in
+        let planned = (0..<6).map { index in
             PlannedVehicleEvent(
                 id: UUID(uuidString: "BBBBBBBB-0000-4000-8000-00000000000\(index)") ?? UUID(),
                 kind: .other,
@@ -211,10 +215,11 @@ struct RoadProjectorTests {
             day: 10,
             planned: [insurance]
         )
-        #expect(subjects(road.slots) == [
-            [.maintenance(.engineOilService)],
-            [.planned(.insuranceExpiry, id: insurance.id)],
-        ])
+        #expect(
+            subjects(road.slots) == [
+                [.maintenance(.engineOilService)],
+                [.planned(.insuranceExpiry, id: insurance.id)],
+            ])
     }
 
     @Test(
@@ -267,10 +272,11 @@ struct RoadProjectorTests {
         )
         // Oil 500 km (0.10 units), brake fluid 30 days (0.16), air filter 1,300 km (0.26): the date
         // milestone sorts between the two mileage ones and still does not split their cluster.
-        #expect(subjects(road.slots) == [
-            [.maintenance(.engineOilService), .maintenance(.airFilter)],
-            [.maintenance(.brakeFluid)],
-        ])
+        #expect(
+            subjects(road.slots) == [
+                [.maintenance(.engineOilService), .maintenance(.airFilter)],
+                [.maintenance(.brakeFluid)],
+            ])
         #expect(road.slots.last?.lead?.remainingDays == 30)
     }
 
@@ -313,7 +319,7 @@ struct RoadProjectorTests {
             (58500.0, RoadMilestoneState.approaching),
             (60000, .due),
             (60999, .due),
-            (61000, .overdue)
+            (61000, .overdue),
         ]
     )
     func milestoneStates(currentKm: Double, expected: RoadMilestoneState) throws {
@@ -367,7 +373,9 @@ struct RoadProjectorTests {
 
     @Test(
         "ADR-0008: at zero the distance wording follows the state, so approaching never reads as reached",
-        arguments: [(59999.6, RoadDistanceLabel.almost), (60000, .reached), (59000, .inKm(1000)), (60700, .pastKm(700))]
+        arguments: [
+            (59999.6, RoadDistanceLabel.almost), (60000, .reached), (59000, .inKm(1000)), (60700, .pastKm(700)),
+        ]
     )
     func distanceLabelFollowsState(currentKm: Double, expected: RoadDistanceLabel) throws {
         let road = project([Fix.oil10k], [Fix.completion(.engineOilService, km: 50000)], currentKm: currentKm, day: 10)

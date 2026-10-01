@@ -30,7 +30,8 @@ enum NextServiceStoreReader {
             return try NextServiceFacts(
                 hasVehicle: true,
                 // The store's own order, so the engine sees exactly what Service sees.
-                policies: context
+                policies:
+                    context
                     .fetch(FetchDescriptor(sortBy: [SortDescriptor(\Schema1.MaintenancePolicyRecord.operationID)]))
                     .map(\.domain),
                 completions: context.fetch(FetchDescriptor<Schema1.MaintenanceCompletionRecord>()).map(\.domain),

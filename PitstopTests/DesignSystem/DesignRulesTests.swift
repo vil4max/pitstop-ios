@@ -26,8 +26,8 @@ struct DesignRulesTests {
     }
 
     private static let repositoryRoot = URL(filePath: #filePath)
-        .deletingLastPathComponent() // DesignSystem
-        .deletingLastPathComponent() // PitstopTests
+        .deletingLastPathComponent()  // DesignSystem
+        .deletingLastPathComponent()  // PitstopTests
         .deletingLastPathComponent()
 
     @Test("REQ-DESIGN-004: feature code names PitColor roles, never a colour literal")

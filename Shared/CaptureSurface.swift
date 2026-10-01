@@ -10,7 +10,7 @@ enum CaptureSurface: String, AppEnum {
         name: LocalizedStringResource("intent.captureSurface.type", table: "OpenPit")
     )
     static let caseDisplayRepresentations: [CaptureSurface: DisplayRepresentation] = [
-        .pit: DisplayRepresentation(title: LocalizedStringResource("intent.captureSurface.pit", table: "OpenPit")),
+        .pit: DisplayRepresentation(title: LocalizedStringResource("intent.captureSurface.pit", table: "OpenPit"))
     ]
 
     static let urlScheme = AppLink.scheme

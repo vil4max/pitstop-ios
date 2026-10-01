@@ -11,11 +11,12 @@ private func event(_ kind: PlannedDatedEvent.Kind = .insuranceExpiry, inDays day
 }
 
 private func project(_ events: [PlannedDatedEvent], at moment: Date = now) -> RoadProjection {
-    RoadProjector().project(RoadContext(
-        now: moment,
-        maintenanceStates: [],
-        plannedEvents: events.map(\.roadEvent)
-    ))
+    RoadProjector().project(
+        RoadContext(
+            now: moment,
+            maintenanceStates: [],
+            plannedEvents: events.map(\.roadEvent)
+        ))
 }
 
 @Suite("Planned dated events")
@@ -75,14 +76,18 @@ struct PlannedDatedEventTests {
         let insurance = event(inDays: 40)
         let tyres = event(.other(label: "Winter tyres"), inDays: 60)
 
-        #expect(insurance.roadEvent == PlannedVehicleEvent(
-            id: insurance.id,
-            kind: .insuranceExpiry,
-            date: insurance.date
-        ))
-        #expect(tyres.roadEvent == PlannedVehicleEvent(
-            id: tyres.id, kind: .other, date: tyres.date, label: "Winter tyres"
-        ))
+        #expect(
+            insurance.roadEvent
+                == PlannedVehicleEvent(
+                    id: insurance.id,
+                    kind: .insuranceExpiry,
+                    date: insurance.date
+                ))
+        #expect(
+            tyres.roadEvent
+                == PlannedVehicleEvent(
+                    id: tyres.id, kind: .other, date: tyres.date, label: "Winter tyres"
+                ))
         #expect(insurance.label == nil && tyres.label == "Winter tyres")
     }
 

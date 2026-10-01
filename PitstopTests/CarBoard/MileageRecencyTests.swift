@@ -39,8 +39,8 @@ struct MileageRecencyTests {
 
     @Test("REQ-BOARD-027: days are counted in calendar days, so last night is one day ago")
     func calendarDays() {
-        let justAfterMidnight = Date(timeIntervalSince1970: 1_699_920_600) // 2023-11-14 00:10 UTC
-        let lateYesterday = justAfterMidnight.addingTimeInterval(-40 * 60) // 2023-11-13 23:30 UTC
+        let justAfterMidnight = Date(timeIntervalSince1970: 1_699_920_600)  // 2023-11-14 00:10 UTC
+        let lateYesterday = justAfterMidnight.addingTimeInterval(-40 * 60)  // 2023-11-13 23:30 UTC
         #expect(MileageRecency(observedAt: lateYesterday, now: justAfterMidnight, calendar: Self.calendar) == .days(1))
     }
 

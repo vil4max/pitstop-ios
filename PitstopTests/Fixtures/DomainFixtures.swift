@@ -26,7 +26,7 @@ public enum DomainFixtures {
     }
 
     public enum Odometers {
-        public static let baseDate = Date(timeIntervalSince1970: 1_700_000_000) // 2023-11-14
+        public static let baseDate = Date(timeIntervalSince1970: 1_700_000_000)  // 2023-11-14
 
         public static let reading84k = OdometerReading(
             id: UUID(uuidString: "A0000000-0000-0000-0000-000000000001")!,

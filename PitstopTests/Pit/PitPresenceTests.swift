@@ -45,7 +45,7 @@ struct PitIdleSchedulerTests {
 
     @Test("REQ-PIT-004: the delay is irregular, not a fixed interval")
     func delaysAreIrregular() {
-        let delays = (0 ..< 4).map { index in
+        let delays = (0..<4).map { index in
             scheduler([0.0, Double(index) / 4]).nextPlan(activity: .idle, sinceLastAction: 60)?.delay
         }
         #expect(Set(delays).count == delays.count)
@@ -75,12 +75,13 @@ struct PitIdleSchedulerTests {
         let counts = drawCounts(.idle)
         #expect(counts[.doubleBlink, default: 0] > 0)
         #expect(counts[.doubleBlink, default: 0] * 5 < counts[.blink, default: 0])
-        #expect(PitIdleAction.doubleBlink.beats(returningTo: .resting).map(\.state) == [
-            .blink,
-            .resting,
-            .blink,
-            .resting,
-        ])
+        #expect(
+            PitIdleAction.doubleBlink.beats(returningTo: .resting).map(\.state) == [
+                .blink,
+                .resting,
+                .blink,
+                .resting,
+            ])
     }
 
     @Test("ADR-0028: while listening Pit only blinks, and blinks less than when idle")
@@ -149,20 +150,22 @@ struct PitAttentionPolicyTests {
     @Test("REQ-PIT-007: a question is asked only where it is relevant")
     func contextMustMatch() {
         let questions = [question("oilInterval", context: .service)]
-        #expect(policy.question(
-            from: questions,
-            activity: .idle,
-            context: .notes,
-            sinceLastInterruption: never,
-            sinceLastDismissal: never
-        ) == nil)
-        #expect(policy.question(
-            from: questions,
-            activity: .idle,
-            context: .service,
-            sinceLastInterruption: never,
-            sinceLastDismissal: never
-        ) != nil)
+        #expect(
+            policy.question(
+                from: questions,
+                activity: .idle,
+                context: .notes,
+                sinceLastInterruption: never,
+                sinceLastDismissal: never
+            ) == nil)
+        #expect(
+            policy.question(
+                from: questions,
+                activity: .idle,
+                context: .service,
+                sinceLastInterruption: never,
+                sinceLastDismissal: never
+            ) != nil)
     }
 
     @Test(
@@ -183,20 +186,22 @@ struct PitAttentionPolicyTests {
     @Test("core C3: one interruption at a time, and a dismissal silences Pit for longer than an answer")
     func cooldownsAreRespected() {
         let questions = [question("oilInterval")]
-        #expect(policy.question(
-            from: questions,
-            activity: .idle,
-            context: .carBoard,
-            sinceLastInterruption: 60,
-            sinceLastDismissal: never
-        ) == nil)
-        #expect(policy.question(
-            from: questions,
-            activity: .idle,
-            context: .carBoard,
-            sinceLastInterruption: never,
-            sinceLastDismissal: 60
-        ) == nil)
+        #expect(
+            policy.question(
+                from: questions,
+                activity: .idle,
+                context: .carBoard,
+                sinceLastInterruption: 60,
+                sinceLastDismissal: never
+            ) == nil)
+        #expect(
+            policy.question(
+                from: questions,
+                activity: .idle,
+                context: .carBoard,
+                sinceLastInterruption: never,
+                sinceLastDismissal: 60
+            ) == nil)
         #expect(PitAttentionPolicy.dismissalCooldown > PitAttentionPolicy.interruptionCooldown)
     }
 
@@ -279,7 +284,7 @@ struct PitPresenceModelTests {
 
         model.report(.modalTask, from: .utilitySheet)
         model.report([], from: .utilitySheet)
-        for _ in 0 ..< 50 {
+        for _ in 0..<50 {
             await Task.yield()
         }
 
@@ -294,7 +299,7 @@ struct PitPresenceModelTests {
         model.report([], from: .utilitySheet)
 
         await model.askPermissionToInterrupt()
-        for _ in 0 ..< 50 {
+        for _ in 0..<50 {
             await Task.yield()
         }
 
@@ -338,7 +343,7 @@ struct PitPresenceModelTests {
         )
 
         model.report([], from: .utilitySheet)
-        for _ in 0 ..< 40 {
+        for _ in 0..<40 {
             await Task.yield()
         }
         model.stop()

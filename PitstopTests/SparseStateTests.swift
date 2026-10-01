@@ -59,12 +59,14 @@ struct SparseStateTests {
     func emptyRoad() throws {
         let sparse = try #require(road().sparseState)
 
-        #expect(Composition(sparse) == Composition(
-            glyph: "road.lanes",
-            headline: "tile.road.empty.headline",
-            sentence: "tile.road.empty.detail",
-            actions: [.addDate]
-        ))
+        #expect(
+            Composition(sparse)
+                == Composition(
+                    glyph: "road.lanes",
+                    headline: "tile.road.empty.headline",
+                    sentence: "tile.road.empty.detail",
+                    actions: [.addDate]
+                ))
     }
 
     @Test("REQ-GRAMMAR-004: an empty Road draws no summary, milestone or past marker beside the sparse state")
@@ -89,12 +91,14 @@ struct SparseStateTests {
     func emptyService() throws {
         let sparse = try #require(ServiceViewState(hasLoaded: true).sparseState)
 
-        #expect(Composition(sparse) == Composition(
-            glyph: "wrench.and.screwdriver",
-            headline: "tile.service.empty.headline",
-            sentence: "service.empty.detail",
-            actions: [.track, .trackSeveral]
-        ))
+        #expect(
+            Composition(sparse)
+                == Composition(
+                    glyph: "wrench.and.screwdriver",
+                    headline: "tile.service.empty.headline",
+                    sentence: "service.empty.detail",
+                    actions: [.track, .trackSeveral]
+                ))
     }
 
     @Test("REQ-GRAMMAR-004: Service is not sparse before its first load or once something is tracked")
@@ -111,12 +115,14 @@ struct SparseStateTests {
     func emptyHistory() async throws {
         let sparse = try #require(await loadedEmptyHistory().sparseState)
 
-        #expect(Composition(sparse) == Composition(
-            glyph: "clock.arrow.circlepath",
-            headline: "tile.history.empty.headline",
-            sentence: "tile.history.empty.detail",
-            actions: [.add]
-        ))
+        #expect(
+            Composition(sparse)
+                == Composition(
+                    glyph: "clock.arrow.circlepath",
+                    headline: "tile.history.empty.headline",
+                    sentence: "tile.history.empty.detail",
+                    actions: [.add]
+                ))
     }
 
     @Test("REQ-GRAMMAR-004: History with one event is not sparse")
@@ -131,12 +137,14 @@ struct SparseStateTests {
     func emptyNotes() async throws {
         let sparse = try #require(await loadedEmptyNotes().sparseState)
 
-        #expect(Composition(sparse) == Composition(
-            glyph: "note.text",
-            headline: "tile.notes.empty.headline",
-            sentence: "tile.notes.empty.detail",
-            actions: [.add]
-        ))
+        #expect(
+            Composition(sparse)
+                == Composition(
+                    glyph: "note.text",
+                    headline: "tile.notes.empty.headline",
+                    sentence: "tile.notes.empty.detail",
+                    actions: [.add]
+                ))
     }
 
     @Test("REQ-GRAMMAR-004: an empty archive keeps today's headline alone; notes in the other scope do not count")
@@ -149,10 +157,12 @@ struct SparseStateTests {
         model.select(scope: .archived)
         let sparse = try #require(model.state.sparseState)
 
-        #expect(Composition(sparse) == Composition<NotesEmptyAction>(
-            glyph: "note.text",
-            headline: "notes.archived.empty"
-        ))
+        #expect(
+            Composition(sparse)
+                == Composition<NotesEmptyAction>(
+                    glyph: "note.text",
+                    headline: "notes.archived.empty"
+                ))
     }
 
     @Test("REQ-GRAMMAR-004: no sparse state offers more than two actions")

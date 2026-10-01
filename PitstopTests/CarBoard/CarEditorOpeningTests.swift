@@ -97,9 +97,10 @@ struct CarEditorOpeningTests {
         try await Self.pitRecords(48200, in: store, board: model)
         #expect(model.state.mileage == .kilometers(48200))
 
-        #expect(await model.saveCar(
-            name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: opening
-        ))
+        #expect(
+            await model.saveCar(
+                name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: opening
+            ))
 
         #expect(await store.readings.map(\.valueInKilometers) == [47560, 48200], "the untouched mileage was recorded")
         #expect(model.state.mileage == .kilometers(48200))
@@ -116,9 +117,10 @@ struct CarEditorOpeningTests {
         await model.load()
         #expect(model.state.car.name == "Heron")
 
-        #expect(await model.saveCar(
-            name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: opening
-        ))
+        #expect(
+            await model.saveCar(
+                name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: opening
+            ))
 
         #expect(await store.vehicle.name == "Heron")
         #expect(model.state.car.name == "Heron")
@@ -140,9 +142,11 @@ struct CarEditorOpeningTests {
         let (store, model, opening) = try await Self.boardWithOpenEditor(readingAge: 100 * 86400)
         let draft = CarEditorDraft(opening: opening)
 
-        #expect(await model.saveCar(
-            name: draft.name, odometerText: draft.odometer, body: draft.bodyChange, photo: draft.photo, opening: opening
-        ))
+        #expect(
+            await model.saveCar(
+                name: draft.name, odometerText: draft.odometer, body: draft.bodyChange, photo: draft.photo,
+                opening: opening
+            ))
 
         let readings = await store.readings
         #expect(readings.map(\.valueInKilometers) == [47560, 47560])
@@ -170,9 +174,10 @@ struct CarEditorOpeningTests {
         #expect(model.state.mileage == .kilometers(47560), "the failed reload keeps the board's cache")
         await store.recover()
 
-        #expect(await model.saveCar(
-            name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: opening
-        ))
+        #expect(
+            await model.saveCar(
+                name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: opening
+            ))
 
         #expect(await store.readings.map(\.valueInKilometers) == [47560, 48200], "the untouched mileage was recorded")
         #expect(model.state.mileage == .kilometers(48200))
@@ -185,9 +190,10 @@ struct CarEditorOpeningTests {
         let draft = CarEditorDraft(opening: opening)
         try await Self.pitRecordsUnseen(48200, in: store)
 
-        #expect(await model.saveCar(
-            name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: opening
-        ))
+        #expect(
+            await model.saveCar(
+                name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: opening
+            ))
 
         #expect(await store.readings.map(\.valueInKilometers) == [47560, 48200], "the untouched mileage was recorded")
         #expect(model.state.mileage == .kilometers(48200))
@@ -208,9 +214,10 @@ struct CarEditorOpeningTests {
         let draft = CarEditorDraft(opening: model.editorOpening)
         await store.failReadingReads()
 
-        #expect(await model.saveCar(
-            name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: draft.opening
-        ))
+        #expect(
+            await model.saveCar(
+                name: draft.name, odometerText: draft.odometer, body: .sedan, photo: draft.photo, opening: draft.opening
+            ))
 
         #expect(await base.readings.map(\.valueInKilometers) == [47560], "an untouched mileage was recorded unread")
         #expect(await base.vehicle.chosenBody == .sedan)

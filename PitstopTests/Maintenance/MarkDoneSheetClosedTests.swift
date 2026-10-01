@@ -30,9 +30,12 @@ struct MarkDoneSheetClosedTests {
         in store: HeldStore
     ) async throws {
         let vehicleID = await store.base.vehicle.id
-        try await store.base.execute(.confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: operation, performedAt: now, odometerKm: odometerKm
-        ))), now: now)
+        try await store.base.execute(
+            .confirmMaintenanceCompletion(
+                .init(
+                    completion: MaintenanceCompletion(
+                        vehicleID: vehicleID, operationID: operation, performedAt: now, odometerKm: odometerKm
+                    ))), now: now)
     }
 
     /// The owner confirms oil and the save stops at the store, as a slow write does. Returns the running save.
@@ -159,8 +162,9 @@ struct MarkDoneSheetClosedTests {
         #expect(await !oilSave.value)
         // Not "try again": a retry would record Pit's work a second time without asking.
         #expect(service.state.listFailure == .pitAlreadyRecorded)
-        #expect(service.state.operations.first { $0.id == .engineOilService }?.lastCompletion != nil,
-                "the list shows Pit's record before the owner decides whether to mark it again")
+        #expect(
+            service.state.operations.first { $0.id == .engineOilService }?.lastCompletion != nil,
+            "the list shows Pit's record before the owner decides whether to mark it again")
         #expect(await store.base.completions.count == 1, "only Pit's")
     }
 

@@ -24,11 +24,12 @@ private struct PhotoDirectory {
 
 /// A fictional picture as JPEG bytes: a block of colour, no real car and no real place.
 private func syntheticJPEG() throws -> Data {
-    let context = try #require(CGContext(
-        data: nil, width: 64, height: 32, bitsPerComponent: 8, bytesPerRow: 0,
-        space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
-    ))
+    let context = try #require(
+        CGContext(
+            data: nil, width: 64, height: 32, bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+        ))
     context.setFillColor(CGColor(red: 0.3, green: 0.4, blue: 0.5, alpha: 1))
     context.fill(CGRect(x: 0, y: 0, width: 64, height: 32))
     let image = try #require(context.makeImage())
@@ -57,11 +58,12 @@ private struct Bitmap: Equatable {
         width = image.width
         height = image.height
         var pixels = [UInt8](repeating: 0, count: width * height * 4)
-        let context = try #require(CGContext(
-            data: &pixels, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
-            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ))
+        let context = try #require(
+            CGContext(
+                data: &pixels, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            ))
         context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
         rgba = pixels
     }
@@ -73,8 +75,8 @@ private struct Bitmap: Equatable {
     /// The smallest rectangle holding every pixel at least half opaque.
     var opaqueBounds: (minX: Int, minY: Int, maxX: Int, maxY: Int)? {
         var bounds: (minX: Int, minY: Int, maxX: Int, maxY: Int)?
-        for y in 0 ..< height {
-            for x in 0 ..< width where alpha(x: x, y: y) > 128 {
+        for y in 0..<height {
+            for x in 0..<width where alpha(x: x, y: y) > 128 {
                 let current = bounds ?? (x, y, x, y)
                 bounds = (min(current.minX, x), min(current.minY, y), max(current.maxX, x), max(current.maxY, y))
             }
@@ -172,10 +174,11 @@ struct CarBoardCarPictureTests {
 
             // A pixel inside the body carries the role's colour and alpha, not a colour of its own.
             let centre = ((bounds.minY + bounds.maxY) / 2 * bitmap.width + (bounds.minX + bounds.maxX) / 2) * 4
-            let pixel = bitmap.rgba[centre ..< centre + 4].map { CGFloat($0) / 255 }
+            let pixel = bitmap.rgba[centre..<centre + 4].map { CGFloat($0) / 255 }
             #expect(abs(pixel[3] - alpha) < 0.02, "\(body) alpha \(pixel[3]) is not the role's \(alpha)")
-            #expect(abs(pixel[0] - red * alpha) < 0.03 && abs(pixel[1] - green * alpha) < 0.03
-                && abs(pixel[2] - blue * alpha) < 0.03, "\(body) is not drawn in the role's colour")
+            #expect(
+                abs(pixel[0] - red * alpha) < 0.03 && abs(pixel[1] - green * alpha) < 0.03
+                    && abs(pixel[2] - blue * alpha) < 0.03, "\(body) is not drawn in the role's colour")
         }
     }
 }

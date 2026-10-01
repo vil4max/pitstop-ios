@@ -107,7 +107,8 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
             return .noteCreated(note)
         case let .updateNote(update):
             let id = update.noteID
-            let matches = try modelContext
+            let matches =
+                try modelContext
                 .fetch(FetchDescriptor<Schema1.NoteRecord>(predicate: #Predicate { $0.id == id }))
             guard let record = matches.first else { throw CarMemoryStoreError.unknownNote }
             if let text = update.rawText {
@@ -178,9 +179,11 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
     ) throws -> [MaintenanceCompletion] {
         let vehicle = vehicleID.rawValue
         let operation = operationID.rawValue
-        return try modelContext.fetch(FetchDescriptor<Schema1.MaintenanceCompletionRecord>(
-            predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation }
-        )).map(\.domain)
+        return try modelContext.fetch(
+            FetchDescriptor<Schema1.MaintenanceCompletionRecord>(
+                predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation }
+            )
+        ).map(\.domain)
     }
 
     private func reportRecords(
@@ -189,9 +192,10 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
     ) throws -> [ReportRecord] {
         let vehicle = vehicleID.rawValue
         let operation = operationID.rawValue
-        return try modelContext.fetch(FetchDescriptor<ReportRecord>(
-            predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation }
-        ))
+        return try modelContext.fetch(
+            FetchDescriptor<ReportRecord>(
+                predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation }
+            ))
     }
 
     private func insertPlanned(_ event: PlannedDatedEvent, now: Date) throws -> CommandResult {
@@ -222,9 +226,11 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
         let id = event.id
         let kind = PlannedRecord.insuranceExpiryKind
         let earliest = PlannedEventLimits.earliestDate(now: now)
-        let others = try modelContext.fetchCount(FetchDescriptor<PlannedRecord>(predicate: #Predicate {
-            $0.vehicleID == vehicle && $0.id != id && $0.kind == kind && $0.date >= earliest
-        }))
+        let others = try modelContext.fetchCount(
+            FetchDescriptor<PlannedRecord>(
+                predicate: #Predicate {
+                    $0.vehicleID == vehicle && $0.id != id && $0.kind == kind && $0.date >= earliest
+                }))
         guard others == 0 else { throw CarMemoryStoreError.insuranceExpiryAlreadyPlanned }
     }
 
@@ -255,9 +261,10 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
         let operation = policy.operationID.rawValue
         let source = policy.source.rawValue
         // Keyed by source too: a custom policy must leave the recommendation row intact (REQ-DOMAIN-006).
-        let existing = try modelContext.fetch(FetchDescriptor<Schema1.MaintenancePolicyRecord>(
-            predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation && $0.source == source }
-        ))
+        let existing = try modelContext.fetch(
+            FetchDescriptor<Schema1.MaintenancePolicyRecord>(
+                predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation && $0.source == source }
+            ))
         existing.forEach(modelContext.delete)
         modelContext.insert(Schema1.MaintenancePolicyRecord(policy, vehicleID: vehicleID))
     }
@@ -270,9 +277,10 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
         let vehicle = vehicleID.rawValue
         let operation = operationID.rawValue
         let source = PolicySource.userCustom.rawValue
-        let matches = try modelContext.fetch(FetchDescriptor<Schema1.MaintenancePolicyRecord>(
-            predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation && $0.source == source }
-        ))
+        let matches = try modelContext.fetch(
+            FetchDescriptor<Schema1.MaintenancePolicyRecord>(
+                predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation && $0.source == source }
+            ))
         guard let removed = matches.first?.domain else { throw CarMemoryStoreError.unknownPolicy }
         matches.forEach(modelContext.delete)
         return removed
@@ -350,8 +358,8 @@ extension SwiftDataCarMemoryStore {
                 FetchDescriptor(predicate: Schema1.MaintenanceCompletionRecord.matching(id))
             )
             guard let record = matches.first,
-                  record.domain.vehicleID == completion.vehicleID,
-                  record.domain.operationID == completion.operationID
+                record.domain.vehicleID == completion.vehicleID,
+                record.domain.operationID == completion.operationID
             else { throw CarMemoryStoreError.unknownCompletion }
             modelContext.delete(record)
         }
@@ -366,9 +374,10 @@ extension SwiftDataCarMemoryStore {
             // A new reading replaces the older one for every reader, but the older row stays so that a
             // replayed confirmation of it is a duplicate, never an overwrite of the newer reading.
             try requireNew(ReportRecord.self, id: record.report.id)
-            let entered = try record.report.entered(after: completions(
-                of: record.report.operationID, vehicleID: record.report.vehicleID
-            ))
+            let entered = try record.report.entered(
+                after: completions(
+                    of: record.report.operationID, vehicleID: record.report.vehicleID
+                ))
             modelContext.insert(ReportRecord(entered))
             return .vehicleServiceReportRecorded(entered)
         case let .removeVehicleServiceReport(remove):

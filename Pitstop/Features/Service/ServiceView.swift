@@ -142,7 +142,8 @@ struct ServiceView: View {
     /// A suggestion only: nothing here is a plan or a record until the user marks work as done.
     private var nextVisit: some View {
         let scope = viewModel.state.scope
-        let lines = scope.due.map { NextVisitLine(operation: $0, note: nil) }
+        let lines =
+            scope.due.map { NextVisitLine(operation: $0, note: nil) }
             + scope.dueNearby.map { NextVisitLine(operation: $0, note: "service.nextVisit.nearby") }
         return GroupedSection(title: "service.nextVisit", footer: "service.nextVisit.footer") {
             ForEach(Array(lines.enumerated()), id: \.element.operation.id) { index, line in

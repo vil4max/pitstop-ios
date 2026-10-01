@@ -11,19 +11,21 @@ struct ServicePlannerTests {
         extra: [(MaintenancePolicy, MaintenanceCompletion)] = [],
         reversed: Bool = false
     ) -> SuggestedServiceScope {
-        var policies = [
-            Fix.custom(.engineOilService, km: 10000),
-            Fix.custom(.awdCouplingService, km: 30000),
-            Fix.custom(.dsgService, km: 60000),
-            Fix.custom(.airFilter, km: 30000),
-            Fix.custom(.cabinFilter, km: 15000),
-        ] + extra.map(\.0)
-        var done = [
-            Fix.completion(.engineOilService, km: 50000),
-            Fix.completion(.awdCouplingService, km: 30000),
-            Fix.completion(.dsgService, km: 2000),
-            Fix.completion(.airFilter, km: 56000),
-        ] + extra.map(\.1)
+        var policies =
+            [
+                Fix.custom(.engineOilService, km: 10000),
+                Fix.custom(.awdCouplingService, km: 30000),
+                Fix.custom(.dsgService, km: 60000),
+                Fix.custom(.airFilter, km: 30000),
+                Fix.custom(.cabinFilter, km: 15000),
+            ] + extra.map(\.0)
+        var done =
+            [
+                Fix.completion(.engineOilService, km: 50000),
+                Fix.completion(.awdCouplingService, km: 30000),
+                Fix.completion(.dsgService, km: 2000),
+                Fix.completion(.airFilter, km: 56000),
+            ] + extra.map(\.1)
         if reversed {
             policies.reverse()
             done.reverse()

@@ -66,9 +66,10 @@ struct FoundationModelsInterpreterTests {
     @Test("ADR-0027: a completion draft becomes a proposal that keeps the wording and needs confirmation")
     func completionDraftIsProposed() async throws {
         let text = "Changed the engine oil at 85 000 km"
-        let drafter = FakeDrafter(ModelDraft(
-            kind: .maintenanceCompletion, operation: .named(.engineOilService), odometerKm: 85000
-        ))
+        let drafter = FakeDrafter(
+            ModelDraft(
+                kind: .maintenanceCompletion, operation: .named(.engineOilService), odometerKm: 85000
+            ))
         let input = englishInput(text)
 
         let proposal = try #require(await FoundationModelsInterpreter(drafter: drafter).interpret(input))
@@ -127,9 +128,10 @@ struct FoundationModelsInterpreterTests {
 
     @Test("ADR-0027: the model's own reading of an intention can only suppress a proposal")
     func modelIntentionSuppresses() async throws {
-        let drafter = FakeDrafter(ModelDraft(
-            kind: .maintenanceCompletion, operation: .named(.sparkPlugs), reportsCompletedAction: false
-        ))
+        let drafter = FakeDrafter(
+            ModelDraft(
+                kind: .maintenanceCompletion, operation: .named(.sparkPlugs), reportsCompletedAction: false
+            ))
         #expect(try await interpret("new spark plugs in the car", with: drafter) == nil)
         #expect(drafter.callCount == 1)
     }
@@ -168,10 +170,11 @@ struct FoundationModelsInterpreterTests {
         #expect(wrong.extractedAmount == nil)
         let right = try #require(await interpret(text, with: FakeDrafter(ModelDraft(kind: .carWash, amount: 600))))
         #expect(right.extractedAmount == 600)
-        let unit = try #require(await interpret(
-            "washed the car, 84 200 km, paid 700",
-            with: FakeDrafter(ModelDraft(kind: .carWash, amount: 84200))
-        ))
+        let unit = try #require(
+            await interpret(
+                "washed the car, 84 200 km, paid 700",
+                with: FakeDrafter(ModelDraft(kind: .carWash, amount: 84200))
+            ))
         #expect(unit.extractedAmount == nil)
     }
 
@@ -214,8 +217,10 @@ struct FoundationModelsInterpreterTests {
     @Test(
         "REQ-CAPTURE-007: an unavailable model or language throws, so the wording is kept raw",
         arguments: [
-            (ModelReadiness.unavailable(.appleIntelligenceNotEnabled),
-             FoundationModelsInterpreterError.modelUnavailable(.appleIntelligenceNotEnabled)),
+            (
+                ModelReadiness.unavailable(.appleIntelligenceNotEnabled),
+                FoundationModelsInterpreterError.modelUnavailable(.appleIntelligenceNotEnabled)
+            ),
             (ModelReadiness.unavailable(.deviceNotEligible), .modelUnavailable(.deviceNotEligible)),
             (ModelReadiness.unsupportedLanguage, .unsupportedLanguage),
         ]

@@ -27,11 +27,12 @@ private struct PhotoDirectory {
 
 /// A fictional picture as JPEG bytes: two blocks of colour, no real car and no real place.
 private func syntheticJPEG(width: Int = 64, height: Int = 32) throws -> Data {
-    let context = try #require(CGContext(
-        data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-        space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
-    ))
+    let context = try #require(
+        CGContext(
+            data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+        ))
     context.setFillColor(CGColor(red: 0.6, green: 0.3, blue: 0.2, alpha: 1))
     context.fill(CGRect(x: 0, y: 0, width: width / 2, height: height))
     let image = try #require(context.makeImage())
@@ -43,11 +44,12 @@ private func syntheticJPEG(width: Int = 64, height: Int = 32) throws -> Data {
 }
 
 private func cutOut() throws -> CGImage {
-    let context = try #require(CGContext(
-        data: nil, width: 2, height: 1, bitsPerComponent: 8, bytesPerRow: 0,
-        space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-    ))
+    let context = try #require(
+        CGContext(
+            data: nil, width: 2, height: 1, bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ))
     return try #require(context.makeImage())
 }
 
@@ -116,8 +118,8 @@ private actor ProfileFailingStore: CarMemoryStore {
 @Suite("Saving the car's photo and body")
 struct CarPhotoSaveTests {
     private static let repositoryRoot = URL(filePath: #filePath)
-        .deletingLastPathComponent() // CarBoard
-        .deletingLastPathComponent() // PitstopTests
+        .deletingLastPathComponent()  // CarBoard
+        .deletingLastPathComponent()  // PitstopTests
         .deletingLastPathComponent()
 
     private func model(

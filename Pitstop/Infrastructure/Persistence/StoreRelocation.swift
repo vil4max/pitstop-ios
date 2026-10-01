@@ -30,8 +30,8 @@ struct FileManagerStoreFiles: StoreFileOperations {
 
     func identity(of url: URL) -> StoreFileIdentity? {
         guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path),
-              let size = (attributes[.size] as? NSNumber)?.int64Value,
-              let modified = attributes[.modificationDate] as? Date
+            let size = (attributes[.size] as? NSNumber)?.int64Value,
+            let modified = attributes[.modificationDate] as? Date
         else { return nil }
         return StoreFileIdentity(size: size, modified: modified.timeIntervalSinceReferenceDate)
     }

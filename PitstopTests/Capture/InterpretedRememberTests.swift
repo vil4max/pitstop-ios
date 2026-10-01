@@ -39,7 +39,9 @@ struct InterpretedRememberTests {
     @Test("REQ-CAPTURE-001: raw mode never calls the interpreter and saves the wording")
     func rawModeCallsNoInterpreter() async throws {
         let store = FakeCarMemoryStore()
-        let interpreter = StubInterpreter { _ in Issue.record("the interpreter was called in raw mode"); return nil }
+        let interpreter = StubInterpreter { _ in
+            Issue.record("the interpreter was called in raw mode"); return nil
+        }
         let capture = input("поменял масло на 85000")
 
         let outcome = try await pipeline(store, interpreter: interpreter).remember(capture, mode: .raw)
@@ -89,10 +91,12 @@ struct InterpretedRememberTests {
     func confirmingWritesTheCompletion() async throws {
         let store = FakeCarMemoryStore()
         let flow = pipeline(store)
-        guard case let .needsConfirmation(pending) = try await flow.remember(
-            input("поменял масло на 85000"),
-            mode: .interpreted
-        ) else {
+        guard
+            case let .needsConfirmation(pending) = try await flow.remember(
+                input("поменял масло на 85000"),
+                mode: .interpreted
+            )
+        else {
             Issue.record("expected a confirmation")
             return
         }
@@ -113,10 +117,12 @@ struct InterpretedRememberTests {
     func decliningPreservesTheWording() async throws {
         let store = FakeCarMemoryStore()
         let flow = pipeline(store)
-        guard case let .needsConfirmation(pending) = try await flow.remember(
-            input("помыл машину за 1200"),
-            mode: .interpreted
-        ) else {
+        guard
+            case let .needsConfirmation(pending) = try await flow.remember(
+                input("помыл машину за 1200"),
+                mode: .interpreted
+            )
+        else {
             Issue.record("expected a confirmation")
             return
         }
@@ -237,10 +243,12 @@ struct InterpretedRememberTests {
     func failedWriteIsNotSaved() async throws {
         let store = FakeCarMemoryStore()
         let flow = pipeline(store)
-        guard case let .needsConfirmation(pending) = try await flow.remember(
-            input("поменял масло на 85000"),
-            mode: .interpreted
-        ) else {
+        guard
+            case let .needsConfirmation(pending) = try await flow.remember(
+                input("поменял масло на 85000"),
+                mode: .interpreted
+            )
+        else {
             Issue.record("expected a confirmation")
             return
         }
@@ -279,10 +287,12 @@ struct InterpretedRememberTests {
         let store = FakeCarMemoryStore()
         let spy = StageSpy()
         let flow = RememberPipeline(store: store, interpreter: RuleBasedInterpreter(), observer: spy, now: { now })
-        guard case let .needsConfirmation(pending) = try await flow.remember(
-            input("поменял масло на 85000"),
-            mode: .interpreted
-        ) else {
+        guard
+            case let .needsConfirmation(pending) = try await flow.remember(
+                input("поменял масло на 85000"),
+                mode: .interpreted
+            )
+        else {
             Issue.record("expected a confirmation")
             return
         }
@@ -308,10 +318,11 @@ struct InterpretedRememberTests {
         }
         _ = try await flow.confirm(pending)
 
-        #expect(spy.events.map(\.stage) == [
-            .captureReceived, .interpretationStarted, .interpretationCompleted, .proposalValidated,
-            .confirmationRequired, .domainCommandCreated, .mutationCompleted,
-        ])
+        #expect(
+            spy.events.map(\.stage) == [
+                .captureReceived, .interpretationStarted, .interpretationCompleted, .proposalValidated,
+                .confirmationRequired, .domainCommandCreated, .mutationCompleted,
+            ])
         #expect(Set(spy.events.map(\.correlationID)) == [capture.id])
     }
 

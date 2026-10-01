@@ -9,7 +9,7 @@ public enum DomainCommandLimits {
     public static let earliestVehicleYear = 1886
 
     public static func isPlausibleOdometer(_ kilometers: Double) -> Bool {
-        kilometers.isFinite && (0 ... maximumOdometerKm).contains(kilometers)
+        kilometers.isFinite && (0...maximumOdometerKm).contains(kilometers)
     }
 
     public static func isNotFuture(_ date: Date, now: Date) -> Bool {
@@ -19,6 +19,6 @@ public enum DomainCommandLimits {
     public static func isValidVehicleYear(_ value: String, now: Date) -> Bool {
         let nextModelYear = Calendar(identifier: .gregorian).component(.year, from: now) + 1
         guard let year = Int(value.trimmingCharacters(in: .whitespaces)) else { return false }
-        return (earliestVehicleYear ... nextModelYear).contains(year)
+        return (earliestVehicleYear...nextModelYear).contains(year)
     }
 }

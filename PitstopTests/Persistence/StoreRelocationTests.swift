@@ -49,12 +49,18 @@ private func seedCarMemory(_ store: SwiftDataCarMemoryStore) async throws -> Veh
     let vehicleID = try await store.currentVehicle().id
     let commands: [DomainCommand] = [
         .recordOdometerReading(.init(reading: OdometerReading(vehicleID: vehicleID, value: 38800, recordedAt: now))),
-        .setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenanceFixture.custom(
-            .engineOilService, km: 15000, months: 12
-        ))),
-        .confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: .engineOilService, performedAt: now - 200 * 86400, odometerKm: 30000
-        ))),
+        .setMaintenancePolicy(
+            .init(
+                vehicleID: vehicleID,
+                policy: MaintenanceFixture.custom(
+                    .engineOilService, km: 15000, months: 12
+                ))),
+        .confirmMaintenanceCompletion(
+            .init(
+                completion: MaintenanceCompletion(
+                    vehicleID: vehicleID, operationID: .engineOilService, performedAt: now - 200 * 86400,
+                    odometerKm: 30000
+                ))),
     ]
     for command in commands {
         try await store.execute(command, now: now)
@@ -68,9 +74,10 @@ private func seedLegacyCarMemory(_ writer: LegacyStoreWriter) -> VehicleID {
     let vehicleID = writer.car()
     writer.insert(OdometerReading(vehicleID: vehicleID, value: 38800, recordedAt: now))
     writer.insert(MaintenanceFixture.custom(.engineOilService, km: 15000, months: 12), vehicleID: vehicleID)
-    writer.insert(MaintenanceCompletion(
-        vehicleID: vehicleID, operationID: .engineOilService, performedAt: now - 200 * 86400, odometerKm: 30000
-    ))
+    writer.insert(
+        MaintenanceCompletion(
+            vehicleID: vehicleID, operationID: .engineOilService, performedAt: now - 200 * 86400, odometerKm: 30000
+        ))
     return vehicleID
 }
 
@@ -79,7 +86,7 @@ private func seedLegacyCarMemory(_ writer: LegacyStoreWriter) -> VehicleID {
 private func settle(_ store: URL) async throws {
     let files = FileManagerStoreFiles()
     var previous = StoreLocation.files(of: store).map(files.identity(of:))
-    for _ in 0 ..< 20 {
+    for _ in 0..<20 {
         try await Task.sleep(for: .milliseconds(100))
         let current = StoreLocation.files(of: store).map(files.identity(of:))
         if current == previous {
@@ -192,9 +199,13 @@ struct StoreRelocationTests {
         do {
             let store = try TestStore.carMemory(url: containers.groupStore)
             let vehicleID = try await store.currentVehicle().id
-            try await store.execute(.setMaintenancePolicy(.init(vehicleID: vehicleID, policy: MaintenanceFixture.custom(
-                .brakeFluid, months: 24
-            ))), now: now)
+            try await store.execute(
+                .setMaintenancePolicy(
+                    .init(
+                        vehicleID: vehicleID,
+                        policy: MaintenanceFixture.custom(
+                            .brakeFluid, months: 24
+                        ))), now: now)
         }
         _ = try await seedCarMemory(TestStore.carMemory(url: containers.legacyStore))
         try await settle(containers.legacyStore)

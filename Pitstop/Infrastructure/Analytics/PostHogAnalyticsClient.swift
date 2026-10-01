@@ -161,7 +161,7 @@ final class PostHogAnalyticsClient: AnalyticsClient, AnalyticsPipelineControllin
             Self.logger.error("Analytics batch not encodable; dropped \(batch.count) events")
             return true
         }
-        for attempt in 1 ... policy.maxAttempts {
+        for attempt in 1...policy.maxAttempts {
             // Consent may have been withdrawn during a backoff.
             guard identity.anonymousID == batch.first?.distinctID else { return true }
             switch await post(body) {
@@ -187,8 +187,8 @@ final class PostHogAnalyticsClient: AnalyticsClient, AnalyticsPipelineControllin
         do {
             let status = try await transport.post(body, to: configuration.batchURL)
             switch status {
-            case 200 ..< 300: return .delivered
-            case 0, 408, 429, 500 ... 599: return .transient
+            case 200..<300: return .delivered
+            case 0, 408, 429, 500...599: return .transient
             default: return .rejected(status: status)
             }
         } catch {

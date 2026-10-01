@@ -46,11 +46,13 @@ struct ServiceViewModelTests {
         let model = TestViewModels.service(store, now: now)
         let vehicleID = await store.vehicle.id
         _ = try await store.execute(
-            .recordOdometerReading(.init(reading: OdometerReading(
-                vehicleID: vehicleID,
-                value: 84500,
-                recordedAt: now
-            ))),
+            .recordOdometerReading(
+                .init(
+                    reading: OdometerReading(
+                        vehicleID: vehicleID,
+                        value: 84500,
+                        recordedAt: now
+                    ))),
             now: now
         )
         #expect(await model.track(.engineOilService, kilometersText: "10000", monthsText: "12"))
@@ -87,11 +89,12 @@ struct ServiceViewModelTests {
     func tileStateNeverInventsBaseline() async throws {
         let store = FakeCarMemoryStore()
         let board = CarBoardViewModel(store: store, now: { now })
-        #expect(await TestViewModels.service(store, now: now).track(
-            .engineOilService,
-            kilometersText: "10000",
-            monthsText: ""
-        ))
+        #expect(
+            await TestViewModels.service(store, now: now).track(
+                .engineOilService,
+                kilometersText: "10000",
+                monthsText: ""
+            ))
 
         await board.load()
 

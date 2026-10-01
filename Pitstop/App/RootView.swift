@@ -56,7 +56,7 @@ struct RootView: View {
     private static func initialPath(arguments: [String] = ProcessInfo.processInfo.arguments) -> [CarBoardRoute] {
         #if DEBUG
             if let index = arguments.firstIndex(of: "-pitstop-open"), arguments.indices.contains(index + 1),
-               let kind = CarBoardTileKind(rawValue: arguments[index + 1])
+                let kind = CarBoardTileKind(rawValue: arguments[index + 1])
             {
                 return [.tile(kind)]
             }

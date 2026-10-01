@@ -75,11 +75,11 @@ public enum VehicleServiceReportLimits {
     public static let oldAfter: TimeInterval = 180 * 24 * 60 * 60
 
     public static func isPlausibleRemainingKm(_ kilometers: Double) -> Bool {
-        kilometers.isFinite && (minimumRemainingKm ... maximumRemainingKm).contains(kilometers)
+        kilometers.isFinite && (minimumRemainingKm...maximumRemainingKm).contains(kilometers)
     }
 
     public static func isPlausibleRemainingDays(_ days: Int) -> Bool {
-        (minimumRemainingDays ... maximumRemainingDays).contains(days)
+        (minimumRemainingDays...maximumRemainingDays).contains(days)
     }
 }
 

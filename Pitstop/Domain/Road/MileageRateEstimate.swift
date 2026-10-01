@@ -95,18 +95,18 @@ public enum MileageRateEstimator {
     ) -> MileageRate? {
         let daily = daily(observations, now: now, calendar: calendar)
         guard daily.count >= MileageRateRules.minimumObservations,
-              let oldest = daily.first, let newest = daily.last,
-              days(from: oldest.day, to: newest.day, calendar: calendar) >= MileageRateRules.minimumSpanDays,
-              // The same staleness rule as Service and Road: an old car position describes no rate either.
-              now.timeIntervalSince(newest.recordedAt) <= MaintenanceRules.mileageStaleAfter
+            let oldest = daily.first, let newest = daily.last,
+            days(from: oldest.day, to: newest.day, calendar: calendar) >= MileageRateRules.minimumSpanDays,
+            // The same staleness rule as Service and Road: an old car position describes no rate either.
+            now.timeIntervalSince(newest.recordedAt) <= MaintenanceRules.mileageStaleAfter
         else { return nil }
 
         let usable = pairs(daily, calendar: calendar).filter {
             $0.km >= 0 && $0.kmPerDay <= MileageRateRules.implausibleKmPerDay
         }
         guard usable.count >= MileageRateRules.minimumPairs,
-              let first = usable.first, let last = usable.last,
-              let typical = typicalRate(of: usable)
+            let first = usable.first, let last = usable.last,
+            let typical = typicalRate(of: usable)
         else { return nil }
 
         let overallDays = days(from: first.start.day, to: last.end.day, calendar: calendar)
@@ -131,10 +131,10 @@ public enum MileageRateEstimator {
         let earlyDays = Int((remaining / rate.fasterKmPerDay).rounded())
         let lateDays = Int((remaining / rate.slowerKmPerDay).rounded())
         guard earlyDays <= MileageRateRules.maximumEstimateDaysAhead,
-              lateDays <= MileageRateRules.maximumEstimateDaysAhead,
-              Double(lateDays) <= MileageRateRules.maximumSpreadRatio * Double(earlyDays),
-              let earliest = calendar.date(byAdding: .day, value: earlyDays, to: rate.observedDay),
-              var latest = calendar.date(byAdding: .day, value: lateDays, to: rate.observedDay)
+            lateDays <= MileageRateRules.maximumEstimateDaysAhead,
+            Double(lateDays) <= MileageRateRules.maximumSpreadRatio * Double(earlyDays),
+            let earliest = calendar.date(byAdding: .day, value: earlyDays, to: rate.observedDay),
+            var latest = calendar.date(byAdding: .day, value: lateDays, to: rate.observedDay)
         else { return nil }
 
         if let timeAnchor {

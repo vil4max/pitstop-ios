@@ -41,15 +41,17 @@ struct CaptureAnalyticsMappingTests {
     @Test("ADR-0021: a raw note is note_created with no context and no interpretation events")
     func rawNote() {
         let harness = Harness()
-        harness.stages([
-            (.captureReceived, nil), (.proposalValidated, .rawNote), (.domainCommandCreated, .rawNote),
-            (.mutationCompleted, .rawNote),
-        ], source: .directApp)
+        harness.stages(
+            [
+                (.captureReceived, nil), (.proposalValidated, .rawNote), (.domainCommandCreated, .rawNote),
+                (.mutationCompleted, .rawNote),
+            ], source: .directApp)
 
         #expect(harness.spy.names == [.noteCreated])
-        #expect(harness.spy.last(.noteCreated) == [
-            .inputSource: "explicit", .contextCountBucket: "0", .hasCanonicalContext: "false",
-        ])
+        #expect(
+            harness.spy.last(.noteCreated) == [
+                .inputSource: "explicit", .contextCountBucket: "0", .hasCanonicalContext: "false",
+            ])
     }
 
     @Test("ADR-0021: an auto-accepted reading was never shown, so it is odometer_updated without a draft event")
@@ -58,16 +60,18 @@ struct CaptureAnalyticsMappingTests {
         let id = UUID()
         harness.stages([(.captureReceived, nil), (.interpretationStarted, nil)], id: id, source: .pitVoice)
         harness.clock.advance(by: .milliseconds(400))
-        harness.stages([
-            (.interpretationCompleted, .odometerReading), (.proposalValidated, .odometerReading),
-            (.domainCommandCreated, .odometerReading), (.mutationCompleted, .odometerReading),
-        ], id: id, source: .pitVoice)
+        harness.stages(
+            [
+                (.interpretationCompleted, .odometerReading), (.proposalValidated, .odometerReading),
+                (.domainCommandCreated, .odometerReading), (.mutationCompleted, .odometerReading),
+            ], id: id, source: .pitVoice)
 
         #expect(harness.spy.names == [.inputInterpretationCompleted, .odometerUpdated])
-        #expect(harness.spy.last(.inputInterpretationCompleted) == [
-            .intent: "odometer_reading", .availability: "available", .result: "draft",
-            .latencyBucket: "lt_1s", .interpreterVersion: "rule_based_1",
-        ])
+        #expect(
+            harness.spy.last(.inputInterpretationCompleted) == [
+                .intent: "odometer_reading", .availability: "available", .result: "draft",
+                .latencyBucket: "lt_1s", .interpreterVersion: "rule_based_1",
+            ])
         #expect(harness.spy.last(.odometerUpdated) == [.source: "natural", .anomalyConfirmation: "none"])
     }
 
@@ -102,14 +106,16 @@ struct CaptureAnalyticsMappingTests {
     func declinedDraftKeepsWords() {
         let harness = Harness()
         let id = UUID()
-        harness.stages([
-            (.captureReceived, nil), (.interpretationStarted, nil), (.interpretationCompleted, .vehicleEvent),
-            (.proposalValidated, .vehicleEvent), (.confirmationRequired, .vehicleEvent),
-        ], id: id)
-        harness.stages([
-            (.proposalValidated, .rawNote), (.domainCommandCreated, .rawNote), (.mutationCompleted, .rawNote),
-            (.rawPreserved, .rawNote),
-        ], id: id)
+        harness.stages(
+            [
+                (.captureReceived, nil), (.interpretationStarted, nil), (.interpretationCompleted, .vehicleEvent),
+                (.proposalValidated, .vehicleEvent), (.confirmationRequired, .vehicleEvent),
+            ], id: id)
+        harness.stages(
+            [
+                (.proposalValidated, .rawNote), (.domainCommandCreated, .rawNote), (.mutationCompleted, .rawNote),
+                (.rawPreserved, .rawNote),
+            ], id: id)
 
         #expect(harness.spy.names == [.inputInterpretationCompleted, .draftCancelled, .noteCreated])
         #expect(harness.spy.last(.draftCancelled) == [.intent: "vehicle_event", .stage: "preview"])
@@ -133,11 +139,12 @@ struct CaptureAnalyticsMappingTests {
     func retryAfterFailureSavesOnce() {
         let harness = Harness()
         let id = UUID()
-        harness.stages([
-            (.captureReceived, nil), (.interpretationStarted, nil), (.interpretationCompleted, .odometerReading),
-            (.proposalValidated, .odometerReading), (.confirmationRequired, .odometerReading),
-            (.domainCommandCreated, .odometerReading), (.pipelineFailed, .odometerReading),
-        ], id: id)
+        harness.stages(
+            [
+                (.captureReceived, nil), (.interpretationStarted, nil), (.interpretationCompleted, .odometerReading),
+                (.proposalValidated, .odometerReading), (.confirmationRequired, .odometerReading),
+                (.domainCommandCreated, .odometerReading), (.pipelineFailed, .odometerReading),
+            ], id: id)
         harness.stages([(.domainCommandCreated, .odometerReading), (.mutationCompleted, .odometerReading)], id: id)
 
         #expect(harness.spy.names == [.inputInterpretationCompleted, .draftSaved, .odometerUpdated])
@@ -147,11 +154,12 @@ struct CaptureAnalyticsMappingTests {
     @Test("ADR-0021: a confirmed captured reading is a saved draft with an accepted anomaly")
     func confirmedReading() {
         let harness = Harness()
-        harness.stages([
-            (.captureReceived, nil), (.interpretationStarted, nil), (.interpretationCompleted, .odometerReading),
-            (.proposalValidated, .odometerReading), (.confirmationRequired, .odometerReading),
-            (.domainCommandCreated, .odometerReading), (.mutationCompleted, .odometerReading),
-        ], source: .siri)
+        harness.stages(
+            [
+                (.captureReceived, nil), (.interpretationStarted, nil), (.interpretationCompleted, .odometerReading),
+                (.proposalValidated, .odometerReading), (.confirmationRequired, .odometerReading),
+                (.domainCommandCreated, .odometerReading), (.mutationCompleted, .odometerReading),
+            ], source: .siri)
 
         #expect(harness.spy.names == [.inputInterpretationCompleted, .draftSaved, .odometerUpdated])
         #expect(harness.spy.last(.draftSaved) == [.intent: "odometer_reading", .edited: "false"])
@@ -161,10 +169,12 @@ struct CaptureAnalyticsMappingTests {
     @Test("ADR-0021: a contextual note has a canonical context and no guessed context count")
     func contextualNote() {
         let harness = Harness()
-        harness.stages([
-            (.captureReceived, nil), (.proposalValidated, .contextualNote), (.domainCommandCreated, .contextualNote),
-            (.mutationCompleted, .contextualNote),
-        ], source: .pitVoice)
+        harness.stages(
+            [
+                (.captureReceived, nil), (.proposalValidated, .contextualNote),
+                (.domainCommandCreated, .contextualNote),
+                (.mutationCompleted, .contextualNote),
+            ], source: .pitVoice)
 
         #expect(harness.spy.names == [.noteCreated])
         #expect(harness.spy.last(.noteCreated) == [.inputSource: "voice", .hasCanonicalContext: "true"])
@@ -175,12 +185,12 @@ struct CaptureAnalyticsMappingTests {
         let harness = Harness()
         let abandoned = UUID()
         harness.stages([(.captureReceived, nil), (.confirmationRequired, .expense)], id: abandoned)
-        for _ in 0 ..< CaptureAnalyticsObserver.journeyLimit {
+        for _ in 0..<CaptureAnalyticsObserver.journeyLimit {
             harness.stages([(.captureReceived, nil)])
         }
         // Stages that used to re-create a journey outside the eviction order.
         harness.stages([(.interpretationStarted, nil), (.confirmationRequired, .expense)], id: abandoned)
-        for _ in 0 ..< CaptureAnalyticsObserver.journeyLimit {
+        for _ in 0..<CaptureAnalyticsObserver.journeyLimit {
             harness.stages([(.captureReceived, nil)])
         }
         harness.stages([(.interpretationCompleted, .expense), (.captureDiscarded, .expense)], id: abandoned)

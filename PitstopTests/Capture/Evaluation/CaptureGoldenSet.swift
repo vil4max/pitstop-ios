@@ -45,9 +45,10 @@ struct GoldenCase: Sendable, CustomTestStringConvertible {
         )
     }
 
-    static func wash(_ text: String, amount: Decimal? = nil, km: Double? = nil,
-                     locale: String = "ru_RU") -> GoldenCase
-    {
+    static func wash(
+        _ text: String, amount: Decimal? = nil, km: Double? = nil,
+        locale: String = "ru_RU"
+    ) -> GoldenCase {
         GoldenCase(
             text: text,
             locale: locale,

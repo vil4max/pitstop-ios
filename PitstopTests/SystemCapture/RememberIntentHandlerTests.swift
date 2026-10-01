@@ -258,9 +258,10 @@ struct RememberIntentHandlerTests {
 
     @Test("REQ-CAPTURE-020, ADR-0026: a detail that cannot be said in one step offers to keep the words")
     func clarificationOffersWordsOnly() async throws {
-        let app = try Harness(interpreter: RecordingInterpreter { input in
-            MemoryProposal(sourceInputID: input.id, kind: .vehicleFact, rawText: input.payload.rawContent)
-        })
+        let app = try Harness(
+            interpreter: RecordingInterpreter { input in
+                MemoryProposal(sourceInputID: input.id, kind: .vehicleFact, rawText: input.payload.rawContent)
+            })
         let prompter = FakePrompter(.wordsOnly)
 
         let reply = try await app.say("поменял данные машины", prompter: prompter)
@@ -388,10 +389,11 @@ struct RememberVoiceClarificationTests {
 
         let reply = try await app.say("записал показания", prompter: prompter)
 
-        #expect(prompter.questions == [
-            .value(.odometerKm, repeated: false),
-            .confirm(.odometerReading(kilometers: 84200, recordedAt: now), conflicts: []),
-        ])
+        #expect(
+            prompter.questions == [
+                .value(.odometerKm, repeated: false),
+                .confirm(.odometerReading(kilometers: 84200, recordedAt: now), conflicts: []),
+            ])
         #expect(reply == .saved(.carBoard, preservedRaw: false))
         #expect(try await app.readings().map(\.value) == [84200])
     }
@@ -417,10 +419,11 @@ struct RememberVoiceClarificationTests {
 
         let reply = try await app.say("записал показания", prompter: prompter)
 
-        #expect(prompter.questions.prefix(2) == [
-            .value(.odometerKm, repeated: false),
-            .value(.odometerKm, repeated: true),
-        ])
+        #expect(
+            prompter.questions.prefix(2) == [
+                .value(.odometerKm, repeated: false),
+                .value(.odometerKm, repeated: true),
+            ])
         #expect(reply == .saved(.carBoard, preservedRaw: false))
         #expect(try await app.readings().map(\.value) == [91500])
     }
@@ -435,10 +438,11 @@ struct RememberVoiceClarificationTests {
 
         let reply = try await app.say("записал показания", prompter: prompter)
 
-        #expect(prompter.questions == [
-            .value(.odometerKm, repeated: false),
-            .value(.odometerKm, repeated: true),
-        ])
+        #expect(
+            prompter.questions == [
+                .value(.odometerKm, repeated: false),
+                .value(.odometerKm, repeated: true),
+            ])
         #expect(reply == .saved(.notes, preservedRaw: true))
         #expect(try await app.readings().isEmpty)
     }
@@ -451,13 +455,14 @@ struct RememberVoiceClarificationTests {
         let reply = try await app.say("сделал работу на 84200", prompter: prompter)
 
         let catalog = MaintenanceOperationID.catalog.map(ClarificationAnswer.operation)
-        #expect(prompter.questions == [
-            .pick(.operationID, options: catalog),
-            .confirm(
-                .maintenanceCompletion(operationID: .engineOilService, performedAt: now, odometerKm: 84200),
-                conflicts: []
-            ),
-        ])
+        #expect(
+            prompter.questions == [
+                .pick(.operationID, options: catalog),
+                .confirm(
+                    .maintenanceCompletion(operationID: .engineOilService, performedAt: now, odometerKm: 84200),
+                    conflicts: []
+                ),
+            ])
         #expect(reply == .saved(.service, preservedRaw: false))
         #expect(try await app.completions().map(\.operationID) == [.engineOilService])
     }
@@ -469,10 +474,12 @@ struct RememberVoiceClarificationTests {
 
         let reply = try await app.say("было событие", prompter: prompter)
 
-        #expect(prompter.questions.first == .pick(
-            .eventKind,
-            options: HistoryEventKind.userSelectable.map(ClarificationAnswer.eventKind)
-        ))
+        #expect(
+            prompter.questions.first
+                == .pick(
+                    .eventKind,
+                    options: HistoryEventKind.userSelectable.map(ClarificationAnswer.eventKind)
+                ))
         #expect(prompter.questions.count == 2)
         #expect(reply == .saved(.history, preservedRaw: false))
         #expect(try await app.events().map(\.kind) == [.carWash])
@@ -501,10 +508,11 @@ struct RememberVoiceClarificationTests {
 
         let reply = try await app.say("записал показания", prompter: prompter)
 
-        #expect(prompter.questions.prefix(2) == [
-            .value(.odometerKm, repeated: false),
-            .value(.odometerKm, repeated: true),
-        ])
+        #expect(
+            prompter.questions.prefix(2) == [
+                .value(.odometerKm, repeated: false),
+                .value(.odometerKm, repeated: true),
+            ])
         #expect(prompter.questions.count == 3)
         #expect(reply == .saved(.carBoard, preservedRaw: false))
         #expect(try await app.readings().map(\.value) == [91500])
@@ -547,10 +555,11 @@ struct RememberVoiceClarificationTests {
 
         let reply = try await app.say("менять фильтр чаще", prompter: prompter)
 
-        #expect(prompter.questions == [
-            .pick(.operationID, options: MaintenanceOperationID.catalog.map(ClarificationAnswer.operation)),
-            .clarify(.policyInterval),
-        ])
+        #expect(
+            prompter.questions == [
+                .pick(.operationID, options: MaintenanceOperationID.catalog.map(ClarificationAnswer.operation)),
+                .clarify(.policyInterval),
+            ])
         #expect(reply == .cancelled)
         #expect(try await app.isUnchanged())
         #expect(app.stages.events.filter { $0.stage == .captureDiscarded }.count == 1)

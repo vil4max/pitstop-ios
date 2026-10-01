@@ -20,9 +20,10 @@ private func seedCarMemory(_ writer: LegacyStoreWriter) throws -> SeededFacts {
         MaintenancePolicy(operationID: .engineOilService, distanceIntervalKm: 10000, source: .userCustom),
         vehicleID: vehicleID
     )
-    writer.insert(MaintenanceCompletion(
-        vehicleID: vehicleID, operationID: .engineOilService, performedAt: now, odometerKm: 41000
-    ))
+    writer.insert(
+        MaintenanceCompletion(
+            vehicleID: vehicleID, operationID: .engineOilService, performedAt: now, odometerKm: 41000
+        ))
     writer.insert(Note(vehicleID: vehicleID, rawText: "before the migration", createdAt: now))
     try writer.save()
     return SeededFacts(vehicleID: vehicleID, reading: reading)
@@ -75,9 +76,10 @@ struct SchemaV3MigrationTests {
             modelContainer: container,
             registry: PitQuestionFixtures.registry()
         )
-        #expect(try await questions.questionStates() == [
-            PitQuestionState(questionID: oil, resolution: .deferred, lastAskedAt: now, resolvedAt: now + 5),
-        ])
+        #expect(
+            try await questions.questionStates() == [
+                PitQuestionState(questionID: oil, resolution: .deferred, lastAskedAt: now, resolvedAt: now + 5)
+            ])
         try await expectPlannedDatesWork(url: url, vehicleID: facts.vehicleID)
     }
 

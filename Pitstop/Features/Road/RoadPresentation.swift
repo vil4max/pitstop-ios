@@ -192,8 +192,7 @@ extension RoadProjection {
             // The state word is part of the sentence: VoiceOver never sees the marker symbols.
             let state = Text(milestone.state.label)
             return alsoAhead > 0
-                ?
-                Text(
+                ? Text(
                     "road.summary.nearestAndMore \(milestone.titleText) \(state) \(milestone.distanceText) \(alsoAhead)"
                 )
                 : Text("road.summary.nearest \(milestone.titleText) \(state) \(milestone.distanceText)")

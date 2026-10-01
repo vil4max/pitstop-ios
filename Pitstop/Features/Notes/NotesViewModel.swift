@@ -93,10 +93,11 @@ final class NotesViewModel {
         state.contextFilter = context
         guard isOpening, let context else { return }
         let active = state.notes.count(where: { $0.status == .active && $0.canonicalContexts.contains(context) })
-        analytics.track(.noteContextOpened(
-            context: AnalyticsNoteContext(context),
-            activeNoteCount: CountBucket(active)
-        ))
+        analytics.track(
+            .noteContextOpened(
+                context: AnalyticsNoteContext(context),
+                activeNoteCount: CountBucket(active)
+            ))
     }
 
     /// Direct app capture is a capture source like any other, so it goes through the pipeline

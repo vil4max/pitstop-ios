@@ -28,15 +28,19 @@ enum CaptureAnalyticsEvent: AnalyticsEncodable, Hashable {
             properties[.latencyBucket] = latency.map(AnalyticsValue.init)
             return AnalyticsEvent(name: .inputInterpretationCompleted, properties: properties)
         case let .draftSaved(intent, edited):
-            return AnalyticsEvent(name: .draftSaved, properties: [
-                .intent: AnalyticsValue(intent),
-                .edited: AnalyticsValue(edited),
-            ])
+            return AnalyticsEvent(
+                name: .draftSaved,
+                properties: [
+                    .intent: AnalyticsValue(intent),
+                    .edited: AnalyticsValue(edited),
+                ])
         case let .draftCancelled(intent, stage):
-            return AnalyticsEvent(name: .draftCancelled, properties: [
-                .intent: AnalyticsValue(intent),
-                .stage: AnalyticsValue(stage),
-            ])
+            return AnalyticsEvent(
+                name: .draftCancelled,
+                properties: [
+                    .intent: AnalyticsValue(intent),
+                    .stage: AnalyticsValue(stage),
+                ])
         }
     }
 }
@@ -194,13 +198,16 @@ final class CaptureAnalyticsObserver: CaptureStageObserving {
             state.journeys[id]?.interpretationStartedAt = moment
             return []
         case .interpretationCompleted:
-            return [.capture(.inputInterpretationCompleted(
-                intent: CaptureIntent(event.proposalKind),
-                availability: interpreter.availability,
-                result: InterpretationResult(event.proposalKind),
-                latency: journey.interpretationStartedAt.map { LatencyBucket(moment - $0) },
-                interpreter: interpreter
-            ))]
+            return [
+                .capture(
+                    .inputInterpretationCompleted(
+                        intent: CaptureIntent(event.proposalKind),
+                        availability: interpreter.availability,
+                        result: InterpretationResult(event.proposalKind),
+                        latency: journey.interpretationStartedAt.map { LatencyBucket(moment - $0) },
+                        interpreter: interpreter
+                    ))
+            ]
         case .confirmationRequired, .clarificationRequired:
             guard tracked != nil, let kind = event.proposalKind else { return [] }
             let stage: DraftStage = event.stage == .confirmationRequired ? .preview : .edit
@@ -238,23 +245,29 @@ final class CaptureAnalyticsObserver: CaptureStageObserving {
         }
         switch kind {
         case .rawNote:
-            outgoing.append(.notes(.noteCreated(
-                inputSource: NoteInputSource(source), contextCount: .zero, hasCanonicalContext: false
-            )))
+            outgoing.append(
+                .notes(
+                    .noteCreated(
+                        inputSource: NoteInputSource(source), contextCount: .zero, hasCanonicalContext: false
+                    )))
         case .contextualNote:
-            outgoing.append(.notes(.noteCreated(
-                inputSource: NoteInputSource(source), contextCount: nil, hasCanonicalContext: true
-            )))
+            outgoing.append(
+                .notes(
+                    .noteCreated(
+                        inputSource: NoteInputSource(source), contextCount: nil, hasCanonicalContext: true
+                    )))
         case .odometerReading:
             // A reading stops for confirmation only on a conflict or low confidence (ADR 0006); the
             // stage does not say which, so any confirmed reading counts as an accepted anomaly.
             let confirmed = journey.shownDraft?.stage == .preview
-            outgoing.append(.odometer(.odometerUpdated(
-                source: OdometerSource(source),
-                anomalyConfirmation: confirmed ? .accepted : .noAnomaly
-            )))
+            outgoing.append(
+                .odometer(
+                    .odometerUpdated(
+                        source: OdometerSource(source),
+                        anomalyConfirmation: confirmed ? .accepted : .noAnomaly
+                    )))
         case .vehicleFact, .maintenanceCompletion, .maintenancePolicyDraft, .vehicleServiceReport, .vehicleEvent,
-             .expense, .reminderCandidate, .unknown:
+            .expense, .reminderCandidate, .unknown:
             break
         }
         return outgoing

@@ -56,8 +56,8 @@ struct PitColorTests {
     func stageTintStaysInRange() {
         let light = [DesignTokens.stageTint.light, DesignTokens.stageTintStrong.light]
         let dark = [DesignTokens.stageTint.dark, DesignTokens.stageTintStrong.dark]
-        #expect(light.allSatisfy { (0.10 ... 0.22).contains($0) })
-        #expect(dark.allSatisfy { (0.14 ... 0.28).contains($0) })
+        #expect(light.allSatisfy { (0.10...0.22).contains($0) })
+        #expect(dark.allSatisfy { (0.14...0.28).contains($0) })
     }
 
     @Test("Increase Contrast raises the stage tint so the stage still reads as a surface")

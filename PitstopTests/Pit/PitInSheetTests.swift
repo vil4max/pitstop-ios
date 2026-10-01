@@ -9,8 +9,8 @@ private let now = DomainFixtures.Odometers.baseDate
 @Suite("Pit in sheets")
 struct PitInSheetTests {
     private static let repositoryRoot = URL(filePath: #filePath)
-        .deletingLastPathComponent() // Pit
-        .deletingLastPathComponent() // PitstopTests
+        .deletingLastPathComponent()  // Pit
+        .deletingLastPathComponent()  // PitstopTests
         .deletingLastPathComponent()
 
     /// The one file that presents capture over a sheet, and the root, which presents Settings and capture itself.
@@ -42,7 +42,7 @@ struct PitInSheetTests {
         let root = try Self.source("Pitstop/App/RootView.swift")
         let settings = try #require(root.range(of: "case .settings:"))
         let capture = try #require(root.range(of: "case .pit:"))
-        #expect(root[settings.upperBound ..< capture.lowerBound].contains(".pitStaysInSheet()"))
+        #expect(root[settings.upperBound..<capture.lowerBound].contains(".pitStaysInSheet()"))
         let captureCase = root[capture.upperBound...].prefix(400)
         #expect(!captureCase.contains("pitStaysInSheet"), "the capture surface shows Pit in its header instead")
         // The layer itself never rides up over the keyboard; Pit inside a sheet does.

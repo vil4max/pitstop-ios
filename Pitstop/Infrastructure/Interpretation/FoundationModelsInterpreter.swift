@@ -67,7 +67,7 @@ public struct FoundationModelsInterpreter: SemanticInterpreting {
         // language it does not cover, or one that cannot be told reliably, is not sent to the model. The
         // locale is not a fallback: it says what the person set, not what they wrote.
         guard let language = CaptureLanguage.dominant(in: text),
-              Self.hedgeRuleLanguages.contains(language.languageCode?.identifier ?? "")
+            Self.hedgeRuleLanguages.contains(language.languageCode?.identifier ?? "")
         else {
             throw FoundationModelsInterpreterError.unsupportedLanguage
         }
@@ -96,7 +96,8 @@ enum CaptureLanguage {
         let recognizer = NLLanguageRecognizer()
         recognizer.processString(text)
         guard let top = recognizer.languageHypotheses(withMaximum: 1).max(by: { $0.value < $1.value }),
-              top.key != .undetermined, top.value >= minimumConfidence else { return nil }
+            top.key != .undetermined, top.value >= minimumConfidence
+        else { return nil }
         return Locale.Language(identifier: top.key.rawValue)
     }
 }

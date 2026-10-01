@@ -11,7 +11,7 @@ struct VisionSubjectLifter: SubjectLifter {
         let handler = ImageRequestHandler(image)
         do {
             guard let observation = try await handler.perform(GenerateForegroundInstanceMaskRequest()),
-                  !observation.allInstances.isEmpty
+                !observation.allInstances.isEmpty
             else { return nil }
             let masked = try observation.generateMaskedImage(
                 for: observation.allInstances,

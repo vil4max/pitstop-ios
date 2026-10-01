@@ -145,16 +145,17 @@ private struct RoadSignView: View {
 #if DEBUG
     #Preview("Road lane") {
         let now = Date.now
-        let road = RoadProjector().project(RoadContext(
-            now: now,
-            maintenanceStates: [],
-            plannedEvents: [
-                PlannedVehicleEvent(kind: .insuranceExpiry, date: now.addingTimeInterval(-3 * 86400)),
-                PlannedVehicleEvent(kind: .other, date: now.addingTimeInterval(38 * 86400), label: "Winter tyres"),
-                PlannedVehicleEvent(kind: .plannedVisit, date: now.addingTimeInterval(45 * 86400)),
-                PlannedVehicleEvent(kind: .other, date: now.addingTimeInterval(121 * 86400)),
-            ]
-        ))
+        let road = RoadProjector().project(
+            RoadContext(
+                now: now,
+                maintenanceStates: [],
+                plannedEvents: [
+                    PlannedVehicleEvent(kind: .insuranceExpiry, date: now.addingTimeInterval(-3 * 86400)),
+                    PlannedVehicleEvent(kind: .other, date: now.addingTimeInterval(38 * 86400), label: "Winter tyres"),
+                    PlannedVehicleEvent(kind: .plannedVisit, date: now.addingTimeInterval(45 * 86400)),
+                    PlannedVehicleEvent(kind: .other, date: now.addingTimeInterval(121 * 86400)),
+                ]
+            ))
         PreviewMatrix {
             StageSurface {
                 ScrollView(.horizontal, showsIndicators: false) {

@@ -119,10 +119,11 @@ struct SwiftDataCarMemoryStoreTests {
         let vehicleID = try await store.currentVehicle().id
 
         let result = try await store.execute(
-            .recordVehicleFact(RecordVehicleFactCommand(
-                vehicleID: vehicleID,
-                fact: VehicleFact(field: .name, value: " Kestrel ")
-            )),
+            .recordVehicleFact(
+                RecordVehicleFactCommand(
+                    vehicleID: vehicleID,
+                    fact: VehicleFact(field: .name, value: " Kestrel ")
+                )),
             now: now
         )
 
@@ -150,15 +151,18 @@ struct SwiftDataCarMemoryStoreTests {
 
         let policies = try await store.maintenancePolicies()
 
-        #expect(Set(policies) == Set([
-            DomainFixtures.Maintenance.standardOilPolicy,
-            DomainFixtures.Maintenance.severeOilPolicy,
-            DomainFixtures.Maintenance.brakeFluidPolicy,
-        ]))
-        #expect(policies.effective == [
-            DomainFixtures.Maintenance.brakeFluidPolicy,
-            DomainFixtures.Maintenance.severeOilPolicy,
-        ])
+        #expect(
+            Set(policies)
+                == Set([
+                    DomainFixtures.Maintenance.standardOilPolicy,
+                    DomainFixtures.Maintenance.severeOilPolicy,
+                    DomainFixtures.Maintenance.brakeFluidPolicy,
+                ]))
+        #expect(
+            policies.effective == [
+                DomainFixtures.Maintenance.brakeFluidPolicy,
+                DomainFixtures.Maintenance.severeOilPolicy,
+            ])
     }
 
     @Test("ADR-0007: confirming a completion stores that completion and no history event")
@@ -187,11 +191,12 @@ struct SwiftDataCarMemoryStoreTests {
         let vehicleID = try await store.currentVehicle().id
 
         try await store.execute(
-            .createNote(CreateNoteCommand(
-                vehicleID: vehicleID,
-                rawText: "заменить дворники",
-                canonicalContexts: [.service]
-            )),
+            .createNote(
+                CreateNoteCommand(
+                    vehicleID: vehicleID,
+                    rawText: "заменить дворники",
+                    canonicalContexts: [.service]
+                )),
             now: now
         )
 
@@ -225,11 +230,12 @@ struct SwiftDataCarMemoryStoreTests {
         try await store.execute(.recordVehicleEvent(RecordVehicleEventCommand(event: wash)), now: now)
 
         try await store.execute(
-            .createNote(CreateNoteCommand(
-                vehicleID: vehicleID,
-                rawText: "омывайка",
-                canonicalContexts: [.shopping, .carWash]
-            )),
+            .createNote(
+                CreateNoteCommand(
+                    vehicleID: vehicleID,
+                    rawText: "омывайка",
+                    canonicalContexts: [.shopping, .carWash]
+                )),
             now: now
         )
 
@@ -310,10 +316,12 @@ struct SwiftDataNoteUpdateTests {
         let url = TestStore.temporaryURL()
         defer { TestStore.remove(at: url) }
         let store = try TestStore.carMemory(url: url)
-        guard case let .noteCreated(note) = try await store.execute(
-            .createNote(CreateNoteCommand(rawText: "заменить дворники")),
-            now: now
-        ) else {
+        guard
+            case let .noteCreated(note) = try await store.execute(
+                .createNote(CreateNoteCommand(rawText: "заменить дворники")),
+                now: now
+            )
+        else {
             Issue.record("expected a created note")
             return
         }

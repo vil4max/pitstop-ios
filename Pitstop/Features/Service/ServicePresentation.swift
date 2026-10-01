@@ -43,7 +43,7 @@ extension MaintenanceOperationState {
     /// 100 % the bar is full; the status word says overdue.
     func drawnUsedShare(mileage: MileageKnowledge) -> Double? {
         guard mileage == .known, lastCompletion != nil, status != .unknown,
-              let remainingFraction, let decidedBy, policy?.interval(in: decidedBy) != nil
+            let remainingFraction, let decidedBy, policy?.interval(in: decidedBy) != nil
         else { return nil }
         return RemainingShareTrack.clamped(1 - remainingFraction)
     }

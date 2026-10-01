@@ -67,7 +67,9 @@ struct PlannedEventEditorView: View {
                     }
                 }
             }
-        } save: { await onSave(draft) }
+        } save: {
+            await onSave(draft)
+        }
     }
 }
 

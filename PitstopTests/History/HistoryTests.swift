@@ -113,7 +113,7 @@ struct HistoryViewModelTests {
             ("1,200", .invalid),
             ("1.200", .invalid),
             ("1.200,50", .invalid),
-            ("abc", .invalid)
+            ("abc", .invalid),
         ]
     )
     func amountParsing(text: String, expected: AmountInput) {

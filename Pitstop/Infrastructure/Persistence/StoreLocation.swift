@@ -48,7 +48,7 @@ enum StoreLocation {
 
     static func readableStore(at store: URL, fileManager: FileManager = .default) -> URL? {
         guard fileManager.fileExists(atPath: movedMarkerURL(for: store).path),
-              fileManager.fileExists(atPath: store.path)
+            fileManager.fileExists(atPath: store.path)
         else { return nil }
         return store
     }

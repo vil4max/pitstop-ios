@@ -22,12 +22,13 @@ struct NextServiceTimelineProvider: TimelineProvider {
     }
 
     /// Fictional: the gallery and the placeholder never show the owner's data.
-    static let sample = NextServiceContent.operation(NextServiceSummary(
-        operation: .engineOilService,
-        status: .approaching,
-        word: .approaching,
-        fact: .progress(.kilometersAhead(1200), block: nil)
-    ))
+    static let sample = NextServiceContent.operation(
+        NextServiceSummary(
+            operation: .engineOilService,
+            status: .approaching,
+            word: .approaching,
+            fact: .progress(.kilometersAhead(1200), block: nil)
+        ))
 
     func placeholder(in _: Context) -> Entry {
         Entry(date: .now, content: Self.sample)
@@ -415,12 +416,13 @@ extension DistanceBlock {
     private typealias PreviewEntry = NextServiceTimelineProvider.Entry
 
     /// Fictional, like the gallery sample: a due operation shows the filled glyph and the due colour.
-    private let dueSample = NextServiceContent.operation(NextServiceSummary(
-        operation: .brakeFluid,
-        status: .due,
-        word: .due,
-        fact: .progress(.daysPast(12), block: nil)
-    ))
+    private let dueSample = NextServiceContent.operation(
+        NextServiceSummary(
+            operation: .brakeFluid,
+            status: .due,
+            word: .due,
+            fact: .progress(.daysPast(12), block: nil)
+        ))
 
     #Preview(as: .systemSmall) {
         NextServiceWidget()

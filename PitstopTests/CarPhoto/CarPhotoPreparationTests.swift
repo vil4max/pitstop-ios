@@ -21,11 +21,12 @@ private struct PhotoDirectory {
 
 /// A fictional picture as JPEG bytes: two blocks of colour, no real car and no real place.
 private func syntheticJPEG(width: Int, height: Int) throws -> Data {
-    let context = try #require(CGContext(
-        data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-        space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
-    ))
+    let context = try #require(
+        CGContext(
+            data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+        ))
     context.setFillColor(CGColor(red: 0.3, green: 0.4, blue: 0.5, alpha: 1))
     context.fill(CGRect(x: 0, y: 0, width: width / 2, height: height))
     let image = try #require(context.makeImage())
@@ -38,11 +39,12 @@ private func syntheticJPEG(width: Int, height: Int) throws -> Data {
 
 /// A one-pixel cut-out, enough for the store to write a lifted file.
 private func cutOut() throws -> CGImage {
-    let context = try #require(CGContext(
-        data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 0,
-        space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-    ))
+    let context = try #require(
+        CGContext(
+            data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ))
     return try #require(context.makeImage())
 }
 

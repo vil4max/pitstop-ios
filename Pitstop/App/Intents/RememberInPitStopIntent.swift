@@ -20,10 +20,12 @@ struct RememberInPitStopIntent: AppIntent {
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let speech = RememberSpeech(locale: systemContext.locale, isVoiceOnly: systemContext.isVoiceOnly)
         defer { handler.flushAnalytics() }
-        let reply = try await handler.remember(text, locale: speech.locale, prompter: SiriPrompter(
-            intent: self,
-            speech: speech
-        ))
+        let reply = try await handler.remember(
+            text, locale: speech.locale,
+            prompter: SiriPrompter(
+                intent: self,
+                speech: speech
+            ))
         switch reply {
         case .notSaved, .storageUnavailable:
             // A thrown error marks the run as failed in Shortcuts; Siri speaks its description.
@@ -43,12 +45,13 @@ private struct SiriPrompter: RememberPrompting {
     func choose(_ question: RememberQuestion) async throws -> RememberChoice {
         let record = IntentChoiceOption(title: speech.record)
         let wordsOnly = IntentChoiceOption(title: speech.wordsOnly)
-        let offered: [(option: IntentChoiceOption, choice: RememberChoice)] = switch question {
-        case .confirm: [(record, .record), (wordsOnly, .wordsOnly), (.cancel, .cancel)]
-        case .clarify: [(wordsOnly, .wordsOnly), (.cancel, .cancel)]
-        // Answered with `answer`; reaching here is a programming error, and cancelling writes nothing.
-        case .value, .pick: []
-        }
+        let offered: [(option: IntentChoiceOption, choice: RememberChoice)] =
+            switch question {
+            case .confirm: [(record, .record), (wordsOnly, .wordsOnly), (.cancel, .cancel)]
+            case .clarify: [(wordsOnly, .wordsOnly), (.cancel, .cancel)]
+            // Answered with `answer`; reaching here is a programming error, and cancelling writes nothing.
+            case .value, .pick: []
+            }
         guard !offered.isEmpty else { return .cancel }
         let options = offered.map(\.option)
         let chosen = try await intent.requestChoice(between: options, dialog: IntentDialog(speech.question(question)))

@@ -9,11 +9,12 @@ import UniformTypeIdentifiers
 
 /// A plain fictional picture: a block of colour, no real car and no real place.
 private func picture(width: Int = 64, height: Int = 32) throws -> CGImage {
-    let context = try #require(CGContext(
-        data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-        space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-    ))
+    let context = try #require(
+        CGContext(
+            data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ))
     context.setFillColor(CGColor(red: 0.3, green: 0.5, blue: 0.2, alpha: 1))
     context.fill(CGRect(x: 0, y: 0, width: width, height: height / 2))
     return try #require(context.makeImage())
@@ -26,12 +27,13 @@ private struct PhotoFolder {
     func write(_ image: CGImage, named name: String, as type: UTType) throws -> URL {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         let url = root.appending(path: name)
-        let destination = try #require(CGImageDestinationCreateWithURL(
-            url as CFURL,
-            type.identifier as CFString,
-            1,
-            nil
-        ))
+        let destination = try #require(
+            CGImageDestinationCreateWithURL(
+                url as CFURL,
+                type.identifier as CFString,
+                1,
+                nil
+            ))
         CGImageDestinationAddImage(destination, image, nil)
         try #require(CGImageDestinationFinalize(destination))
         return url
@@ -92,8 +94,9 @@ struct CarVisualTests {
             #expect(image.renderingMode == .alwaysTemplate, "\(body) is not a template image")
         }
         for dark in [false, true] {
-            #expect(resolved(CarVisual.placeholderColor, dark: dark)
-                .isEqual(resolved(PitColor.contentSecondary, dark: dark)))
+            #expect(
+                resolved(CarVisual.placeholderColor, dark: dark)
+                    .isEqual(resolved(PitColor.contentSecondary, dark: dark)))
         }
     }
 
@@ -102,8 +105,9 @@ struct CarVisualTests {
     @Test("REQ-DESIGN-005: both placeholders face right")
     func placeholdersFaceRight() throws {
         for body in CarBody.allCases {
-            let image = try #require(UIImage(named: CarVisual.placeholderAssetName(body), in: .main, with: nil)?
-                .cgImage)
+            let image = try #require(
+                UIImage(named: CarVisual.placeholderAssetName(body), in: .main, with: nil)?
+                    .cgImage)
             let (left, right) = try Self.opaqueMassInTopThird(of: image)
             #expect(left > right, "\(body) does not face right: left \(left), right \(right)")
         }
@@ -166,8 +170,9 @@ struct CarVisualTests {
         let missing = CarPhotoFiles(original: folder.root.appending(path: "gone.jpg"), lifted: nil)
         let garbage = try CarPhotoFiles(original: folder.writeGarbage(named: "b.jpg"), lifted: nil)
 
-        #expect(CarPicture
-            .resolve(body: .sedan, photo: missing, decode: CarPhotoDecoder.decode) == .placeholder(.sedan))
+        #expect(
+            CarPicture
+                .resolve(body: .sedan, photo: missing, decode: CarPhotoDecoder.decode) == .placeholder(.sedan))
         #expect(CarPicture.resolve(body: .suv, photo: garbage, decode: CarPhotoDecoder.decode) == .placeholder(.suv))
     }
 
@@ -187,15 +192,16 @@ struct CarVisualTests {
     private static func opaqueMassInTopThird(of image: CGImage) throws -> (left: Int, right: Int) {
         let width = image.width, height = image.height
         var alpha = [UInt8](repeating: 0, count: width * height)
-        let context = try #require(CGContext(
-            data: &alpha, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width,
-            space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.alphaOnly.rawValue
-        ))
+        let context = try #require(
+            CGContext(
+                data: &alpha, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width,
+                space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.alphaOnly.rawValue
+            ))
         context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
         var left = 0, right = 0
         // The buffer's first row is the image's top row.
-        for row in 0 ..< height / 3 {
-            for column in 0 ..< width where alpha[row * width + column] > 128 {
+        for row in 0..<height / 3 {
+            for column in 0..<width where alpha[row * width + column] > 128 {
                 if column < width / 2 {
                     left += 1
                 } else {

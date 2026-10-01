@@ -41,6 +41,8 @@ struct NoteEditorView: View {
                 }
                 .accessibilityIdentifier("notes.editor.text")
                 .onAppear { isFocused = true }
-        } save: { await onSave(text) }
+        } save: {
+            await onSave(text)
+        }
     }
 }

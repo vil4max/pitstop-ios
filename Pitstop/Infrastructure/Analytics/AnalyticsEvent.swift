@@ -74,8 +74,8 @@ enum CountBucket: String, AnalyticsCategory {
         switch count {
         case ..<1: self = .zero
         case 1: self = .one
-        case 2 ... 3: self = .twoToThree
-        case 4 ... 9: self = .fourToNine
+        case 2...3: self = .twoToThree
+        case 4...9: self = .fourToNine
         default: self = .tenOrMore
         }
     }

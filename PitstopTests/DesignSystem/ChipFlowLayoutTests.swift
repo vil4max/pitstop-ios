@@ -146,7 +146,7 @@ struct ChipFlowLayoutTests {
     func boundarySweep() {
         let line: CGFloat = 200
         let spacing: CGFloat = 8
-        let nearBoundary = (-3 ... 3).map { CGFloat($0) / 3 }
+        let nearBoundary = (-3...3).map { CGFloat($0) / 3 }
         var violations: [String] = []
         func check(_ widths: [CGFloat], _ width: CGFloat?) {
             if let violation = render(widths, proposal: width).violation(proposal: proposal(width)) {
@@ -166,7 +166,7 @@ struct ChipFlowLayoutTests {
         }
         // Lone chips of any tenth of a point near a line width: a pixel-snapped bounds narrower than the chip
         // must not re-measure it.
-        for tenth in 1870 ... 1890 {
+        for tenth in 1870...1890 {
             check([CGFloat(tenth) / 10], 300)
             check([CGFloat(tenth) / 10], nil)
         }

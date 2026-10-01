@@ -119,14 +119,15 @@ struct TrackSeveralTests {
 
         model.setKilometers("9000", for: .engineOilService)
         #expect(model.continueToReview())
-        #expect(model.reviewPolicies == [
-            MaintenancePolicy(
-                operationID: .engineOilService,
-                distanceIntervalKm: 9000,
-                timeIntervalMonths: 12,
-                source: .userCustom
-            ),
-        ])
+        #expect(
+            model.reviewPolicies == [
+                MaintenancePolicy(
+                    operationID: .engineOilService,
+                    distanceIntervalKm: 9000,
+                    timeIntervalMonths: 12,
+                    source: .userCustom
+                )
+            ])
     }
 
     @Test(
@@ -162,9 +163,10 @@ struct TrackSeveralTests {
         #expect(selectedKilometers().isEmpty)
 
         model.pickMonths(24, for: .engineOilService)
-        #expect(IntervalQuickPicks.months.filter {
-            IntervalQuickPicks.isSelected($0, fieldText: model.entry(for: .engineOilService).months)
-        } == [24])
+        #expect(
+            IntervalQuickPicks.months.filter {
+                IntervalQuickPicks.isSelected($0, fieldText: model.entry(for: .engineOilService).months)
+            } == [24])
     }
 
     @Test("ADR-0033: the step strip marks the step on screen, in the order of the four steps")
@@ -192,15 +194,16 @@ struct TrackSeveralTests {
         let model = reviewedOilAndBrakes(store)
 
         #expect(model.step == .review)
-        #expect(model.reviewPolicies == [
-            MaintenancePolicy(
-                operationID: .engineOilService,
-                distanceIntervalKm: 10000,
-                timeIntervalMonths: 12,
-                source: .userCustom
-            ),
-            MaintenancePolicy(operationID: .brakeFluid, timeIntervalMonths: 24, source: .userCustom),
-        ])
+        #expect(
+            model.reviewPolicies == [
+                MaintenancePolicy(
+                    operationID: .engineOilService,
+                    distanceIntervalKm: 10000,
+                    timeIntervalMonths: 12,
+                    source: .userCustom
+                ),
+                MaintenancePolicy(operationID: .brakeFluid, timeIntervalMonths: 24, source: .userCustom),
+            ])
         #expect(await store.executed.isEmpty)
         #expect(await store.policies.isEmpty)
 
@@ -387,11 +390,13 @@ struct TrackSeveralTests {
         // Brake fluid done 23 months ago: once tracked every 24 months, Road places it by date.
         let vehicleID = await store.vehicle.id
         _ = try await store.execute(
-            .confirmMaintenanceCompletion(.init(completion: MaintenanceCompletion(
-                vehicleID: vehicleID,
-                operationID: .brakeFluid,
-                performedAt: now.addingTimeInterval(-700 * 86400)
-            ))),
+            .confirmMaintenanceCompletion(
+                .init(
+                    completion: MaintenanceCompletion(
+                        vehicleID: vehicleID,
+                        operationID: .brakeFluid,
+                        performedAt: now.addingTimeInterval(-700 * 86400)
+                    ))),
             now: now
         )
         #expect(await service.track(.engineOilService, kilometersText: "10000", monthsText: ""))

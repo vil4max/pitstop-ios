@@ -77,6 +77,8 @@ private struct PitStaysInSheet: ViewModifier {
     @State private var id = UUID()
     @State private var saving = PitSheetSaving()
 
+    // PitInSheetTests reads the `.sheet(isPresented:` text below, which swift-format would split over two lines.
+    // swift-format-ignore
     func body(content: Content) -> some View {
         let host = PitCaptureEntry.Host.sheet(id)
         // Read here, not inside the binding, so the sheet follows the entry.

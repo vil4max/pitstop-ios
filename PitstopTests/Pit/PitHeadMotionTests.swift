@@ -25,7 +25,7 @@ struct PitHeadMotionTests {
     func headMovesStayInBounds() {
         for state in PitState.allCases {
             let pose = PitPose(state)
-            #expect(abs(pose.headTilt) <= 6 && (0 ... 3).contains(pose.headLift), "\(state)")
+            #expect(abs(pose.headTilt) <= 6 && (0...3).contains(pose.headLift), "\(state)")
         }
         #expect(abs(PitPose(.knock).headTilt) <= 4)
         // The knock's two bumps dip from the lifted pose and never lift the head past it or below rest.

@@ -57,11 +57,13 @@ extension MaintenanceOperationState {
         guard hasBaseline else { return .noBaseline }
         var measure: ProgressMeasure?
         if decidedBy == .distance, let kilometers = remainingKm {
-            measure = Self.measure(remaining: kilometers, isDue: status == .due, ahead: ProgressMeasure.kilometersAhead,
-                                   past: ProgressMeasure.kilometersPast)
+            measure = Self.measure(
+                remaining: kilometers, isDue: status == .due, ahead: ProgressMeasure.kilometersAhead,
+                past: ProgressMeasure.kilometersPast)
         } else if decidedBy == .time, let days = remainingDays {
-            measure = Self.measure(remaining: days, isDue: status == .due, ahead: ProgressMeasure.daysLeft,
-                                   past: ProgressMeasure.daysPast)
+            measure = Self.measure(
+                remaining: days, isDue: status == .due, ahead: ProgressMeasure.daysLeft,
+                past: ProgressMeasure.daysPast)
         }
         if measure == nil, distanceBlock == nil {
             return .progress(nil, block: .mileageUnknown)
@@ -105,9 +107,10 @@ struct NextServiceSummary: Hashable, Sendable {
         self.init(operation: state.id, status: state.status, word: state.statusWord, fact: state.progressFact)
     }
 
-    init(operation: MaintenanceOperationID, status: MaintenanceStatus, word: MaintenanceStatusWord,
-         fact: ProgressFact)
-    {
+    init(
+        operation: MaintenanceOperationID, status: MaintenanceStatus, word: MaintenanceStatusWord,
+        fact: ProgressFact
+    ) {
         self.operation = operation
         self.status = status
         self.word = word

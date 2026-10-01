@@ -64,9 +64,10 @@ private func writeLegacyStore(_ schema: any VersionedSchema.Type, url: URL, fact
     context.insert(PitstopSchemaV1.NoteRecord(facts.note))
     let version = schema.versionIdentifier.major
     if version >= 2 {
-        context.insert(PitstopSchemaV2.PitQuestionStateRecord(
-            questionID: oil, resolution: "deferred", lastAskedAt: now, lastDismissedAt: nil, resolvedAt: nil
-        ))
+        context.insert(
+            PitstopSchemaV2.PitQuestionStateRecord(
+                questionID: oil, resolution: "deferred", lastAskedAt: now, lastDismissedAt: nil, resolvedAt: nil
+            ))
     }
     if version >= 3 {
         context.insert(PitstopSchemaV3.PlannedVehicleEventRecord(facts.planned))
@@ -185,8 +186,9 @@ struct SchemaV5MigrationTests {
             try await store.execute(.setCarBody(.init(vehicleID: vehicleID, body: .sedan)), now: now)
         }
         let readOnly = try PersistenceContainer.makeReadOnly(storeURL: url)
-        #expect(readOnly.schema.entities.map(\.name).sorted()
-            == Schema(versionedSchema: PitstopSchemaV5.self).entities.map(\.name).sorted())
+        #expect(
+            readOnly.schema.entities.map(\.name).sorted()
+                == Schema(versionedSchema: PitstopSchemaV5.self).entities.map(\.name).sorted())
         #expect(try NextServiceStoreReader.facts(at: url).hasVehicle)
     }
 
@@ -197,10 +199,11 @@ struct SchemaV5MigrationTests {
         for schema in PitstopMigrationPlan.schemas {
             versions.append(schema.versionIdentifier)
         }
-        #expect(versions == [
-            Schema.Version(1, 0, 0), Schema.Version(2, 0, 0), Schema.Version(3, 0, 0), Schema.Version(4, 0, 0),
-            Schema.Version(5, 0, 0),
-        ])
+        #expect(
+            versions == [
+                Schema.Version(1, 0, 0), Schema.Version(2, 0, 0), Schema.Version(3, 0, 0), Schema.Version(4, 0, 0),
+                Schema.Version(5, 0, 0),
+            ])
         var stages: [[Schema.Version]] = []
         for stage in PitstopMigrationPlan.stages {
             if case let .lightweight(from, to) = stage {

@@ -140,16 +140,17 @@ final class CarBoardViewModel {
             ).byUrgency
             // The tile projects the same planned dates as the Road screen; insurance has no tile of its own
             // (ADR 0032).
-            state.road = try await RoadProjector().project(RoadContext(
-                now: moment,
-                maintenanceStates: state.service,
-                plannedEvents: store.plannedEvents().map(\.roadEvent),
-                history: state.history,
-                mileageObservations: MileageObservation.history(
-                    readings: readings, completions: completions, reports: reports
-                ),
-                calendar: calendar
-            ))
+            state.road = try await RoadProjector().project(
+                RoadContext(
+                    now: moment,
+                    maintenanceStates: state.service,
+                    plannedEvents: store.plannedEvents().map(\.roadEvent),
+                    history: state.history,
+                    mileageObservations: MileageObservation.history(
+                        readings: readings, completions: completions, reports: reports
+                    ),
+                    calendar: calendar
+                ))
             state.isLoadFailed = false
         } catch {
             // The last known state stays on screen; Car Board never becomes an error page.
@@ -190,9 +191,10 @@ final class CarBoardViewModel {
         let replacedPhotoID = photoID
         let opening = opening ?? editorOpening
         let reRecordsOpeningMileage = await openingMileageIsStaleAndNewest(kilometers, opening: opening)
-        let commands = changes(
-            name: name, kilometers: kilometers, opening: opening, reRecordsOpeningMileage: reRecordsOpeningMileage
-        ) + profileChanges(body: body, photo: photo, newPhotoID: newPhotoID)
+        let commands =
+            changes(
+                name: name, kilometers: kilometers, opening: opening, reRecordsOpeningMileage: reRecordsOpeningMileage
+            ) + profileChanges(body: body, photo: photo, newPhotoID: newPhotoID)
 
         var savedAnything = false
         for command in commands {
@@ -239,7 +241,7 @@ final class CarBoardViewModel {
             commands.append(.recordVehicleFact(.init(vehicleID: vehicleID, fact: fact)))
         }
         if case let .value(value) = kilometers,
-           recordsReading(value, opening: opening, reRecordsOpeningMileage: reRecordsOpeningMileage)
+            recordsReading(value, opening: opening, reRecordsOpeningMileage: reRecordsOpeningMileage)
         {
             let reading = OdometerReading(vehicleID: vehicleID, value: Double(value), recordedAt: now())
             commands.append(.recordOdometerReading(.init(reading: reading)))

@@ -108,10 +108,10 @@ struct CarPhotoStore: CarPhotoStoring {
     /// the orientation is applied to the pixels first, since its tag is dropped with the rest.
     private static func reencodedJPEG(_ data: Data) throws(CarPhotoStoreError) -> Data {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil),
-              CGImageSourceGetCount(source) > 0,
-              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
-              let width = properties[kCGImagePropertyPixelWidth] as? Int,
-              let height = properties[kCGImagePropertyPixelHeight] as? Int
+            CGImageSourceGetCount(source) > 0,
+            let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+            let width = properties[kCGImagePropertyPixelWidth] as? Int,
+            let height = properties[kCGImagePropertyPixelHeight] as? Int
         else { throw .unreadableImage }
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
@@ -135,7 +135,7 @@ struct CarPhotoStore: CarPhotoStoring {
         let app13: UInt8 = 0xED
         let startOfScan: UInt8 = 0xDA
         guard bytes.count > 4, bytes[0] == 0xFF, bytes[1] == 0xD8 else { throw .writeFailed }
-        var kept = [UInt8](bytes[0 ..< 2])
+        var kept = [UInt8](bytes[0..<2])
         var index = 2
         while index + 4 <= bytes.count, bytes[index] == 0xFF {
             let marker = bytes[index + 1]
@@ -146,7 +146,7 @@ struct CarPhotoStore: CarPhotoStoring {
             let end = index + 2 + (Int(bytes[index + 2]) << 8 | Int(bytes[index + 3]))
             guard end <= bytes.count else { break }
             if marker != app1, marker != app13 {
-                kept.append(contentsOf: bytes[index ..< end])
+                kept.append(contentsOf: bytes[index..<end])
             }
             index = end
         }
@@ -159,8 +159,8 @@ struct CarPhotoStore: CarPhotoStoring {
         guard let destination = CGImageDestinationCreateWithData(data, type.identifier as CFString, 1, nil) else {
             throw .writeFailed
         }
-        let properties: [CFString: Any] = type == .jpeg ? [kCGImageDestinationLossyCompressionQuality: jpegQuality] :
-            [:]
+        let properties: [CFString: Any] =
+            type == .jpeg ? [kCGImageDestinationLossyCompressionQuality: jpegQuality] : [:]
         CGImageDestinationAddImage(destination, image, properties as CFDictionary)
         guard CGImageDestinationFinalize(destination) else { throw .writeFailed }
         return data as Data

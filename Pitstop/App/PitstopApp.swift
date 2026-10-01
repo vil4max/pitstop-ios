@@ -18,11 +18,12 @@ struct PitstopApp: App {
         let serviceRequests = ServiceLinkRequests()
         self.captureRequests = captureRequests
         self.serviceRequests = serviceRequests
-        _coordinator = State(initialValue: AppCoordinator(
-            environment: environment,
-            captureRequests: captureRequests,
-            serviceRequests: serviceRequests
-        ))
+        _coordinator = State(
+            initialValue: AppCoordinator(
+                environment: environment,
+                captureRequests: captureRequests,
+                serviceRequests: serviceRequests
+            ))
         let handler = RememberIntentHandler(
             pipeline: AppCoordinator.interpretedPipeline(environment),
             persistence: environment.persistence,

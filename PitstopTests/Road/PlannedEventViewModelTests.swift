@@ -61,11 +61,12 @@ struct PlannedEventViewModelTests {
         // The label field belongs to `other`: switching to insurance drops what was typed.
         #expect(await model.save(draft(inDays: 30, label: "Ignored")))
 
-        #expect(await store.planned.map(\.kind) == [
-            .other(label: "Winter tyres"),
-            .other(label: nil),
-            .insuranceExpiry,
-        ])
+        #expect(
+            await store.planned.map(\.kind) == [
+                .other(label: "Winter tyres"),
+                .other(label: nil),
+                .insuranceExpiry,
+            ])
         let titles = model.state.projection?.slots.flatMap(\.milestones).map(\.plannedLabel)
         #expect(titles == ["Winter tyres", nil, nil])
     }

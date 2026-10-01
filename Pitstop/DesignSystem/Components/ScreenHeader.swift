@@ -30,7 +30,8 @@ struct ScreenHeader: View {
         if let avatar {
             // The avatar keeps 28 pt; at accessibility sizes the eyebrow wraps under it rather than being squeezed
             // beside it (mockup, Car profile "Dynamic Type").
-            let layout = dynamicTypeSize.isAccessibilitySize
+            let layout =
+                dynamicTypeSize.isAccessibilitySize
                 ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
                 : AnyLayout(HStackLayout(spacing: 8))
             layout {

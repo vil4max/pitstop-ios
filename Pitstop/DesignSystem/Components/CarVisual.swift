@@ -57,8 +57,8 @@ enum CarPhotoDecoder {
             kCGImageSourceShouldCacheImmediately: true,
         ]
         guard let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
-              let width = properties[kCGImagePropertyPixelWidth] as? Int,
-              let height = properties[kCGImagePropertyPixelHeight] as? Int
+            let width = properties[kCGImagePropertyPixelWidth] as? Int,
+            let height = properties[kCGImagePropertyPixelHeight] as? Int
         else { return nil }
         guard max(width, height) > maxPixelSize else {
             return CGImageSourceCreateImageAtIndex(
@@ -225,11 +225,13 @@ private struct CarVisualAccessibility: ViewModifier {
     /// Fictional stand-ins for an owner's photo: blocks of colour, never a real car or place.
     private enum CarVisualPreviewPictures {
         static func block(width: Int, height: Int, opaque: Bool) -> CGImage? {
-            guard let context = CGContext(
-                data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-                space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-            ) else { return nil }
+            guard
+                let context = CGContext(
+                    data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+                    space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                )
+            else { return nil }
             if opaque {
                 context.setFillColor(CGColor(red: 0.55, green: 0.66, blue: 0.52, alpha: 1))
                 context.fill(CGRect(x: 0, y: 0, width: width, height: height))
@@ -238,12 +240,13 @@ private struct CarVisualAccessibility: ViewModifier {
             context.fill(CGRect(x: width / 10, y: height / 5, width: width * 8 / 10, height: height / 2))
             context.setFillColor(CGColor(red: 0.12, green: 0.12, blue: 0.14, alpha: 1))
             for center in [width / 4, width * 3 / 4] {
-                context.fillEllipse(in: CGRect(
-                    x: center - height / 5,
-                    y: 0,
-                    width: height * 2 / 5,
-                    height: height * 2 / 5
-                ))
+                context.fillEllipse(
+                    in: CGRect(
+                        x: center - height / 5,
+                        y: 0,
+                        width: height * 2 / 5,
+                        height: height * 2 / 5
+                    ))
             }
             return context.makeImage()
         }
@@ -259,16 +262,20 @@ private struct CarVisualAccessibility: ViewModifier {
                     }
                 }
                 StageSurface {
-                    CarPictureView(picture: CarVisualPreviewPictures.block(width: 600, height: 200, opaque: false)
-                        .map(CarPicture.lifted))
-                        .aspectRatio(CarVisual.aspectRatio, contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: DesignTokens.heroCarMaxHeight)
+                    CarPictureView(
+                        picture: CarVisualPreviewPictures.block(width: 600, height: 200, opaque: false)
+                            .map(CarPicture.lifted)
+                    )
+                    .aspectRatio(CarVisual.aspectRatio, contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: DesignTokens.heroCarMaxHeight)
                 }
                 StageSurface {
-                    CarPictureView(picture: CarVisualPreviewPictures.block(width: 400, height: 300, opaque: true)
-                        .map(CarPicture.whole))
-                        .aspectRatio(CarVisual.aspectRatio, contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: DesignTokens.heroCarMaxHeight)
+                    CarPictureView(
+                        picture: CarVisualPreviewPictures.block(width: 400, height: 300, opaque: true)
+                            .map(CarPicture.whole)
+                    )
+                    .aspectRatio(CarVisual.aspectRatio, contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: DesignTokens.heroCarMaxHeight)
                 }
             }
         }

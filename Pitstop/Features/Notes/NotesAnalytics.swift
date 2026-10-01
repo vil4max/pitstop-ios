@@ -19,15 +19,19 @@ enum NotesAnalyticsEvent: AnalyticsEncodable, Hashable {
             properties[.contextCountBucket] = contextCount.map(AnalyticsValue.init)
             return AnalyticsEvent(name: .noteCreated, properties: properties)
         case let .noteContextOpened(context, activeNoteCount):
-            return AnalyticsEvent(name: .noteContextOpened, properties: [
-                .context: AnalyticsValue(context),
-                .activeNoteCountBucket: AnalyticsValue(activeNoteCount),
-            ])
+            return AnalyticsEvent(
+                name: .noteContextOpened,
+                properties: [
+                    .context: AnalyticsValue(context),
+                    .activeNoteCountBucket: AnalyticsValue(activeNoteCount),
+                ])
         case let .noteArchived(sourceContext, age):
-            return AnalyticsEvent(name: .noteArchived, properties: [
-                .sourceContext: AnalyticsValue(sourceContext),
-                .ageBucket: AnalyticsValue(age),
-            ])
+            return AnalyticsEvent(
+                name: .noteArchived,
+                properties: [
+                    .sourceContext: AnalyticsValue(sourceContext),
+                    .ageBucket: AnalyticsValue(age),
+                ])
         }
     }
 }

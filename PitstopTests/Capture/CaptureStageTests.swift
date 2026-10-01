@@ -18,9 +18,10 @@ struct CaptureStageTests {
 
         _ = try await RememberPipeline(store: FakeCarMemoryStore(), observer: spy, now: { now }).rememberRaw(input)
 
-        #expect(spy.events.map(\.stage) == [
-            .captureReceived, .proposalValidated, .domainCommandCreated, .mutationCompleted,
-        ])
+        #expect(
+            spy.events.map(\.stage) == [
+                .captureReceived, .proposalValidated, .domainCommandCreated, .mutationCompleted,
+            ])
         #expect(Set(spy.events.map(\.correlationID)) == [input.id])
         #expect(Set(spy.events.map(\.source)) == [source])
     }
@@ -38,7 +39,8 @@ struct CaptureStageTests {
             // Every stored field is an ID or a closed enum. A new field of any other type fails here,
             // so "no raw content by construction" is checked, not assumed.
             for child in Mirror(reflecting: event).children {
-                let isAllowed = child.value is UUID || child.value is CaptureStage || child.value is CaptureSource
+                let isAllowed =
+                    child.value is UUID || child.value is CaptureStage || child.value is CaptureSource
                     || child.value is ProposalKind? || child.value is ConfirmationOutcome?
                 #expect(isAllowed, "unexpected field \(child.label ?? "?") of type \(type(of: child.value))")
             }
@@ -54,12 +56,13 @@ struct CaptureStageTests {
 
         _ = try? await RememberPipeline(store: store, observer: spy, now: { now }).rememberRaw(input)
 
-        #expect(spy.events.map(\.stage) == [
-            .captureReceived,
-            .proposalValidated,
-            .domainCommandCreated,
-            .pipelineFailed,
-        ])
+        #expect(
+            spy.events.map(\.stage) == [
+                .captureReceived,
+                .proposalValidated,
+                .domainCommandCreated,
+                .pipelineFailed,
+            ])
         #expect(await store.storedNotes.isEmpty)
     }
 
@@ -86,10 +89,11 @@ struct CaptureStageTests {
 
     @Test("REQ-CAPTURE-024: the stage names are the contract's observability list plus the proposed capture_discarded")
     func stageNamesMatchContract() {
-        #expect(CaptureStage.allCases.map(\.rawValue) == [
-            "capture_received", "interpretation_started", "interpretation_completed", "proposal_validated",
-            "confirmation_required", "clarification_required", "domain_command_created", "mutation_completed",
-            "raw_preserved", "pipeline_failed", "capture_discarded",
-        ])
+        #expect(
+            CaptureStage.allCases.map(\.rawValue) == [
+                "capture_received", "interpretation_started", "interpretation_completed", "proposal_validated",
+                "confirmation_required", "clarification_required", "domain_command_created", "mutation_completed",
+                "raw_preserved", "pipeline_failed", "capture_discarded",
+            ])
     }
 }

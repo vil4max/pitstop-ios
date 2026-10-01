@@ -28,10 +28,13 @@ struct CaptureInputTests {
 
         let permit = try #require(policy.permit(for: result, userConfirmed: false))
         let command = try DomainCommandMapper().command(for: permit, now: captureTestNow)
-        #expect(command == .createNote(CreateNoteCommand(
-            vehicleID: DomainFixtures.Vehicles.defaultID,
-            rawText: capture.payload.rawContent
-        )))
+        #expect(
+            command
+                == .createNote(
+                    CreateNoteCommand(
+                        vehicleID: DomainFixtures.Vehicles.defaultID,
+                        rawText: capture.payload.rawContent
+                    )))
     }
 
     @Test(

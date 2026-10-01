@@ -34,8 +34,9 @@ struct SwiftDataPlannedEventTests {
             let vehicleID = try await store.currentVehicle().id
             insurance = planned(vehicleID, inDays: 200)
             tyres = planned(vehicleID, .other(label: "Winter tyres"), inDays: 30)
-            #expect(try await store.execute(.addPlannedEvent(.init(event: insurance)), now: now)
-                == .plannedEventAdded(insurance))
+            #expect(
+                try await store.execute(.addPlannedEvent(.init(event: insurance)), now: now)
+                    == .plannedEventAdded(insurance))
             try await store.execute(.addPlannedEvent(.init(event: tyres)), now: now)
         }
 
@@ -87,8 +88,9 @@ struct SwiftDataPlannedEventTests {
         try await store.execute(.addPlannedEvent(.init(event: insurance)), now: now)
         try await store.execute(.addPlannedEvent(.init(event: tyres)), now: now)
 
-        #expect(try await store.execute(.removePlannedEvent(.init(eventID: insurance.id)), now: now)
-            == .plannedEventRemoved(insurance))
+        #expect(
+            try await store.execute(.removePlannedEvent(.init(eventID: insurance.id)), now: now)
+                == .plannedEventRemoved(insurance))
 
         #expect(try await store.plannedEvents() == [tyres])
         await #expect(throws: CarMemoryStoreError.unknownPlannedEvent) {
@@ -177,10 +179,11 @@ struct SwiftDataPlannedEventTests {
         let store = SwiftDataCarMemoryStore(modelContainer: container)
         let vehicleID = try await store.currentVehicle().id
         let context = ModelContext(container)
-        context.insert(PitstopSchemaV3.PlannedVehicleEventRecord(
-            id: UUID(), vehicleID: vehicleID.rawValue, kind: "futureKind", label: "Inspection",
-            date: now.addingTimeInterval(20 * day), createdAt: now
-        ))
+        context.insert(
+            PitstopSchemaV3.PlannedVehicleEventRecord(
+                id: UUID(), vehicleID: vehicleID.rawValue, kind: "futureKind", label: "Inspection",
+                date: now.addingTimeInterval(20 * day), createdAt: now
+            ))
         try context.save()
 
         let read = try #require(try await store.plannedEvents().first)

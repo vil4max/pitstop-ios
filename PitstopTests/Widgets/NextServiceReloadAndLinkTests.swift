@@ -24,9 +24,13 @@ struct NextServiceReloadTests {
         let spy = ReloadSpy()
         let store = WidgetReloadingCarMemoryStore(base: FakeCarMemoryStore(), reloader: spy)
         let id = try await store.currentVehicle().id
-        try await store.execute(.setMaintenancePolicy(.init(vehicleID: id, policy: MaintenanceFixture.custom(
-            .engineOilService, km: 15000
-        ))), now: now)
+        try await store.execute(
+            .setMaintenancePolicy(
+                .init(
+                    vehicleID: id,
+                    policy: MaintenanceFixture.custom(
+                        .engineOilService, km: 15000
+                    ))), now: now)
         #expect(spy.requests == 1)
         #expect(try await store.maintenancePolicies().map(\.operationID) == [.engineOilService])
     }
@@ -43,9 +47,13 @@ struct NextServiceReloadTests {
         }
         await base.failCommands()
         await #expect(throws: CarMemoryStoreError.storageFailure) {
-            try await store.execute(.setMaintenancePolicy(.init(vehicleID: id, policy: MaintenanceFixture.custom(
-                .engineOilService, km: 15000
-            ))), now: now)
+            try await store.execute(
+                .setMaintenancePolicy(
+                    .init(
+                        vehicleID: id,
+                        policy: MaintenanceFixture.custom(
+                            .engineOilService, km: 15000
+                        ))), now: now)
         }
         #expect(spy.requests == 0)
     }

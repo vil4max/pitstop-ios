@@ -119,11 +119,13 @@ struct CarAvatarPicture: View {
     /// Fictional stand-ins for an owner's photo: blocks of colour, never a real car or place.
     private enum CarAvatarPreviewPictures {
         static func block(width: Int, height: Int, opaque: Bool) -> CGImage? {
-            guard let context = CGContext(
-                data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-                space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-            ) else { return nil }
+            guard
+                let context = CGContext(
+                    data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+                    space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                )
+            else { return nil }
             if opaque {
                 context.setFillColor(CGColor(red: 0.55, green: 0.66, blue: 0.52, alpha: 1))
                 context.fill(CGRect(x: 0, y: 0, width: width, height: height))

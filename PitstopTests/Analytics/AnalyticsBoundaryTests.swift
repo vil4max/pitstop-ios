@@ -46,8 +46,9 @@ struct AnalyticsBoundaryTests {
                     // An omitted optional parameter is allowed; a present one must still be closed.
                     let optional = Mirror(reflecting: field)
                     guard optional.displayStyle != .optional || !optional.children.isEmpty else { continue }
-                    let value: Any = optional
-                        .displayStyle == .optional ? (optional.children.first?.value ?? field) : field
+                    let value: Any =
+                        optional
+                            .displayStyle == .optional ? (optional.children.first?.value ?? field) : field
                     let isAllowed = value is Bool || value is any AnalyticsCategory
                     #expect(isAllowed, "\(type(of: event)) carries \(type(of: field))")
                 }
@@ -123,15 +124,18 @@ struct AnalyticsBoundaryTests {
 
     @Test("ADR-0021: bucket edges")
     func bucketEdges() {
-        #expect([0, 1, 2, 3, 4, 9, 10].map(CountBucket.init) == [
-            .zero, .one, .twoToThree, .twoToThree, .fourToNine, .fourToNine, .tenOrMore,
-        ])
-        #expect([Duration.milliseconds(249), .milliseconds(250), .seconds(3), .seconds(10)].map(LatencyBucket.init) == [
-            .under250ms, .under1s, .under10s, .tenSecondsOrMore,
-        ])
-        #expect([0, 86400, 90 * 86400].map { AgeBucket(TimeInterval($0)) } == [
-            .underOneDay, .underOneWeek, .threeMonthsOrMore,
-        ])
+        #expect(
+            [0, 1, 2, 3, 4, 9, 10].map(CountBucket.init) == [
+                .zero, .one, .twoToThree, .twoToThree, .fourToNine, .fourToNine, .tenOrMore,
+            ])
+        #expect(
+            [Duration.milliseconds(249), .milliseconds(250), .seconds(3), .seconds(10)].map(LatencyBucket.init) == [
+                .under250ms, .under1s, .under10s, .tenSecondsOrMore,
+            ])
+        #expect(
+            [0, 86400, 90 * 86400].map { AgeBucket(TimeInterval($0)) } == [
+                .underOneDay, .underOneWeek, .threeMonthsOrMore,
+            ])
     }
 }
 

@@ -49,12 +49,12 @@ public struct ServicePlanner: Sendable {
         let nearby = ordered.filter { candidate in
             guard !coreIDs.contains(candidate.id), candidate.status != .unknown else { return false }
             if let candidateKm = candidate.anchorKm, let visitKm,
-               abs(Double(candidateKm) - visitKm) <= Double(MaintenanceRules.groupingDistanceKm)
+                abs(Double(candidateKm) - visitKm) <= Double(MaintenanceRules.groupingDistanceKm)
             {
                 return true
             }
             if let candidateDate = candidate.anchorDate, let visitDate,
-               abs(candidateDate.timeIntervalSince(visitDate)) <= Double(MaintenanceRules.groupingDays) * 86400
+                abs(candidateDate.timeIntervalSince(visitDate)) <= Double(MaintenanceRules.groupingDays) * 86400
             {
                 return true
             }

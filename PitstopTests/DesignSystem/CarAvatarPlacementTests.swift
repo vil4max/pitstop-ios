@@ -11,8 +11,8 @@ import UIKit
 @Suite("Car avatar placement")
 struct CarAvatarPlacementTests {
     private static let repositoryRoot = URL(filePath: #filePath)
-        .deletingLastPathComponent() // DesignSystem
-        .deletingLastPathComponent() // PitstopTests
+        .deletingLastPathComponent()  // DesignSystem
+        .deletingLastPathComponent()  // PitstopTests
         .deletingLastPathComponent()
 
     private static func source(_ path: String) throws -> String {
@@ -39,10 +39,12 @@ struct CarAvatarPlacementTests {
     }
 
     private static func render(_ view: some View, width: CGFloat) throws -> [UInt8] {
-        let renderer = ImageRenderer(content: view
-            .frame(width: width)
-            .environment(\.colorScheme, .light)
-            .environment(\.dynamicTypeSize, .large))
+        let renderer = ImageRenderer(
+            content:
+                view
+                .frame(width: width)
+                .environment(\.colorScheme, .light)
+                .environment(\.dynamicTypeSize, .large))
         renderer.scale = 1
         renderer.isOpaque = false
         let image = try #require(renderer.cgImage)
@@ -66,9 +68,10 @@ struct CarAvatarPlacementTests {
     @Test("REQ-BOARD-034: the root gives every screen and sheet the car's body and photo from the car board state")
     func rootSetsTheValue() throws {
         let content = try Self.declaration("private var content: some View", in: "Pitstop/App/RootView.swift")
-        #expect(content.contains(
-            ".environment(\\.carAvatar, CarAvatarSource(body: carBoard.state.carBody, photo: carBoard.state.carPhoto))"
-        ))
+        #expect(
+            content.contains(
+                ".environment(\\.carAvatar, CarAvatarSource(body: carBoard.state.carBody, photo: carBoard.state.carPhoto))"
+            ))
     }
 
     // MARK: Headers
@@ -136,10 +139,12 @@ struct CarAvatarPlacementTests {
 
     /// The rendered height of a view at 1x, laid out at `width` and the given text size.
     private static func height(of view: some View, width: CGFloat, textSize: DynamicTypeSize) throws -> Int {
-        let renderer = ImageRenderer(content: view
-            .frame(width: width)
-            .environment(\.colorScheme, .light)
-            .environment(\.dynamicTypeSize, textSize))
+        let renderer = ImageRenderer(
+            content:
+                view
+                .frame(width: width)
+                .environment(\.colorScheme, .light)
+                .environment(\.dynamicTypeSize, textSize))
         renderer.scale = 1
         return try #require(renderer.cgImage).height
     }
@@ -202,18 +207,20 @@ struct CarAvatarPlacementTests {
         let files = try ["Pitstop", "Shared", "PitstopWidgets"].flatMap(Self.swiftFiles(under:))
         #expect(files.count > 50, "the sources were not found; the rule would pass vacuously")
         let drawing = try files.filter { try Self.source($0).contains("CarAvatar(source:") }
-        #expect(drawing == [
-            "Pitstop/DesignSystem/Components/CarAvatar.swift",
-            "Pitstop/DesignSystem/Components/ScreenHeader.swift",
-            "Pitstop/Features/Pit/PitQuestionCard.swift",
-            "Pitstop/Features/Pit/PitSheetParts.swift",
-        ])
+        #expect(
+            drawing == [
+                "Pitstop/DesignSystem/Components/CarAvatar.swift",
+                "Pitstop/DesignSystem/Components/ScreenHeader.swift",
+                "Pitstop/Features/Pit/PitQuestionCard.swift",
+                "Pitstop/Features/Pit/PitSheetParts.swift",
+            ])
         let reading = try files.filter { try Self.source($0).contains("\\.carAvatar") }
-        #expect(reading == [
-            "Pitstop/App/RootView.swift",
-            "Pitstop/Features/Pit/PitQuestionCard.swift",
-            "Pitstop/Features/Pit/PitSheetParts.swift",
-            "Pitstop/Features/Shared/FeatureScaffold.swift",
-        ])
+        #expect(
+            reading == [
+                "Pitstop/App/RootView.swift",
+                "Pitstop/Features/Pit/PitQuestionCard.swift",
+                "Pitstop/Features/Pit/PitSheetParts.swift",
+                "Pitstop/Features/Shared/FeatureScaffold.swift",
+            ])
     }
 }

@@ -41,10 +41,11 @@ struct PersistenceSchemaTests {
 
     /// Captured 2026-09-22 from the V2 that TestFlight `tf-1.1.0-2` shipped. V3 reuses these classes, so a
     /// store written by that build must keep matching them: V2 is frozen like V1 (ADR 0032).
-    private static let frozenV2 = (frozenV1 + [
-        "PitQuestionStateRecord lastAskedAt:Optional<Date>? lastDismissedAt:Optional<Date>? questionID:String! "
-            + "resolution:String resolvedAt:Optional<Date>?",
-    ]).sorted()
+    private static let frozenV2 =
+        (frozenV1 + [
+            "PitQuestionStateRecord lastAskedAt:Optional<Date>? lastDismissedAt:Optional<Date>? questionID:String! "
+                + "resolution:String resolvedAt:Optional<Date>?"
+        ]).sorted()
 
     @Test("ADR-0007: schema V2 is V1 unchanged plus the question state entity")
     func versionTwoExtendsVersionOne() {
@@ -62,17 +63,19 @@ struct PersistenceSchemaTests {
     func versionThreeExtendsVersionTwo() {
         let v3 = Self.shape(of: Schema(versionedSchema: PitstopSchemaV3.self))
         #expect(v3.filter { !$0.hasPrefix("PlannedVehicleEventRecord ") } == Self.frozenV2)
-        #expect(v3.filter { $0.hasPrefix("PlannedVehicleEventRecord ") } == [
-            "PlannedVehicleEventRecord createdAt:Date date:Date id:UUID! kind:String label:Optional<String>? "
-                + "vehicleID:UUID",
-        ])
+        #expect(
+            v3.filter { $0.hasPrefix("PlannedVehicleEventRecord ") } == [
+                "PlannedVehicleEventRecord createdAt:Date date:Date id:UUID! kind:String label:Optional<String>? "
+                    + "vehicleID:UUID"
+            ])
     }
 
     /// V3 as TestFlight builds after ROAD-EVT-001 wrote it. V4 reuses these classes, so V3 is frozen too.
-    private static let frozenV3 = (frozenV2 + [
-        "PlannedVehicleEventRecord createdAt:Date date:Date id:UUID! kind:String label:Optional<String>? "
-            + "vehicleID:UUID",
-    ]).sorted()
+    private static let frozenV3 =
+        (frozenV2 + [
+            "PlannedVehicleEventRecord createdAt:Date date:Date id:UUID! kind:String label:Optional<String>? "
+                + "vehicleID:UUID"
+        ]).sorted()
 
     @Test("ADR-0035: schema V3 is frozen; a change must be a new version that copies its classes")
     func versionThreeIsFrozen() {
@@ -83,21 +86,23 @@ struct PersistenceSchemaTests {
     func versionFourExtendsVersionThree() {
         let v4 = Self.shape(of: Schema(versionedSchema: PitstopSchemaV4.self))
         #expect(v4.filter { !$0.hasPrefix("VehicleServiceReportRecord ") } == Self.frozenV3)
-        #expect(v4.filter { $0.hasPrefix("VehicleServiceReportRecord ") } == [
-            "VehicleServiceReportRecord completionIDsAtEntry:Array<UUID> distanceUnit:String id:UUID! "
-                + "odometerKm:Optional<Int>? operationID:String "
-                + "remainingDays:Optional<Int>? remainingDistance:Optional<Double>? reportedAt:Date source:String "
-                + "vehicleID:UUID",
-        ])
+        #expect(
+            v4.filter { $0.hasPrefix("VehicleServiceReportRecord ") } == [
+                "VehicleServiceReportRecord completionIDsAtEntry:Array<UUID> distanceUnit:String id:UUID! "
+                    + "odometerKm:Optional<Int>? operationID:String "
+                    + "remainingDays:Optional<Int>? remainingDistance:Optional<Double>? reportedAt:Date source:String "
+                    + "vehicleID:UUID"
+            ])
     }
 
     /// V4 as TestFlight `tf-1.1.0-3` shipped it. V5 reuses every class but the car record, so V4 is frozen too.
-    private static let frozenV4 = (frozenV3 + [
-        "VehicleServiceReportRecord completionIDsAtEntry:Array<UUID> distanceUnit:String id:UUID! "
-            + "odometerKm:Optional<Int>? operationID:String "
-            + "remainingDays:Optional<Int>? remainingDistance:Optional<Double>? reportedAt:Date source:String "
-            + "vehicleID:UUID",
-    ]).sorted()
+    private static let frozenV4 =
+        (frozenV3 + [
+            "VehicleServiceReportRecord completionIDsAtEntry:Array<UUID> distanceUnit:String id:UUID! "
+                + "odometerKm:Optional<Int>? operationID:String "
+                + "remainingDays:Optional<Int>? remainingDistance:Optional<Double>? reportedAt:Date source:String "
+                + "vehicleID:UUID"
+        ]).sorted()
 
     @Test("ADR-0040: schema V4 is frozen; a change must be a new version that copies its classes")
     func versionFourIsFrozen() {
@@ -107,14 +112,17 @@ struct PersistenceSchemaTests {
     @Test("ADR-0040: schema V5 is V4 with only the car record changed, gaining the optional body and photo id")
     func versionFiveExtendsVersionFour() {
         let v5 = Self.shape(of: Schema(versionedSchema: PitstopSchemaV5.self))
-        #expect(v5.filter { !$0.hasPrefix("VehicleRecord ") } == Self.frozenV4
-            .filter { !$0.hasPrefix("VehicleRecord ") })
+        #expect(
+            v5.filter { !$0.hasPrefix("VehicleRecord ") }
+                == Self.frozenV4
+                .filter { !$0.hasPrefix("VehicleRecord ") })
         // Only an id and a raw body value: no image bytes can be stored in the car record (ADR 0040).
-        #expect(v5.filter { $0.hasPrefix("VehicleRecord ") } == [
-            "VehicleRecord body:Optional<String>? createdAt:Date id:UUID! isProvisional:Bool "
-                + "make:Optional<String>? model:Optional<String>? name:String photoID:Optional<UUID>? "
-                + "vin:Optional<String>? year:Optional<Int>?",
-        ])
+        #expect(
+            v5.filter { $0.hasPrefix("VehicleRecord ") } == [
+                "VehicleRecord body:Optional<String>? createdAt:Date id:UUID! isProvisional:Bool "
+                    + "make:Optional<String>? model:Optional<String>? name:String photoID:Optional<UUID>? "
+                    + "vin:Optional<String>? year:Optional<Int>?"
+            ])
     }
 
     @Test("ADR-0040: the app and the widget reader open the newest schema version")

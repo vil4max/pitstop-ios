@@ -34,19 +34,21 @@ public struct InterpretationDeadline: Sendable {
         return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
                 guard gate.install(continuation) else { return }
-                gate.register(Task {
-                    do {
-                        let value = try await operation()
-                        gate.finish(.success(.finished(value)))
-                    } catch {
-                        gate.finish(.failure(error))
-                    }
-                })
-                gate.register(Task { [sleep, limit] in
-                    // A cancelled timer means the operation already won; it must not resume anything.
-                    guard await (try? sleep(limit)) != nil else { return }
-                    gate.finish(.success(.timedOut))
-                })
+                gate.register(
+                    Task {
+                        do {
+                            let value = try await operation()
+                            gate.finish(.success(.finished(value)))
+                        } catch {
+                            gate.finish(.failure(error))
+                        }
+                    })
+                gate.register(
+                    Task { [sleep, limit] in
+                        // A cancelled timer means the operation already won; it must not resume anything.
+                        guard await (try? sleep(limit)) != nil else { return }
+                        gate.finish(.success(.timedOut))
+                    })
             }
         } onCancel: {
             gate.finish(.failure(CancellationError()))

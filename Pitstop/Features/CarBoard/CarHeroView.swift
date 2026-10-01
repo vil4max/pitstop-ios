@@ -66,7 +66,8 @@ struct CarHeroView: View {
                 .fixedSize(horizontal: false, vertical: isStacked)
                 .lineLimit(isStacked ? nil : 1)
         case let .kilometers(value):
-            let layout = isStacked
+            let layout =
+                isStacked
                 ? AnyLayout(VStackLayout(alignment: .leading, spacing: 2))
                 : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: 6))
             layout {

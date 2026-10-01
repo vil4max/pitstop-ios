@@ -27,15 +27,16 @@ struct SwiftDataTrackSeveralTests {
 
         #expect(model.failedOperations.isEmpty && model.savedCount == 2)
         let reopened = try SwiftDataCarMemoryStore(modelContainer: PersistenceContainer.make(storeURL: url))
-        #expect(try await Set(reopened.maintenancePolicies()) == [
-            MaintenancePolicy(operationID: .dsgService, distanceIntervalKm: 60000, source: .userCustom),
-            MaintenancePolicy(
-                operationID: .cabinFilter,
-                distanceIntervalKm: 15000,
-                timeIntervalMonths: 12,
-                source: .userCustom
-            ),
-        ])
+        #expect(
+            try await Set(reopened.maintenancePolicies()) == [
+                MaintenancePolicy(operationID: .dsgService, distanceIntervalKm: 60000, source: .userCustom),
+                MaintenancePolicy(
+                    operationID: .cabinFilter,
+                    distanceIntervalKm: 15000,
+                    timeIntervalMonths: 12,
+                    source: .userCustom
+                ),
+            ])
         // The gearbox answer is not a car fact: the vehicle keeps only what it had.
         #expect(try await reopened.currentVehicle() == store.currentVehicle())
     }
