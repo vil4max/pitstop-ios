@@ -21,7 +21,7 @@ Read `PROJECT_STATUS.md`, then **Agent development** in
 process itself (plan approval, writers, independent review, integration,
 round close) is the kit's; this repository keeps only its project facts.
 
-Shared behavior and skills: `${AGENTS_KIT_ROOT:-${DEV_ROOT:-$HOME/Developer/Personal}/agent-tools/agent-engineering-kit}`.
+Shared behavior and skills: `${AGENTS_KIT_ROOT:-${AGENT_TOOLS_ROOT:-$HOME/Developer/AISDLC}/agent-engineering-kit}`.
 Open its `AGENTS.md` when shared policy is not loaded. Project execution uses
 the installed `Tooling/` slice from `ios-agent-toolchain`.
 

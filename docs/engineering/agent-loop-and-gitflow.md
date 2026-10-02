@@ -99,7 +99,7 @@ An investigation is not closed with "looks good."
 
 The process — framing, plan approval, writers, independent review, repair
 limits, integration and round close — is the kit's: `docs/ai-os/task-lifecycle.md`, "Round in the Agentic SDLC flow",
-in `${DEV_ROOT:-$HOME/Developer/Personal}/agent-tools/agent-engineering-kit`.
+in `${AGENT_TOOLS_ROOT:-$HOME/Developer/AISDLC}/agent-engineering-kit`.
 Review findings use the kit's scale (KIT-D-021) and its repair stop rules
 (KIT-D-022); this repository does not restate them.
 
