@@ -21,9 +21,7 @@ Read `PROJECT_STATUS.md`, then **Agent development** in
 process itself (plan approval, writers, independent review, integration,
 round close) is the kit's; this repository keeps only its project facts.
 
-Shared behavior and skills: `${VIL4KIT_ROOT:-$HOME/vil4kit}`.
-Open its `AGENTS.md` when shared policy is not loaded. Project execution uses
-the installed `Tooling/` slice from `ios-agent-toolchain`.
+Shared behavior: `${VIL4KIT_ROOT:-$HOME/vil4kit}/portable/AGENT_BEHAVIOR.md`; read it when shared policy is not loaded. Project execution uses the installed `Tooling/` slice.
 
 - Project/scheme: `Pitstop.xcodeproj` / `Pitstop`.
 - Simulator and gate settings: `Tooling/runtime.yml`.
