@@ -49,7 +49,7 @@ for example `DOM-002/spec-derived-fixtures`. Name the task ID in the PR or commi
 
 ## Git flow
 
-The kit's trunk-based policy applies (kit `rules/project-context.mdc`; the
+The kit's trunk-based policy applies (kit `harness/rules/project-context.mdc`; the
 merge method is the kit's, KIT-D-024): `main` is the single line, task
 branches and worktrees are short-lived and use the naming above, and a
 release is a tag on a verified commit of `main`
