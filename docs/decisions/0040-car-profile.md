@@ -1,7 +1,7 @@
 # Car Profile: the Owner's Photo, the Chosen Body and the Car Avatar
 
-**Status:** Accepted (owner, 2026-09-24, RD-012 package approval: "Approve the package")\
-**Task:** RD-012 ([`../tasks/rd-012-car-profile.md`](../tasks/rd-012-car-profile.md))\
+**Status:** Accepted (RD-012, 2026-09-24)\
+**Task:** RD-012\
 **Builds on:** [`0007-persistence.md`](0007-persistence.md) (versioned schemas, frozen
 shipped versions), [`0036-app-group-store-and-next-service-widget.md`](0036-app-group-store-and-next-service-widget.md)
 (the App Group container), [`0038-ios27-surface-tiers.md`](0038-ios27-surface-tiers.md) (the stage tier),
@@ -14,10 +14,10 @@ REQ-BOARD-033, REQ-BOARD-034, REQ-DESIGN-005 ([`../requirements/car-board-screen
 ## Context
 
 The car is drawn as an abstract shape (`AbstractCarView`) on the Car Board stage, in the
-Car Board tiles and on the Road lane. The owner decided on 2026-09-22 (proposal §3.6c)
-that the car is the owner's own photo, lifted onto the stage, or a neutral side-view
-placeholder for the body the owner chose, and that a small avatar of it appears where
-seeing the car helps. The requirements fix what the owner sees; this record fixes where
+Car Board tiles and on the Road lane. It was decided on 2026-09-22
+that the car is the user's own photo, lifted onto the stage, or a neutral side-view
+placeholder for the body the user chose, and that a small avatar of it appears where
+seeing the car helps. The requirements fix what the user sees; this record fixes where
 the photo lives, how the lift runs, and what may never happen to the photo.
 
 ## Decision
@@ -48,7 +48,7 @@ the photo lives, how the lift runs, and what may never happen to the photo.
 - **Placeholders.** `docs/design/assets/car-placeholder.png` (SUV) and
   `car-placeholder-sedan.png`, side view facing right, move into the asset catalog and
   render through a design-system colour role, not a literal (REQ-DESIGN-004).
-  Provenance: generated with AI by the owner on 2026-09-22 and supplied for PitStop,
+  Provenance: generated with AI on 2026-09-22 and supplied for PitStop,
   recoloured, background removed and mirrored (`docs/design/assets/README.md`); neither
   depicts a real make or model; the generator's name is not recorded.
 - **One component.** A design-system `CarVisual` draws the fallback order (lifted
@@ -89,7 +89,7 @@ the photo lives, how the lift runs, and what may never happen to the photo.
   and REQ-BOARD-031's whole-photo fallback would have nothing to show.
 - **Lift at render time.** No second file, but Vision would run on every stage render
   and on each avatar.
-- **Camera capture.** Out of scope for RD-012 by owner decision; `PhotosPicker` needs
+- **Camera capture.** Out of scope for RD-012; `PhotosPicker` needs
   no permission.
 - **A body guessed from the name or a make.** Forbidden by REQ-BOARD-030 and
   REQ-DESIGN-005.

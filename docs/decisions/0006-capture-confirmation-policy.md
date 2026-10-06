@@ -1,7 +1,6 @@
 # Capture Confirmation Policy and Mutation Permit
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-20); owner review pending\
+**Status:** Accepted\
 **Task:** DOM-003\
 **Contract:** [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md)
 
@@ -65,7 +64,7 @@ inside the permit, a permit cannot be paired with other content, including a
 second proposal that reuses the same ID. REQ-CAPTURE-016 therefore holds by
 construction instead of by convention in each caller.
 
-An earlier draft bound the permit to the proposal ID only. Independent review
+An earlier draft bound the permit to the proposal ID only. Review
 showed that a caller-chosen ID let a note permit authorize a completion, so
 that form was rejected.
 
@@ -114,7 +113,7 @@ DEBUG-only OSLog lines under the category `capture.pipeline` (ADR 0003).
 - `raw_preserved` is reserved for degradation. A note the user chose to save raw
   is an ordinary completed mutation; counting it would make the contract's
   "raw-preservation rate" meaningless.
-- **Proposed contract addition, owner approval pending:** `capture_discarded`.
+- **Proposed contract addition:** `capture_discarded`.
   Blank input otherwise leaves `capture_received` with no terminal stage, which
   cannot be told apart from a stalled pipeline and makes "pipeline abandonment"
   unanswerable.
@@ -132,7 +131,7 @@ DEBUG-only OSLog lines under the category `capture.pipeline` (ADR 0003).
   maintenance cycle (core C5); the cost of a silent wrong reset is higher than
   one tap.
 
-## Open for owner review
+## Open questions
 
 - The 0.8 confidence floor is a placeholder until CAP-005 produces evaluation
   data.

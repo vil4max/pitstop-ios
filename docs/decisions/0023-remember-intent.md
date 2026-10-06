@@ -1,8 +1,7 @@
 # Remember in PitStop App Intent
 
-**Status:** Accepted for implementation (owner decisions 2026-09-21)\
+**Status:** Accepted\
 **Task:** SYS-002\
-**Investigation:** [`../planning/investigations/sys-001-app-intents.md`](../planning/investigations/sys-001-app-intents.md)\
 **Contracts:** [`../core.md`](../core.md) (C4),
 [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md)
 (REQ-CAPTURE-002, 003, 005, 008, 009, 010),
@@ -15,7 +14,7 @@
 The capture contract names `RememberInPitStopIntent` as a source that emits a
 `CaptureInput` and never builds domain entities (REQ-CAPTURE-003). SYS-001
 investigated the iOS 27 App Intents surface and proposed a design with six
-owner questions. The owner answered them on 2026-09-21. This record fixes the
+open questions. They are answered below. This record fixes the
 decisions that SYS-002 implements; the phrase shortcut (SYS-003) and device
 checks (SYS-006) follow separately.
 
@@ -49,7 +48,7 @@ SYS-001 record, on 2026-09-21.
   both Pit and the intent: the same `RuleBasedInterpreter`, deadline, logger,
   and analytics observer (core C4).
 
-### Owner decisions (2026-09-21)
+### Decisions
 
 1. **Confirm in place.** A proposal that returns `needsConfirmation` is asked
    with `requestChoice(between:dialog:)`: "Record it", "Save the words only",
@@ -82,7 +81,7 @@ SYS-001 record, on 2026-09-21.
    "Not saved … please say it again". The words are not kept anywhere for a
    later retry. REQ-CAPTURE-009 asks for the input to stay available; Siri
    cannot hold it, and a stored draft would keep private raw text outside the
-   memory the person chose to save. The owner accepted this exception.
+   memory the person chose to save. This exception is accepted.
 
 ### Input
 
@@ -188,10 +187,10 @@ silences a pending mileage question once it is re-checked.
   lost.
 - **Raw-only Siri capture.** The same words would mean different things from
   Siri and from Pit (C4).
-- **`.alwaysAllowed` authentication.** Rejected by the owner until a device
+- **`.alwaysAllowed` authentication.** Rejected until a device
   check shows the store is readable while locked; `.requiresAuthentication`
   is rejected above.
-- **Keeping a pending draft after a failure.** See owner decision 7.
+- **Keeping a pending draft after a failure.** See decision 7.
 - **Returning a dialog for failures.** A thrown error marks the run as failed
   in Shortcuts, so automations can tell a failure from a save.
 
@@ -211,5 +210,5 @@ silences a pending mileage question once it is re-checked.
   whether Siri honours it over the app's language needs a device check.
 - **Cold launch time** to the first reply (INV-CAP-003).
 - **App Intents Testing smoke** once a UI test target exists (ENG-UIT-001).
-- **Phrases** for the App Shortcut (SYS-003); ru and uk phrases come from the
-  owner or a native speaker.
+- **Phrases** for the App Shortcut (SYS-003); ru and uk phrases come from a
+  native speaker or reviewer.

@@ -9,12 +9,10 @@ highest affected layer; evidence from operations flows back up.
 | L1 requirements — behaviour contracts | [requirements/](requirements/) |
 | L1 decisions — ADRs and design rationale | [decisions/](decisions/) |
 | L2 specs — tests named with `REQ-<AREA>-NNN` | `PitstopTests/` |
-| Engineering — architecture, standards, agent loop, product review gate | [engineering/](engineering/) |
+| Engineering — architecture, standards, product review gate | [engineering/](engineering/) |
 | As-built overview — diagrams of the delivered system | [engineering/system-overview.md](engineering/system-overview.md) |
 | Operations — observability, telemetry, analytics, beta | [operations/](operations/) |
-| Tasks — task template and briefs | [tasks/](tasks/) |
-| Planning — roadmap, work plan, investigations (not requirements) | [planning/](planning/) |
-| Lessons — failures that changed a check | [lessons.md](lessons.md) |
+| Planning — roadmap, investigation register, AI roadmap (not requirements) | [planning/](planning/) |
 
 ## Start here
 
@@ -25,14 +23,12 @@ highest affected layer; evidence from operations flows back up.
 5. `engineering/product-review-process.md` (mandatory idea validation before new features)
 6. `decisions/0004-product-design-rationale.md`
 7. `engineering/domain-inventory.md`
-8. `planning/work-plan.md`
 
 ## Product, UX and IA
 
 - `requirements/product-charter.md`
 - `engineering/product-review-process.md` — mandatory Idea Validation & Product Review before new features
 - `design/ios27-mockups.html` — approved iOS 27 redesign mockups (open in a browser); assets in `design/assets/`
-- `planning/ios27-redesign-proposal.md` — redesign rationale and decisions; its deltas are applied to the requirement files
 - `requirements/product-design.md`
 - `engineering/design-system-module.md`
 - `requirements/app-icon.md`
@@ -53,13 +49,13 @@ highest affected layer; evidence from operations flows back up.
 - `requirements/maintenance-engine.md`
 - `decisions/0001-maintenance-anchors.md`
 - `decisions/0010-maintenance-engine-rules.md` — status rule, unknown handling, planner window, Service surface scope
-- `decisions/0020-maintenance-anchor-closure.md` — ADR 0001 open questions: evidence, fixed grid deferred, stable IDs pinned, owner questions on data and plan scope
+- `decisions/0020-maintenance-anchor-closure.md` — ADR 0001 open questions: evidence, fixed grid deferred, stable IDs pinned, open questions on data and plan scope
 - `requirements/capture-pipeline.md`
 - `engineering/domain-inventory.md`
 
 ## AI
 
-- `engineering/ai-architecture.md` — runtime AI architecture owner
+- `engineering/ai-architecture.md` — runtime AI architecture
 - `operations/ai-product-analytics.md` — AI Product Analyst workflow (not app runtime)
 - `planning/ai-roadmap.md` — deferred AI roadmap (not an implementation contract)
 
@@ -78,7 +74,6 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0007-persistence.md` — SwiftData behind a command-only store, schema rules
 - `decisions/0012-pit-presence-and-attention.md` — Pit motion vocabulary, idle drawing, interruption budget
 - `decisions/0013-shared-ci-and-tag-gated-testflight.md` — shared CI, tag-gated TestFlight, tag authority
-- `decisions/0014-public-repository.md` — public visibility, hosted runners, history rewrite
 - `decisions/0015-interpretation-deadline-and-cancellation.md` — interpreter deadline, cancelled captures write nothing
 - `decisions/0016-question-registry.md` — Pit question registry, value and deferral declarations, persisted question state, schema V2
 - `decisions/0017-first-question-current-mileage.md` — first Pit question: current mileage when stale or unknown, relevance gate, answer through `recordOdometerReading`
@@ -88,15 +83,15 @@ highest affected layer; evidence from operations flows back up.
 - `decisions/0011-interpreted-capture-without-a-model.md` — interpreter protocol, rule-based stand-in, confirmation and clarification flow
 - `decisions/0006-capture-confirmation-policy.md` — confirmation outcome table and mutation permit
 - `decisions/0023-remember-intent.md` — `RememberInPitStopIntent`: app-target background intent, in-place `requestChoice` confirmation, unlocked phone only, source `.siri`, temporary storage refused, no retry draft
-- `decisions/0024-app-shortcuts.md` — App Shortcuts: Remember (Siri asks for the words) and Open Pit (foreground intent routed to the Pit sheet through an injected request object); en, ru and uk phrases pending owner review
+- `decisions/0024-app-shortcuts.md` — App Shortcuts: Remember (Siri asks for the words) and Open Pit (foreground intent routed to the Pit sheet through an injected request object); en, ru and uk phrases pending review
 - `decisions/0025-widgets-and-controls.md` — `PitstopWidgets` extension: Open Pit control and data-free small/circular widget, `OpenPitIntent` as `OpenIntent` in a `Shared/` folder, `pitstop://pit` as the only URL, no App Group
-- `decisions/0026-siri-voice-clarification.md` — Siri asks the one missing field by voice (number prompt or catalog choice, one repeat, "I don't know" keeps the words), voice-only replies name PitStop, no `LongRunningIntent`, owner device check list
+- `decisions/0026-siri-voice-clarification.md` — Siri asks the one missing field by voice (number prompt or catalog choice, one repeat, "I don't know" keeps the words), voice-only replies name PitStop, no `LongRunningIntent`, device check list
 - `decisions/0030-capture-locale.md` — CAP-LOC-001: in-app captures carry `Locale.current` read per capture, injected from `AppEnvironment`; no `ru_RU` default; the locale is a model hint, never the language gate
-- `decisions/0031-stop-tracking-an-operation.md` — MNT-POL-001: user-only `stopTrackingOperation` command removes the owner's `userCustom` policy; completions, History and recommendations stay; confirmation names the operation; no undo action, no schema change
-- `decisions/0032-planned-dated-events.md` — ROAD-EVT-001: owner-stated planned dates (insurance expiry, or `other` with an optional 40-character label) entered and corrected on Road; three user-only commands; one insurance expiry on Road per car; schema V3 by a lightweight stage, V2 frozen; insurance shows on Road only
-- `decisions/0033-track-several-starter.md` — MNT-PRE-001: "Track several" on Service; the owner picks untracked operations, enters every interval (unselected quick picks 5,000/7,500/10,000/15,000 km and 6/12/24 months, labelled as common choices), confirms one summary; items saved one at a time as `userCustom` with per-item result and retry of failed items; gearbox and drive answers only reorder and are never stored
+- `decisions/0031-stop-tracking-an-operation.md` — MNT-POL-001: user-only `stopTrackingOperation` command removes the user's `userCustom` policy; completions, History and recommendations stay; confirmation names the operation; no undo action, no schema change
+- `decisions/0032-planned-dated-events.md` — ROAD-EVT-001: user-stated planned dates (insurance expiry, or `other` with an optional 40-character label) entered and corrected on Road; three user-only commands; one insurance expiry on Road per car; schema V3 by a lightweight stage, V2 frozen; insurance shows on Road only
+- `decisions/0033-track-several-starter.md` — MNT-PRE-001: "Track several" on Service; the user picks untracked operations, enters every interval (unselected quick picks 5,000/7,500/10,000/15,000 km and 6/12/24 months, labelled as common choices), confirms one summary; items saved one at a time as `userCustom` with per-item result and retry of failed items; gearbox and drive answers only reorder and are never stored
 - `decisions/0034-mileage-rate-estimate.md` — ROAD-EST-002: a distance milestone carries a labelled date estimate derived from the reading history (3 observations in 365 days spanning 60, newest at most 90 days old; median of pair rates with MAD outlier rejection, plus the overall rate; capped at the time anchor; nothing shown when the late bound is past twice the early one or 730 days); annotation only, never stored, no schema change, ADR 0008 ordering unchanged
-- `decisions/0035-dashboard-service-reading.md` — MNT-VR-002: the car's own service countdown as a `VehicleServiceReport` observation (never a policy or completion); anchors derived on read; newest reading per operation until a newer completion; earliest anchor wins per dimension with the owner's interval as share denominator; distance part follows the 90-day mileage rule, days never stale; "old" after 180 days, never expires; keeps an untracked operation visible until deleted; Service line and menu, Road "from dashboard" suffix, confirmed Pit capture; schema V4
+- `decisions/0035-dashboard-service-reading.md` — MNT-VR-002: the car's own service countdown as a `VehicleServiceReport` observation (never a policy or completion); anchors derived on read; newest reading per operation until a newer completion; earliest anchor wins per dimension with the user's interval as share denominator; distance part follows the 90-day mileage rule, days never stale; "old" after 180 days, never expires; keeps an untracked operation visible until deleted; Service line and menu, Road "from dashboard" suffix, confirmed Pit capture; schema V4
 - `decisions/0036-app-group-store-and-next-service-widget.md` — SYS-007: App Group `group.dev.vil4max.pitstop`; one-time non-destructive store move (copy, verify, mark, delete only a matching leftover, back up any other); read-only next-service widget using the shared engine; `pitstop://service`; reloads after saved commands, on launch and at the next time-based change
 - `decisions/0027-foundation-models-interpreter.md` — CAP-005 spike: Foundation Models adapter behind `SemanticInterpreting` with deterministic post-model guards, rules-first `InterpreterChain`, off by default (DEBUG launch argument only), golden set and evaluation lane; Russian and Ukrainian unsupported by Apple Intelligence on iOS 27, model quality not measured
 - `decisions/0005-toolchain-and-project-format.md` — Swift 6, iOS 27, file-system-synchronized project
@@ -114,13 +109,7 @@ highest affected layer; evidence from operations flows back up.
 ## Planning and execution
 
 - `planning/roadmap.md`
-- `planning/work-plan.md` — open work and owner decisions only
 - `planning/investigations.md`
-- `planning/investigations/mnt-int-001-maintenance-intelligence.md` — manufacturer data, presets, richer Road milestones: sources, licences, recommendation
-- `planning/investigations/sys-001-app-intents.md` — App Intents for Remember through Siri: API facts, design, owner questions
-- `planning/investigations/sys-004-widgets.md` — widgets and controls for fast capture; cost of a data widget (SYS-007)
-- `tasks/template.md`
-- `engineering/agent-loop-and-gitflow.md`
 - `engineering/product-review-process.md` — gate before feature implementation
 
 ## Product hierarchy

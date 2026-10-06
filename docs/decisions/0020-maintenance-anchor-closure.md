@@ -1,7 +1,6 @@
 # Maintenance Anchor Closure (ADR 0001 open questions)
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending\
+**Status:** Accepted\
 **Task:** DOM-004\
 **Contracts:** [`0001-maintenance-anchors.md`](0001-maintenance-anchors.md),
 [`../requirements/maintenance-engine.md`](../requirements/maintenance-engine.md),
@@ -20,10 +19,7 @@ part in task identity) and leaves several points open by its own wording:
 "accepted by default", "accepted direction", "a temporary adapter",
 "migration timing remains gated", "a future explicit policy type", and a Costs
 list of work that must exist before the decisions hold. The DOM-004 card
-requires them to be closed before Phase 7 maintenance work, and the delivery
-brief (`docs/tasks/full-backlog-delivery.md`, "Order"; retired 2026-09-21,
-kept in git history) schedules DOM-004 before
-MNT-INT-001.
+requires them to be closed before Phase 7 maintenance work (MNT-INT-001).
 
 Since then the greenfield `main` has implemented the engine, the planner, the
 Service surface, and persistence (ADR 0007, 0010), and Pit asks for mileage
@@ -33,11 +29,11 @@ of ADR 0001 to one of three states:
 - **Decided earlier:** an accepted ADR and the code or tests already settle it.
 - **Decided here:** settled now by this ADR, consistent with the implemented
   engine; tests carry the `ADR-0020` tag.
-- **Owner question:** needs product policy, legal judgement, or manufacturer
+- **Open question:** needs product policy, legal judgement, or manufacturer
   data; a recommended answer is given, nothing is implemented on the guess.
 
 The ADR edits no requirement text and no core text. One requirement change is
-proposed below for owner approval.
+proposed below for approval.
 
 ## Question map
 
@@ -48,16 +44,16 @@ proposed below for owner approval.
 | Q3 | Early completion resets from actual facts; fixed grid needs "a future explicit policy type" (Decision 3) | Reset: decided earlier. Fixed grid: decided here |
 | Q4 | Grouping is deterministic and never moves a cycle (Decisions 4, 5) | Decided earlier |
 | Q5 | "Planner requires explicit grouping rules" (Costs); eligibility and procedure relationships as inputs | Windows: decided earlier. Eligibility: decided here |
-| Q6 | Official recommendation and user policy are separate, provenance kept (Decision 6) | Separation: decided earlier. Recommendation data: owner question B |
+| Q6 | Official recommendation and user policy are separate, provenance kept (Decision 6) | Separation: decided earlier. Recommendation data: open question B |
 | Q7 | Status only from effective policy and confirmed facts; AI cannot set it (Decision 7) | Decided earlier |
 | Q8 | Missing baseline is unknown, no implicit zero (Decision 8) | Decided earlier |
 | Q9 | Stable IDs replace title identity; "current title mapping is a temporary adapter" (Decision 9) | IDs: decided earlier, pinned here. Adapter: decided here |
-| Q10 | Seeded visits stop being the schedule; "migration timing remains gated" (Decision 10) | Decided here; legacy import is owner question D |
+| Q10 | Seeded visits stop being the schedule; "migration timing remains gated" (Decision 10) | Decided here; legacy import is open question D |
 | Q11 | "Operation identity catalog is required" (Costs) | Decided here |
-| Q12 | Procedure composition with sourced required components (Additional decision) | Owner question B |
-| Q13 | Service Plan (accepted scope) separate from Service Visit (history) (Additional decision) | Separation: decided earlier. Plan and multi-operation visit scope: owner question C |
-| Q14 | Procedure applicability and provenance "becomes a data problem" (Costs) | Owner question B |
-| Q15 | ADR 0001 itself is `Proposed` | Owner question A |
+| Q12 | Procedure composition with sourced required components (Additional decision) | Open question B |
+| Q13 | Service Plan (accepted scope) separate from Service Visit (history) (Additional decision) | Separation: decided earlier. Plan and multi-operation visit scope: open question C |
+| Q14 | Procedure applicability and provenance "becomes a data problem" (Costs) | Open question B |
+| Q15 | ADR 0001 itself is `Proposed` | Open question A |
 
 ## Decided earlier (evidence)
 
@@ -143,12 +139,12 @@ policy type is added now.
 
 - **Rationale:** a fixed grid only matters when an official schedule defines
   milestones (for example "every 15,000 km from zero"), and no verified
-  recommendation exists in the app (ADR 0010: none is seeded; owner question B).
+  recommendation exists in the app (ADR 0010: none is seeded; open question B).
   A type with no source would be a dead abstraction and a second anchor rule
   to test.
 - **Constraint when it is added:** an explicit per-policy anchoring field whose
   default is completion-based, carried by a sourced recommendation or chosen by
-  the owner; never inferred from wording or by a model (core C2, P3). A policy
+  the user; never inferred from wording or by a model (core C2, P3). A policy
   without the field keeps today's behaviour.
 - **Consistency:** matches `MaintenanceEngine.swift:130-150`; pinned by
   `lateCompletionRebaselines` (ADR-0020).
@@ -163,7 +159,7 @@ same windows. No per-operation eligibility and no procedure relationships are
 modelled.
 
 - **Rationale:** eligibility and relationships are procedure knowledge, which
-  needs verified data (owner question B). The contract lets the planner use
+  needs verified data (open question B). The contract lets the planner use
   explicit tolerances until "a future knowledge source" provides operation
   semantics.
 - **Constraint:** when a source adds eligibility, it narrows grouping only; it
@@ -191,7 +187,7 @@ the legacy audit is not built.
   `SwiftDataCarMemoryStoreTests.swift:396`) stores a policy and a completion for
   an uncatalogued ID, reopens the store, and gets its state from the engine.
 - **Rejected:** mapping legacy titles to IDs "just in case" (no reader for it;
-  see owner question D).
+  see open question D).
 - **Note:** `Localizable.xcstrings` still holds legacy `service.task.*`,
   `service.visit*`, `service.oil*` and `service.reopenVisit*` strings that no
   Swift source references. They are not identity; removing them is a separate
@@ -204,8 +200,8 @@ template visits. The DEBUG-only demo data writes policies, completions and
 readings through domain commands into an in-memory store
 (`Pitstop/App/DemoData.swift:1-12`). ADR 0007 rejected reusing the legacy
 models, so nothing reads a legacy store. Decision 10 is therefore implemented,
-and its "migration timing" has nothing left to migrate unless the owner wants
-legacy data imported (owner question D).
+and its "migration timing" has nothing left to migrate unless legacy data
+should be imported (open question D).
 
 ### Q11 — the catalog is code-owned and grows by ID
 
@@ -220,10 +216,10 @@ user evidence.
 ### Status of ADR 0001 for Phase 7
 
 With the points above, MNT-INT-001 may rely on ADR 0001's decisions 1–10 as
-implemented. What remains open is data and scope (owner questions B and C),
+implemented. What remains open is data and scope (open questions B and C),
 which is what Phase 7 investigates.
 
-## Owner questions
+## Open questions
 
 **A. Promote ADR 0001 from `Proposed` to `Accepted`?**
 Recommended: yes, with Decision 10's migration clause read through Q10 above.
@@ -238,7 +234,7 @@ who verifies it.
 Recommended: none in the first slice; keep owner cadence as the only policy
 source. MNT-INT-001 evaluates one source for one fictional fixture car and
 records its provenance fields and licence before any data enters the app. Real
-vehicle data stays out of this public repository (AGENTS.md).
+vehicle data stays out of this public repository.
 Consequence: REQ-MAINT-008, 010, 019–021 and REQ-DOMAIN-004, 005 stay
 satisfied vacuously (nothing is preselected, nothing appears under
 `Consider`), and fixed grids stay out (Q3).
@@ -255,29 +251,29 @@ Consequence: REQ-DOMAIN-009 stays vacuous until a plan exists; Service keeps
 recording one operation at a time.
 
 **D. Import data from the legacy spike app?**
-Recommended: no importer. The owner re-enters the few baselines that matter
+Recommended: no importer. The user re-enters the few baselines that matter
 with "Mark done", which is also the path every new user takes.
 Consequence: the title adapter and seed migration are never built (Q9, Q10);
-the maintenance-engine success criterion about adapting seeded Arteon data
+the maintenance-engine success criterion about adapting seeded legacy data
 becomes obsolete (proposed change below). If yes, a one-way importer that
 creates only confirmed completions and readings (never plans or statuses) is a
 separate task.
 
-## Proposed requirement change (owner approval pending)
+## Proposed requirement change (approval pending)
 
 `docs/requirements/maintenance-engine.md`, "Success criteria for engine v1":
-the bullet "Current seeded Arteon data can be adapted without immediate
-destructive migration" describes the legacy spike. If owner question D is
+the bullet "Current seeded legacy data can be adapted without immediate
+destructive migration" describes the legacy spike. If open question D is
 answered "no importer", replace it with: "No seeded future visit is a source of
 maintenance truth; legacy spike data is not read." The text is unchanged until
-the owner approves.
+it is approved.
 
 ## Rejected alternatives
 
 - **Closing the questions only in ADR 0001.** Twelve evidence entries and four
-  owner questions would bury the original decision record; ADR 0001 gets a short
+  open questions would bury the original decision record; ADR 0001 gets a short
   closure section that points here.
 - **Seeding a sample recommendation to exercise provenance.** Invented truth
-  (core C2); the data question belongs to the owner.
+  (core C2); the data question stays open.
 - **Treating ADR 0001 as accepted because its decisions are implemented.**
-  Acceptance of an owner-held ADR is an owner action.
+  Acceptance of an ADR is a separate decision.

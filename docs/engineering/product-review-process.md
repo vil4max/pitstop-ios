@@ -291,16 +291,14 @@ Product Review (this document)
   ↓
 Investigation / Epic (if needed)
   ↓
-Task from ../tasks/template.md
+Task
   ↓
 Implementation
 ```
 
-Related process docs:
+Related documents:
 
 - [`../requirements/product-charter.md`](../requirements/product-charter.md) — product statement, JTBD, non-goals, success/failure;
-- [`../tasks/template.md`](../tasks/template.md) — implementation task shape after review passes;
-- [`agent-loop-and-gitflow.md`](agent-loop-and-gitflow.md) — issue / PR flow;
 - [`../decisions/0004-product-design-rationale.md`](../decisions/0004-product-design-rationale.md) — record why decisions stuck;
 - [`../planning/investigations.md`](../planning/investigations.md) — open questions that may need evidence before Pass.
 
@@ -311,7 +309,7 @@ Rejected or deferred ideas with lasting product meaning should leave a short not
 ## Review cadence
 
 - **Per idea:** before any implementation branch for a new feature.
-- **Periodic:** when resuming the project from freeze, re-read this document and re-check the active roadmap against the checklist.
+- **Periodic:** when resuming the project after a pause, re-read this document and re-check the active roadmap against the checklist.
 - **After major ships:** run Deletion Test and Retention questions against what actually shipped.
 
 Do not treat a past Pass as permanent permission to expand scope without re-review.

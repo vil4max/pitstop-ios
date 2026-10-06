@@ -90,7 +90,7 @@ Event semantics are defined in `analytics.md`.
 Deterministic cohort evidence for the beta window:
 
 ``` text
-invited_beta_users_excluding_owner
+invited_beta_users_excluding_developer
 users_created_at_least_one_note
 users_independently_reopened_a_context
 ```
@@ -360,7 +360,7 @@ real beta evidence exists
 **Required comparison:**
 
 ``` text
-Max writes his interpretation first
+The product owner writes the interpretation first
 → AI receives bounded evidence
 → compare human and AI analysis
 ```

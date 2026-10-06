@@ -23,8 +23,7 @@ DOCUMENT
 update decision/task documentation
 ```
 
-No "write implementation and ask an agent to generate tests afterward"
-for domain logic.
+No "write implementation and generate tests afterward" for domain logic.
 
 ## Atomic task rule
 
@@ -49,9 +48,7 @@ Good tasks:
 
 ## Mandatory task sections
 
-Every implementation task uses `../tasks/template.md`.
-
-Required: - Problem. - Scope. - Non-goals. - Preconditions. - Behavior
+Every implementation task states: - Problem. - Scope. - Non-goals. - Preconditions. - Behavior
 examples. - Acceptance criteria. - Failure criteria. - Tests first. -
 Logging. - Analytics. - Documentation. - Rollback/risk notes.
 
@@ -120,12 +117,12 @@ TEST FIXTURE — NOT OFFICIAL MAINTENANCE GUIDANCE
 
 unless backed by a documented source.
 
-## Agent workflow
+## Contribution rules
 
-Coding agents may: - inspect; - propose; - write the failing test; -
+Contributors may: - inspect; - propose; - write the failing test; -
 implement the smallest behavior; - run tests; - report diff and risk.
 
-Agents must not: - redesign persistence without an accepted ADR; -
+Contributors must not: - redesign persistence without an accepted ADR; -
 convert product hypotheses into requirements; - invent maintenance
 values; - disable failing tests; - add broad abstractions "for future
 flexibility" without a current test case.

@@ -130,7 +130,7 @@ Experimental technology belongs behind explicit boundaries. Product correctness 
 
 ## Documentation map
 
-Resume / freeze reading order: [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
+Reading order: [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
 
 Start with:
 1. `product-charter.md`
@@ -144,7 +144,7 @@ Start with:
 9. `capture-pipeline.md`
 10. `../engineering/ai-architecture.md`
 11. `../planning/ai-roadmap.md` (deferred direction only)
-12. `../planning/roadmap.md` / `../planning/work-plan.md`
+12. `../planning/roadmap.md`
 
 See `../README.md` for the complete map.
 
@@ -154,17 +154,11 @@ Two classes of documents:
 
 **Permanent contracts** — product and engineering behaviour (everything under `docs/requirements/`, `docs/decisions/`, `docs/engineering/`, and `docs/operations/`). Keep `**Status:**` at the top. Never delete when a task ships.
 
-**Executable backlog** — open work only, in [`../planning/work-plan.md`](../planning/work-plan.md). When work starts:
+**Open work** — new features start with Product Review
+([`../engineering/product-review-process.md`](../engineering/product-review-process.md)).
+The ADR index and commit history keep the record of delivered work.
 
-1. Complete Product Review for new features ([`../engineering/product-review-process.md`](../engineering/product-review-process.md)).
-2. Set the work-plan row to `in progress`; write a brief from `../tasks/template.md` when the task spans sessions.
-3. On completion, remove the row; the ADR index and commit history keep the record.
-
-Status values: `next` | `planned` → `in progress` → removed when delivered | `deferred`.
-
-WIP limit: **1** task **In progress** at a time (solo). Current product: `main`.
-
-**Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. Implementation PRs must pass the local Runtime gate and review. Documentation-only changes use proportional checks; CI runs on GitHub-hosted runners (ADR 0014).
+**Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. Implementation PRs must pass the local gate (`just verify`) and review. Documentation-only changes use proportional checks; CI runs on GitHub-hosted runners.
 
 **Branch protection:** active rulesets block deleting or force-pushing `main`
 and `testflight` and moving release tags; no PR rule or required status check

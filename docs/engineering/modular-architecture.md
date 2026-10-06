@@ -120,7 +120,7 @@ PitStopApp
 ```
 
 This example is conceptual, not a mandatory folder structure or package
-split. The implementation agent must inspect the repository before
+split. The implementer must inspect the repository before
 selecting exact files or folders.
 
 A dedicated Analytics + provider adapter package split is justified only

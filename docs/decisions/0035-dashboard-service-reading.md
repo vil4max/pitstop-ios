@@ -1,11 +1,9 @@
 # Dashboard Service Reading as a Maintenance Anchor
 
-**Status:** Accepted (owner decision, 2026-09-22): build now without waiting
-for beta evidence; the earliest anchor wins per dimension; a reading is called
+**Status:** Accepted: the earliest anchor wins per dimension; a reading is called
 old after 180 days and never expires; `PolicySource.vehicleCondition` stays
 unused; REQ-MAINT-023 is reworded so a reading keeps an untracked operation
-visible until the reading is deleted. The four implementation choices marked
-"owner decision" below were approved by the owner on 2026-09-22\
+visible until the reading is deleted\
 **Task:** MNT-VR-002\
 **Builds on:** [`0001-maintenance-anchors.md`](0001-maintenance-anchors.md)
 (anchors come from facts), [`0006-capture-confirmation-policy.md`](0006-capture-confirmation-policy.md),
@@ -16,7 +14,7 @@ visible until the reading is deleted. The four implementation choices marked
 [`0031-stop-tracking-an-operation.md`](0031-stop-tracking-an-operation.md),
 [`0032-planned-dated-events.md`](0032-planned-dated-events.md) (schema V3),
 [`0033-track-several-starter.md`](0033-track-several-starter.md)\
-**Source:** [MNT-VR-001](../planning/investigations/mnt-vr-001-vehicle-reported-remaining.md),
+**Source:** MNT-VR-001,
 option V3\
 **Contracts:** [`../requirements/maintenance-engine.md`](../requirements/maintenance-engine.md)
 (REQ-MAINT-023 rewording, REQ-MAINT-030…039, proposed),
@@ -47,10 +45,10 @@ fact (MNT-VR-001, options V1 and V2).
    `reported date + remaining days`, computed in `MaintenanceEngine` and never
    stored. Miles convert to kilometres only for this arithmetic.
 3. **Validity.** Only the newest reading per operation counts, and only while no
-   confirmed completion of that operation supersedes it (owner rule). On
+   confirmed completion of that operation supersedes it. On
    different days the calendar day decides: a completion on a later day
    supersedes the reading. On the same day the order in which the two were
-   saved decides (agent decision within the owner's rule, 2026-09-22), never the
+   saved decides, never the
    times they carry, because "Mark done" keeps the time its sheet was opened.
    The store stamps each reading with every completion of the operation
    already saved at that moment (`completionIDsAtEntry`); a same-day completion
@@ -59,7 +57,7 @@ fact (MNT-VR-001, options V1 and V2).
    reading, undoing the newer one must leave the older known as earlier.
    "Saved after the reading" is read literally: if a stamped completion is
    undone and the work confirmed again, the new completion was saved after the
-   reading and supersedes it, even on the same day (agent choice, 2026-09-22).
+   reading and supersedes it, even on the same day.
    So "300 km
    overdue" entered in the morning and "Mark done" in the afternoon leave the
    operation on the owner's interval, while a reading entered after "Mark done"
@@ -71,12 +69,11 @@ fact (MNT-VR-001, options V1 and V2).
    operation, including the mileage those readings were entered at (see
    Consequences).
 4. **Earliest anchor wins per dimension** between the owner's interval and the
-   reading; an exact tie goes to the owner's interval (owner decision,
-   2026-09-22). The share denominator is the owner's interval for that
+   reading; an exact tie goes to the owner's interval. The share denominator is the owner's interval for that
    dimension when one exists (for time, its length from the reading's date),
    otherwise the reported value at report time. An already-overdue reading with
    no owner interval uses the magnitude of its value, so the sign still comes
-   from what is left (owner decision, 2026-09-22).
+   from what is left.
 5. **Staleness.** A reading with an odometer is a mileage observation, like a
    completion with mileage: `MaintenanceContext` and the Road rate history read
    every stored reading, not only the newest. The distance part follows the 90-day mileage rule and the existing
@@ -92,8 +89,7 @@ fact (MNT-VR-001, options V1 and V2).
 7. **Visibility.** A stored reading keeps its operation on Service and Road
    like a tracked one, including an operation the owner does not track and one
    whose tracking the owner stopped. A superseded reading still keeps the row
-   until it is deleted, but it decides nothing, and the row says so (owner
-   decision, 2026-09-22). Such an operation stays offered under Track, because
+   until it is deleted, but it decides nothing, and the row says so. Such an operation stays offered under Track, because
    it has no rule.
 8. **Service surface.** The row keeps its status and adds "Car says 3,200 km /
    45 days · Sep 20" (in the unit the car showed; overdue said in words). The
@@ -140,7 +136,7 @@ fact (MNT-VR-001, options V1 and V2).
     Foundation Models path is unchanged and stays behind its gate (core P4,
     ADR 0027). Siri reads the operation and the values back in its confirmation,
     joined with "and" rather than the slash of the Service line, and asks "Which service does the car mean?" for a missing operation; it does
-    not collect the remaining value by voice (owner decision, 2026-09-22), so a
+    not collect the remaining value by voice, so a
     capture without one can only keep its words.
 11. **Schema V4.** `VehicleServiceReportRecord` is added in `PitstopSchemaV4`
     with a lightweight V3 → V4 stage; V3 is now frozen like V1 and V2. Besides
@@ -181,13 +177,12 @@ reading and the anchors return to completion + interval.
   no longer feeds current mileage or the Road rate estimate. The confirmation
   says so. The rows are not kept as hidden mileage facts because a reading is
   often deleted for being wrong, mileage included, and keeping rows the owner
-  deleted would need a deleted flag checked by every reader (agent choice,
-  2026-09-22). An owner who wants to keep the mileage records it on Car Board.
+  deleted would need a deleted flag checked by every reader. An owner who wants to keep the mileage records it on Car Board.
 - Known limitation: deleting a reading removes its rows, so replaying the
   confirmation of a deleted Pit capture (the same proposal confirmed again)
   brings it back. Rejecting it would need a record of deletions; a replay
   needs the same, still open, capture sheet, so the limitation is recorded
-  rather than built around (agent choice, 2026-09-22).
+  rather than built around.
 - A fresh reading with no owner interval starts at a 100% share, because the
   reported value is its own denominator (REQ-MAINT-033): "service in 200 km"
   reads "up to date" until 15% of those 200 km remain. This is the approved
@@ -208,10 +203,10 @@ reading and the anchors return to completion + interval.
   point-in-time observation with a rule; one row per source cannot hold the
   reading's date and odometer cleanly.
 - **Owner interval always wins** (existing `PolicySource` precedence): hides a
-  shorter car countdown; the owner chose earliest-wins.
+  shorter car countdown; earliest-wins was chosen.
 - **Auto-expiring readings after N days:** silently moves due work back to
   unknown.
-- **Stopping tracking also deletes the reading:** the owner chose to keep them
+- **Stopping tracking also deletes the reading:** the two are kept
   separate; the reading is deleted on its own, behind its own confirmation.
 - **Reading the value from the car (OBD, connected-car APIs):** diagnostics and
   vehicle integration are non-goals.
@@ -228,8 +223,7 @@ reading and the anchors return to completion + interval.
   V1 class, so a new field means a new copy of a shipped entity and its
   migration; stamping the reading with the completions saved before it gives
   the same same-day order with one field on the V4 record, which no release
-  has shipped (agent decision within the owner's "completion supersedes" rule,
-  2026-09-22).
+  has shipped (a completion supersedes a reading).
 - **Stamping only the newest completion at entry** (the first cut): undoing
   that completion made an earlier same-day completion look newer than the
   reading.
@@ -244,5 +238,5 @@ reading and the anchors return to completion + interval.
 
 - Simulator smoke of entry, supersede by "Mark done" and delete, and the ru/uk
   strings on screen (listed under "Not verified on screen").
-- Whether `PolicySource.vehicleCondition` is removed stays a separate owner call.
+- Whether `PolicySource.vehicleCondition` is removed stays a separate decision.
 - The proposed analytics events await the telemetry change gate.

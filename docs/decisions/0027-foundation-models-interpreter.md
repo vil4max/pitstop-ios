@@ -1,7 +1,6 @@
 # Foundation Models Interpreter
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending; feature off by default\
+**Status:** Accepted; feature off by default\
 **Task:** CAP-005 (investigation + adapter)\
 **Builds on:** [`0011-interpreted-capture-without-a-model.md`](0011-interpreted-capture-without-a-model.md),
 [`0015-interpretation-deadline-and-cancellation.md`](0015-interpretation-deadline-and-cancellation.md),
@@ -24,7 +23,7 @@ a spike behind the boundary, not a shipped feature.
 ## API facts (iOS 27 SDK, Xcode 27.0, checked 2026-09-21)
 
 Sources: the iOS 27 simulator SDK interface of `FoundationModels`, Apple's
-documentation, and a probe run on the session simulator.
+documentation, and a probe run on a simulator.
 
 | Fact | Source |
 |---|---|
@@ -37,7 +36,7 @@ documentation, and a probe run on the session simulator.
 | Errors: `LanguageModelSession.GenerationError` (`exceededContextWindowSize`, `assetsUnavailable`, `guardrailViolation`, `unsupportedGuide`, `unsupportedLanguageOrLocale`, `decodingFailure`, `rateLimited`, `concurrentRequests`, `refusal`); iOS 27 adds `LanguageModelError` for model errors. `prewarm(promptPrefix:)` exists on the session. | SDK interface; [Foundation Models updates](https://developer.apple.com/documentation/updates/foundationmodels) |
 | The iOS 27 model differs from 26.x; Apple asks apps to retest prompts per model version. | [Foundation Models updates](https://developer.apple.com/documentation/updates/foundationmodels) |
 
-Probe on the session simulator (`claude-Pitstop-1b8d76c5`, iOS 27.0, Mac host
+Probe on a simulator (iOS 27.0, Mac host
 with Apple Intelligence on): `availability: available`; `supportedLanguages`:
 da, de, en (AU, GB, IN), es (419, US), fr (CA), it, ja, ko, nb, nl, pt (PT), sv,
 tr, vi, zh (HK, TW); `supportsLocale(ru_RU) = false`,
@@ -119,7 +118,7 @@ the rules were built to be sure about.
 `InterpreterComposition` in `AppEnvironment` selects the interpreters. The
 default everywhere is `.ruleBased` (unchanged behaviour). Only a DEBUG launch
 argument, `-pitstop-foundation-models`, selects the chain. Release builds
-cannot turn it on. Turning it on in Release is an owner decision (see "Rollout
+cannot turn it on. Turning it on in Release needs a separate decision (see "Rollout
 gate").
 
 ### Telemetry
@@ -128,7 +127,7 @@ gate").
 `availability`, `result` and `latency_bucket` (ADR 0021), all closed values
 without raw text (REQ-CAPTURE-025). The chain reports a new closed value,
 `rule_based_1_foundation_models_1`, and only in the DEBUG composition; Release
-keeps `rule_based_1`. **Proposed for owner review:**
+keeps `rule_based_1`. **Proposed:**
 
 - accept that value into the taxonomy before any Release use;
 - report which member answered per capture (a stage field such as
@@ -152,7 +151,7 @@ asserts that no work or event is proposed where the wording must stay raw. The m
 `TEST_RUNNER_PITSTOP_AI_EVAL=1` and when the model is available; reports are
 result-bundle attachments.
 
-Results, session simulator, 2026-09-21:
+Results, simulator, 2026-09-21:
 
 | Interpreter | Completion P / R | Reading P / R | Car wash P / R | Unexpected proposals | Unavailable |
 |---|---|---|---|---|---|
@@ -175,7 +174,7 @@ Results, session simulator, 2026-09-21:
   to replace the cabin filter at 95000 km") become odometer readings with no
   confidence, which the policy auto-accepts. No work or event is proposed, so
   REQ-CAPTURE-014 holds, but a planned mileage is recorded as the current one.
-  Fixing it changes the ADR 0011 rules and is an owner item.
+  Fixing it changes the ADR 0011 rules and needs its own decision.
 - Rules misses: a Russian report of an all-wheel-drive coupling service,
   stated with its mileage in kilometres, becomes an odometer reading with the
   right number (the rules have no completion verb for "serviced"); Ukrainian
@@ -207,21 +206,21 @@ validator, policy and commands unchanged; no raw text in any event.
   deadline, and a translation error would become a structured fact about the
   user's car.
 
-## Rollout gate for the owner
+## Rollout gate
 
 The flag stays off in Release until all of these hold:
 
 1. On a physical Apple Intelligence device, the model lane runs the golden set
    with generation succeeding, and reports precision of at least 95% per kind,
    zero unexpected proposals, and p90 latency under 3 seconds.
-2. Apple Intelligence supports a language the owner's users write in; today it
+2. Apple Intelligence supports a language the app's users write in; today it
    does not support Russian or Ukrainian, so for the current audience the model
    adds nothing and the rules remain the interpreter.
-3. The owner accepts the telemetry value and the per-member reporting above.
+3. The telemetry value and the per-member reporting above are accepted.
 4. The golden set grows from observed (redacted) failures per the test
    strategy.
 
-## Open for owner review
+## Open questions
 
 - Whether CAP-005 is closed as "investigated; model unusable for ru/uk on iOS
   27" or kept open for a device evaluation of English captures.

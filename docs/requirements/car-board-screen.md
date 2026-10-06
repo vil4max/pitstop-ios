@@ -256,7 +256,7 @@ Do not collect raw note or voice content.
 
 ## Requirements
 
-Status `proposed` means derived from the contract text above and awaiting owner approval.
+Status `proposed` means derived from the contract text above and awaiting approval.
 
 ### REQ-BOARD-001 — First launch opens Car Board without gates
 Status: proposed
@@ -387,7 +387,7 @@ When Car Board renders
 Then the History tile shows no latest event
 
 ### REQ-BOARD-017 — Car Hero shows visual and name without specifications
-Status: approved (owner, 2026-09-23; wording changed by the owner on 2026-09-22: the name moved to the screen title)
+Status: Approved
 Core: P5
 Source: [Car Hero](#car-hero)
 Given any car context
@@ -459,7 +459,7 @@ When Car Board renders
 Then tile summary meaning stays visible and Settings and Pit remain reachable
 
 ### REQ-BOARD-026 — Header mileage is the newest mileage observation
-Status: approved (owner, 2026-09-21)
+Status: Approved
 Core: C2
 Source: [First-launch state](#first-launch-state); [`../decisions/0010-maintenance-engine-rules.md`](../decisions/0010-maintenance-engine-rules.md)
 Given a completion saved with its mileage is newer than any odometer reading
@@ -467,7 +467,7 @@ When Car Board renders
 Then the header shows that mileage, the same value Service counts from, and saving the same number in the car editor while that mileage is stale records a fresh reading
 
 ### REQ-BOARD-027 — Mileage recency is derived, not guessed
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: C2
 Source: [Car Hero](#car-hero)
 Given a newest mileage observation with a date, a reading or a completion saved with its mileage
@@ -475,7 +475,7 @@ When Car Board renders
 Then the hero shows that observation's age from its date only, and shows no age when no observation exists
 
 ### REQ-BOARD-028 — Tile anatomy is shared
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Tile contract](#tile-contract)
 Given the four V1 tiles
@@ -483,7 +483,7 @@ When they render
 Then each shows the title row with a chevron, a primary line and a secondary line, and a status chip only where a state exists
 
 ### REQ-BOARD-029 — The owner's photo is optional and stays on device
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P1, P2
 Source: [Car profile](#car-profile)
 Given the owner picks a photo in the car editor
@@ -491,7 +491,7 @@ When it is saved
 Then it is stored as a file in the app container, shown on the stage, and never sent to analytics, logs or any network; widgets read it only as a file in the App Group container after SYS-007, never inside a timeline entry
 
 ### REQ-BOARD-030 — The body is the owner's choice
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: C2
 Source: [Car Hero](#car-hero), [product-design Car image](product-design.md#car-image)
 Given no photo
@@ -499,7 +499,7 @@ When the car is shown
 Then the placeholder is the body the owner chose, SUV or sedan, or SUV when none was chosen, and never one derived from other data
 
 ### REQ-BOARD-031 — A failed subject lift still shows the car
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Car Hero](#car-hero)
 Given a photo whose subject cannot be lifted
@@ -507,7 +507,7 @@ When the stage renders
 Then the whole photo is shown under the stage mask and no error is shown
 
 ### REQ-BOARD-032 — First launch never asks for a photo
-Status: approved (owner, 2026-09-24, RD-012 package)
+Status: Approved
 Core: C2, P1
 Source: [Car profile](#car-profile), [product-design Car image](product-design.md#car-image)
 Given a first launch with no car details
@@ -515,7 +515,7 @@ When Car Board appears
 Then nothing asks for a photo, and the car is shown as the SUV placeholder
 
 ### REQ-BOARD-033 — Removing the photo removes its files
-Status: approved (owner, 2026-09-24, RD-012 package)
+Status: Approved
 Core: P1, P2
 Source: [Car profile](#car-profile)
 Given a saved car photo
@@ -523,7 +523,7 @@ When the owner removes it in the car editor and saves
 Then every file stored for that photo is deleted from the container, the car store keeps no reference to it, and the car is shown as the placeholder for the chosen body
 
 ### REQ-BOARD-034 — A small avatar shows the car where it helps
-Status: approved (owner, 2026-09-24, RD-012 package)
+Status: Approved
 Core: P5
 Source: [Car profile](#car-profile)
 Given any car context

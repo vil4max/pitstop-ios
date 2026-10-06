@@ -1,9 +1,7 @@
 # Design Language and Car Board Shell
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-20: "design it yourself, modern, for Swift 6 and iOS 27"); owner review
-pending; the Pit control and the Pit mark amended by [ADR 0039](0039-pit-head-control.md) (Pit's head, no
-glass, 2026-09-24); the Car Hero amended by [ADR 0040](0040-car-profile.md) (the owner's
+**Status:** Accepted; the Pit control and the Pit mark amended by [ADR 0039](0039-pit-head-control.md) (Pit's head, no
+glass, 2026-09-24); the Car Hero amended by [ADR 0040](0040-car-profile.md) (the user's
 photo or the placeholder for the chosen body replaces `AbstractCarView`, and
 `DefaultVehicleHero` is deleted, 2026-09-25)\
 **Task:** CB-002\

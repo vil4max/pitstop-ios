@@ -1,8 +1,8 @@
 # Siri voice clarification
 
-**Status:** Accepted for implementation (agent decision under owner delegation, 2026-09-21); owner review pending\
+**Status:** Accepted\
 **Task:** SYS-006\
-**Builds on:** [`0023-remember-intent.md`](0023-remember-intent.md) (owner decisions: in-place
+**Builds on:** [`0023-remember-intent.md`](0023-remember-intent.md) (decisions: in-place
 `requestChoice`, unlocked phone only, spoken mileage as in Pit, failure "not saved"),
 [`0024-app-shortcuts.md`](0024-app-shortcuts.md),
 [`0025-widgets-and-controls.md`](0025-widgets-and-controls.md)\
@@ -12,7 +12,6 @@
 [`0006-capture-confirmation-policy.md`](0006-capture-confirmation-policy.md),
 [`0011-interpreted-capture-without-a-model.md`](0011-interpreted-capture-without-a-model.md),
 [`0015-interpretation-deadline-and-cancellation.md`](0015-interpretation-deadline-and-cancellation.md)\
-**Investigation:** [`../planning/investigations/sys-001-app-intents.md`](../planning/investigations/sys-001-app-intents.md)
 
 ## Context
 
@@ -207,7 +206,7 @@ uk, unchanged non-save replies, the voice hint on number questions, distinct
 repeat questions, translated and distinct option titles, and "I don't know"
 recognition in en, ru and uk.
 
-## Device checks (owner)
+## Device checks
 
 Run on a physical iPhone with iOS 27, PitStop installed from TestFlight or
 Xcode, a car with a recorded mileage, and Siri set to the language under
@@ -257,7 +256,7 @@ observed behaviour).
 - **Saving the words silently after the first unreadable answer.** One
   misheard number would lose the structure the person was about to give.
 - **Opening the app for the missing detail** (`continueInForeground`).
-  Rejected for confirmation by the owner in ADR 0023 for the same reasons:
+  Rejected for confirmation in ADR 0023 for the same reasons:
   hands busy, locked context, no guarantee a foreground transition is allowed.
 - **`LongRunningIntent`.** Documented for long work with progress reports, not
   for prompts; see "Time budget".
@@ -270,12 +269,12 @@ observed behaviour).
   interpreter returns incomplete proposals (CAP-005); see "Reachability
   today".
 - **Device checks** above are pending; SYS-006 stays "implemented, device
-  checks pending" until the owner records them.
+  checks pending" until they are recorded.
 - **Prompt time and the 30-second limit** (check 13) and **cold launch time**
   (check 14) are unmeasured.
 - **Ukrainian Siri** availability and recognition of "PitStop" in ru and uk
   (checks 2, 3) are unverified; the ru and uk App Shortcut phrases and the
-  "I don't know" phrase lists await review by the owner or a native speaker.
+  "I don't know" phrase lists await review by a native speaker.
 - **Number transcription.** How Siri writes spoken numbers in each language
   (digits, grouping, words) decides how often the repeat is needed (check 5);
   number words ("eighty-four thousand") are not parsed.

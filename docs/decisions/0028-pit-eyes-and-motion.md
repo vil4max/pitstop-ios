@@ -1,6 +1,6 @@
 # Pit Eyes and the Full Motion Language
 
-**Status:** Accepted for implementation (owner request 2026-09-21); the drawing amended by
+**Status:** Accepted; the drawing amended by
 [ADR 0039](0039-pit-head-control.md) (2026-09-24): Pit is drawn as `PitHead` with one `PitPose` per state,
 `PitEyesGlyph`, `PitEyeShape` and `PitEyeGeometry` are removed, and the knock's bumps are dips from the lifted
 pose; the sequences, timings, life and Reduce Motion rules below are unchanged\
@@ -14,12 +14,12 @@ pose; the sequences, timings, life and Reduce Motion rules below are unchanged\
 
 ## Context
 
-The owner asked on 2026-09-21 for Pit's eyes to be refined, to look more alive,
+Pit's eyes were to be refined on 2026-09-21, to look more alive,
 and to be animated in the app as the specification describes: Pit thinks, Pit
 looks aside, and so on. The "Motion language" table lists twelve states or
 actions. The ADR 0019 audit found that three of them were never shown (closed
 eyes, hidden) or not modelled at all (double blink, glance at object), because
-no accepted requirement asked for them then. The owner request is that ask.
+no accepted requirement asked for them then. This record closes that gap.
 
 Before this change the glyph was two static capsules with a highlight that
 jumped between positions under one short ease. A blink was a height change, a

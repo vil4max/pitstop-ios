@@ -134,7 +134,7 @@ sooner than five minutes; content that time cannot change asks for no
 scheduled reload
 
 ### REQ-WIDGET-011 — Content that does not fit drops lines by priority
-Status: approved (owner, 2026-09-24)
+Status: Approved
 Core: C2
 Source: [ADR 0036](../decisions/0036-app-group-store-and-next-service-widget.md), FU-2
 If the widget's content does not fit at the current text size, the widget
@@ -148,7 +148,7 @@ lays it out, Then the dropped lines follow this order and a tap still opens
 Service.
 
 ### REQ-WIDGET-012 — VoiceOver reads the whole content
-Status: approved (owner, 2026-09-24)
+Status: Approved
 Core: P5
 Source: FU-2
 When VoiceOver reads the widget, the widget shall speak the operation name,

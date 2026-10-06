@@ -1,9 +1,9 @@
 # iOS 27 Visual Refresh: Surface Tiers
 
-**Status:** Accepted (owner approved the redesign proposal 2026-09-22; recorded with RD-000 on 2026-09-23)\
+**Status:** Accepted (recorded with RD-000 on 2026-09-23)\
 **Task:** RD-000\
 **Builds on:** [`0009-design-language.md`](0009-design-language.md) (calm content, glass controls; this ADR
-supersedes nothing there), [`../planning/ios27-redesign-proposal.md`](../planning/ios27-redesign-proposal.md) §1, §3.8, §3.10, §6\
+supersedes nothing there)\
 **Contracts:** REQ-DESIGN-001…004 ([`../requirements/product-design.md`](../requirements/product-design.md),
 [`../engineering/design-system-module.md`](../engineering/design-system-module.md))
 

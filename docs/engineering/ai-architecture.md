@@ -191,4 +191,4 @@ Model quality evaluation is separate from deterministic unit tests.
 - `../operations/ai-product-analytics.md` — separate AI Product Analyst workflow
 - `domain-inventory.md` — implementation snapshot (`main`)
 - `../planning/ai-roadmap.md` — deferred AI roadmap (not an implementation contract)
-- `../PROJECT_STATUS.md` — freeze / resume status
+- `../PROJECT_STATUS.md` — project status

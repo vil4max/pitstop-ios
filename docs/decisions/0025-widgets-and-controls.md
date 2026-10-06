@@ -1,8 +1,7 @@
 # Widgets and Controls: Open Pit from the System
 
-**Status:** Accepted for implementation (owner decisions 2026-09-21)\
+**Status:** Accepted\
 **Task:** SYS-005 ("Widget capture slice")\
-**Investigation:** [`../planning/investigations/sys-004-widgets.md`](../planning/investigations/sys-004-widgets.md)\
 **Contracts:** [`../core.md`](../core.md) (C4),
 [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md)
 (REQ-CAPTURE-002, REQ-CAPTURE-023),
@@ -31,7 +30,7 @@ Both need a widget extension, which the project did not have.
 
 ## Decision
 
-### Owner decisions (2026-09-21)
+### Decisions
 
 1. **Surfaces:** an "Open Pit" control (Control Center, Lock Screen, Action
    button) and a data-free widget in two families, `systemSmall` (Home
@@ -47,7 +46,7 @@ Both need a widget extension, which the project did not have.
    `target` parameter with the default `pit`, so neither Siri nor the control
    asks for it; no second intent exists.
 5. **No data, no App Group now.** A widget with car data is a separate task
-   (SYS-007 proposal in the work plan).
+   (see ADR 0036).
 
 ### Shape
 
@@ -142,7 +141,7 @@ the built product and on the simulator, not by unit tests.
 
 ## Rejected alternatives
 
-- **A hidden control-only `OpenIntent`** (owner fallback). Not needed: the
+- **A hidden control-only `OpenIntent`** (fallback). Not needed: the
   shared intent keeps the App Shortcut and its tests working.
 - **Per-target string catalogs with duplicated intent keys.** Would let the
   two bundles drift; one shared table is compiled into both.

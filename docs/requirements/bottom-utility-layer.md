@@ -35,8 +35,8 @@ authors; it names no AI product. Because the same binary could go to the App
 Store, the text never says "lab", "experiment", "beta", "demo" or
 "AI-powered", and never suggests that the user's data feeds an AI process
 (App Review Guidelines 2.1(a), 2.2, 5.1.2). The link goes only to
-`github.com/vil4max/pitstop-ios`, which is public. English wording (owner,
-2026-09-25): "Pitstop is an independent app by vil4max, built with AI coding
+`github.com/vil4max/pitstop-ios`, which is public. English wording:
+"Pitstop is an independent app by vil4max, built with AI coding
 agents and reviewed and released by its developer. The source code is open
 on GitHub." Russian and Ukrainian follow the same meaning.
 
@@ -44,7 +44,7 @@ on GitHub." Russian and Ukrainian follow the same meaning.
 
 - bottom-trailing;
 - stable position;
-- always on screen (owner rule 2026-09-22): when a sheet covers the layer,
+- always on screen: when a sheet covers the layer,
   Pit alone stays at the same bottom-trailing spot inside the sheet, above
   the keyboard while typing; Settings is not repeated in sheets, which have
   their own Close or Cancel;
@@ -104,7 +104,7 @@ Settings stays a glass circle with its glyph, and the two keep equal size.
 
 ## Requirements
 
-Status `proposed` means derived from the contract text above and awaiting owner approval.
+Status `proposed` means derived from the contract text above and awaiting approval.
 
 ### REQ-UTILITY-001 — Utility layer is not a tab bar
 Status: proposed
@@ -195,7 +195,7 @@ When the Pit control is displayed
 Then the control remains visible, discoverable, and keeps its semantic label
 
 ### REQ-UTILITY-012 — Sheets keep Pit and cover the rest of the layer
-Status: approved (owner rule 2026-09-22: Pit is always on screen; status line updated by the owner, 2026-09-24); RD-010 saw only the Pit Capture Surface on the simulator (inset at the medium detent, large at AX-XXXL); Pit inside a feature sheet or Settings is not yet checked on screen and is tracked as DEV-PIT-SHEET
+Status: Approved; RD-010 saw only the Pit Capture Surface on the simulator (inset at the medium detent, large at AX-XXXL); Pit inside a feature sheet or Settings is not yet checked on screen and is tracked as DEV-PIT-SHEET
 Core: P5
 Source: [Pit](#pit), [Safe areas and scrolling](#safe-areas-and-scrolling)
 Given a sheet other than the Pit Capture Surface is presented
@@ -203,7 +203,7 @@ When the sheet or the keyboard is shown
 Then Pit stays visible at the bottom-trailing spot of the sheet, above the keyboard, Settings is not shown over the sheet, and both return to their layer positions when the sheet closes
 
 ### REQ-UTILITY-013 — About says who makes PitStop and links the source
-Status: proposed (owner chose the wording, the name and the order on 2026-09-25; lands after SYS-008)
+Status: proposed
 Core: P5
 Source: [About](#about)
 Given Settings is open

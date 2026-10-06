@@ -1,7 +1,7 @@
 # AI Engineering Roadmap
 
 **Status:** Deferred Roadmap  
-**Scope:** Long-term AI direction and pause-time knowledge preservation  
+**Scope:** Long-term AI direction and recorded architecture knowledge  
 
 This document captures long-term AI direction for PitStop.
 
@@ -19,9 +19,9 @@ Existing implementation contracts remain authoritative. Prefer and extend these 
 
 # Why this document exists
 
-PitStop implementation is intentionally paused.
+Runtime AI work is intentionally deferred.
 
-Architectural AI decisions were captured here so future work can resume without repeating months of design debate.
+Architectural AI decisions are captured here so future work can start without repeating the design debate.
 
 This roadmap preserves:
 
@@ -29,50 +29,20 @@ This roadmap preserves:
 - long-term direction that must not be mistaken for present runtime behaviour
 - rules that keep AI work deferred until the product baseline is complete
 
-When implementation resumes, start from the product baseline and the authoritative owners above. Use this document for direction, not as a parallel source of truth.
+When AI work starts, start from the product baseline and the authoritative owners above. Use this document for direction, not as a parallel source of truth.
 
-## AI Product Engineering Map
+## AI capability map
 
-This section connects PitStop's product direction with a full AI Product
-Engineering learning loop. It is a planning and study map only; it does not
-authorize runtime AI work before the product baseline is complete and does not replace the
-owning specifications below.
-
-Keep two tracks separate:
-
-- **AI-assisted development** — how the owner uses agents to investigate,
-  design, implement, verify, review, release, and learn from PitStop.
-- **AI inside PitStop** — where the shipped product may use a model to
-  interpret input or provide bounded assistance.
-
-The first track may support ordinary product-baseline work. The
-second track starts only after the baseline is useful without AI.
-
-### Full-cycle loop
-
-```text
-Problem / trigger
-    → JTBD + Product Review
-    → product and domain contract
-    → design + bounded work plan
-    → agent-assisted implementation
-    → deterministic verification + defect-first review
-    → AI evaluation where a model is involved
-    → TestFlight / beta release
-    → bounded telemetry + interviews
-    → evidence-backed product decision
-    → updated contract, investigation, or task
-```
-
-The release loop is complete only when a usable slice is deployed and
-maintained long enough to produce feedback. “The model works” is not a product
-success criterion.
+This section connects PitStop's product direction with the capabilities that
+may use a model. It is a planning map only; it does not authorize runtime AI
+work before the product baseline is complete and does not replace the owning
+specifications below. The product baseline must be useful without AI.
 
 ### Capability map
 
 | Capability | User problem | AI role | Deterministic boundary | Eval | Telemetry | Release gate |
 |---|---|---|---|---|---|---|
-| Product baseline: Car Board, Notes, Service, History, Road | The driver cannot understand what matters about the car at a glance | None required; prefer deterministic projections | Domain state, persistence, and projections own truth | Domain, integration, and critical UI tests | Approved P0 product events; no raw content | M3 exit criteria in [`work-plan.md`](work-plan.md); core beta gate in [`../operations/release-and-beta.md`](../operations/release-and-beta.md) |
+| Product baseline: Car Board, Notes, Service, History, Road | The driver cannot understand what matters about the car at a glance | None required; prefer deterministic projections | Domain state, persistence, and projections own truth | Domain, integration, and critical UI tests | Approved P0 product events; no raw content | Core beta gate in [`../operations/release-and-beta.md`](../operations/release-and-beta.md) |
 | Raw Remember capture | A thought is easy to lose when the user must choose a record type first | No model required for initial capture; preserve the input | `CaptureInput`, raw preservation, and one command path | Source mapping, cancellation, unavailable-AI, and raw-preservation cases in [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | `input_interpretation_completed`, `draft_saved`, `draft_cancelled` with bounded fields | CAP-001, CAP-006, and a usable capture surface |
 | Contextual note interpretation | The driver wants to save meaning without filling out a form or maintaining taxonomy | Propose typed note meaning and, when safe, a context | Proposal validation plus deterministic `CreateNote`; original wording remains available | Golden set: positive, ambiguous, unsupported, and correction cases | Result, intent, latency bucket, interpreter version; never raw text | CAP-002, CAP-004, CAP-005, CAP-007 plus `INV-CAP-001` decision |
 | Odometer capture | Numeric facts are slow and error-prone to enter manually | Extract an odometer value from natural input | Range/anomaly validation and deterministic `RecordOdometerReading` | Boundary, malformed-number, conflict, and correction cases | `odometer_updated` without the exact value | Domain validation, confirmation policy, and data-integrity release gate |
@@ -80,40 +50,11 @@ success criterion.
 | Maintenance completion | A service memory should update the right cycle without creating false urgency | Suggest a possible completion and missing fields | Validation, risk-based confirmation, and deterministic cycle reset | Separate high-risk false-classification set; partial-completion invariants | Pipeline stage/reason plus bounded maintenance outcomes | CAP-002, maintenance matrix in [`../engineering/test-strategy.md`](../engineering/test-strategy.md), and beta stop criteria |
 | Document extraction | A service document contains useful facts but is costly to transcribe | Later: extract a bounded proposal from OCR/document text | Redacted input, typed validation, user confirmation, and domain commands | Redacted golden documents, OCR errors, omissions, and unsupported layouts | Stage, reason, latency bucket; never OCR or invoice text | Separate investigation and explicit release decision; not part of the first AI slice |
 | Contextual recall and Pit assistance | The driver needs a previous memory at the right moment, without a generic chat workflow | Later: bounded clarification, summary, or relevance assistance | Stored history and deterministic retrieval remain authoritative; Pit is optional | Retrieval relevance, clarification usefulness, dismissal, and no-Pit usability | `note_context_opened`, bounded Pit outcomes, interruption/cooldown data | Product investigations `INV-PROD-001`, `INV-PROD-005`, and beta evidence |
-| AI-assisted product analytics | The owner needs to turn small-beta evidence into the next discriminating investigation | Interpret a deterministic evidence package and propose hypotheses | AQ thresholds, query results, privacy rules, and human product decisions | Evidence-grounding and limitation-awareness checks | Analytics channel only; no raw notes or silent event creation | `../operations/ai-product-analytics.md`, approved `AQ-*`, and human decision |
+| AI-assisted product analytics | The product owner needs to turn small-beta evidence into the next discriminating investigation | Interpret a deterministic evidence package and propose hypotheses | AQ thresholds, query results, privacy rules, and human product decisions | Evidence-grounding and limitation-awareness checks | Analytics channel only; no raw notes or silent event creation | `../operations/ai-product-analytics.md`, approved `AQ-*`, and human decision |
 
 The map deliberately keeps deterministic product work ahead of model work. A
 model can be replaced or removed without changing the product's ownership of
 truth, persistence, confirmation, or release decisions.
-
-### First learning slice after the baseline
-
-A useful candidate is the real-world prompt:
-
-> “Перед зимой поменять дворники” / “Replace the wipers before winter.”
-
-This is a study scenario, not yet an accepted product contract. Product Review
-and the capture owners must decide whether its first supported meaning is a
-contextual note, a reminder candidate, or another validated proposal kind.
-The learning path is:
-
-```text
-raw input
-    → CaptureInput
-    → typed proposal
-    → deterministic validation
-    → risk-based confirmation or clarification
-    → domain command
-    → persistence and projection
-    → correction path
-    → golden-set evaluation
-    → bounded telemetry
-    → TestFlight feedback
-```
-
-This single slice is sufficient to study context engineering, structured
-output, fallback, confirmation UX, evaluation, privacy-safe observability, and
-post-release product learning without turning PitStop into an AI-first app.
 
 ---
 
@@ -121,7 +62,7 @@ post-release product learning without turning PitStop into an AI-first app.
 
 This section describes today's repository. It does not invent runtime behaviour.
 
-Audit date context: pause before further PitStop implementation. Sources are `docs/` contracts plus the `main` implementation snapshot in `../engineering/domain-inventory.md`.
+Sources are `docs/` contracts plus the `main` implementation snapshot in `../engineering/domain-inventory.md`.
 
 ## AI-related specification owners
 
@@ -140,7 +81,7 @@ Audit date context: pause before further PitStop implementation. Sources are `do
 | [`../operations/ai-product-analytics.md`](../operations/ai-product-analytics.md) | Separate AI-assisted analytics workflow (not app runtime interpretation) |
 | [`../requirements/pit-behavior-and-motion.md`](../requirements/pit-behavior-and-motion.md) | Pit as product interaction layer, not the model |
 | [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | CaptureInput → proposal → validation → confirmation → domain commands |
-| [`roadmap.md`](roadmap.md) / [`work-plan.md`](work-plan.md) | Phase index and CAP-* / DISC-* / SYS-* backlog |
+| [`roadmap.md`](roadmap.md) | Phase index |
 | [`investigations.md`](investigations.md) | INV-CAP-* semantic risk; Foundation Models language quality |
 | [`../engineering/domain-inventory.md`](../engineering/domain-inventory.md) | Authoritative inventory: capture/AI types not present on `main` |
 
@@ -297,7 +238,7 @@ Deferred or postponed in existing specs / roadmap (not invented here):
 | AI architecture contracts | Present (`ai-architecture`, `capture-pipeline`, README) | Intentionally not implemented yet |
 | Capture / Remember | Spec + CAP-* issues | Deferred until after product baseline |
 | Intelligence abstraction | Spec boundary | Intentionally deferred |
-| Foundation Models | Preferred path + learning lab | Intentionally deferred |
+| Foundation Models | Preferred path | Intentionally deferred |
 | Persistence schema | Domain concepts in `domain-model` / `domain-inventory` | Intentionally deferred to ENG-004 |
 | Evaluation / golden set | Spec (`test-strategy`) | Dataset deferred until interpreter exists |
 | AI Product Analytics | Separate staged workflow (`ai-product-analytics`) | Not app runtime |
@@ -507,7 +448,7 @@ SwiftData
 
 | Phase | Direction | Notes |
 |---|---|---|
-| 1 | Foundation Models | Aligns with preferred local path in `ai-architecture`; CAP-005 spike in work plan |
+| 1 | Foundation Models | Aligns with preferred local path in `ai-architecture`; CAP-005 spike (ADR 0027) |
 | 2 | Structured Output | Aligns with typed MemoryProposal / guided generation |
 | 3 | Tool Calling | Keep behind intelligence boundary |
 | 4 | Evaluation Framework | Extends `test-strategy` golden set and regression rules |
@@ -517,7 +458,7 @@ SwiftData
 
 Agents are intentionally postponed.
 
-Executable product backlog for Remember remains CAP-* in [`work-plan.md`](work-plan.md), not this phase list.
+This phase list is direction only, not a backlog.
 
 ## Non goals
 
@@ -668,7 +609,6 @@ The system executes.
 - [`../engineering/test-strategy.md`](../engineering/test-strategy.md) — evaluation / golden-set owner
 - [`../operations/ai-product-analytics.md`](../operations/ai-product-analytics.md) — AI Product Analyst workflow owner
 - [`../engineering/domain-inventory.md`](../engineering/domain-inventory.md) — implementation inventory owner
-- [`work-plan.md`](work-plan.md) — executable CAP-* backlog owner
 - [`../decisions/0004-product-design-rationale.md`](../decisions/0004-product-design-rationale.md) — product why / rejected alternatives
 
 ---
@@ -677,7 +617,6 @@ The system executes.
 
 Canonical work rules live in [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
 
-Summary: product baseline implementation is active. No runtime AI, provider integration, prompt engineering, or evaluation implementation until the product baseline (M3) is complete.
+Summary: no runtime AI in Release builds, provider integration, prompt engineering, or evaluation implementation beyond the gated Foundation Models interpreter (ADR 0027) until the product baseline is complete.
 
-Do not resume AI implementation first.
-Complete the product baseline before any AI work.
+Complete the product baseline before any further AI work.

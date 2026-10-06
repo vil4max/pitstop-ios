@@ -12,7 +12,7 @@
 | Car Board UI | `CarBoardView`, `CarBoardViewModel`, `CarEditorView`, `AppEnvironment` | Persisted car context with optional name and mileage edit (CB-001); design language, tile grid, detail scaffold, and utility layer in place (CB-002, ADR 0009); four live tiles (CB-003…007) |
 | Capture pipeline | `CaptureInput`, `MemoryProposal`, `RawProposalFactory`, `ProposalValidator`, `ConfirmationPolicy`, `DomainCommandMapper`, `DomainCommand` | Domain path (DOM-003, ADR 0006) plus `RememberPipeline` orchestration, deadline and cancellation (ADR 0015), persisted through the store and driven by Pit and Siri (CAP-001…007) |
 | Road projection | `RoadProjector`, `RoadProjection`, `RoadMilestone`, `RoadSlot`, `PlannedVehicleEvent`, `MileageObservation`, `MileageRateEstimator`, `MileageRate`, `EstimatedDateRange` | Pure projection with tests (CB-006, ADR 0008); Road tile and Road screen render it (CB-007); a distance milestone carries a derived, never stored date estimate from the reading history (ROAD-EST-002, ADR 0034) |
-| Planned dates | `PlannedDatedEvent`, `PlannedEventLimits`, `AddPlannedEventCommand`, `UpdatePlannedEventCommand`, `RemovePlannedEventCommand`, `PlannedEventEditorView` | Owner-stated insurance expiry or other date with an optional label; entered, corrected and deleted on Road; one insurance expiry on Road per car; fed into Road and the Road tile (ROAD-EVT-001, ADR 0032) |
+| Planned dates | `PlannedDatedEvent`, `PlannedEventLimits`, `AddPlannedEventCommand`, `UpdatePlannedEventCommand`, `RemovePlannedEventCommand`, `PlannedEventEditorView` | User-stated insurance expiry or other date with an optional label; entered, corrected and deleted on Road; one insurance expiry on Road per car; fed into Road and the Road tile (ROAD-EVT-001, ADR 0032) |
 | Maintenance engine | `MaintenanceOperationID`, `MaintenancePolicy`, `MaintenanceCompletion`, `MaintenanceStatus`, `VehicleServiceReport` | `MaintenanceEngine` derives status from policies, confirmed completions and the car's own dashboard reading; reading anchors are derived on read, the earlier anchor wins per dimension, and a newer completion supersedes the reading (ADR 0010, 0020, 0035) |
 | Persistence | `CarMemoryStore`, `SwiftDataCarMemoryStore`, `PitstopSchemaV1`, `PitstopSchemaV2`, `PitstopSchemaV3`, `PitstopSchemaV4` | Command-only store behind a domain protocol (ENG-004, ADR 0007); V2 adds persisted Pit question state with a lightweight migration from V1 (ADR 0016); V3 adds planned dates with a second lightweight stage, and V2 is frozen (ADR 0032); V4 adds dashboard readings (the newest per operation counts; older rows stay mileage observations and reject replays) with a third lightweight stage, and V3 is frozen (ADR 0035) |
 | Notes | `Note`, `NotesSummary`, `UpdateNoteCommand`, `RememberPipeline` (raw), `NotesViewModel`, `NotesView` | Save, find, correct, archive, and restore without AI; Notes tile summarizes real notes (CB-003) |
@@ -46,9 +46,9 @@ facts; the header shows the newest mileage observation (REQ-BOARD-026).
 | Maintenance Status | `unknown` / `upToDate` / `approaching` / `due` | — | Maintenance engine | `MaintenanceStatus`, `MaintenanceEngine` |
 | Service Planner | Composes visit proposal | — | Operation statuses, windows | `ServicePlanner` |
 | Suggested Service Scope | Derived visit proposal | — | Planner output | `SuggestedServiceScope` |
-| Service Plan | Owner-accepted future visit | Plan entity | Presentation | — |
+| Service Plan | User-accepted future visit | Plan entity | Presentation | — |
 | Service Visit | Actual service history event | Visit record | Spend summaries | — |
-| Note | Raw owner thought | `rawText`, `createdAt`, `status` | Semantic metadata | `Note` |
+| Note | Raw user thought | `rawText`, `createdAt`, `status` | Semantic metadata | `Note` |
 | Note Context | Canonical navigation context | — | AI assignment (beta) | `NoteContext` |
 | History Event | Real life event | Event record | Road eligibility input | `HistoryEvent` |
 
@@ -96,7 +96,7 @@ facts; the header shows the newest mileage observation (REQ-BOARD-026).
 | RoadContext | Input snapshot | Yes | `RoadContext` |
 | RoadProjection | Projection output | Yes | `RoadProjection`, `RoadProjector` |
 | RoadMilestone | Eligible future/past marker | Yes | `RoadMilestone`, `RoadSlot` |
-| Planned dated event | Owner-stated future date, stored | Yes | `PlannedDatedEvent` → `PlannedVehicleEvent` (ADR 0032) |
+| Planned dated event | User-stated future date, stored | Yes | `PlannedDatedEvent` → `PlannedVehicleEvent` (ADR 0032) |
 | Milestone eligibility rules | Deterministic filter | Yes | `RoadProjector` |
 | Mixed time/mileage lanes | Projection rule | Yes | ADR 0008: one lane, ordering key in horizon units |
 | Horizon selection | Projection rule | Yes | `RoadHorizon` (ADR 0008) |
@@ -142,14 +142,12 @@ facts; the header shows the newest mileage observation (REQ-BOARD-026).
 
 ## Open work
 
-Remaining tasks and owner decisions live in
-[`../planning/work-plan.md`](../planning/work-plan.md). The pre-greenfield
-tab-bar spike is not part of this repository (ADR 0014); ADR 0020 records how
-its maintenance ideas were closed.
+The pre-greenfield tab-bar spike is not part of this repository; ADR 0020
+records how its maintenance ideas were closed.
 
 ## Related documents
 
-- `../PROJECT_STATUS.md` — freeze / resume status and product-baseline definition
+- `../PROJECT_STATUS.md` — project status and product-baseline definition
 - `../planning/ai-roadmap.md` — deferred AI roadmap
 - `../decisions/0004-product-design-rationale.md` — product why
 - `../requirements/capture-pipeline.md` — Capture / Remember contract

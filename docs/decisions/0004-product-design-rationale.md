@@ -23,7 +23,7 @@ Authoritative behaviour remains in the owning specs. Prefer links over duplicati
 
 Current status:
 
-- Product baseline implementation is active (unfrozen 2026-09-16).
+- Product baseline implementation is active.
 - No runtime AI implementation before the product baseline is complete.
 - Product baseline has higher priority than AI.
 
@@ -371,14 +371,12 @@ They are not backlog commitments.
 - Shared vehicles
 - Cloud sync
 - Smart reminders powered by AI
-- Pet/companion-style Pit persona (inspired by mewmori.com's pet mechanic and
-  OpenAI Codex's mascot use) — tension: conflicts with the current "Pit Eyes /
+- Pet/companion-style Pit persona — tension: conflicts with the current "Pit Eyes /
   Behind the UI" visual hypothesis (`../requirements/product-design.md`), which explicitly
   rejects "oversized cute mascot eyes" and "Pixar-like body language"; see the
   open `INV-PROD-005 Pit value vs mascot noise` investigation
   (`../planning/investigations.md`).
 
-Executable product backlog remains [`../planning/work-plan.md`](../planning/work-plan.md).  
 Deferred AI phase framing: [`../planning/ai-roadmap.md`](../planning/ai-roadmap.md).  
 MCP outside iOS runtime: [`../operations/ai-product-analytics.md`](../operations/ai-product-analytics.md).
 

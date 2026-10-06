@@ -1,7 +1,6 @@
 # Capture Locale for In-App Input
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-22); owner review pending\
+**Status:** Accepted\
 **Task:** CAP-LOC-001\
 **Builds on:** [`0023-remember-intent.md`](0023-remember-intent.md) (Siri passes
 `systemContext.locale`), [`0027-foundation-models-interpreter.md`](0027-foundation-models-interpreter.md)

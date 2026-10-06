@@ -5,8 +5,8 @@
 **Owners it summarises:** behaviour contracts live in
 [`../requirements/`](../requirements/), decisions in
 [`../decisions/`](../decisions/), the implementation inventory in
-[`domain-inventory.md`](domain-inventory.md). When this page and an owner
-disagree, the owner and the code win; fix this page in the same change.
+[`domain-inventory.md`](domain-inventory.md). When this page and an owning
+document disagree, the owning document and the code win; fix this page in the same change.
 
 This page is one file on purpose. It is a map with diagrams that points into
 the owning documents; splitting it into a `docs/spec/` folder would create a
@@ -303,7 +303,7 @@ interpretation and again at the last point before a write. Stage telemetry
 outcome, never the words, and fans out to `CaptureStageLogger` and
 `CaptureAnalyticsObserver` ([`CaptureStageEvent.swift`](../../Pitstop/Domain/Capture/CaptureStageEvent.swift),
 [`AppCoordinator.swift`](../../Pitstop/App/AppCoordinator.swift)).
-`capture_discarded` is still a proposed stage pending owner approval
+`capture_discarded` is still a proposed stage pending approval
 (ADR 0006, ADR 0015).
 
 ---
@@ -744,7 +744,7 @@ milestones it cannot place to "waiting for mileage"
 [ADR 0008](../decisions/0008-road-projection-rules.md)). The Road screen and
 the Road tile both pass the stored planned dates into `RoadContext`; a date
 stays on Road as due for 14 days after it passes and then leaves, while the row
-stays stored. The owner adds a date from Road's toolbar and edits or deletes it
+stays stored. The user adds a date from Road's toolbar and edits or deletes it
 from the Road list; insurance has no tile of its own
 ([ADR 0032](../decisions/0032-planned-dated-events.md)). The board shows four tiles in a fixed V1 order
 ([`CarBoardTiles.swift`](../../Pitstop/Features/CarBoard/CarBoardTiles.swift),
@@ -760,7 +760,7 @@ background.
 flowchart LR
     dev["Local change"]
     verify["just verify: baseline, format, lint, build for testing, tests"]
-    push["git push to main, owner authorised"]
+    push["git push to main"]
     tests["GitHub Actions tests.yml: just ci on hosted xcode-27 runner"]
     check["just tf-check: read-only, prints Ready and the tag commands"]
     tag["Annotated tag tf-MAJOR.MINOR.PATCH-BUILD on a commit of main"]
@@ -768,7 +768,7 @@ flowchart LR
     branch["fast-forward testflight branch"]
     xcc["Xcode Cloud workflow TestFlight: Archive iOS, build number from CI_BUILD_NUMBER"]
     tfg["TestFlight group Internal"]
-    vtag["v tag and App Review: owner only"]
+    vtag["v tag and App Review: maintainer only"]
     rules["Rulesets: main and testflight no deletion or force push; tf tags cannot move; v tags cannot move or be deleted"]
 
     dev --> verify --> push --> tests
@@ -779,20 +779,19 @@ flowchart LR
     rules -.-> branch
 ```
 
-`just verify` is the implementation gate on the Mac; the hosted run on a push
+`just verify` is the local implementation gate; the hosted run on a push
 to `main` repeats the tests and builds nothing for distribution
 ([`.github/workflows/tests.yml`](../../.github/workflows/tests.yml),
-[ADR 0013](../decisions/0013-shared-ci-and-tag-gated-testflight.md),
-[ADR 0014](../decisions/0014-public-repository.md)). A build is requested only
+[ADR 0013](../decisions/0013-shared-ci-and-tag-gated-testflight.md)). A build is requested only
 by a `tf-` tag: `testflight.yml` runs `Tooling/scripts/tf-promote.sh`, which
 accepts the tag only when the commit is on `main`, every `MARKETING_VERSION`
 equals the tag's version, and that commit has its own successful tests run;
 it then fast-forwards `testflight`, which is the only branch the Xcode Cloud
 workflow builds ([`.github/workflows/testflight.yml`](../../.github/workflows/testflight.yml),
 [`Tooling/docs/testflight.md`](../../Tooling/docs/testflight.md)).
-`ci_scripts/ci_post_clone.sh` sets the build number from Xcode Cloud. An agent
-may push a `tf-` tag only after `just tf-check` prints `Ready`; `v` tags and
-App Review are the owner's ([`AGENTS.md`](../../AGENTS.md)). The rulesets come
+`ci_scripts/ci_post_clone.sh` sets the build number from Xcode Cloud. A `tf-`
+tag is pushed only after `just tf-check` prints `Ready`; `v` tags and App
+Review are the maintainer's. The rulesets come
 from [`Tooling/templates/github/rulesets/`](../../Tooling/templates/github/rulesets/).
 
 ---
@@ -801,14 +800,13 @@ from [`Tooling/templates/github/rulesets/`](../../Tooling/templates/github/rules
 
 Verification status uses these terms. **Unit tests**: covered by the
 `PitstopTests` suites named in the row, which `just verify` and the hosted tests
-run. **Screen not verified**: listed under "Not verified on screen" in the
-[work plan](../planning/work-plan.md). **Device check pending**: an owner-only
-device check in the work plan. No row claims a manual check this page did not
+run. **Screen not verified**: not checked on screen.
+**Device check pending**: a check on a physical device that has not been done yet. No row claims a manual check this page did not
 record.
 
 | Feature | User-visible behaviour | ADR(s) | Key code | Test suite(s) | Verification status |
 |---|---|---|---|---|---|
-| Design system | Surface tiers: tinted stage, grouped lists, glass only for floating controls; status as word + glyph + colour; typography roles; Reduce Transparency and Increase Contrast fallbacks; Pit's head (`PitHead`: pearl shell, bezel, navy screen, lit lens eyes from the icon geometry, one `PitPose` per motion state, head colour roles with light, dark and high-contrast values, opaque finish under Reduce Transparency and Increase Contrast, pressed feedback without glass, RD-011); the car picture (`CarVisual`: the lifted photo, else the whole photo under the stage mask, else the owner's SUV or sedan placeholder facing right, tinted by a colour role) and the round car avatar (`CarAvatar`, 28 and 44 pt, hidden from VoiceOver, RD-012); source rules against colour literals in features, shared code and every widget, and glass outside the design system | 0009, 0038, 0039 | `Shared/DesignSystem/` (`PitColor.swift`, `PitTypography.swift`, `DesignTokens.swift`, `GlyphDisc.swift`, `StatusChip.swift`, `StatusGlyph.swift`, `MaintenanceStatusStyle.swift`; compiled into the app and the widget extension), `DesignSystem/Components/` (`StageSurface`, `EmptyState` with its `EmptyStateContent` value, `GlassPill`, `StepStrip`, `RemainingShareTrack`, `PitGlass`, `ChipFlowLayout`, `PitHead`, `PitHeadGeometry`, `PitPose`, `CarVisual`, `CarAvatar`) | `DesignRulesTests`, `PitColorTests`, `StatusGlyphTests`, `RemainingShareTrackTests`, `ChipFlowLayoutTests`, `SparseStateTests`, `PitHeadTests`, `PitControlTests`, `CarVisualTests`, `CarAvatarTests` | Unit tests; components previewed only, screens adopt them in RD-001…RD-012; every head pose, finish and the sheet header rendered with `ImageRenderer` in light, dark and AX-XXXL (RD-011) |
+| Design system | Surface tiers: tinted stage, grouped lists, glass only for floating controls; status as word + glyph + colour; typography roles; Reduce Transparency and Increase Contrast fallbacks; Pit's head (`PitHead`: pearl shell, bezel, navy screen, lit lens eyes from the icon geometry, one `PitPose` per motion state, head colour roles with light, dark and high-contrast values, opaque finish under Reduce Transparency and Increase Contrast, pressed feedback without glass, RD-011); the car picture (`CarVisual`: the lifted photo, else the whole photo under the stage mask, else the SUV or sedan placeholder facing right, tinted by a colour role) and the round car avatar (`CarAvatar`, 28 and 44 pt, hidden from VoiceOver, RD-012); source rules against colour literals in features, shared code and every widget, and glass outside the design system | 0009, 0038, 0039 | `Shared/DesignSystem/` (`PitColor.swift`, `PitTypography.swift`, `DesignTokens.swift`, `GlyphDisc.swift`, `StatusChip.swift`, `StatusGlyph.swift`, `MaintenanceStatusStyle.swift`; compiled into the app and the widget extension), `DesignSystem/Components/` (`StageSurface`, `EmptyState` with its `EmptyStateContent` value, `GlassPill`, `StepStrip`, `RemainingShareTrack`, `PitGlass`, `ChipFlowLayout`, `PitHead`, `PitHeadGeometry`, `PitPose`, `CarVisual`, `CarAvatar`) | `DesignRulesTests`, `PitColorTests`, `StatusGlyphTests`, `RemainingShareTrackTests`, `ChipFlowLayoutTests`, `SparseStateTests`, `PitHeadTests`, `PitControlTests`, `CarVisualTests`, `CarAvatarTests` | Unit tests; components previewed only, screens adopt them in RD-001…RD-012; every head pose, finish and the sheet header rendered with `ImageRenderer` in light, dark and AX-XXXL (RD-011) |
 | Car context | One provisional car created on first launch; name and mileage editable; hero shows the newest observed mileage and its age from the observation's own date (today, days, weeks, months); the car editor (Photo, Name, Body, Mileage) picks an optional photo from the library (`PhotosPicker`, no permission, never at first launch) and the body (SUV by default, or sedan, never derived from other data); a saved photo is bounded to 2048 px, lifted on device (Vision foreground instance mask) and stored as metadata-free files in the App Group container, the car keeping only its id; replacing or removing deletes the old files after the command; the editor locks while saving and a pick that cannot be loaded says so and stages nothing (RD-012) | 0007, 0009, 0040 | `Domain/Vehicle/` (`CarProfileCommands.swift`), `Features/CarBoard/CarEditorView.swift`, `CarBoardViewModel.swift`, `MileageRecency.swift`, `Infrastructure/CarPhoto/`, `Infrastructure/SubjectLift/` | `ProvisionalCarContextTests`, `CarBoardViewModelTests`, `MileageRecencyTests`, `CarProfileTests`, `CarPhotoStoreTests`, `CarPhotoPreparationTests`, `CarPhotoSaveTests`, `CarEditorTests`, `SubjectLifterTests` | Unit tests; the Vision cut-out is skipped on the simulator (no inference context); the editor, `PhotosPicker` and a real lift not checked on screen (1.2.0 What to Test items 13, 14, 16) |
 | Car Board | Hero on the tinted stage showing the car (`CarVisual`: the owner's lifted photo, the whole photo under the mask, or the placeholder for the chosen body facing right; decorative for VoiceOver; RD-012) with a glass pencil ("Name your car" while provisional) plus Road, Notes, Service, History tiles in fixed order; each tile has a title row with a chevron, a primary line, a status chip only where a state exists and a secondary line; the Road tile draws its initial slots as state-glyph markers; utility layer with Settings (glass) and Pit's 56 pt head (no glass, ADR 0039) on every screen; every other sheet covers the layer, Settings included, and keeps Pit alone at the same bottom-trailing spot, in a bottom safe-area inset so rows scroll clear of him and he rides above the keyboard (REQ-UTILITY-012); board refreshes on return; a first-launch board shows no placeholder metric: "Mileage unknown" as a label and every tile in its sparse headline and sentence (REQ-GRAMMAR-004) | 0009, 0038 | `Features/CarBoard/`, `DesignSystem/Components/UtilityLayer.swift`, `App/RootView.swift`, `Features/Pit/PitInSheet.swift` | `CarBoardTileDescriptorTests`, `CarBoardTileContentTests`, `CarBoardViewModelTests`, `PitInSheetTests` | Unit tests; light, dark, AX-XXXL and first launch checked on the simulator (RD-001), first launch again in light, dark and AX-XXXL (RD-008); the layer at the same spot on Car Board and Service, and the Pit sheet at the medium detent floating inset over the layer so that neither Settings nor Pit shows beside it, over Car Board (light, dark) and Service (dark), and at the large detent at AX-XXXL, checked on the simulator (RD-010); Pit's head in the layer in light, dark, with Increase Contrast and at AX-XXXL over the stage checked on the simulator (RD-011); Pit inside a feature sheet or Settings at the medium and large detents, above the keyboard, at AX sizes, in landscape and disabled while saving: on-screen check pending (DEV-PIT-SHEET in the work plan; reaching a sheet needs taps); the pressed head, VoiceOver order, Reduce Transparency and ru/uk screens not verified |
 | Persistence | Data survives relaunch; a failed on-disk store falls back to memory and says so; schemas V1 to V3 frozen, V2 adds question state, V3 adds planned dates, V4 adds dashboard readings, V5 adds the car's body and photo id (V4 frozen, RD-012); V1, V2, V3 and V4 stores migrate to V5 | 0007, 0016, 0032, 0035, 0040 | `Infrastructure/Persistence/`, `App/AppEnvironment.swift` | `PersistenceSchemaTests`, `SchemaV3MigrationTests`, `SchemaV4MigrationTests`, `SchemaV5MigrationTests`, `SwiftDataCarMemoryStoreTests`, `SwiftDataPitQuestionStoreTests`, `SwiftDataPlannedEventTests` | Unit tests |
@@ -827,12 +825,12 @@ record.
 | Analytics | Off by default; Settings opt-in; closed event values without user text; PostHog adapter active only with a key and host in the build (none shipped) | 0002, 0021, 0022 | `Infrastructure/Analytics/`, `Features/Pit/CaptureAnalytics.swift`, `Features/Notes/NotesAnalytics.swift`, `Features/Settings/SettingsView.swift` | `AnalyticsBoundaryTests`, `CaptureAnalyticsTests`, `FeatureAnalyticsTests`, `PostHogAnalyticsClientTests` | Unit tests; no PostHog project exists, so delivery is untested end to end |
 | Logging | OSLog categories; capture stages logged without content | 0003 | `Infrastructure/Logging/` | `CaptureStageTests` | Unit tests |
 | App icon | Pit's round head at rest as a Liquid Glass icon with six appearances | 0029, 0037 | `Pitstop/AppIcon.icon` | none (asset) | Not covered by tests |
-| Delivery | Tests on every push to `main`; TestFlight only from a `tf-` tag through Xcode Cloud | 0013, 0014 | `.github/workflows/`, `Tooling/scripts/`, `ci_scripts/` | Runtime contract tests in the toolchain, not in this repository | Rounds `tf-1.0.0-1`, `tf-1.1.0-1` and `tf-1.1.0-2` exist on the remote |
+| Delivery | Tests on every push to `main`; TestFlight only from a `tf-` tag through Xcode Cloud | 0013 | `.github/workflows/`, `Tooling/scripts/`, `ci_scripts/` | Runtime contract tests in the toolchain, not in this repository | Releases `tf-1.0.0-1`, `tf-1.1.0-1` and `tf-1.1.0-2` exist on the remote |
 
 ## Mismatches found while writing this page
 
 Recorded here instead of silently corrected; each needs a code or document
-change by its owner.
+change.
 
 - **Features name other features' types.** No feature depends on App or on
   another feature's view model since ARCH-001, but these references would still

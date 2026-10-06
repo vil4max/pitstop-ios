@@ -1,7 +1,6 @@
 # Pit Presence and Attention
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending. The constants are hypotheses, to be revisited
+**Status:** Accepted. The constants are hypotheses, to be revisited
 with beta evidence.\
 **Task:** CAP-003\
 **Contracts:** [`../requirements/pit-behavior-and-motion.md`](../requirements/pit-behavior-and-motion.md),

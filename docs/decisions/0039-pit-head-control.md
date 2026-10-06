@@ -1,7 +1,7 @@
 # Pit's Head as the Utility Control
 
-**Status:** Accepted (owner decision 2026-09-22, proposal §3.6d "Decided": the round head, with the whole 56 pt
-circle as Pit's head and no glass disc behind it; recorded with RD-011 on 2026-09-24)\
+**Status:** Accepted (the round head, with the whole 56 pt circle as Pit's head and no
+glass disc behind it; recorded with RD-011 on 2026-09-24)\
 **Task:** RD-011\
 **Amends:** [`0009-design-language.md`](0009-design-language.md) ("Two layers: calm content, glass controls" and
 "Pit mark": the Pit control is no longer glass, and Pit is a head, not two capsule eyes)\
@@ -14,8 +14,8 @@ REQ-PIT-022, 023, 024
 
 ## Context
 
-ADR 0009 put both utility controls on Liquid Glass and drew Pit as two capsule eyes on the glass. The owner then
-chose a round companion head for Pit (2026-09-22): a pearl shell, a navy face screen in a thin bezel and two lit
+ADR 0009 put both utility controls on Liquid Glass and drew Pit as two capsule eyes on the glass. A round
+companion head for Pit was then chosen (2026-09-22): a pearl shell, a navy face screen in a thin bezel and two lit
 lens eyes, with the whole 56 pt circle as the head. The app icon has shown that head since ICON-002 (ADR 0037),
 while the app still drew the eyes in the glass circle. The Poses table and REQ-PIT-022…024 fix how the head acts.
 
@@ -47,7 +47,7 @@ while the app still drew the eyes in the glass circle. The Poses table and REQ-P
 - **Inward tilt.** `PitPose.inwardTilt` is half the angle between the two eyes, positive when their tops
   converge. REQ-PIT-022 caps it at 6°, reached only by the knock. A roll of both eyes the same way (thinking,
   10°; glance, 8°) leaves it unchanged, so it cannot read as the "\ /" angle of judgement; each eye's own turn
-  stays within the 10° of proposal §3.6b.
+  stays within 10°.
 - **Knock colour.** Only the knock pose lights the eyes in `accentPrimary` and strengthens the glow (REQ-PIT-023).
   The eyes resolve their colours in a dark colour-scheme environment, because the screen is navy in both
   appearances: `accentPrimary` is then the pale accent, where the light accent would sink into the navy. Against
@@ -55,7 +55,7 @@ while the app still drew the eyes in the glass circle. The Poses table and REQ-P
   since it removes the glow (about 8:1 measured on a render). With the knock's full-strength glow, as the mockup
   draws it (`#7DBAFA` eyes on a `#6FB2FF` glow), a render measures about 1.3:1 between the eyes, 2.4:1 at their
   outer edges and 3.3:1 below them: the knock reads by the colour change, the inward tilt and the lift, not by eye
-  contrast. The owner kept the mockup's glow on 2026-09-24 (the Poses table asks for a stronger glow), so the
+  contrast. The mockup's glow was kept on 2026-09-24 (the Poses table asks for a stronger glow), so the
   knock is not lowered to raise eye contrast.
 - **Head motion.** Only thinking (tilt 6° aside), startle (lift 2 pt) and knock (lift 3 pt, lean in 4°) move the
   head (REQ-PIT-024); every idle action keeps it still, and bounded life (ADR 0028) scales and shifts the eyes,
@@ -83,7 +83,7 @@ while the app still drew the eyes in the glass circle. The Poses table and REQ-P
 
 ## Rejected alternatives
 
-- **The head on a glass disc.** The owner decided the whole circle is the head; a disc behind it would make two
+- **The head on a glass disc.** The whole circle is the head; a disc behind it would make two
   round shapes and spend glass on an object.
 - **Keep interactive glass as the head's material.** Glass would refract the content behind the pearl shell and
   tint it, so the head would not stay pearl in dark mode.

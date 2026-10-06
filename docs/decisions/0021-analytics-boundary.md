@@ -1,7 +1,6 @@
 # Analytics Boundary
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending\
+**Status:** Accepted\
 **Task:** ENG-002\
 **Contracts:** [`0002-analytics-service.md`](0002-analytics-service.md),
 [`0003-logging.md`](0003-logging.md),
@@ -17,7 +16,7 @@ ADR 0002 selects PostHog as the beta candidate and fixes the architecture
 boundary: feature code never imports a provider, each feature owns a typed
 event, and a provider-neutral layer owns the encoded event, `AnalyticsClient`,
 a no-op client, and a recording client for tests. `ANL-001` is the PostHog
-vertical slice; it adds a package, which needs owner approval.
+vertical slice; it adds a package, which needs approval.
 
 ENG-002 builds that boundary first, without an SDK, a network call, or a new
 dependency, so `ANL-001` becomes one adapter behind an interface that already
@@ -130,7 +129,7 @@ neither knows about the other.
 | Event | Why not now |
 | --- | --- |
 | `car_context_first_enriched` | Needs an onboarding start moment for `duration_bucket` and a definition of "first enriched" for the provisional car; no onboarding flow exists |
-| `history_event_created` | Its `kind` is a `HistoryEventKind`, which a capture stage does not carry; wiring only the History editor would undercount captured events. Needs either a proposal-kind-level parameter or a stage field (owner question 3) |
+| `history_event_created` | Its `kind` is a `HistoryEventKind`, which a capture stage does not carry; wiring only the History editor would undercount captured events. Needs either a proposal-kind-level parameter or a stage field (open question 3) |
 | `maintenance_status_viewed`, `service_scope_viewed`, `service_plan_edited` | Service Plans are not implemented; status viewing is ready to wire but was kept out to keep the slice reviewable |
 
 ## Tests
@@ -164,7 +163,7 @@ The test spy is `RecordingAnalyticsClient` in `PitstopTests/Support/`.
 
 ## Rejected alternatives
 
-- **Add the PostHog SDK now.** It is a new dependency, which needs owner
+- **Add the PostHog SDK now.** It is a new dependency, which needs
   approval, and it is `ANL-001`'s job to measure launch impact, offline
   behaviour, and privacy-manifest implications. Doing both at once would make
   the boundary untestable without the SDK.
@@ -175,16 +174,16 @@ The test spy is `RecordingAnalyticsClient` in `PitstopTests/Support/`.
   stage event already excludes raw content by type; filtering would move the
   guarantee from construction to review.
 - **Extend `CaptureStageEvent` with note contexts and history kinds.** It would
-  change the ADR 0006 observability contract for two parameters; left as owner
+  change the ADR 0006 observability contract for two parameters; left as open
   question 3.
 - **One `AppAnalytics` type conforming to every feature protocol.** Rejected by
   ADR 0002.
-- **Consent on by default for TestFlight builds.** No document or owner
-  decision grants it; defaulting off is reversible, defaulting on is not.
+- **Consent on by default for TestFlight builds.** No document
+  grants it; defaulting off is reversible, defaulting on is not.
 - **Store consent in `UserDefaults` now.** There is no surface to ask the user
   and nothing is sent, so a stored value would have no writer.
 
-## Open questions for owner review
+## Open questions
 
 1. **Consent model.** Should the beta ask for analytics opt-in (where: first
    launch, Settings, both), or does the TestFlight tester agreement count as

@@ -1,10 +1,10 @@
 # Toolchain Baseline and Project Format
 
-**Status:** Accepted (owner directive, 2026-09-20)\
+**Status:** Accepted\
 **Decision:** build with the Swift 6 language mode, target iOS 27.0, and let
 Xcode derive target membership from the file system.
 
-**Update (owner directive, 2026-09-21):** the project file itself moved to the
+**Update:** the project file itself moved to the
 JSON format of Xcode 27.2 (`Pitstop.xcodeproj/project.xcproj` replaces
 `project.pbxproj`), shared by every app on the Runtime. Target membership still
 comes from the file system (`"kind": "folder"` entries). Open the project in
@@ -12,16 +12,15 @@ Xcode 27.2 or later: an older Xcode may write a `project.pbxproj` back next to
 it. The Runtime reads versions and sets the Xcode Cloud build number in either
 format (`Tooling/docs/testflight.md`, "Project format").
 
-**Experiment (kit KIT-D-040, recorded 2026-09-24):** opening the JSON
+**Experiment (recorded 2026-09-24):** opening the JSON
 project in the Xcode app needs the Xcode 27.2 beta, while builds, tests and
-the gate run on the stable Xcode 27.0 (`xcodebuild -version` on this Mac:
+the gate run on the stable Xcode 27.0 (`xcodebuild -version`:
 Xcode 27.0, 27A266a). The beta is an experiment, never a gate the flow
 depends on.
 
 ```text
 experiment: beta
 surface: Xcode 27.2 beta, used only to open Pitstop.xcodeproj/project.xcproj in the Xcode app
-owner: the owner
 reason: the JSON project format (update of 2026-09-21) opens only in Xcode 27.2
 exit: Xcode 27.2 stable release; review by 2026-12-31
 ```
@@ -54,7 +53,7 @@ data-race problems as warnings that nobody is forced to read.
 ## Rejected alternatives
 
 - **Keep manual file references.** No benefit for a single-module app, and it
-  is the most likely way for an agent-authored change to lose a file.
+  is the most likely way for a change to lose a file.
 - **Generate the project (XcodeGen / Tuist).** Adds a dependency and a
   generation step to every checkout; synchronized groups solve the same
   problem natively.

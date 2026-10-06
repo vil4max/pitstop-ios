@@ -1,6 +1,6 @@
 # PitStop — core
 
-Status: approved (2026-09-16). Details live in
+Status: Approved (2026-09-16). Details live in
 [requirements/product-charter.md](requirements/product-charter.md),
 [requirements/product-overview.md](requirements/product-overview.md), and
 [decisions/0004-product-design-rationale.md](decisions/0004-product-design-rationale.md).

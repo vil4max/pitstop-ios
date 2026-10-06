@@ -46,7 +46,7 @@ composition; - history recording.
 
 ## Beta cohort
 
-Target: - the owner's own car; - five friends; - different cars where possible.
+Target: - the developer's own car; - five friends; - different cars where possible.
 
 Avoid collecting unnecessary demographic data.
 

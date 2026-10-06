@@ -1,6 +1,6 @@
 # App Icon: Pit's Eyes in Liquid Glass
 
-**Status:** Accepted (owner decision 2026-09-21); motif, layers and groups
+**Status:** Accepted; motif, layers and groups
 amended by [ADR 0037](0037-app-icon-pit-head.md) (Pit's head, 2026-09-22)\
 **Task:** ICON-001\
 **Builds on:** [`0009-design-language.md`](0009-design-language.md) (colour roles, Pit mark),
@@ -33,7 +33,7 @@ Apple's current guidance:
   set the background as a solid or gradient fill and appearance variants in
   Icon Composer; at most four groups.
 
-The owner chose the concept "Pit's eyes" over a "P" monogram on 2026-09-21.
+The concept is "Pit's eyes", chosen over a "P" monogram on 2026-09-21.
 
 ## Decision
 
@@ -162,7 +162,6 @@ already dynamic).
   target is iOS 27, so no older-release fallback artwork is needed.
 - **"P" monogram.** A letter says less than Pit's face, repeats the idea of
   the icon being replaced, and letter marks are advised only when essential.
-  Owner decision 2026-09-21.
 - **Dark eyes on a light background** (the in-app light-mode colours). A light
   background turns grey-on-grey in the clear appearances, and white foreground
   shapes on a colour field are what the system glass and tint rendering are

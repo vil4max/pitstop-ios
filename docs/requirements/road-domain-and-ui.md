@@ -114,8 +114,8 @@ History remains the authoritative event browsing surface.
 
 After Road scrolling, provide an obvious deterministic return to the default/current position.
 
-Resolved (INV-ROAD-004, delivered behaviour; owner-approved restyle
-2026-09-22): every visit starts at the car. After the lane scrolls away from
+Resolved (INV-ROAD-004, delivered behaviour; restyled
+in the iOS 27 redesign): every visit starts at the car. After the lane scrolls away from
 the car, a labelled "Back to now" control appears under the lane, inside the
 lane card, and returns the lane to the car; with Reduce Motion it returns
 without animation. The control is a glass pill.
@@ -139,8 +139,6 @@ half-filled, filled, filled with a ring, dashed), so no state depends on
 colour alone.
 
 ## Lane drawing
-
-Decided by the owner on 2026-09-22.
 
 > The car drives along the road, and the milestones stand on the road ahead
 > of it.
@@ -250,7 +248,7 @@ Road meaning must remain understandable with motion disabled.
 
 ## Requirements
 
-Status `proposed` means derived from the contract text above and awaiting owner approval.
+Status `proposed` means derived from the contract text above and awaiting approval.
 
 ### REQ-ROAD-001 — Eligible milestone types appear on Road
 Status: proposed
@@ -301,7 +299,7 @@ When the Road projection is computed
 Then that milestone is marked with an unknown/stale dependency state
 
 ### REQ-ROAD-007 — No invented mileage or time conversion
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: C2
 Source: [Mixed time and mileage](#mixed-time-and-mileage), [Acceptance criteria](#acceptance-criteria), [Failure criteria](#failure-criteria), [ADR 0034](../decisions/0034-mileage-rate-estimate.md)
 Given date-based or mileage-based milestones
@@ -421,7 +419,7 @@ When the app opens the store again
 Then the planned dates, car memory, and Pit question state are all intact
 
 ### REQ-ROAD-022 — A distance milestone may carry a labelled date estimate
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: C2, P5
 Source: [Mixed time and mileage](#mixed-time-and-mileage), [ADR 0034](../decisions/0034-mileage-rate-estimate.md)
 Given a distance-placed milestone with known remaining kilometres and an eligible reading history (REQ-ROAD-023)
@@ -429,7 +427,7 @@ When the Road projection is computed
 Then the milestone carries an estimated date range derived from the reading history, labelled as an estimate, and its placement, order and state are the same as without it
 
 ### REQ-ROAD-023 — No estimate without enough recent readings
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: C2
 Source: [Mixed time and mileage](#mixed-time-and-mileage), [ADR 0034](../decisions/0034-mileage-rate-estimate.md)
 Given fewer than 3 observations in the last 365 days, a span under 60 days, a newest observation older than 90 days, fewer than 2 usable pairs, no remaining kilometres, a range wider than twice its early bound, or a bound more than 730 days away
@@ -446,7 +444,7 @@ Then its fact reads "from dashboard" after the distance or days; a milestone dec
 
 
 ### REQ-ROAD-027 — Milestone list mirrors the lane
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Lane drawing](#lane-drawing)
 Given a Road projection with slots
@@ -454,7 +452,7 @@ When Road renders
 Then the same milestones appear as text rows in the same order under the lane, and no milestone is only in the lane or only in the list
 
 ### REQ-ROAD-028 — Back to now is explicit and conditional
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Return to current position](#return-to-current-position)
 Given the lane scrolled away from the car
@@ -462,7 +460,7 @@ When Road renders
 Then a labelled control returns the lane to the car, and the control is absent while the lane's leading item is the car
 
 ### REQ-ROAD-029 — Car and milestones share one road line
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Lane drawing](#lane-drawing)
 Given a lane with the car and milestones, in a tile, on the Road screen or in a widget

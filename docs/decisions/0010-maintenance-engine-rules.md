@@ -1,7 +1,6 @@
 # Maintenance Engine Rules and Service Surface
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending\
+**Status:** Accepted\
 **Task:** CB-005\
 **Contracts:** [`../requirements/maintenance-engine.md`](../requirements/maintenance-engine.md),
 [`0001-maintenance-anchors.md`](0001-maintenance-anchors.md),
@@ -11,8 +10,8 @@
 
 CB-005 is titled "Service tile summary", but a summary needs a status, and no
 engine existed on `main` (the spike's engine is explicitly not a source of
-truth). The work plan asks that missing scope be reported instead of silently
-absorbed: this task therefore delivers the pure engine, a minimal planner, and
+truth). Missing scope is reported instead of silently absorbed: this task
+therefore delivers the pure engine, a minimal planner, and
 the Service surface, and leaves procedures and recommendations out.
 
 ## Decision
@@ -103,12 +102,12 @@ Procedure components and their provenance (REQ-MAINT-008…011, 019…021: with 
 verified procedure, nothing is preselected, which is the required behaviour),
 recording a multi-operation visit with linked completions (REQ-MAINT-014, 015),
 engine-hours and vehicle-reported rules, accepted Service Plans, and the
-"Consider" list. They need owner scoping; see the delivery brief.
+"Consider" list. They need product scoping first.
 
 ## Rejected alternatives
 
 - **Seeding manufacturer intervals for a default car.** Invented truth.
 - **Estimating current mileage from past readings.** Needs an explicit,
-  owner-approved projection model (MNT-INT-001).
+  an approved projection model (MNT-INT-001).
 - **Persisting computed status.** It would go stale and become a second
   source of truth.

@@ -1,12 +1,9 @@
 # App Group Store and the Next-Service Widget
 
-**Status:** Accepted for implementation (owner approved the data widget and
-registered the App Group `group.dev.vil4max.pitstop` on both App IDs,
-2026-09-22); requirements REQ-WIDGET-001…010 proposed; owner device checks
-pending\
+**Status:** Accepted for implementation (App Group `group.dev.vil4max.pitstop`
+registered on both App IDs); requirements REQ-WIDGET-001…010 proposed; device
+checks pending\
 **Task:** SYS-007 ("Widget with car data: App Group, store move, next-service widget")\
-**Investigation:** [`../planning/investigations/sys-004-widgets.md`](../planning/investigations/sys-004-widgets.md),
-"Cost of a data widget"\
 **Changes:** [`0007-persistence.md`](0007-persistence.md) (store location,
 second reader), [`0025-widgets-and-controls.md`](0025-widgets-and-controls.md)
 (entitlements, shared files, a second link)\
@@ -265,7 +262,7 @@ change uses `.never`.
 
 ## Open items
 
-- **Owner device checks:** the widget appears in the gallery with the fictional
+- **Device checks:** the widget appears in the gallery with the fictional
   sample; Home Screen, Lock Screen rectangular and inline families render; a
   tap opens Service; a locked phone redacts the content.
 - **TestFlight upgrade check:** install the current TestFlight build with

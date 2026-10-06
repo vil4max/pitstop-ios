@@ -1,14 +1,13 @@
 # Planned Dated Events
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-22); owner review pending\
+**Status:** Accepted\
 **Task:** ROAD-EVT-001\
 **Builds on:** [`0008-road-projection-rules.md`](0008-road-projection-rules.md)
 (14-day grace after a planned date), [`0007-persistence.md`](0007-persistence.md)
 and [`0016-question-registry.md`](0016-question-registry.md) (versioned schema,
 frozen versions, lightweight stages), [`0031-stop-tracking-an-operation.md`](0031-stop-tracking-an-operation.md)
 (user-only command and confirmation pattern)\
-**Source:** [MNT-INT-001](../planning/investigations/mnt-int-001-maintenance-intelligence.md),
+**Source:** MNT-INT-001,
 area 3, candidates R1 and R4\
 **Contracts:** [`../requirements/road-domain-and-ui.md`](../requirements/road-domain-and-ui.md)
 (REQ-ROAD-016…021, proposed)
@@ -23,9 +22,8 @@ insurance expiry first, over any derived date: deriving an inspection or
 insurance date from law, locale, registration year or a mileage rate breaks
 core C2 and REQ-ROAD-007.
 
-The investigation left three owner questions. The owner delegated them on
-2026-09-21 ("do everything"); the answers below are agent decisions that the
-owner may still reverse.
+The investigation left three open questions; the answers below are the
+decisions taken for this slice and may still be revisited.
 
 ## Decision
 
@@ -53,7 +51,7 @@ owner may still reverse.
    turns it into the existing `PlannedVehicleEvent` projection input, which
    gained an optional `label`; `RoadMilestone.plannedLabel` carries it to the
    surface. `plannedVisit` stays a projection kind with no storage; it waits
-   for owner question C of ADR 0020 (Service Plan order).
+   for open question C of ADR 0020 (Service Plan order).
 5. **Three user-only commands.** `addPlannedEvent`, `updatePlannedEvent` and
    `removePlannedEvent` go through `CarMemoryStore.execute` like every other
    write. Command validation: the date lies between 14 days ago and 3,650 days
@@ -80,7 +78,7 @@ owner may still reverse.
    to the last whole day within the limit, so it offers nothing the command
    rejects. Road counts a planned date in whole days: a day still to come counts
    in full, so at 10:00 tomorrow is "1 day left" and a date 40 days ahead is
-   "40 days left", not "almost" and 39 (a fix from independent review; the
+   "40 days left", not "almost" and 39 (a fix from review; the
    projector truncated fractions before).
 9. **Leaving Road.** A date stays on Road as due for 14 days after it passes
    and then leaves (ADR 0008); the row stays in the store. Nothing deletes it
@@ -114,7 +112,7 @@ owner may still reverse.
 - The grace boundary is exact: a date stored as the start of day D leaves Road
   at the start of D+14, so the row reads "13 days past" at most. ADR 0008 does
   not say whether "14 days" is inclusive; changing it touches every planned
-  milestone and is left to the owner's review.
+  milestone and is left for a later review.
 - The stored start of day belongs to the time zone it was saved in. After a
   time-zone change the picker can show the neighbouring day, and saving an
   edit re-normalises to it. Storing a calendar day (year, month, day) instead
@@ -166,7 +164,7 @@ owner may still reverse.
   picker range, edit, delete with confirmation and cancel, delete and save
   failures, the Car Board tile equal to the Road screen, and an expired date
   gone from Road.
-- Independent review (separate agent, 2026-09-22): one medium and four low
+- Review (2026-09-22): one medium and four low
   findings. Fixed: whole days left for a planned date (medium); Cancel and
   swipe-to-dismiss disabled while a save runs; the failure alert keeps its
   title while closing; the delete dialog message names the day. Recorded, not

@@ -1,7 +1,6 @@
 # Persistence: SwiftData Behind a Command-Only Store
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-20); owner review pending\
+**Status:** Accepted\
 **Task:** ENG-004\
 **Contracts:** [`../requirements/domain-model.md`](../requirements/domain-model.md),
 [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md)
@@ -46,7 +45,7 @@ values first. The Swift 6 compiler enforces that boundary.
   policy never touches the `defaultRecommendation` row; the effective rule is
   the projection `policies.effective` (custom over vehicle condition over
   recommendation), so REQ-DOMAIN-006 holds in storage. An earlier draft keyed
-  rows by operation only and destroyed the recommendation; independent review
+  rows by operation only and destroyed the recommendation; review
   caught it.
 - Record IDs are unique attributes, which makes SwiftData upsert on insert.
   The store therefore rejects a reading, event, or completion whose ID already

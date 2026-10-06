@@ -185,7 +185,7 @@ Before accepting a new screen:
 ## Requirements
 
 ### REQ-GRAMMAR-001 — Rows live in grouped containers
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [List geometry](#list-geometry)
 Given a screen section listing records of one kind
@@ -193,7 +193,7 @@ When it renders
 Then the records are rows in one grouped container, not one card per record
 
 ### REQ-GRAMMAR-002 — Header and toolbar grammar
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Header](#header)
 Given a detail screen
@@ -201,7 +201,7 @@ When it renders
 Then it shows eyebrow and large title, and its actions in the navigation toolbar as glass buttons or one menu
 
 ### REQ-GRAMMAR-003 — Text never clips at accessibility sizes
-Status: approved (owner, 2026-09-22); verified manually on the simulator after each redesign card (no snapshot tests)
+Status: Approved; verified manually on the simulator after each redesign card (no snapshot tests)
 Core: P5
 Source: [Dynamic Type reflow](#dynamic-type-reflow)
 Given the largest Dynamic Type size
@@ -209,7 +209,7 @@ When any primary or detail screen renders
 Then no text is truncated below its meaning, chips wrap, and every control keeps a 44 pt target
 
 ### REQ-GRAMMAR-004 — Sparse state composition
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5, C2
 Source: [Empty and sparse states](#empty-and-sparse-states)
 Given an owned surface with no records

@@ -1,7 +1,6 @@
 # Stop Tracking an Operation
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-22); owner review pending\
+**Status:** Accepted\
 **Task:** MNT-POL-001\
 **Builds on:** [`0010-maintenance-engine-rules.md`](0010-maintenance-engine-rules.md)
 (Service actions), [`0020-maintenance-anchor-closure.md`](0020-maintenance-anchor-closure.md)

@@ -1,7 +1,6 @@
 # Road Projection Rules (INV-ROAD-001…004)
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-20); owner review pending. These are product hypotheses, to be
+**Status:** Accepted. These are product hypotheses, to be
 revisited with beta evidence.\
 **Tasks:** INV-ROAD-001, INV-ROAD-002, INV-ROAD-003, INV-ROAD-004\
 **Contract:** [`../requirements/road-domain-and-ui.md`](../requirements/road-domain-and-ui.md)
@@ -51,7 +50,7 @@ transmission service that is "approaching" with 8,000 km left is still farther
 than an oil change 5,500 km away.
 
 An earlier version of this ADR ordered the lane by the remaining share of each
-milestone's own interval. Independent review showed it is wrong: a transmission
+milestone's own interval. Review showed it is wrong: a transmission
 service 12,000 km away (20% of 60,000) sorted ahead of an oil change 3,000 km
 away (30% of 10,000), and the default viewport then hid the oil change. Share
 decides *status* in the engine; it does not measure *nearness*.
@@ -72,7 +71,7 @@ twice.
 
 Rejected: estimating mileage from an average daily rate. That is the "explicit
 supported projection model" the contract requires first; it needs several
-readings and an owner decision, and belongs to MNT-INT-001.
+readings and an explicit product decision, and belongs to MNT-INT-001.
 
 ## INV-ROAD-003 — Clustering
 

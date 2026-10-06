@@ -1,7 +1,6 @@
 # Interpretation Deadline and Cancellation
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending. The deadline value is a hypothesis.\
+**Status:** Accepted. The deadline value is a hypothesis.\
 **Task:** CAP-006\
 **Contracts:** [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md)
 (REQ-CAPTURE-005, 006, 007, 008),
@@ -41,8 +40,7 @@ CAP-005:
   last point before a write checks again as the backstop that every path goes
   through: raw, interpreted, confirmed and clarified captures all obey it. Both
   report `capture_discarded` and return `nothingToSave`. This widens
-  `capture_discarded`, which ADR 0006 still lists as a proposed stage pending
-  owner approval, from blank input to cancellation.
+  `capture_discarded`, which ADR 0006 still lists as a proposed stage, from blank input to cancellation.
 - A timed-out interpretation is reported as `interpretation_completed` with no
   proposal kind, the same way a thrown interpreter error already was.
 
@@ -57,7 +55,7 @@ CAP-005:
   and the surface already treats `nothingToSave` as "back to composing".
   Another case would widen every switch for no reader.
 
-## Open for owner review
+## Open questions
 
 - The 6-second limit. Evidence to collect with CAP-005: interpretation latency
   on device, and how often captures fall back because of the deadline rather

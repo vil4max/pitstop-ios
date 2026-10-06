@@ -1,7 +1,6 @@
 # Interpreted Capture Without a Model
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending\
+**Status:** Accepted\
 **Task:** CAP-002\
 **Contracts:** [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md),
 [`../engineering/ai-architecture.md`](../engineering/ai-architecture.md),
@@ -100,7 +99,7 @@ saving something else.
 - **Letting the interpreter decide the outcome or the command.** The validator
   and the policy own that; the interpreter only suggests (core P3).
 
-## Open for owner review
+## Open questions
 
 - The rule set covers Russian and English only, and no synonyms beyond the
   lists in the source. A user writing "менял масло вчера" is understood;

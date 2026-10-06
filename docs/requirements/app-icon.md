@@ -2,7 +2,7 @@
 
 **Status:** Primary icon delivered (ICON-001, 2026-09-22) and redrawn as Pit's
 head (ICON-002, 2026-09-22); requirements below are `proposed` except the
-owner-decided concept\
+approved concept\
 **Decision records:** [`../decisions/0029-app-icon-pit-eyes.md`](../decisions/0029-app-icon-pit-eyes.md),
 [`../decisions/0037-app-icon-pit-head.md`](../decisions/0037-app-icon-pit-head.md)
 
@@ -10,11 +10,11 @@ Core: P5
 
 ## Purpose
 
-The owner sees the icon on the Home Screen and recognises PitStop at once.
+The user sees the icon on the Home Screen and recognises PitStop at once.
 The icon is the product's face outside the app, so it uses the same face as
 inside the app: Pit's two eyes (ADR 0009, ADR 0028), and from the iOS 27
-redesign Pit's round head with its face screen (owner decision 2026-09-22,
-`product-design.md` "Pit visual identity").
+redesign Pit's round head with its face screen
+(`product-design.md` "Pit visual identity").
 
 ## Current icon
 
@@ -46,11 +46,10 @@ redesign Pit's round head with its face screen (owner decision 2026-09-22,
 
 ## Requirements
 
-Status `proposed` means derived from the text above and awaiting owner
-approval.
+Status `proposed` means derived from the text above and awaiting approval.
 
 ### REQ-ICON-001 — The icon is Pit's head
-Status: approved (owner decision 2026-09-21; motif changed from the eyes alone to the head by owner decision 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Purpose](#purpose), ADR 0029
 Given the primary app icon

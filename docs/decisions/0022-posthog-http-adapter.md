@@ -1,7 +1,6 @@
 # PostHog HTTP Adapter
 
-**Status:** Accepted for implementation (owner chose HTTP without SDK,
-2026-09-21); owner review pending\
+**Status:** Accepted\
 **Task:** ANL-001\
 **Contracts:** [`0002-analytics-service.md`](0002-analytics-service.md),
 [`0003-logging.md`](0003-logging.md),
@@ -12,11 +11,11 @@
 ## Context
 
 ADR 0021 (ENG-002) left `AnalyticsClient.send(_:)` as the provider seam, a
-consent gate that is off by default, and an owner question on the consent
+consent gate that is off by default, and an open question on the consent
 model. ADR 0002 selected PostHog and planned `ANL-001` as an SDK vertical
-slice, which needed owner approval for a new package.
+slice, which needed approval for a new package.
 
-Owner decision (2026-09-21, in chat): implement the PostHog adapter **without
+Decision: implement the PostHog adapter **without
 the SDK**, over HTTP with `URLSession`, and add no dependency. No PostHog
 project, API key, or region exists yet.
 
@@ -35,8 +34,8 @@ Checked on 2026-09-21 against PostHog's documentation:
 
 `$geoip_disable` is documented in PostHog's plugin and SDK sources, not on
 the capture API page. No client-side property stops PostHog from seeing the
-request's IP address, so discarding it is an owner action in the project
-settings (below), not something the app can guarantee.
+request's IP address, so discarding it is a project-settings step
+(below), not something the app can guarantee.
 
 ## Decision
 
@@ -124,7 +123,7 @@ is killed, it is lost (see "No disk persistence").
   its own defaults) and no tracking
   ([Apple: NSPrivacyAccessedAPITypeReasons](https://developer.apple.com/documentation/bundleresources/app-privacy-configuration/nsprivacyaccessedapitypes/nsprivacyaccessedapitypereasons)).
   It declares no collected data types, because a build without a key
-  collects nothing; see owner actions.
+  collects nothing; see the manual steps.
 
 Boolean properties are sent as the strings `"true"` and `"false"`, as ENG-002
 encodes them; the adapter does not reinterpret them.
@@ -146,12 +145,12 @@ encodes them; the adapter does not reinterpret them.
 
 A project API key is write-only and ships inside the app binary by design, so
 it is not a secret in the credential sense. It stays out of the public
-repository anyway, so forks and clones do not send events into the owner's
+repository anyway, so forks and clones do not send events into the maintainer's
 project.
 
-### Consent model (ADR 0021, owner question 1)
+### Consent model (ADR 0021, open question 1)
 
-Implemented as recommended there, pending owner review: a Settings switch
+Implemented as recommended there, a Settings switch
 "Share anonymous usage data" (en/ru/uk), off by default, with a one-line
 footer saying what is sent. There is no first-launch prompt and no one-time
 ask during the beta; `notAsked` stays equal to "no". The DEBUG
@@ -184,7 +183,7 @@ or `ADR-0022`, with `FakeAnalyticsTransport` and `RecordingSleeper` in
 
 ## Rejected alternatives
 
-- **PostHog iOS SDK.** Owner decision: no new dependency. The SDK would also
+- **PostHog iOS SDK.** Decision: no new dependency. The SDK would also
   bring autocapture, session replay, feature flags, and device properties
   that ADR 0002 keeps off and that would need auditing per release.
 - **Persist the queue to disk.** It would keep offline events across launches,
@@ -204,7 +203,7 @@ or `ADR-0022`, with `FakeAnalyticsTransport` and `RecordingSleeper` in
 - **Commit the key.** The repository is public; a committed key would receive
   events from every build of every fork.
 
-## Owner actions
+## Manual steps
 
 1. Create a PostHog Cloud project and choose the region: EU
    (`eu.i.posthog.com`) or US (`us.i.posthog.com`). The EU region defaults to
@@ -223,8 +222,8 @@ or `ADR-0022`, with `FakeAnalyticsTransport` and `RecordingSleeper` in
    - for Xcode Cloud, add both as workflow environment variables (the key as
      a secret) and write the same file from a `ci_scripts/ci_pre_xcodebuild.sh`
      step; this step is not added yet, because `ci_scripts/ci_post_clone.sh`
-     is installed by the Runtime and a new script is a pipeline change for
-     the owner to approve.
+     is installed by the Runtime and a new script is a pipeline change that
+     needs approval.
 4. Before the first build with a key reaches testers: answer App Store
    Connect App Privacy for "Product Interaction" (not linked to the user, not
    used for tracking), add the matching `NSPrivacyCollectedDataTypes` entry

@@ -1,7 +1,6 @@
 # Question Registry and Persisted Question State
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending\
+**Status:** Accepted\
 **Task:** DISC-001\
 **Contracts:** [`../requirements/pit-behavior-and-motion.md`](../requirements/pit-behavior-and-motion.md)
 (REQ-PIT-008, 009, 010, 012), core C2 and C3,
@@ -125,7 +124,7 @@ its notes back.
   justify the cases; free text validated as non-blank documents the behaviour
   without guessing the taxonomy.
 
-## Open questions for owner review
+## Open questions
 
 - **Deferral return is declared, not yet enforced.** Resolved by ADR 0018
   (DISC-003): the policy enforces `afterDeferral`, `afterDismissal`, and the

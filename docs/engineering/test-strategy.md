@@ -118,7 +118,7 @@ Suggested tags:
 ## Tap-free smoke launches (DEBUG builds only)
 
 Two launch arguments exist so a surface can be checked in a simulator without
-driving the UI, which matters when the simulator is shared between sessions:
+driving the UI, which matters when the simulator is shared between runs:
 
 ``` text
 -pitstop-demo-data      in-memory store seeded with fictional facts through domain commands

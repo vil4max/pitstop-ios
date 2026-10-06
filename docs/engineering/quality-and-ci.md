@@ -172,10 +172,8 @@ TODO without issue reference — optional policy
 
 Do not run full simulator tests in pre-commit.
 
-Pre-push builds nothing and runs no tests (owner decision, 2026-09-29).
-Pitstop has no repository pre-push hook; the kit's global pre-push hook runs
-only the private-data scan and the protected-path approval. Builds and tests
-run in `just verify` and in the CI `Tests` workflow (`Tooling/docs/ci.md`).
+Pre-push builds nothing and runs no tests. Pitstop has no repository
+pre-push hook. Builds and tests run in `just verify` and in the CI `Tests` workflow (`Tooling/docs/ci.md`).
 
 The local Runtime gate is authoritative for implementation verification.
 Hooks provide early feedback; they are not security boundaries. Avoid rerunning
@@ -193,7 +191,7 @@ non-behavioral documentation changes, without an app build.
 
 The current suite covers the existing app baseline; domain, persistence, and UI
 coverage grow with their implementations. Preserve relevant failure evidence
-locally and durable conclusions in `docs/lessons.md`. A passing gate does not
+locally and durable conclusions in the relevant decision record. A passing gate does not
 imply independent review or product acceptance.
 
 Do not schedule Periphery, dependency reports, or performance lanes without a

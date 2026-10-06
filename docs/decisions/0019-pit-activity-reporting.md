@@ -1,7 +1,6 @@
 # Pit Activity Reporting and the Motion Audit
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending.\
+**Status:** Accepted\
 **Task:** DISC-004\
 **Contracts:** [`../requirements/pit-behavior-and-motion.md`](../requirements/pit-behavior-and-motion.md)
 (REQ-PIT-004, 005, 006, 017, 018; "Motion language", "Idle policy"),
@@ -121,8 +120,8 @@ Every state the accepted behaviour requires was already triggered. The gap was
 the activity that stops them, which this ADR closes. No state was added by DISC-004, and
 the idle vocabulary and weights are unchanged.
 
-**Amended by ADR 0028 (PIT-MOTION-001, owner request 2026-09-21):** the owner
-asked for the full motion language. Closed eyes now show after a saved capture
+**Amended by ADR 0028 (PIT-MOTION-001, 2026-09-21):** the full motion
+language was requested. Closed eyes now show after a saved capture
 in the sheet and when the Pit sheet closes (leaving); double blink is a rare
 idle action (two blinks, not a state); glance at object is a new `glance`
 state, shown after a save in the sheet only; fixed gaze blinks less; the
@@ -177,7 +176,7 @@ delay was not exercised on the simulator.
 - **Adding closed eyes on a saved capture, or hidden when inactive.** No
   accepted requirement asks for them, and the card excludes decorative motion.
 
-## Open questions for owner review
+## Open questions
 
 - **Recent dismissal is not reported.** REQ-PIT-005 lists "recent Pit
   dismissal", and `PitActivity.recentlyDismissed` exists, but nothing sets it.

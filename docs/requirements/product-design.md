@@ -103,10 +103,6 @@ Pit:
 
 ## Pit visual identity
 
-Decided by the owner on 2026-09-22 (design session; rationale in
-[`../planning/ios27-redesign-proposal.md`](../planning/ios27-redesign-proposal.md)
-§3.6b and §3.6d).
-
 **Pit is a small companion head that lives behind the interface.**
 
 - **Head:** a round head, pearl white with a soft top-left light and a
@@ -126,7 +122,7 @@ Decided by the owner on 2026-09-22 (design session; rationale in
   motion-language states; it never moves on its own.
 
 Reference for mechanics only: lit eyes on a dark glass face and expression by
-eye shape and tilt (the owner pointed at EVE from WALL-E). No character,
+eye shape and tilt. No character,
 shape, colour or proportion is copied.
 
 Avoid:
@@ -187,7 +183,7 @@ The large car photo belongs primarily on Car Board. Do not repeat the hero on ev
 
 ### Surface tiers
 
-Every surface belongs to exactly one tier (owner decision 2026-09-22):
+Every surface belongs to exactly one tier:
 
 | Tier | Surfaces | Treatment |
 |---|---|---|
@@ -228,7 +224,7 @@ The driver's relationship with the car is important. Car Hero is high-value.
 
 Do not require a photo during first launch.
 
-Fallback order (owner decision 2026-09-22):
+Fallback order:
 1. the owner's photo, lifted onto the stage on device when possible,
    otherwise shown whole under the stage mask;
 2. the neutral placeholder for the body the owner chose in the car editor,
@@ -281,10 +277,10 @@ Pit's life must not depend on animation. Road meaning must not depend only on sp
 
 ## Requirements
 
-Status `approved` here means decided by the owner in the design session.
+Status `approved` here means decided in the iOS 27 design review.
 
 ### REQ-DESIGN-001 — Status is never colour alone
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Status vocabulary](#status-vocabulary)
 Given any maintenance or Road state shown to the user
@@ -292,7 +288,7 @@ When it is rendered
 Then a word and a state glyph accompany the colour, and the glyph shape differs per state
 
 ### REQ-DESIGN-002 — Glass is reserved for floating controls
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Surface tiers](#surface-tiers)
 Given a primary or detail screen
@@ -300,7 +296,7 @@ When its surfaces are inspected
 Then only the utility layer, toolbar actions and floating controls use Liquid Glass, and `just verify` fails when `glassEffect` appears outside the design system
 
 ### REQ-DESIGN-003 — One tint, one accent
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Surface tiers](#surface-tiers)
 Given the stage tier
@@ -308,7 +304,7 @@ When it is rendered
 Then its tint is `accentPrimary` at a token-defined opacity, and no other surface is tinted
 
 ### REQ-DESIGN-004 — Features use roles, not literals
-Status: approved (owner, 2026-09-22; scope amendment approved by the owner, 2026-09-24)
+Status: Approved
 Core: P5
 Source: [Color API](../engineering/design-system-module.md#color-api)
 Given feature code, code in `Shared/` outside `Shared/DesignSystem/`, or widget code in `PitstopWidgets/`
@@ -316,7 +312,7 @@ When `just verify` runs
 Then it fails if such a file contains a colour literal instead of a `PitColor` role
 
 ### REQ-DESIGN-005 — The car without a photo is the placeholder for the chosen body
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: C2
 Source: [Car image](#car-image)
 Given no owner photo

@@ -1,20 +1,20 @@
 # App Icon: Pit's Head Ahead of the Redesign
 
-**Status:** Accepted (owner decision 2026-09-22)\
+**Status:** Accepted\
 **Task:** ICON-002\
 **Amends:** [`0029-app-icon-pit-eyes.md`](0029-app-icon-pit-eyes.md) (motif,
 layers and groups; the Icon Composer setup, fills, appearances, editing flow
 and launch screen stay)\
 **Builds on:** [`../requirements/product-design.md`](../requirements/product-design.md)
-"Pit visual identity", [`../planning/ios27-redesign-proposal.md`](../planning/ios27-redesign-proposal.md) §3.6d\
+"Pit visual identity"\
 **Contracts:** [`../requirements/app-icon.md`](../requirements/app-icon.md)
 (REQ-ICON-001 reworded, REQ-ICON-002, 004, 005, 007 adjusted)
 
 ## Context
 
 The iOS 27 redesign gives Pit a round head: a pearl shell, a navy face screen
-set in a thin bezel and the two lit lens eyes (owner decision 2026-09-22). The
-proposal first kept the icon eyes-only (REQ-ICON-001). The owner then decided
+set in a thin bezel and the two lit lens eyes. The
+proposal first kept the icon eyes-only (REQ-ICON-001). It was then decided
 that the icon shows the new Pit and ships at once, on `main`, before any
 redesign card: the icon is the first visible piece of the redesign and
 announces it, and RD-000 is the next step.
@@ -61,7 +61,7 @@ announces it, and RD-000 is the next step.
 
 ## Rejected alternatives
 
-- **Keep the icon eyes-only until RD-011.** The owner wants the icon to show
+- **Keep the icon eyes-only until RD-011.** The icon should show
   the new Pit now, as the announcement of the redesign.
 - **Bake the mockup's shading into the SVGs.** Against Apple's Icon Composer
   guidance and REQ-ICON-006; Liquid Glass supplies the light.
@@ -72,7 +72,7 @@ announces it, and RD-000 is the next step.
 ## Consequences
 
 - Until RD-011 lands, the app shows Pit's eyes in the glass circle while the
-  icon shows the head. This mismatch is accepted by the owner.
+  icon shows the head. This mismatch is accepted.
 - RD-011 must draw the in-app head from this geometry. If RD-011 changes the
   geometry, it regenerates the icon in the same card.
 

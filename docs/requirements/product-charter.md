@@ -2,7 +2,7 @@
 
 For design rationale (why), see [`../decisions/0004-product-design-rationale.md`](../decisions/0004-product-design-rationale.md).  
 For mandatory idea validation before new features, see [`../engineering/product-review-process.md`](../engineering/product-review-process.md).  
-For freeze / resume status, see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
+For project status, see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
 
 ## Product statement
 

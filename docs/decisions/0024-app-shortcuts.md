@@ -1,8 +1,7 @@
 # App Shortcuts: Remember and Open Pit
 
-**Status:** Accepted for implementation (agent decision under owner delegation, 2026-09-21); owner review pending\
+**Status:** Accepted\
 **Task:** SYS-003 ("Shortcut into capture surface")\
-**Investigation:** [`../planning/investigations/sys-001-app-intents.md`](../planning/investigations/sys-001-app-intents.md) (SYS-003 notes)\
 **Contracts:** [`../core.md`](../core.md) (C4),
 [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md)
 (REQ-CAPTURE-002, 003, 023),
@@ -132,7 +131,7 @@ phrases so that `en.lproj` gets its own table even though the development
 region is ru.
 
 The localized wording is data and lives only in the catalogs; this record
-describes it in English. The owner reviews it in
+describes it in English. It is reviewed in
 `AppShortcuts.xcstrings` (phrases) and `Localizable.xcstrings`
 (`shortcut.remember.title`, `shortcut.openPit.title`, `intent.openPit.title`,
 `intent.openPit.description`).
@@ -205,7 +204,7 @@ app, PitStop, Open Pit: app warm, app terminated, and a note editor open).
   result. Revisited in [ADR 0025](0025-widgets-and-controls.md): controls
   need an `OpenIntent`, so `OpenPitIntent` adopts it with a one-case
   `CaptureSurface` target, and the widget uses `pitstop://pit`, the only URL
-  the app accepts (owner decisions, 2026-09-21).
+  the app accepts.
 - **Dismissing a feature editor to open Pit.** See "A feature editor defers
   the request": it would discard an unsaved draft and needs a channel into
   every feature's editor state.
@@ -229,9 +228,8 @@ app, PitStop, Open Pit: app warm, app terminated, and a note editor open).
   add a Cyrillic transliteration of the name as an app name synonym
   ([wwdc23-10102] allows a synonym in place of the name); the declaring key was
   not found in the current documentation pages and must be confirmed first.
-- **Phrase wording (owner).** The ru and uk phrases and titles are the
-  agent's, written under delegation; the owner reviews them in the catalogs, in
-  particular which Open Pit variant ("open the capture" or "open Pit") should
+- **Phrase wording.** The ru and uk phrases and titles await review in the
+  catalogs, in particular which Open Pit variant ("open the capture" or "open Pit") should
   be first, and the ASCII apostrophe.
 - **Development region.** The app's development region is ru while the catalog
   source language is en; the en string set avoids relying on the fallback. A

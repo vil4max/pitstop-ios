@@ -1,7 +1,6 @@
 # "Track Several" Starter
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-22); owner review pending\
+**Status:** Accepted\
 **Task:** MNT-PRE-001\
 **Builds on:** [`0010-maintenance-engine-rules.md`](0010-maintenance-engine-rules.md)
 (owner cadence, Track sheet), [`0020-maintenance-anchor-closure.md`](0020-maintenance-anchor-closure.md)
@@ -9,8 +8,8 @@
 [`0031-stop-tracking-an-operation.md`](0031-stop-tracking-an-operation.md)
 (a wrong pick can be undone), [`0006-capture-confirmation-policy.md`](0006-capture-confirmation-policy.md)
 (one confirmation before a write), [`0021-analytics-boundary.md`](0021-analytics-boundary.md)
-(no event without an owner question)\
-**Source:** [MNT-INT-001](../planning/investigations/mnt-int-001-maintenance-intelligence.md),
+(no event without an open question)\
+**Source:** MNT-INT-001,
 area 2 "Presets", options P1 and P2\
 **Contracts:** [`../requirements/maintenance-engine.md`](../requirements/maintenance-engine.md)
 (REQ-MAINT-025…029, proposed); core C2 (never invent facts), P1 (stored data
@@ -27,9 +26,8 @@ list, enters every interval, confirms once, and each item is saved through the
 existing command as the owner's own policy. Its prerequisite, a way to stop
 tracking a wrong pick, shipped in ADR 0031.
 
-The record left three owner questions. The owner delegated them on 2026-09-21
-("do everything"); the answers below are agent decisions that the owner may
-still reverse.
+The record left three open questions; the answers below are the decisions
+taken for this slice and may still be revisited.
 
 ## Decision
 
@@ -129,7 +127,7 @@ still reverse.
   command with no other user.
 - **Storing gearbox and drive as vehicle facts.** Useful later for
   recommendations, but it creates car facts from a reorder question and needs
-  its own owner decision.
+  its own decision.
 - **Hiding operations that the answers make unlikely.** A manual car can still
   have a service the owner wants to track by another name; hiding would decide
   for the owner.
@@ -160,5 +158,5 @@ pick versus typed share (feeds INV-MNT-003).
   order; Service, Car Board and Road show the new policies.
 - `PitstopTests/Persistence/SwiftDataTrackSeveralTests.swift`: confirmed items
   survive a reopen on disk as owner policies, and the vehicle is unchanged.
-- Not verified on screen unless noted in the work plan: the sheet in en, ru
+- Not verified on screen unless noted here: the sheet in en, ru
   and uk, VoiceOver order and AX5 text sizes.

@@ -88,7 +88,7 @@ Actual completion is confirmed separately from the procedure draft.
 
 ## Additional decision: Service Plan
 
-A `ServicePlan` represents the owner's accepted future scope.
+A `ServicePlan` represents the user's accepted future scope.
 
 A `ServiceVisit` represents actual history.
 
@@ -116,13 +116,13 @@ with evidence from code and tests. Summary:
 |---|---|
 | Decisions 1, 2, 4, 5, 7, 8 | Decided and implemented (ADR 0010, engine and planner tests) |
 | Decision 3: early completion reset | Implemented; fixed-grid policy type not added in the first slice (ADR 0020, Q3) |
-| Decision 6: official vs user policy | Separation implemented (ADR 0007, 0010); recommendation data is owner question B |
+| Decision 6: official vs user policy | Separation implemented (ADR 0007, 0010); recommendation data is open question B |
 | Decision 9: stable IDs, title adapter | IDs implemented and pinned by tests; no title adapter (ADR 0020, Q9) |
-| Decision 10: seeded visits, migration timing | No seeded visits on greenfield `main`; nothing to migrate unless owner question D says import |
+| Decision 10: seeded visits, migration timing | No seeded visits on greenfield `main`; nothing to migrate unless open question D says import |
 | Costs: grouping rules, identity catalog | Windows in ADR 0010; eligibility and catalog decided in ADR 0020 (Q5, Q11) |
-| Procedure composition | Owner question B (verified data source) |
-| Service Plan vs Service Visit | Separation implemented; plan and multi-operation visit scope are owner question C |
-| Status of this ADR | Owner question A: recommended `Accepted` |
+| Procedure composition | Open question B (verified data source) |
+| Service Plan vs Service Visit | Separation implemented; plan and multi-operation visit scope are open question C |
+| Status of this ADR | Open question A: recommended `Accepted` |
 
 ## Rejected alternatives
 

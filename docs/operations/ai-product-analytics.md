@@ -38,7 +38,7 @@ code; - redefine success criteria after seeing results; - silently
 create analytics events; - treat a five-user beta as statistically
 significant; - convert correlation into causation.
 
-The owner remains the product decision authority.
+A person remains the product decision authority.
 
 ## Architectural principle
 
@@ -93,9 +93,7 @@ The expected benefit is:
 -   repeatable evidence reviews;
 -   explicit connection between product questions and telemetry;
 -   faster comparison of quantitative and qualitative beta evidence;
--   a development diary of hypotheses, evidence and decisions;
--   practical experience building an AI-assisted product-engineering
-    loop.
+-   a development diary of hypotheses, evidence and decisions.
 
 ## Source of truth boundaries
 
@@ -224,7 +222,7 @@ Illustrative representation:
 question_id: AQ-001
 question_version: 1
 time_window: 2026-08-01...2026-08-14
-cohort: invited_beta_users_excluding_owner
+cohort: invited_beta_users_excluding_developer
 sample_size: 5
 query_reference: posthog_insight_context_reopen_v1
 
@@ -377,7 +375,7 @@ AQ-001 evidence
 → AQ-001 re-evaluation
 ```
 
-An AI-generated issue is a draft until the owner approves it.
+An AI-generated issue is a draft until the product owner approves it.
 
 Suggested issue metadata:
 
@@ -387,7 +385,7 @@ source: analytics
 analytics_question: AQ-001
 evidence_window: 2026-08-01...2026-08-14
 evidence_reference: <saved insight/report>
-decision_owner: Max
+decision_owner: product owner
 ```
 
 Do not automatically assign implementation priority from an AI report.
@@ -556,7 +554,7 @@ Select one question, preferably `AQ-001`.
 
 Manually: - export or summarize deterministic evidence; - create a
 bounded evidence package; - ask an AI analyst to interpret it; - compare
-AI output with the owner's own product analysis; - record where the AI
+AI output with the product owner's own analysis; - record where the AI
 invented, overclaimed or found a useful alternative hypothesis.
 
 Success:
@@ -623,7 +621,7 @@ Procedure:
 1. Run AQ-001 deterministic query.
 2. Record time window, cohort and sample size.
 3. Create one structured evidence package.
-4. Write Max's own interpretation before seeing AI analysis.
+4. Write the product owner's own interpretation before seeing AI analysis.
 5. Give the AI only:
    - AQ-001 definition;
    - telemetry semantics required for AQ-001;
@@ -652,8 +650,8 @@ Ask:
 
 ### Success criteria
 
-At least one: - AI identifies a plausible competing hypothesis Max did
-not record; - AI finds a missing evidence requirement before a product
+At least one: - AI identifies a plausible competing hypothesis the product
+  owner did not record; - AI finds a missing evidence requirement before a product
 change; - AI materially reduces time required to produce a structured
 investigation report.
 
@@ -721,7 +719,7 @@ Human decision:
 NO ACTION | MORE EVIDENCE | INVESTIGATE | PRODUCT CHANGE
 
 Decision owner:
-Max
+product owner
 
 Decision notes:
 <notes>
@@ -810,4 +808,4 @@ Review this decision if:
 ## Final principle
 
 > Product analytics establishes evidence. AI expands the investigation.
-> The owner makes the decision.
+> The product owner makes the decision.

@@ -20,7 +20,7 @@ maintenance completion. Interpretation does not make the proposal a fact.
 
 Both modes share validation, confirmation policy, domain commands, persistence,
 and an inspectable result. Pit and system entry points are sources, not separate
-versions of Remember. Delivery remains staged by `../planning/work-plan.md`; describing
+versions of Remember. Delivery remains staged; describing
 raw mode does not authorize CAP-* implementation before the milestone gates
 permit it.
 
@@ -310,11 +310,11 @@ Implements core constraint C4 ([`../core.md`](../core.md#constraints)).
 - `../engineering/domain-inventory.md` — capture types not present on `main` today
 - `product-charter.md` — Remember product job
 - `../planning/ai-roadmap.md` — deferred AI direction (not a pipeline contract)
-- `../PROJECT_STATUS.md` — freeze / resume status
+- `../PROJECT_STATUS.md` — project status
 
 ## Requirements
 
-Status `proposed` means derived from the contract text above and awaiting owner approval.
+Status `proposed` means derived from the contract text above and awaiting approval.
 
 ### REQ-CAPTURE-001 — Raw mode saves without a model through the shared path
 Status: proposed

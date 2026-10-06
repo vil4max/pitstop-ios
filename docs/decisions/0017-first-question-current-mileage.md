@@ -1,7 +1,6 @@
 # First Pit Question: Current Mileage
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending\
+**Status:** Accepted\
 **Task:** DISC-002\
 **Contracts:** [`../requirements/pit-behavior-and-motion.md`](../requirements/pit-behavior-and-motion.md)
 (REQ-PIT-002, 003, 006–012, 018–020),
@@ -188,7 +187,7 @@ DEBUG launch arguments for tap-free smoke checks: `-pitstop-demo-stale-mileage`
   for good (see open questions), so the user paid for a note with a lost
   question, against REQ-PIT-013.
 
-## Open questions for owner review
+## Open questions
 
 - **Deferral return and final answers.** Resolved by ADR 0018 (DISC-003): a
   deferred mileage question returns after 14 days, an answered one after

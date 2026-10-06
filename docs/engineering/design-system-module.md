@@ -106,8 +106,8 @@ Do not create 30 spacing tokens.
 
 Only extract after repeated use or explicit design-system value.
 
-Components of the iOS 27 redesign (owner-approved 2026-09-22; cards RD-000,
-RD-011, RD-012 in the work plan):
+Components of the iOS 27 redesign (cards RD-000,
+RD-011, RD-012):
 
 ``` text
 StageSurface         tinted stage for the Car Hero

@@ -274,7 +274,7 @@ note; - expense with standalone accounting transaction.
 
 ## Requirements
 
-Status `proposed` means derived from the contract text above and awaiting owner approval.
+Status `proposed` means derived from the contract text above and awaiting approval.
 
 ### REQ-DOMAIN-001 — Odometer truth is reading history
 Status: proposed

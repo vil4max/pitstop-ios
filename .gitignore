@@ -36,7 +36,6 @@ build/
 !Tooling/backend/build/
 !Tooling/backend/build/**
 Tooling/runtime.local.yml
-.codex/
 .DS_Store
 DerivedData/
 *.xcresult/

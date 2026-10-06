@@ -51,8 +51,8 @@ Pit may use rare situational humour. Never joke about safety or serious failures
 
 ## Visual identity
 
-Pit is a small companion head with a face screen and two lit lens eyes
-(owner decision 2026-09-22). The look is owned by
+Pit is a small companion head with a face screen and two lit lens eyes.
+The look is owned by
 [`product-design.md`](product-design.md#pit-visual-identity); this contract
 owns how it acts.
 
@@ -89,8 +89,7 @@ Behavioural metaphor:
 
 ## Availability
 
-Pit is always on screen: he is the anchor point for talking to the app
-(owner rule 2026-09-22).
+Pit is always on screen: he is the anchor point for talking to the app.
 
 - On primary and detail screens Pit is the bottom-trailing utility control.
 - Inside every other sheet (editors, Track several, Mark as done, Settings)
@@ -289,7 +288,7 @@ Never log raw speech or note text.
 
 ## Requirements
 
-Status `proposed` means derived from the contract text above and awaiting owner approval.
+Status `proposed` means derived from the contract text above and awaiting approval.
 
 ### REQ-PIT-001 — App navigation works without Pit
 Status: proposed
@@ -452,7 +451,7 @@ When Pit presents an interruption question with choices
 Then the question and each choice are exposed as normal accessible controls
 
 ### REQ-PIT-021 — The capture sheet is not a transcript
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: C3
 Source: [Capture](#capture)
 Given any sequence of captures in one sheet session
@@ -460,7 +459,7 @@ When the sheet renders
 Then it shows only the current moment (composing, working, confirming, clarifying or saved) and never a history of earlier turns
 
 ### REQ-PIT-022 — Every state has a distinct static pose
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Poses](#poses)
 Given each state of the motion language
@@ -468,7 +467,7 @@ When Pit is drawn with animation disabled
 Then every state has a distinct static pose (eye outline, tilt or offset, or head tilt or lift), and the inward eye tilt never exceeds 6°
 
 ### REQ-PIT-023 — A knock is also a colour change
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Poses](#poses), [Accessibility](#accessibility)
 Given Pit knocks, in the utility layer or in the capture sheet
@@ -476,7 +475,7 @@ When the eyes are drawn, with or without Reduce Motion
 Then the eyes use `accentPrimary` for the knock and return to their resting colour when it ends, and no other state uses the accent
 
 ### REQ-PIT-024 — The head never moves on its own
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Poses](#poses), [Idle policy](#idle-policy)
 Given Pit is resting or idle
@@ -484,7 +483,7 @@ When no motion-language state that moves the head is active
 Then the head neither tilts nor lifts
 
 ### REQ-PIT-026 — Pit is always on screen
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Availability](#availability)
 Given any screen or sheet other than the Pit Capture Surface, with or without the keyboard
@@ -492,7 +491,7 @@ When it is displayed
 Then Pit is visible in the bottom-trailing position and one tap opens the Pit Capture Surface, and closing it returns to the same sheet with its input unchanged
 
 ### REQ-PIT-025 — The sheet opens large at accessibility text sizes
-Status: approved (owner, 2026-09-22)
+Status: Approved
 Core: P5
 Source: [Capture](#capture)
 Given an accessibility Dynamic Type size
@@ -500,7 +499,7 @@ When the Pit Capture Surface opens
 Then it opens at the large detent, so the composer and its action stay visible above the keyboard
 
 ### REQ-PIT-027 — One prominent action in the capture sheet
-Status: approved (owner, 2026-09-23)
+Status: Approved
 Core: C3
 Source: [Capture](#capture)
 Given the capture sheet is composing

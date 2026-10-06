@@ -68,9 +68,8 @@ Evaluate:
 - motion sentiment;
 - ability to use app without Pit.
 
-Evidence (external reference, unvalidated): mewmori.com's pet-companion
-mechanic and OpenAI Codex's mascot use, raised as a "Pit as pet" framing to
-weigh against the existing eyes-only hypothesis in `../requirements/product-design.md`.
+Evidence (external reference, unvalidated): pet-companion mechanics in other
+apps, raised as a "Pit as pet" framing to weigh against the existing eyes-only hypothesis in `../requirements/product-design.md`.
 
 ## Road investigations
 
@@ -108,8 +107,7 @@ No custom gesture without evidence.
 Question: Can Road show a labelled date range for a distance milestone,
 derived from reading history, without breaking core C2 and REQ-ROAD-007?
 
-Record: [`investigations/road-est-001-mileage-rate-estimate.md`](investigations/road-est-001-mileage-rate-estimate.md)
-(investigated 2026-09-22; approved by the owner on 2026-09-22). Answered: an
+Record: ROAD-EST-001 (investigated 2026-09-22). Answered: an
 annotation-only estimate that never places or orders a milestone, shipped as
 ROAD-EST-002 with the REQ-ROAD-007 wording change and REQ-ROAD-022/023
 ([ADR 0034](../decisions/0034-mileage-rate-estimate.md)).
@@ -134,8 +132,7 @@ Question: Can system capture feel materially faster than opening the app?
 
 Siri part scoped by SYS-001: measure cold background launch to reply time on
 a device in SYS-006.
-Widget part scoped by SYS-004
-([`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)):
+Widget part scoped by SYS-004:
 widgets and controls open the app on the Pit sheet; they cannot capture text
 themselves.
 
@@ -143,8 +140,7 @@ themselves.
 
 Investigate widget/deep-link-to-capture platform constraints.
 
-Deep-link part answered by SYS-004
-([`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md));
+Deep-link part answered by SYS-004;
 microphone start stays open because Pit has no voice capture yet.
 
 ### INV-CAP-005 Foundation Models language quality
@@ -200,11 +196,9 @@ Investigate:
 - source revision;
 - correction workflow.
 
-Investigated 2026-09-21 in MNT-INT-001
-([`investigations/mnt-int-001-maintenance-intelligence.md`](investigations/mnt-int-001-maintenance-intelligence.md)):
-no app-supplied manufacturer data for now. The owner chose to run the
-fictional fixture (MNT-INT-002, done 2026-09-22); the target market, source,
-budget and legal review stay owner decisions (MNT-INT-003).
+Investigated 2026-09-21 in MNT-INT-001: no app-supplied manufacturer data
+for now. A fictional fixture was run instead (MNT-INT-002, done 2026-09-22);
+the target market, source, budget and legal review stay open (MNT-INT-003).
 
 ### INV-VEH-003 Progressive vehicle discovery
 
@@ -232,7 +226,7 @@ type yet.
 
 ### INV-MNT-002 Service grouping
 
-What grouping window matches real owner behaviour?
+What grouping window matches real driver behaviour?
 
 ### INV-MNT-003 User interval overrides
 
@@ -243,14 +237,12 @@ Validate how users express simple anchor philosophies such as 5/7.5/10/15 thousa
 Question: Which manufacturer data, presets, and richer Road milestones are
 viable after core product validation, and under which gates?
 
-Record: [`investigations/mnt-int-001-maintenance-intelligence.md`](investigations/mnt-int-001-maintenance-intelligence.md)
-(investigated 2026-09-21; owner decisions pending). The full record lives in
-its own file because it cites external sources and proposes follow-up tasks.
+Record: MNT-INT-001 (investigated 2026-09-21).
 Area 1 decided 2026-09-22: MNT-INT-002 ran with the fictional market "XM" and
 is done; the fictional schedule is fully expressible in the test-only shape,
 and the record lists the production-model gaps a real source would hit
 (provenance, anchoring, first registration, procedure type, vehicle facts,
-schema). A real market and source stay owner-only (MNT-INT-003).
+schema). A real market and source stay open (MNT-INT-003).
 
 ### MNT-VR-001 Vehicle-reported remaining value
 
@@ -258,8 +250,7 @@ Question: How should an owner-entered dashboard countdown ("service in
 3,200 km / 45 days") act as a maintenance rule next to owner intervals and
 completions?
 
-Record: [`investigations/mnt-vr-001-vehicle-reported-remaining.md`](investigations/mnt-vr-001-vehicle-reported-remaining.md)
-(investigated 2026-09-22; approved by the owner on 2026-09-22). Answered: a
+Record: MNT-VR-001 (investigated 2026-09-22). Answered: a
 separate report record superseded by the next completion, earliest anchor wins
 per dimension, "old" after 180 days without expiry; shipped as MNT-VR-002
 without waiting for beta evidence
@@ -269,8 +260,7 @@ without waiting for beta evidence
 
 ### INV-SYS-001 App Intents phrase UX
 
-Partly addressed by SYS-001
-([`investigations/sys-001-app-intents.md`](investigations/sys-001-app-intents.md)):
+Partly addressed by SYS-001:
 phrases need the app name, cannot carry free text, and are localized through
 an `AppShortcuts` String Catalog; Russian and Ukrainian phrase recognition
 needs a device check (SYS-006).
@@ -281,9 +271,8 @@ Question: Under which platform constraints can `RememberInPitStopIntent`
 feed the one capture pipeline, and how are confirmation, cancellation, and
 time limits handled?
 
-Record: [`investigations/sys-001-app-intents.md`](investigations/sys-001-app-intents.md)
-(investigated 2026-09-21; owner decisions pending). The full record lives in
-its own file because it cites Apple documentation and specifies SYS-002.
+Record: SYS-001 (investigated 2026-09-21); SYS-002 implements it
+([ADR 0023](../decisions/0023-remember-intent.md)).
 
 ### SYS-004 Widget investigation
 
@@ -291,21 +280,19 @@ Question: Which widget and control surfaces can open the Pit capture surface
 on iOS 27, how does the intent reach the widget extension, and does the first
 slice need shared data?
 
-Record: [`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)
-(investigated 2026-09-21; owner decisions pending). Recommends a data-free
-SYS-005: an "Open Pit" control and a static widget, no App Group.
+Record: SYS-004 (investigated 2026-09-21). Recommended a data-free SYS-005:
+an "Open Pit" control and a static widget, no App Group
+([ADR 0025](../decisions/0025-widgets-and-controls.md)).
 
 ### INV-SYS-002 Action Button applicability
 
-Addressed by SYS-004
-([`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)):
+Addressed by SYS-004:
 the Action button runs an App Shortcut (both ADR 0024 shortcuts qualify) or a
 control; an "Open Pit" control adds one more assignable entry.
 
 ### INV-SYS-003 Lock Screen / Control Center applicability
 
-Addressed by SYS-004
-([`investigations/sys-004-widgets.md`](investigations/sys-004-widgets.md)):
+Addressed by SYS-004:
 a control whose action is an `OpenIntent` opens the app from Control Center
 and the Lock Screen; the intent must be compiled into the app and the widget
 extension.

@@ -1,7 +1,6 @@
 # Attention Cooldown and Question Return
 
-**Status:** Accepted for implementation (agent decision under owner delegation,
-2026-09-21); owner review pending. The intervals are hypotheses, to be revisited
+**Status:** Accepted. The intervals are hypotheses, to be revisited
 with beta evidence.\
 **Task:** DISC-003\
 **Contracts:** [`../requirements/pit-behavior-and-motion.md`](../requirements/pit-behavior-and-motion.md)
@@ -154,13 +153,13 @@ questions needs a second question, so it is covered with fixtures
   a shorter interval only matters if the reading were deleted, and then asking
   again is the right outcome after 90 days too.
 
-## Open questions for owner review
+## Open questions
 
 - **REQ-PIT-008 says an answered question "is not asked again".** This ADR
   reads it as "not asked again while its answer holds". Proposed wording, not
   applied: "Given a Pit question the user has answered, When Pit evaluates
   whether to interrupt while that answer still holds, Then that question is
-  not asked again." The requirement stays `proposed` until the owner decides.
+  not asked again." The requirement stays `proposed` until the wording is decided.
 - **14 days after "I don't know yet"** is a guess. Evidence to collect with
   ANL-001: how often a returned deferral is answered versus deferred again. A
   question deferred repeatedly returns every 14 days for as long as the

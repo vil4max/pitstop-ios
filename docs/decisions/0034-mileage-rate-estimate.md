@@ -1,16 +1,15 @@
 # Labelled Date Estimate on Road Distance Milestones
 
-**Status:** Accepted (owner decision, 2026-09-22): estimates are wanted, the
-REQ-ROAD-007 wording and REQ-ROAD-022/023 are approved, the constants below are
-approved, and Road is the only surface in this slice\
+**Status:** Accepted: the REQ-ROAD-007 wording and REQ-ROAD-022/023 are approved,
+the constants below are approved, and Road is the only surface in this slice\
 **Task:** ROAD-EST-002\
 **Builds on:** [`0008-road-projection-rules.md`](0008-road-projection-rules.md)
 (one lane, one dimension per milestone, ordering key, staleness),
 [`0010-maintenance-engine-rules.md`](0010-maintenance-engine-rules.md)
 (no estimated current mileage, no stored status),
 [`0032-planned-dated-events.md`](0032-planned-dated-events.md)
-(day bucketing in the owner's calendar)\
-**Source:** [ROAD-EST-001](../planning/investigations/road-est-001-mileage-rate-estimate.md),
+(day bucketing in the user's calendar)\
+**Source:** ROAD-EST-001,
 option E1\
 **Contracts:** [`../requirements/road-domain-and-ui.md`](../requirements/road-domain-and-ui.md)
 (REQ-ROAD-007, REQ-ROAD-022, REQ-ROAD-023, approved 2026-09-22); core C2
@@ -127,7 +126,7 @@ so both bounds carry one.
   it. The bounds are formatted separately and joined with an en dash, and the
   year rule is the app's own.
 - **Leaving the year out entirely** (the illustrative label of the ROAD-EST-001
-  record): independent review showed it reads wrong for a wide range, where
+  record): review showed it reads wrong for a wide range, where
   November 2027 to November 2028 collapses to "November" and April 2028 to
   August 2029 reads as "April – August".
 - **Comparing the two bounds only to each other** for the year rule: a range

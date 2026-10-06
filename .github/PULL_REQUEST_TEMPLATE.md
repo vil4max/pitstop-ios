@@ -9,16 +9,15 @@
 - Local verification command, result, and relevant evidence:
 - Task-specific acceptance evidence:
 
-## Independent review
+## Review
 
 - Reviewer and reviewed commit/diff:
 - Findings, repairs, and re-verification (or explicitly pending):
 
-## Agent loop evidence
+## Outcome
 
-- Agent contribution and owner decisions:
-- Failed attempts and evidence that guided the repair:
 - Demonstrated outcome and remaining limitations:
+- Failed attempts and evidence that guided the repair:
 
 ## Screenshots
 
