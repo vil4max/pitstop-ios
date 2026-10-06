@@ -1,7 +1,7 @@
 // PostHog project settings for the ANL-001 HTTP adapter (ADR 0022).
 // Both values stay empty in the repository: an empty value means the app creates no
 // analytics client and sends nothing. Supply real values only in the untracked
-// Config/Analytics.local.xcconfig (see ADR 0022, "Owner actions").
+// Config/Analytics.local.xcconfig (see ADR 0022, "Manual steps").
 // POSTHOG_HOST is a host name without a scheme, because `//` starts a comment here.
 POSTHOG_PROJECT_API_KEY =
 POSTHOG_HOST =
