@@ -345,7 +345,7 @@ struct StoreRelocationTests {
     }
 
     /// Not a signing check: the simulator resolves a group container regardless of entitlements. The
-    /// entitlement is checked on the device and by the Xcode Cloud archive (DEV-WIDGET).
+    /// entitlement is checked on the device and by the Xcode Cloud archive.
     @Test("REQ-WIDGET-003: the group identifier resolves to a container in the test host")
     func groupIdentifierResolves() {
         #expect(StoreLocation.groupContainerURL() != nil)

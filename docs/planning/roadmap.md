@@ -2,7 +2,7 @@
 
 **Status:** phase index  
 **Project state:** Active — see [`../PROJECT_STATUS.md`](../../PROJECT_STATUS.md)  
-**Rule:** the current product is `main`; the pre-greenfield tab-bar spike is not kept in this repository (ADR 0014)
+**Rule:** the current product is `main`; the pre-greenfield tab-bar spike is not kept in this repository
 
 ## Phase index
 

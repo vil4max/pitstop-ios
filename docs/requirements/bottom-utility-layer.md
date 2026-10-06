@@ -195,7 +195,7 @@ When the Pit control is displayed
 Then the control remains visible, discoverable, and keeps its semantic label
 
 ### REQ-UTILITY-012 — Sheets keep Pit and cover the rest of the layer
-Status: Approved; RD-010 saw only the Pit Capture Surface on the simulator (inset at the medium detent, large at AX-XXXL); Pit inside a feature sheet or Settings is not yet checked on screen and is tracked as DEV-PIT-SHEET
+Status: Approved; RD-010 saw only the Pit Capture Surface on the simulator (inset at the medium detent, large at AX-XXXL); Pit inside a feature sheet or Settings is not yet checked on screen; see the 1.2.0 release record
 Core: P5
 Source: [Pit](#pit), [Safe areas and scrolling](#safe-areas-and-scrolling)
 Given a sheet other than the Pit Capture Surface is presented

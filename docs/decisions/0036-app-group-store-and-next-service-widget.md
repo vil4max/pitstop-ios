@@ -199,7 +199,7 @@ change uses `.never`.
   the old store and leave no partial copy; no App Group container before and
   after a move; a failed backup rename puts back the files it already renamed.
   The App Group entitlement itself is checked on the device and by the Xcode
-  Cloud archive (DEV-WIDGET): on the simulator the group container resolves
+  Cloud archive: on the simulator the group container resolves
   whatever the signing.
 - `PitstopTests/Widgets/NextServiceWidgetTests.swift`: empty (no car, nothing
   tracked), one operation, the most urgent choice equal to Service's first row
