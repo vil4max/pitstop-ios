@@ -50,8 +50,8 @@ struct ServiceViewState: Equatable {
         !untrackedOperations.isEmpty
     }
 
-    /// The one "Track" toolbar menu (redesign proposal §4, decision 4) stays available while either item is, so
-    /// "Track several" waiting for the first load reads as a disabled item rather than a missing control. That is
+    /// The one "Track" toolbar menu stays available while either item is, so "Track several" waiting for the first
+    /// load reads as a disabled item rather than a missing control. That is
     /// `canTrackOne` alone: "Track several" also needs something untracked, so it is never enabled without it.
     var isTrackMenuEnabled: Bool {
         canTrackOne

@@ -35,9 +35,9 @@ extension MaintenanceOperationState {
 }
 
 extension MaintenanceOperationState {
-    /// The used share the row's remaining-share track draws, or nil when it draws none (ADR 0038; redesign
-    /// proposal §4 decision 2 and §6). Stale facts must not produce a confident-looking share, so the track needs
-    /// a last completion, a mileage observation newer than 90 days and a known status. It shows the dimension
+    /// The used share the row's remaining-share track draws, or nil when it draws none (ADR 0038).
+    /// Stale facts must not produce a confident-looking share, so the track needs a last completion, a mileage
+    /// observation newer than 90 days and a known status. It shows the dimension
     /// that decided the status, and only when the policy sets an interval in that dimension: a reading the owner
     /// set no interval for is measured against the car's own countdown, which is not the owner's interval. Past
     /// 100 % the bar is full; the status word says overdue.

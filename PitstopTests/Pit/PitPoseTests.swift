@@ -29,7 +29,7 @@ struct PitPoseTests {
         for state in PitState.allCases {
             let pose = PitPose(state)
             #expect(pose.inwardTilt <= 6, "\(state) leans inward \(pose.inwardTilt)°")
-            // Each eye turns at most 10° (proposal §3.6b); a same-way roll is not an inward angle.
+            // Each eye turns at most 10° (ADR 0039); a same-way roll is not an inward angle.
             #expect(abs(pose.left.rotation) <= 10 && abs(pose.right.rotation) <= 10, "\(state)")
             if state != .knock {
                 #expect(pose.inwardTilt < 6, "\(state) takes the knock's inward pose")

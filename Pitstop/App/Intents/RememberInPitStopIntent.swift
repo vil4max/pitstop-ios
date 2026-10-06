@@ -9,7 +9,7 @@ struct RememberInPitStopIntent: AppIntent {
     static let supportedModes: IntentModes = .background
     /// The store lives in the app's own container, so the intent runs in the app process only.
     static let allowedExecutionTargets: IntentExecutionTargets = .main
-    /// Owner decision: capture only from an unlocked phone, whatever device the request came from.
+    /// Capture only from an unlocked phone, whatever device the request came from.
     static let authenticationPolicy: IntentAuthenticationPolicy = .requiresLocalDeviceAuthentication
 
     @Parameter(title: "intent.remember.parameter", requestValueDialog: "intent.remember.ask")

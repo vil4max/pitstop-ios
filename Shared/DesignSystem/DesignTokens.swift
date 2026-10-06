@@ -16,7 +16,7 @@ enum DesignTokens {
     static let roadLineWidth: CGFloat = 2
     static let roadDash: [CGFloat] = [2, 8]
 
-    /// Stage tint: accent 10–22 % in light and 14–28 % in dark (redesign proposal §1).
+    /// Stage tint: accent 10–22 % in light and 14–28 % in dark (ADR 0038).
     static let stageTint = TintOpacity(light: 0.10, dark: 0.14, highContrastLight: 0.16, highContrastDark: 0.22)
     static let stageTintStrong = TintOpacity(light: 0.22, dark: 0.28, highContrastLight: 0.30, highContrastDark: 0.36)
 

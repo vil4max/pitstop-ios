@@ -6,7 +6,7 @@ struct AppEnvironment: Sendable {
     /// DEBUG only: product events go to the local log instead of nowhere, as if the user had opted in.
     static let analyticsLogArgument = "-pitstop-analytics-log"
     /// DEBUG only: asks Foundation Models after the rules find nothing (ADR 0027). Off by default in
-    /// every build until the owner accepts an on-device evaluation.
+    /// every build until an on-device evaluation is accepted.
     static let foundationModelsArgument = "-pitstop-foundation-models"
 
     let store: any CarMemoryStore

@@ -2,9 +2,9 @@ import Foundation
 @testable import Pitstop
 import Testing
 
-/// When a Service row draws the remaining-share track and how full it is (ADR 0038; redesign proposal §4
-/// decision 2 and §6): only with a known interval, a last completion and a mileage observation newer than
-/// 90 days, and then as the used share of the dimension that decided the status.
+/// When a Service row draws the remaining-share track and how full it is (ADR 0038):
+/// only with a known interval, a last completion and a mileage observation newer than 90 days,
+/// and then as the used share of the dimension that decided the status.
 @Suite("Service remaining-share track")
 struct ServiceShareTrackTests {
     private typealias Fixture = MaintenanceFixture

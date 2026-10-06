@@ -112,7 +112,7 @@ struct NextServiceWidgetView: View {
 
     /// The Lock Screen renders this family in one vibrant tint, so the glyph's shape, not its colour, tells the state
     /// (REQ-DESIGN-001); the operation name joins the accent group. When the text does not fit, lines go by priority
-    /// instead of being clipped (owner, FU-2): the fact goes first, then the status word, leaving its glyph; the name
+    /// instead of being clipped (FU-2): the fact goes first, then the status word, leaving its glyph; the name
     /// and the status always stay.
     private var rectangular: some View {
         Group {
@@ -222,7 +222,7 @@ struct NextServiceWidgetView: View {
 
     /// The mockup's small "Next service" frame: eyebrow, operation name and its status chip on top, the one fact at
     /// the bottom. When the text does not fit (large text sizes, long names), lines go by priority instead of being
-    /// clipped (owner, FU-2): the eyebrow first, then the fact, then the status word, leaving the name and the status
+    /// clipped (FU-2): the eyebrow first, then the fact, then the status word, leaving the name and the status
     /// glyph; the name and the status always stay, and a tap opens Service for the rest. The sparse states keep the
     /// same grammar with no chip, so no urgency is invented (core C2), and keep their sentence.
     private var small: some View {

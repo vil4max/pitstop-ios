@@ -3,7 +3,7 @@ import SwiftUI
 extension View {
     /// The only way feature code gets Liquid Glass (REQ-DESIGN-002): floating controls only. With Reduce
     /// Transparency or Increase Contrast the control becomes an opaque `surfaceSecondary` shape with a hairline
-    /// (proposal §6).
+    /// (ADR 0009).
     func pitGlass(in shape: some Shape, interactive: Bool = true) -> some View {
         modifier(PitGlassModifier(shape: shape, interactive: interactive))
     }

@@ -46,7 +46,7 @@ enum RememberReply: Equatable, Sendable {
     case alreadySaved
     case nothingToSave
     case cancelled
-    /// Nothing was written. Siri cannot keep the words for a retry (owner decision, ADR 0023).
+    /// Nothing was written. Siri cannot keep the words for a retry (ADR 0023).
     case notSaved
     /// The on-disk store is not open; a save would vanish with the process (REQ-CAPTURE-009).
     case storageUnavailable

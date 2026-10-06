@@ -4,8 +4,8 @@ import Testing
 
 private let now = DomainFixtures.Odometers.baseDate.addingTimeInterval(30 * 86400)
 
-/// The one "Track" toolbar menu (redesign proposal §4, decision 4) keeps the delivered disable rules of its two
-/// items; the menu itself is disabled only when both items are.
+/// The one "Track" toolbar menu keeps the delivered disable rules of its two items;
+/// the menu itself is disabled only when both items are.
 @MainActor
 @Suite("Service Track menu")
 struct ServiceTrackMenuTests {

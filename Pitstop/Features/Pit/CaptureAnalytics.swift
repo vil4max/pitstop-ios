@@ -104,7 +104,7 @@ enum InterpretationResult: String, AnalyticsCategory {
 enum InterpreterVersion: String, AnalyticsCategory {
     case noInterpreter = "none"
     case ruleBasedV1 = "rule_based_1"
-    /// DEBUG-only composition behind a launch argument (ADR 0027); proposed value, owner review pending.
+    /// DEBUG-only composition behind a launch argument (ADR 0027); proposed value, pending review.
     case ruleBasedThenFoundationModelsV1 = "rule_based_1_foundation_models_1"
 
     var availability: InterpreterAvailability {

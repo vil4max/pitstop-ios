@@ -62,7 +62,7 @@ struct ServiceView: View {
     @ToolbarContentBuilder
     private var toolbarItems: some ToolbarContent {
         // One menu, not a glass group: "Track several" waits for the first load, and a half-disabled group reads
-        // badly (redesign proposal §4, decision 4). Each item keeps its delivered rule.
+        // badly. Each item keeps its delivered rule.
         ToolbarItem(placement: .primaryAction) {
             Menu {
                 Button("service.track", systemImage: "plus") { sheet = .track }
