@@ -1,4 +1,4 @@
-# pitstop-ios — notes for AI agents
+# PitStop — project facts
 
 <!-- repository-visibility-policy -->
 Repository visibility: **PUBLIC**.
@@ -8,58 +8,57 @@ Repository visibility: **PUBLIC**.
 Everything committed here is public, including history, commit messages,
 issues, and pull requests. Never add real vehicle data (VIN, plates, policy
 numbers, payments), personal or financial details, or personal plans; use
-fictional examples. The kit private-data scan runs before every push. Never
+fictional examples. A private-data scan runs before every push. Never
 commit credentials, tokens, passwords, session data, or private keys.
 <!-- /repository-visibility-policy -->
 
-**Project context:** `personal` — local marker: `.agents/project-context.yaml`.
+## What the app is
 
-## Development entry
+PitStop is an iOS 27 app that keeps a car's memory: save a thought, record what
+was actually done, and see which service and dates come next. Swift 6 language
+mode, SwiftUI, SwiftData, App Intents, WidgetKit, MVVM. Product contracts are in
+`docs/requirements/`, decisions in `docs/decisions/`, status in
+`PROJECT_STATUS.md`, the documentation index in `docs/README.md`.
 
-Read `PROJECT_STATUS.md`, then **Agent development** in
-`docs/engineering/agent-loop-and-gitflow.md` for implementation tasks. The
-process itself (plan approval, writers, independent review, integration,
-round close) is the kit's; this repository keeps only its project facts.
+## Folder structure
 
-Shared behavior: `${VIL4KIT_ROOT:-$HOME/vil4kit}/harness/portable/AGENT_BEHAVIOR.md`; read it when shared policy is not loaded. Project execution uses the installed `Tooling/` slice.
+- `Pitstop/` — app target: `App/` (composition, intents), `DesignSystem/`,
+  `Domain/` (pure domain code: capture, maintenance, road, store, vehicle),
+  `Features/` (screens and view models per feature), `Infrastructure/`
+  (persistence, analytics, logging, interpretation, car photo).
+- `PitstopWidgets/` — widget and control extension; `Shared/` — code compiled
+  into both targets.
+- `PitstopTests/` — Swift Testing and XCTest suites, grouped like the app.
+- `Config/` — build configuration; `ci_scripts/` — Xcode Cloud scripts;
+  `Tooling/` — installed build and release tooling; `docs/` — specifications.
 
-- Project/scheme: `Pitstop.xcodeproj` / `Pitstop`.
+## Build and test
+
+- Project and scheme: `Pitstop.xcodeproj` / `Pitstop`.
 - Simulator and gate settings: `Tooling/runtime.yml`.
-- Environment: `just doctor --json`.
-- Local implementation gate: `just verify`.
-- CI: shared Runtime pipeline (ADR 0013). A push to `main` runs tests on
-  GitHub-hosted runners (public repository, ADR 0014) and builds nothing.
-  Local `just verify` is the gate.
-- TestFlight: procedure in `Tooling/docs/testflight.md`; who may tag is
-  kit policy.
-- Documentation/config-only edits use proportional checks without an app build.
+- Environment check: `just doctor --json`.
+- Gate: `just verify` (build, format, lint, tests).
 - Release preflight after committing verified contents: `just release --check`.
-- Task record and evidence: the task brief in `docs/tasks/` (kit brief schema).
+- CI: a push to `main` runs the tests on GitHub-hosted runners and builds
+  nothing. TestFlight builds are tag-gated
+  ([ADR 0013](docs/decisions/0013-shared-ci-and-tag-gated-testflight.md),
+  `Tooling/docs/testflight.md`).
+- `Tooling/backend/build/` contains tracked shell executors, not build output.
+  Keep `Tooling/runtime.local.yml` untracked.
+- Documentation-only and configuration-only changes need no app build.
 
-`Tooling/backend/build/` contains tracked shell executors, not build output.
-Keep `Tooling/runtime.local.yml`, `.codex/`, and local markers untracked.
+## Conventions
 
-## Spec pyramid
-
-Start from [`docs/core.md`](docs/core.md) (approved 2026-09-16). Layers:
-core → `docs/requirements/` + `docs/decisions/` → tests named with
-`REQ-<AREA>-NNN` → code. Index: [`docs/README.md`](docs/README.md). Method:
-kit skill `spec-pyramid`.
-
-- Change starts at the highest affected layer; propose, do not approve, core
-  or requirement edits.
-- Bug → failing spec with a REQ ID first, then the fix.
-- Record a lesson only when a check or upper layer changed:
-  [`docs/lessons.md`](docs/lessons.md).
-
-## Project state
-
-Read `PROJECT_STATUS.md` first. The owner assigns tasks; open work lives in
-`docs/planning/work-plan.md`. Runtime AI stays behind its rollout gate
-(core P4, ADR 0027): the Foundation Models path runs in debug builds only.
-
-## System over random
-
-- Prefer specs + work plan over random feature ideas.
-- Prefer one shipped loop over more architecture documents without ship.
-- Do not claim production AI product maturity until runtime AI is shipped and evidenced.
+- Spec pyramid: core ([`docs/core.md`](docs/core.md)) → requirements and
+  decisions → tests named `REQ-<AREA>-NNN` → code. A change starts at the
+  highest affected layer; a bug starts with a failing test named with its
+  requirement ID.
+- AI proposes; deterministic domain code validates and decides. Persistence sits
+  behind a command-only store. Runtime AI stays behind its rollout gate (core
+  P4, ADR 0027): the Foundation Models path runs in debug builds only.
+- Unknown data stays unknown; no invented vehicle facts.
+- Colours come from design-system roles, never literals in features.
+- Strings live in String Catalogs (en, uk, ru).
+- Examples, fixtures and mockups use fictional data only.
+- Commit messages follow Conventional Commits: `<type>[(<scope>)]: <summary>`
+  with a lowercase imperative summary and no final period.
