@@ -211,7 +211,9 @@ public struct ProposalValidator: Sendable {
             missing.append(.policyInterval)
         }
         guard missing.isEmpty, let operationID = proposal.extractedOperationID else { throw .missing(missing) }
-        guard (distance ?? 1) > 0, (months ?? 1) > 0 else { throw .preserve(.invalidExtractedValue) }
+        guard (distance ?? 1) > 0, (months ?? 1) > 0,
+            DomainCommandLimits.isPlausibleInterval(kilometers: distance, months: months)
+        else { throw .preserve(.invalidExtractedValue) }
         return (
             .maintenancePolicy(operationID: operationID, distanceIntervalKm: distance, timeIntervalMonths: months),
             []

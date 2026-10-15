@@ -314,6 +314,37 @@ struct RoadProjectorTests {
     }
 
     @Test(
+        "ADR-0032: days left to a planned date are calendar days, also across a daylight saving change",
+        arguments: [
+            // Fall back on 2026-10-25: the 48 hours span a 25-hour day.
+            ([2026, 10, 24, 0, 30], [2026, 10, 26, 0, 0]),
+            // Spring forward on 2027-03-28: the span holds a 23-hour day.
+            ([2027, 3, 27, 23, 30], [2027, 3, 29, 0, 0]),
+        ]
+    )
+    func plannedDaysFollowTheCalendarAcrossDaylightSaving(now: [Int], event: [Int]) throws {
+        var kyiv = Calendar(identifier: .gregorian)
+        kyiv.timeZone = try #require(TimeZone(identifier: "Europe/Kyiv"))
+        func date(_ parts: [Int]) throws -> Date {
+            try #require(
+                kyiv.date(
+                    from: DateComponents(
+                        year: parts[0], month: parts[1], day: parts[2], hour: parts[3], minute: parts[4]
+                    )))
+        }
+        let road = RoadProjector().project(
+            RoadContext(
+                now: try date(now),
+                maintenanceStates: [],
+                plannedEvents: [PlannedVehicleEvent(kind: .insuranceExpiry, date: try date(event))],
+                calendar: kyiv
+            ))
+        let lead = try #require(road.slots.first?.lead)
+        #expect(lead.remainingDays == 2)
+        #expect(lead.state == .approaching)
+    }
+
+    @Test(
         "REQ-ROAD-011: approaching, due, and overdue are distinct states decided by the projection",
         arguments: [
             (58500.0, RoadMilestoneState.approaching),

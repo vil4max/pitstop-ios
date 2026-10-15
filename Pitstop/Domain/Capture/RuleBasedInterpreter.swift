@@ -89,7 +89,11 @@ private struct Reading {
 
     init(_ raw: String) {
         // "Т.О." / "т.о." is the service "ТО"; split at the dots it would miss the marker "до ТО".
+        // The iOS keyboard types U+2019 (and some layouts U+02BC) for an apostrophe; folded to ASCII so
+        // "haven’t" is the same contracted negation as "haven't".
         let text = raw.replacing(/\b[Тт]\.\s?[Оо]\.?/, with: "ТО")
+            .replacing("\u{2019}", with: "'")
+            .replacing("\u{02BC}", with: "'")
         // Split keeping hyphens inside a token, so "что-ТО" is one token and never the service.
         namesScheduledService = text.split { !$0.isLetter && $0 != "-" }.contains("ТО")
         let lowered = text.lowercased()

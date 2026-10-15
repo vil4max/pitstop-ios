@@ -51,17 +51,20 @@ enum PitEyeLifePlan {
         let kind: PitEyeLife.Kind = state == .sideGaze ? .drift : .saccade
         let reach = state == .sideGaze ? CGPoint(x: 0.12, y: 0.08) : CGPoint(x: 0.1, y: 0.08)
 
+        // Clamped so an out-of-range source can never make a delay short or negative enough to keep
+        // the loop below from reaching the window.
+        func draw() -> Double { min(max(random(), 0), 1) }
         var steps: [PitEyeLifeStep] = []
         var elapsed: TimeInterval = 0
         var inhaled = false
         while true {
-            let delay = minimumInterval + random() * (maximumInterval - minimumInterval)
+            let delay = minimumInterval + draw() * (maximumInterval - minimumInterval)
             guard elapsed + delay <= window else { break }
             elapsed += delay
             inhaled.toggle()
             let gaze =
                 hasGaze
-                ? CGPoint(x: reach.x * (random() * 2 - 1), y: reach.y * (random() * 2 - 1))
+                ? CGPoint(x: reach.x * (draw() * 2 - 1), y: reach.y * (draw() * 2 - 1))
                 : .zero
             steps.append(
                 PitEyeLifeStep(
@@ -69,7 +72,7 @@ enum PitEyeLifePlan {
                     life: PitEyeLife(gaze: gaze, breath: inhaled ? 1.015 : 1, kind: kind)
                 ))
         }
-        let settle = minimumInterval + random() * (maximumInterval - minimumInterval)
+        let settle = minimumInterval + draw() * (maximumInterval - minimumInterval)
         steps.append(PitEyeLifeStep(delay: settle, life: PitEyeLife(kind: kind)))
         return steps
     }

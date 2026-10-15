@@ -59,6 +59,16 @@ struct PitEyeGeometryTests {
         }
     }
 
+    @Test("REQ-PIT-004: life ends even when the random source returns values below zero")
+    func lifeEndsWithOutOfRangeRandomSource() {
+        for state in [PitState.fixedGaze, .sideGaze, .resting] {
+            let steps = PitEyeLifePlan.steps(for: state, activity: .capturing, random: { -1 })
+            #expect(steps.last?.life.gaze == .zero && steps.last?.life.breath == 1)
+            #expect(steps.dropLast().map(\.delay).reduce(0, +) <= PitEyeLifePlan.window)
+            #expect(steps.allSatisfy { $0.delay >= PitEyeLifePlan.minimumInterval })
+        }
+    }
+
     @Test("REQ-PIT-005, REQ-PIT-017: no life while editing or scrolling, with Reduce Motion, or in other states")
     func lifeYields() {
         let random = draws([0.5])

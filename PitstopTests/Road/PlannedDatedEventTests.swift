@@ -6,8 +6,23 @@ private let now = DomainFixtures.Odometers.baseDate
 private let day: TimeInterval = 86400
 private let vehicleID = DomainFixtures.Vehicles.defaultID
 
+private let utc: Calendar = {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = .gmt
+    return calendar
+}()
+
+/// 10:00 on the day of `now` in `utc`, the moment the whole-day tests look at Road.
+private let morning = utc.startOfDay(for: now).addingTimeInterval(10 * 3600)
+
 private func event(_ kind: PlannedDatedEvent.Kind = .insuranceExpiry, inDays days: Double) -> PlannedDatedEvent {
     PlannedDatedEvent(vehicleID: vehicleID, kind: kind, date: now.addingTimeInterval(days * day), createdAt: now)
+}
+
+/// A date as the editor stores it: the start of a day, `days` calendar days from the day of `now`.
+private func event(_ kind: PlannedDatedEvent.Kind = .insuranceExpiry, onDay days: Int) -> PlannedDatedEvent {
+    let date = utc.date(byAdding: .day, value: days, to: utc.startOfDay(for: now)) ?? now
+    return PlannedDatedEvent(vehicleID: vehicleID, kind: kind, date: date, createdAt: now)
 }
 
 private func project(_ events: [PlannedDatedEvent], at moment: Date = now) -> RoadProjection {
@@ -15,7 +30,8 @@ private func project(_ events: [PlannedDatedEvent], at moment: Date = now) -> Ro
         RoadContext(
             now: moment,
             maintenanceStates: [],
-            plannedEvents: events.map(\.roadEvent)
+            plannedEvents: events.map(\.roadEvent),
+            calendar: utc
         ))
 }
 
@@ -94,8 +110,8 @@ struct PlannedDatedEventTests {
     @Test("REQ-ROAD-001, REQ-ROAD-007: a stated insurance expiry is a date milestone labelled by days left")
     func insuranceAppearsByDaysLeft() throws {
         // Stored as the start of a day 40 days ahead, seen at 10:00 today.
-        let insurance = event(inDays: 39.58)
-        let lead = try #require(project([insurance]).slots.first?.lead)
+        let insurance = event(onDay: 40)
+        let lead = try #require(project([insurance], at: morning).slots.first?.lead)
 
         #expect(lead.subject == .planned(.insuranceExpiry, id: insurance.id))
         #expect(lead.dimension == .time && lead.remainingKm == nil)
@@ -105,8 +121,10 @@ struct PlannedDatedEventTests {
 
     @Test("REQ-ROAD-016: tomorrow is one day left, not \"almost\"; a passed day counts whole days past")
     func wholeDaysForPlannedDates() throws {
-        #expect(try #require(project([event(inDays: 0.58)]).slots.first?.lead).distanceLabel == .daysLeft(1))
-        #expect(try #require(project([event(inDays: -3.42)]).slots.first?.lead).distanceLabel == .daysPast(3))
+        let tomorrow = project([event(onDay: 1)], at: morning)
+        #expect(try #require(tomorrow.slots.first?.lead).distanceLabel == .daysLeft(1))
+        let passed = project([event(onDay: -3)], at: morning)
+        #expect(try #require(passed.slots.first?.lead).distanceLabel == .daysPast(3))
     }
 
     @Test("REQ-ROAD-016: an `other` milestone carries the owner's label for the surface")

@@ -51,6 +51,19 @@ struct RuleBasedInterpreterTests {
         #expect(try await proposal(text) == nil)
     }
 
+    @Test(
+        "REQ-CAPTURE-014: a negation typed with a keyboard apostrophe is never read as completed work",
+        arguments: [
+            "I haven\u{2019}t changed the oil",
+            "I haven\u{02BC}t changed the oil",
+            "didn\u{2019}t replace the cabin filter",
+        ]
+    )
+    func typographicApostropheNegationIsNotInterpreted(text: String) async throws {
+        #expect(try await proposal(text) == nil)
+        #expect(RuleBasedInterpreter.isHedged(text))
+    }
+
     @Test("ADR-0011: a visit with several jobs is left raw rather than confirmed in part")
     func severalOperationsAreNotInterpreted() async throws {
         #expect(try await proposal("поменял масло и тормозную жидкость") == nil)

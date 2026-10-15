@@ -7,6 +7,14 @@ public enum DomainCommandLimits {
     /// Covers clock skew only. Anything later is a plan, and a plan is never performed work (REQ-DOMAIN-009).
     public static let futureTolerance: TimeInterval = 5 * 60
     public static let earliestVehicleYear = 1886
+    /// Far beyond any real service cadence, and small enough that a completion's mileage plus the
+    /// interval never overflows.
+    public static let maximumIntervalKm = 1_000_000
+    public static let maximumIntervalMonths = 600
+
+    public static func isPlausibleInterval(kilometers: Int?, months: Int?) -> Bool {
+        (kilometers ?? 0) <= maximumIntervalKm && (months ?? 0) <= maximumIntervalMonths
+    }
 
     public static func isPlausibleOdometer(_ kilometers: Double) -> Bool {
         kilometers.isFinite && (0...maximumOdometerKm).contains(kilometers)

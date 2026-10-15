@@ -13,6 +13,11 @@ struct ProvisionalCarContextTests {
         #expect(context.year == nil)
     }
 
+    @Test("ADR-0007: the provisional car ID is the fixed literal, never a random fallback")
+    func provisionalIDIsTheFixedLiteral() {
+        #expect(Vehicle.provisionalID.rawValue.uuidString == "00000000-0000-4000-8000-0000000C0FFE")
+    }
+
     @Test("REQ-BOARD-004: unknown mileage is never shown as 0 km")
     func unknownMileageIsNotZero() {
         let context = ProvisionalCarContext.firstLaunch

@@ -3,8 +3,8 @@ import Foundation
 /// The owner's typed cadence for one operation, shared by the Track sheet and the "Track several" starter so
 /// both accept exactly the same input (ADR 0010, ADR 0033).
 enum OwnerInterval {
-    static let maximumKilometers = 1_000_000
-    static let maximumMonths = 600
+    static let maximumKilometers = DomainCommandLimits.maximumIntervalKm
+    static let maximumMonths = DomainCommandLimits.maximumIntervalMonths
 
     /// A `userCustom` policy when both fields are blank-or-positive whole numbers and at least one is filled;
     /// otherwise nil. Blank never becomes zero.

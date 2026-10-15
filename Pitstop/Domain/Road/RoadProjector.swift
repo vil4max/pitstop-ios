@@ -14,7 +14,9 @@ public struct RoadProjector: Sendable {
         let candidates =
             context.maintenanceStates.compactMap(Self.milestone(from:))
             .map { Self.annotated($0, rate: rate, now: context.now, calendar: context.calendar) }
-            + context.plannedEvents.compactMap { Self.milestone(from: $0, now: context.now) }
+            + context.plannedEvents.compactMap {
+                Self.milestone(from: $0, now: context.now, calendar: context.calendar)
+            }
         let placed = candidates.filter(\.proximity.isFinite).sorted(by: Self.isAhead)
         let waiting = candidates.filter { !$0.proximity.isFinite }.sorted { $0.id < $1.id }
 
@@ -115,15 +117,21 @@ public struct RoadProjector: Sendable {
         )
     }
 
-    private static func milestone(from event: PlannedVehicleEvent, now: Date) -> RoadMilestone? {
-        let remaining = event.date.timeIntervalSince(now) / 86400
-        // A passed date stays visible as due for a short grace period, then leaves the road.
-        guard remaining >= -Double(RoadRules.plannedGraceDays) else { return nil }
-        // A planned date is a day stored as its start, so an unfinished day still to come counts as a whole
-        // one: at 10:00, tomorrow is "1 day left", not "almost" (ADR 0032). Passed days count whole days past.
-        let days = Int(remaining > 0 ? remaining.rounded(.up) : remaining.rounded(.towardZero))
+    private static func milestone(
+        from event: PlannedVehicleEvent, now: Date, calendar: Calendar
+    ) -> RoadMilestone? {
+        // A planned date is a day, so days left are calendar days in the owner's calendar: at 10:00,
+        // tomorrow is "1 day left", and a 23- or 25-hour daylight saving day still counts as one (ADR 0032).
+        let days =
+            calendar.dateComponents(
+                [.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: event.date)
+            ).day ?? 0
+        // A passed date stays visible as due for a short grace period, then leaves the road. The boundary
+        // is the same instant `PlannedDatedEvent.isOnRoad` and the command window use.
+        guard event.date >= PlannedEventLimits.earliestDate(now: now) else { return nil }
+        let remaining = Double(days)
         let state: RoadMilestoneState =
-            if remaining <= 0 {
+            if days <= 0 {
                 .due
             } else if remaining <= Double(RoadRules.horizonDays) * MaintenanceRules.approachFraction {
                 .approaching

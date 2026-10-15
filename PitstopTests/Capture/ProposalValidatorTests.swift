@@ -192,6 +192,27 @@ struct ProposalValidatorTests {
         #expect(try validated(proposal, input: capture).conflicts.isEmpty)
     }
 
+    @Test(
+        "REQ-CAPTURE-006: a policy interval beyond the domain maximum keeps the wording",
+        arguments: [
+            (Int?.some(DomainCommandLimits.maximumIntervalKm + 1), Int?.none),
+            (nil, DomainCommandLimits.maximumIntervalMonths + 1),
+        ]
+    )
+    func overLimitPolicyIntervalPreservesRaw(kilometers: Int?, months: Int?) {
+        let capture = captureInput("масло каждые очень много км")
+        let proposal = MemoryProposal(
+            sourceInputID: capture.id,
+            kind: .maintenancePolicyDraft,
+            rawText: capture.payload.rawContent,
+            extractedOperationID: .engineOilService,
+            extractedDistanceIntervalKm: kilometers,
+            extractedTimeIntervalMonths: months
+        )
+        let validation = ProposalValidator().validate(proposal, input: capture, context: captureContext())
+        #expect(validation == .preserveRaw(proposal, reason: .invalidExtractedValue))
+    }
+
     @Test("REQ-CAPTURE-020: clarification asks for exactly one missing field at a time")
     func clarificationIsOneQuestion() {
         let capture = captureInput("хочу менять почаще")

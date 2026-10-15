@@ -116,6 +116,18 @@ struct FoundationModelsInterpreterTests {
     }
 
     @Test(
+        "REQ-CAPTURE-014: the mapper drops a negation typed with a keyboard apostrophe",
+        arguments: ["I haven\u{2019}t changed the oil", "I haven\u{02BC}t changed the oil"]
+    )
+    func mapperDropsTypographicApostropheNegation(text: String) {
+        let draft = ModelDraft(
+            kind: .maintenanceCompletion, operation: .named(.engineOilService), reportsCompletedAction: true
+        )
+        #expect(ModelDraftMapper.isHedged(text))
+        #expect(ModelDraftMapper().proposal(from: draft, input: englishInput(text)) == nil)
+    }
+
+    @Test(
         "REQ-CAPTURE-014: a plan stays a note even when the model reports it as done",
         arguments: ["Going to change the oil at 90000 km", "spark plugs tomorrow morning", "will wash it soon"]
     )

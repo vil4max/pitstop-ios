@@ -12,6 +12,7 @@ public enum DomainCommandError: Error, Hashable, Sendable {
     case invalidVehicleYear
     case policyWithoutInterval
     case nonPositiveInterval
+    case intervalOutOfRange
     case nonPositiveAmount
     case emptyNoteUpdate
     case emptyOperationID
@@ -333,6 +334,11 @@ public enum DomainCommand: Hashable, Sendable {
         guard (policy.distanceIntervalKm ?? 1) > 0, (policy.timeIntervalMonths ?? 1) > 0 else {
             throw .nonPositiveInterval
         }
+        guard
+            DomainCommandLimits.isPlausibleInterval(
+                kilometers: policy.distanceIntervalKm, months: policy.timeIntervalMonths
+            )
+        else { throw .intervalOutOfRange }
     }
 
     private static func check(

@@ -65,6 +65,26 @@ struct DomainCommandTests {
                     )), .nonPositiveInterval
             ),
             (
+                .setMaintenancePolicy(
+                    SetMaintenancePolicyCommand(
+                        vehicleID: DomainFixtures.Vehicles.defaultID,
+                        policy: MaintenancePolicy(
+                            operationID: .engineOilService,
+                            distanceIntervalKm: DomainCommandLimits.maximumIntervalKm + 1
+                        )
+                    )), .intervalOutOfRange
+            ),
+            (
+                .setMaintenancePolicy(
+                    SetMaintenancePolicyCommand(
+                        vehicleID: DomainFixtures.Vehicles.defaultID,
+                        policy: MaintenancePolicy(
+                            operationID: .brakeFluid,
+                            timeIntervalMonths: DomainCommandLimits.maximumIntervalMonths + 1
+                        )
+                    )), .intervalOutOfRange
+            ),
+            (
                 .stopTrackingOperation(
                     StopTrackingOperationCommand(
                         vehicleID: DomainFixtures.Vehicles.defaultID,
