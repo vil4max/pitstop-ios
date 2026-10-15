@@ -311,18 +311,18 @@ struct RootView: View {
     private func destination(for route: CarBoardRoute) -> some View {
         switch route {
         case .tile(.notes):
-            NotesView(viewModel: notes, carName: carBoard.state.car.name)
+            NotesView(viewModel: notes, carName: carBoard.state.car.displayName)
         case .tile(.road):
             RoadView(
                 viewModel: road,
-                carName: carBoard.state.car.name,
+                carName: carBoard.state.car.displayName,
                 carBody: carBoard.state.carBody,
                 carPhoto: carBoard.state.carPhoto
             )
         case .tile(.service):
-            ServiceView(viewModel: service, carName: carBoard.state.car.name)
+            ServiceView(viewModel: service, carName: carBoard.state.car.displayName)
         case .tile(.history):
-            HistoryView(viewModel: history, carName: carBoard.state.car.name)
+            HistoryView(viewModel: history, carName: carBoard.state.car.displayName)
         }
     }
 }

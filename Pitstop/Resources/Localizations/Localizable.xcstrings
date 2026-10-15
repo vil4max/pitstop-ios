@@ -403,6 +403,29 @@
         }
       }
     },
+    "carBoard.provisionalName" : {
+      "comment" : "The placeholder name of a car the owner has not named yet.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My New Car"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Моя новая машина"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Моя нова машина"
+          }
+        }
+      }
+    },
     "carBoard.storage.temporary" : {
       "localizations" : {
         "en" : {

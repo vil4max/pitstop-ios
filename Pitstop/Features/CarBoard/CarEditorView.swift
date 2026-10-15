@@ -16,7 +16,8 @@ struct CarEditorDraft: Equatable {
 
     init(opening: CarEditorOpening) {
         let car = opening.car
-        name = car.isProvisional ? "" : car.name
+        // The placeholder is not a name the owner gave, so the field starts empty for it (same rule as display).
+        name = car.isProvisional || car.name == ProvisionalCarContext.defaultName ? "" : car.name
         odometer = car.odometerKm.map(String.init) ?? ""
         body = opening.body
         self.opening = opening

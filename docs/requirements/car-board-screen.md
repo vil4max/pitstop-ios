@@ -37,6 +37,10 @@ vehicle facts: unknown
 
 This state is editable and explicitly provisional in the domain. UI must not falsely claim the user bought a new car.
 
+The stored placeholder name stays "My New Car"; every screen shows it in the
+user's language (Russian "Моя новая машина", Ukrainian "Моя нова машина").
+A name the owner typed is always shown as typed.
+
 Omit numeric mileage or label it unknown until supplied. A display placeholder
 is not a confirmed reading and must not feed Service or Road calculations.
 
@@ -273,6 +277,9 @@ Source: [First-launch state](#first-launch-state), [charter](product-charter.md#
 Given the first-launch provisional car context
 When Car Board renders
 Then Car Hero shows the display name "My New Car" and no vehicle facts
+
+The display name is localised: Russian and Ukrainian show the catalog's
+translation of "My New Car"; the stored name does not change.
 
 ### REQ-BOARD-003 — Provisional context is marked provisional and editable
 Status: proposed

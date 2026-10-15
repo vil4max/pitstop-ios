@@ -12,7 +12,7 @@ struct CarBoardView: View {
                 notices
                 // VoiceOver reads the heading, the hero's mileage and its one action, then the tiles
                 // (REQ-BOARD-022); the car drawing itself is decorative.
-                ScreenHeader(eyebrow: String(localized: "carBoard.eyebrow"), title: viewModel.state.car.name)
+                ScreenHeader(eyebrow: String(localized: "carBoard.eyebrow"), title: viewModel.state.car.displayName)
                 CarHeroView(
                     car: viewModel.state.car,
                     carBody: viewModel.state.carBody,
