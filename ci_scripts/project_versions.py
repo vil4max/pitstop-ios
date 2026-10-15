@@ -8,7 +8,7 @@ Xcode 27.2 adds a JSON project format, `project.xcproj`, next to the property
 list `project.pbxproj` (Xcode 27.2 release notes, "Project Format"). In JSON a
 build setting is a key in a `build-settings` object, and a value that differs by
 configuration carries a condition suffix: `"MARKETING_VERSION[config=Release]"`.
-The Runtime reads versions for tf-check, tf-promote and the baseline, so both
+tf-check and tf-promote read versions through this script, so both
 formats must give the same answer; the format is detected from the content, not
 the file name, because callers pass `git show` output on stdin.
 """

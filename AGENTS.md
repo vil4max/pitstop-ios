@@ -29,22 +29,32 @@ mode, SwiftUI, SwiftData, App Intents, WidgetKit, MVVM. Product contracts are in
 - `PitstopWidgets/` — widget and control extension; `Shared/` — code compiled
   into both targets.
 - `PitstopTests/` — Swift Testing and XCTest suites, grouped like the app.
-- `Config/` — build configuration; `ci_scripts/` — Xcode Cloud scripts;
-  `Tooling/` — installed build and release tooling; `docs/` — specifications.
+- `Config/` — build configuration; `ci_scripts/` — Xcode Cloud and TestFlight
+  tag scripts; `scripts/` — app scripts (release preflight, string catalogs);
+  `docs/` — specifications.
 
 ## Build and test
 
-- Project and scheme: `Pitstop.xcodeproj` / `Pitstop`.
-- Simulator and gate settings: `Tooling/runtime.yml`.
-- Environment check: `just doctor --json`.
-- Gate: `just verify` (build, format, lint, tests).
-- Release preflight after committing verified contents: `just release --check`.
-- CI: a push to `main` runs the tests on GitHub-hosted runners and builds
-  nothing. TestFlight builds are tag-gated
+The gate is `ios-verify` of the ios-dev Claude Code plugin; enable the plugin
+at local scope in each checkout. `.worktreeinclude` copies the local settings
+file that records this into every worktree Claude Code creates.
+
+- Configuration: [`ios-verify.conf`](ios-verify.conf) (project
+  `Pitstop.xcodeproj`, scheme `Pitstop`, simulator iPhone 17 on iOS 27.0,
+  iPhone only, App Group required). Each worktree gets its own simulator.
+- Lint and format rules: `.swiftlint.yml` and `.swift-format` in the root;
+  `ios-verify` runs both with `--strict`.
+- Gate: `ios-verify` (project checks, lint of the changed Swift files, build,
+  unit tests); `ios-verify --all` lints every file. Feature work follows
+  `/ios-dev:specify`, `/ios-dev:plan`, `/ios-dev:implement`.
+- Release preflight after committing: `scripts/release-check.sh` (clean tree,
+  then `ios-verify --all`); before a `tf-` tag, `ci_scripts/tf-check.sh`.
+- CI: a push to `main` runs lint and tests on GitHub-hosted runners with
+  `swift-format`, `swiftlint` and `xcodebuild` directly, and builds nothing.
+  TestFlight builds are tag-gated
   ([ADR 0013](docs/decisions/0013-shared-ci-and-tag-gated-testflight.md),
-  `Tooling/docs/testflight.md`).
-- `Tooling/backend/build/` contains tracked shell executors, not build output.
-  Keep `Tooling/runtime.local.yml` untracked.
+  [`docs/operations/ci.md`](docs/operations/ci.md),
+  [`docs/operations/testflight.md`](docs/operations/testflight.md)).
 - Documentation-only and configuration-only changes need no app build.
 
 ## Conventions

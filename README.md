@@ -34,7 +34,7 @@ iOS 27+ · Xcode 27+ · Swift 6 language mode · SwiftUI · SwiftData · Vision 
 - **Requirements first:** every behaviour is a numbered, testable requirement (Given/When/Then, EARS): [`docs/requirements/`](docs/requirements/).
 - **Tests named after requirements:** tests in `PitstopTests/` carry the `REQ-<AREA>-NNN` ID of the requirement they verify. For example `REQ-BOARD-032`, "First launch never asks for a photo", is covered in [`PitstopTests/CarBoard/CarEditorTests.swift`](PitstopTests/CarBoard/CarEditorTests.swift).
 - **Recorded decisions:** [decision records](docs/decisions/) state each product and architecture decision with its rationale.
-- **One verification gate:** `just verify` (build, lint, tests); tests also run on each push to `main`.
+- **One verification gate:** `ios-verify` (lint, build, tests); lint and tests also run on each push to `main`.
 
 ## Project state
 
@@ -52,12 +52,17 @@ iOS 27+ · Xcode 27+ · Swift 6 language mode · SwiftUI · SwiftData · Vision 
 ## Development
 
 ```sh
-just doctor --json
-just verify
+ios-verify                  # project checks, lint, build, unit tests
+scripts/release-check.sh    # release preflight on the committed contents
 ```
 
-`just verify` is the local gate. The tests workflow runs on GitHub-hosted
-runners, and TestFlight builds are tag-gated
-([ADR 0013](docs/decisions/0013-shared-ci-and-tag-gated-testflight.md)).
+`ios-verify`, the gate of the ios-dev Claude Code plugin, is the local gate; it
+reads [`ios-verify.conf`](ios-verify.conf) and the root `.swiftlint.yml` and
+`.swift-format`. It needs Xcode 27 and SwiftLint (`brew install swiftlint`).
+The tests workflow calls Apple's tools and SwiftLint directly on GitHub-hosted
+runners ([`docs/operations/ci.md`](docs/operations/ci.md)), and TestFlight
+builds are tag-gated
+([ADR 0013](docs/decisions/0013-shared-ci-and-tag-gated-testflight.md),
+[`docs/operations/testflight.md`](docs/operations/testflight.md)).
 Documentation-only edits do not require an app build.
 Project conventions are in [`AGENTS.md`](AGENTS.md).

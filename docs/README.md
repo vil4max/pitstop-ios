@@ -100,6 +100,8 @@ highest affected layer; evidence from operations flows back up.
 
 - `operations/analytics.md`
 - `operations/release-and-beta.md`
+- `operations/ci.md` — GitHub Actions tests with Apple's tools and SwiftLint, repository variables and rulesets
+- `operations/testflight.md` — tag-gated TestFlight: `ci_scripts/tf-check.sh`, `tf-promote.sh`, versions, build numbers, Xcode Cloud workflow
 - `decisions/0002-analytics-service.md`
 - `decisions/0021-analytics-boundary.md` — provider-neutral analytics boundary, closed event values, consent off by default, first wired events
 - `decisions/0022-posthog-http-adapter.md` — PostHog adapter over HTTP without the SDK, in-memory batching and retry, anonymous consent-scoped ID, Settings opt-in, key supplied outside the repository

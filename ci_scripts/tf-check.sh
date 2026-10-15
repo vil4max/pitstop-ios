@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Checks a commit against the tf- tag rules and prints the tag to push.
 #
-# Usage: just tf-check [<commit-ish>]   (default: HEAD)
+# Usage: ci_scripts/tf-check.sh [<commit-ish>]   (default: HEAD)
 #
 # A rejected tag has to be deleted locally and remotely before retrying, and an
 # unwanted build spends one of the day's App Store Connect uploads (the cap behind
 # ITMS-90382). So the workflow's own checks run here first, and the exact tag with
 # the next free BUILD number is printed only when nothing blocks it. An agent may
 # push that tag after "Ready"; a `v` tag and App Review submission stay with the
-# owner (docs/testflight.md).
+# owner (docs/operations/testflight.md).
 #
 # Read-only: it fetches but never tags or pushes. gh is optional — without it the
 # tests state is reported as unknown, and unknown is not ready.

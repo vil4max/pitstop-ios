@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Moves the testflight branch to the verified commit a tf- tag names, or checks a
-# v marker tag. Runs in GitHub Actions (templates/github/testflight.yml).
+# v marker tag. Runs in GitHub Actions (.github/workflows/testflight.yml).
 #
-# Usage: Tooling/scripts/tf-promote.sh <tf-MAJOR.MINOR.PATCH-BUILD | vMAJOR.MINOR.PATCH>
+# Usage: ci_scripts/tf-promote.sh <tf-MAJOR.MINOR.PATCH-BUILD | vMAJOR.MINOR.PATCH>
 #
 # Xcode Cloud builds internal TestFlight builds from the testflight branch. Every
 # build costs Xcode Cloud compute and an App Store Connect upload slot, so a

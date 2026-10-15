@@ -759,10 +759,10 @@ background.
 ```mermaid
 flowchart LR
     dev["Local change"]
-    verify["just verify: baseline, format, lint, build for testing, tests"]
+    verify["ios-verify: project checks, swift-format and swiftlint, build, unit tests"]
     push["git push to main"]
-    tests["GitHub Actions tests.yml: just ci on hosted xcode-27 runner"]
-    check["just tf-check: read-only, prints Ready and the tag commands"]
+    tests["GitHub Actions tests.yml: swift-format, swiftlint, xcodebuild test on hosted xcode-27 runner"]
+    check["ci_scripts/tf-check.sh: read-only, prints Ready and the tag commands"]
     tag["Annotated tag tf-MAJOR.MINOR.PATCH-BUILD on a commit of main"]
     promote["testflight.yml: tf-promote.sh checks main, MARKETING_VERSION, own green tests run"]
     branch["fast-forward testflight branch"]
@@ -779,27 +779,28 @@ flowchart LR
     rules -.-> branch
 ```
 
-`just verify` is the local implementation gate; the hosted run on a push
-to `main` repeats the tests and builds nothing for distribution
+`ios-verify` (ios-dev plugin, `ios-verify.conf`) is the local implementation
+gate; the hosted run on a push to `main` repeats lint and tests and builds
+nothing for distribution
 ([`.github/workflows/tests.yml`](../../.github/workflows/tests.yml),
 [ADR 0013](../decisions/0013-shared-ci-and-tag-gated-testflight.md)). A build is requested only
-by a `tf-` tag: `testflight.yml` runs `Tooling/scripts/tf-promote.sh`, which
+by a `tf-` tag: `testflight.yml` runs `ci_scripts/tf-promote.sh`, which
 accepts the tag only when the commit is on `main`, every `MARKETING_VERSION`
 equals the tag's version, and that commit has its own successful tests run;
 it then fast-forwards `testflight`, which is the only branch the Xcode Cloud
 workflow builds ([`.github/workflows/testflight.yml`](../../.github/workflows/testflight.yml),
-[`Tooling/docs/testflight.md`](../../Tooling/docs/testflight.md)).
+[`docs/operations/testflight.md`](../operations/testflight.md)).
 `ci_scripts/ci_post_clone.sh` sets the build number from Xcode Cloud. A `tf-`
-tag is pushed only after `just tf-check` prints `Ready`; `v` tags and App
+tag is pushed only after `ci_scripts/tf-check.sh` prints `Ready`; `v` tags and App
 Review are the maintainer's. The rulesets come
-from [`Tooling/templates/github/rulesets/`](../../Tooling/templates/github/rulesets/).
+from [`.github/rulesets/`](../../.github/rulesets/).
 
 ---
 
 ## 10. Feature matrix
 
 Verification status uses these terms. **Unit tests**: covered by the
-`PitstopTests` suites named in the row, which `just verify` and the hosted tests
+`PitstopTests` suites named in the row, which `ios-verify` and the hosted tests
 run. **Screen not verified**: not checked on screen.
 **Device check pending**: a check on a physical device that has not been done yet. No row claims a manual check this page did not
 record.
@@ -825,7 +826,7 @@ record.
 | Analytics | Off by default; Settings opt-in; closed event values without user text; PostHog adapter active only with a key and host in the build (none shipped) | 0002, 0021, 0022 | `Infrastructure/Analytics/`, `Features/Pit/CaptureAnalytics.swift`, `Features/Notes/NotesAnalytics.swift`, `Features/Settings/SettingsView.swift` | `AnalyticsBoundaryTests`, `CaptureAnalyticsTests`, `FeatureAnalyticsTests`, `PostHogAnalyticsClientTests` | Unit tests; no PostHog project exists, so delivery is untested end to end |
 | Logging | OSLog categories; capture stages logged without content | 0003 | `Infrastructure/Logging/` | `CaptureStageTests` | Unit tests |
 | App icon | Pit's round head at rest as a Liquid Glass icon with six appearances | 0029, 0037 | `Pitstop/AppIcon.icon` | none (asset) | Not covered by tests |
-| Delivery | Tests on every push to `main`; TestFlight only from a `tf-` tag through Xcode Cloud | 0013 | `.github/workflows/`, `Tooling/scripts/`, `ci_scripts/` | Runtime contract tests in the toolchain, not in this repository | Releases `tf-1.0.0-1`, `tf-1.1.0-1` and `tf-1.1.0-2` exist on the remote |
+| Delivery | Tests on every push to `main`; TestFlight only from a `tf-` tag through Xcode Cloud | 0013 | `.github/workflows/`, `ci_scripts/` | No automated tests in this repository | Releases `tf-1.0.0-1`, `tf-1.1.0-1` and `tf-1.1.0-2` exist on the remote |
 
 ## Mismatches found while writing this page
 

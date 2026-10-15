@@ -173,19 +173,21 @@ TODO without issue reference — optional policy
 Do not run full simulator tests in pre-commit.
 
 Pre-push builds nothing and runs no tests. Pitstop has no repository
-pre-push hook. Builds and tests run in `just verify` and in the CI `Tests` workflow (`Tooling/docs/ci.md`).
+pre-push hook. Builds and tests run in `ios-verify` and in the CI `Tests` workflow
+([`../operations/ci.md`](../operations/ci.md)).
 
-The local Runtime gate is authoritative for implementation verification.
+The local `ios-verify` gate is authoritative for implementation verification.
 Hooks provide early feedback; they are not security boundaries. Avoid rerunning
 a completed gate on unchanged contents solely for another workflow stage.
 
 ## Local verification
 
-The local Runtime gate is the implementation gate. GitHub Actions runs the
-shared Runtime pipeline on GitHub-hosted runners, free for a public repository
-(ADR 0013); a push to `main` only runs tests
+`ios-verify` of the ios-dev plugin, configured by `ios-verify.conf`, is the
+implementation gate. GitHub Actions runs lint and tests with Apple's tools and
+SwiftLint directly on GitHub-hosted runners, free for a public repository; a
+push to `main` only runs them
 ([ADR 0013](../decisions/0013-shared-ci-and-tag-gated-testflight.md)). A green
-hosted run is additional evidence, not a substitute. Use `just verify` for app implementation and record the command, result, and
+hosted run is additional evidence, not a substitute. Use `ios-verify` for app implementation and record the command, result, and
 reviewed revision in the PR. Use proportional diff/link/config checks for
 non-behavioral documentation changes, without an app build.
 
@@ -196,8 +198,8 @@ imply independent review or product acceptance.
 
 Do not schedule Periphery, dependency reports, or performance lanes without a
 specific investigation or measured regression risk. Run them on demand when
-relevant. TestFlight delivery is tag-gated through the shared Runtime pipeline
-(`Tooling/docs/testflight.md`), the same model as the other apps on the Runtime.
+relevant. TestFlight delivery is tag-gated
+([`../operations/testflight.md`](../operations/testflight.md)).
 
 ## Verification metrics
 
@@ -226,9 +228,8 @@ fixture; - sample method.
 
 ## GitHub quality enforcement
 
-Three active rulesets, applied from the Runtime templates in
-`Tooling/templates/github/rulesets/` (`Tooling/docs/ci.md`, "Repository
-settings"):
+Three active rulesets, applied from `.github/rulesets/`
+([`../operations/ci.md`](../operations/ci.md), "Repository settings"):
 
 - `main` and `testflight` cannot be deleted or force-pushed;
 - `v*` tags cannot be deleted or moved;

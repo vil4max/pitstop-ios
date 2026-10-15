@@ -1,7 +1,6 @@
 name: TestFlight
 
-# Installed by ios-agent-toolchain (docs/testflight.md). Copy to
-# .github/workflows/testflight.yml.
+# The tag-gated TestFlight model (docs/operations/testflight.md).
 #
 # A tf-MAJOR.MINOR.PATCH-BUILD tag moves the testflight branch, which Xcode Cloud
 # archives for internal TestFlight. Pushing to main requests nothing: every build
@@ -41,4 +40,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           # Name of the workflow file that runs the tests on pushes to main.
           TF_TESTS_WORKFLOW: tests.yml
-        run: Tooling/scripts/tf-promote.sh "$TAG"
+        run: ci_scripts/tf-promote.sh "$TAG"

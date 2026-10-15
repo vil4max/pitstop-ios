@@ -9,8 +9,8 @@ JSON format of Xcode 27.2 (`Pitstop.xcodeproj/project.xcproj` replaces
 `project.pbxproj`), shared by every app on the Runtime. Target membership still
 comes from the file system (`"kind": "folder"` entries). Open the project in
 Xcode 27.2 or later: an older Xcode may write a `project.pbxproj` back next to
-it. The Runtime reads versions and sets the Xcode Cloud build number in either
-format (`Tooling/docs/testflight.md`, "Project format").
+it. The TestFlight scripts in `ci_scripts/` read versions and set the Xcode Cloud
+build number in either format (`docs/operations/testflight.md`, "Project format").
 
 **Experiment (recorded 2026-09-24):** opening the JSON
 project in the Xcode app needs the Xcode 27.2 beta, while builds, tests and

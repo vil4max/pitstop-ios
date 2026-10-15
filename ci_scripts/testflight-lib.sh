@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# Shared checks for the tag-gated TestFlight model (docs/testflight.md).
+# Shared checks for the tag-gated TestFlight model (docs/operations/testflight.md).
 #
-# Source this file; it only defines functions. It does not source lib.sh: the
-# promotion runs on a GitHub-hosted Linux runner where the Runtime's macOS
-# tooling is absent.
+# Source this file; it only defines functions. It sources nothing else: the
+# promotion runs on a GitHub-hosted Linux runner where macOS tooling is absent.
 #
 # A `tf-MAJOR.MINOR.PATCH-BUILD` tag requests one build: the tagged commit must be
 # annotated, on main, carry the marketing version the tag names, and have its own
@@ -39,7 +38,7 @@ pbxproj_at() {
   fi
   found="$(git ls-tree -r --name-only "$sha" \
     | grep -E '(^|/)[^/]+\.xcodeproj/project\.(pbxproj|xcproj)$' \
-    | grep -vE '(^|/)(Pods|Carthage|\.build|DerivedData|Tooling)/' || true)"
+    | grep -vE '(^|/)(Pods|Carthage|\.build|DerivedData)/' || true)"
   [[ -n "$found" ]] || fail "no .xcodeproj/project.pbxproj or project.xcproj tracked at ${sha:0:7}; set TF_PBXPROJ"
   [[ "$(wc -l <<<"$found")" -eq 1 ]] \
     || fail "several projects at ${sha:0:7}: $(tr '\n' ' ' <<<"$found")— set TF_PBXPROJ"

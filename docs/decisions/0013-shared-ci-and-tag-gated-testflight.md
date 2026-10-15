@@ -1,10 +1,11 @@
 # Shared CI and Tag-Gated TestFlight
 
-**Status:** Accepted; tests run on GitHub-hosted runners (public repository)\
+**Status:** Accepted; tests run on GitHub-hosted runners (public repository);
+amended 2026-10-15 (the app leaves the shared Runtime, see "Amendment")\
 **Supersedes:** the "GitHub Actions is disabled" policy in
 [`../engineering/quality-and-ci.md`](../engineering/quality-and-ci.md)\
-**Contracts:** [`../../Tooling/docs/ci.md`](../../Tooling/docs/ci.md),
-[`../../Tooling/docs/testflight.md`](../../Tooling/docs/testflight.md)
+**Contracts:** [`../operations/ci.md`](../operations/ci.md),
+[`../operations/testflight.md`](../operations/testflight.md)
 
 ## Context
 
@@ -41,9 +42,32 @@ uploads.
 
 ### Tag authority
 
-- `tf-` tag: the maintainer, after `just tf-check` prints `Ready` for a commit
-  already on `origin/main`.
+- `tf-` tag: the maintainer, after `ci_scripts/tf-check.sh` (formerly
+  `just tf-check`) prints `Ready` for a commit already on `origin/main`.
 - `v` tag and the App Review submission: the maintainer only.
+
+### Amendment (owner decision, 2026-10-15)
+
+The app moves from the installed Runtime (`Tooling/` and its `justfile`) to the
+gate of the ios-dev plugin, as Drive Check did. `Tooling/` is removed. What
+changes in the decision above:
+
+- The local implementation gate is `ios-verify`, configured by `ios-verify.conf`
+  in the repository root; the SwiftLint and swift-format rules moved unchanged
+  to the root `.swiftlint.yml` and `.swift-format`. `ios-verify` and CI run
+  SwiftLint with `--strict`, so a warning fails.
+- `tests.yml` is the app's own workflow, not a Runtime copy: it calls
+  `swift-format`, `swiftlint` and `xcodebuild` directly. The triggers, the
+  per-commit concurrency on `main` and the hosted `xcode-27` runner stay.
+- The TestFlight scripts (`tf-check.sh`, `tf-promote.sh`, `testflight-lib.sh`,
+  `project_versions.py`) live in `ci_scripts/` next to `ci_post_clone.sh`,
+  with the same behavior; the rulesets live in `.github/rulesets/`.
+- `simulator.os: "27.0"` becomes `os=27.0` in `ios-verify.conf`; CI names the
+  same device and OS in `IOS_DESTINATION`.
+- The release preflight `just release --check` becomes
+  `scripts/release-check.sh`: a clean tree, then `ios-verify --all` on it.
+
+The tag-gated model, the tag authority and the Xcode Cloud setup are unchanged.
 
 ## Rejected alternatives
 
@@ -71,7 +95,8 @@ uploads.
 - **TestFlight group "Internal"**: internal testers from the team, automatic
   distribution on.
 - **GitHub**: the Xcode Cloud GitHub app has access to `vil4max/pitstop-ios`;
-  rulesets from `Tooling/templates/github/rulesets/` are active.
+  rulesets from `.github/rulesets/` (formerly
+  `Tooling/templates/github/rulesets/`) are active.
 - **Moving a repository**: a GitHub App grant and the Xcode Cloud primary
   repository are bound to the repository's ID, not its name. After a move the
   product keeps pointing at the old repository and a `testflight` move starts
