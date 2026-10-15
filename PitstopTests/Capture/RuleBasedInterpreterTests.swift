@@ -75,6 +75,29 @@ struct RuleBasedInterpreterTests {
         #expect(result.kind == .odometerReading && result.extractedOdometerKm == 84200)
     }
 
+    @Test(
+        "ADR-0011: the Ukrainian mileage word reads a mileage exactly like the Russian one",
+        arguments: [
+            ("пробег 84 200", "пробіг 84 200"),
+            ("пробег 84200", "пробіг 84200"),
+            ("на пробеге 85000", "на пробігу 85000"),
+            ("пробег 99999999", "пробіг 99999999"),
+            ("потратил на 1500, пробег 84200", "потратил на 1500, пробіг 84200"),
+        ]
+    )
+    func ukrainianMileageWordMatchesRussian(russian: String, ukrainian: String) async throws {
+        let expected = try await proposal(russian)
+        let result = try await proposal(ukrainian)
+        #expect(result?.kind == expected?.kind)
+        #expect(result?.extractedOdometerKm == expected?.extractedOdometerKm)
+    }
+
+    @Test("ADR-0011: a Ukrainian mileage report becomes an odometer reading")
+    func ukrainianMileageIsProposed() async throws {
+        let result = try #require(await proposal("пробіг 84 200"))
+        #expect(result.kind == .odometerReading && result.extractedOdometerKm == 84200)
+    }
+
     @Test("ADR-0011: a car wash becomes a vehicle event with its price when one is given")
     func carWashIsProposed() async throws {
         let result = try #require(await proposal("помыл машину за 1200"))

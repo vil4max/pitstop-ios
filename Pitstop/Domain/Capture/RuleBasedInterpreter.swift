@@ -317,7 +317,7 @@ private struct Reading {
             let previous = previousWord(before: index)
             let markerPrecedes =
                 previous.map { word in
-                    word.hasPrefix("пробег") || word.hasPrefix("одометр") || Words.mileageWords.contains(word)
+                    Words.isMileageWord(word)
                         || (allowingLooseMarkers && Words.looseMileageMarkers.contains(word))
                 } ?? false
             guard unitFollows || markerPrecedes else { continue }
