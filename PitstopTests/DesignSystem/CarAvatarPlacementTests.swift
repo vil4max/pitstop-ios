@@ -30,11 +30,13 @@ struct CarAvatarPlacementTests {
 
     /// Swift sources under a folder, as paths relative to the repository root.
     private static func swiftFiles(under folder: String) throws -> [String] {
-        let root = repositoryRoot.appending(path: folder)
-        let enumerator = try #require(FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil))
-        return enumerator.compactMap { $0 as? URL }
-            .filter { $0.pathExtension == "swift" }
-            .map { String($0.path(percentEncoded: false).dropFirst(repositoryRoot.path(percentEncoded: false).count)) }
+        // Relative paths from the enumerator keep the result independent of the checkout location
+        // and of symlinks in it (for example /tmp resolving to /private/tmp).
+        let root = repositoryRoot.appending(path: folder).path(percentEncoded: false)
+        let enumerator = try #require(FileManager.default.enumerator(atPath: root))
+        return enumerator.compactMap { $0 as? String }
+            .filter { $0.hasSuffix(".swift") }
+            .map { "\(folder)/\($0)" }
             .sorted()
     }
 

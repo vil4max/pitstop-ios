@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 import SwiftData
 
@@ -35,6 +36,13 @@ enum PersistenceContainer {
     /// a migration plan: a store of another version fails to open instead of being migrated by the extension,
     /// so only the app ever changes the file. The caller checks that the file exists first.
     static func makeReadOnly(storeURL: URL) throws -> ModelContainer {
+        // Core Data still attempts an in-place migration of an older store before it fails on the read-only
+        // file, and logs that as a database error; comparing the store's metadata first refuses it quietly.
+        let metadata = try NSPersistentStoreCoordinator.metadataForPersistentStore(type: .sqlite, at: storeURL)
+        let model = NSManagedObjectModel.makeManagedObjectModel(for: PitstopSchemaV5.models)
+        guard let model, model.isConfiguration(withName: nil, compatibleWithStoreMetadata: metadata) else {
+            throw CocoaError(.persistentStoreIncompatibleVersionHash)
+        }
         let schema = Schema(versionedSchema: PitstopSchemaV5.self)
         let configuration = ModelConfiguration(schema: schema, url: storeURL, allowsSave: false)
         return try ModelContainer(for: schema, configurations: configuration)
