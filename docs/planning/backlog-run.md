@@ -29,6 +29,13 @@ releases, `v` and `tf-` tags.
 | 8 | Documentation backlog: roadmap and status refresh | SYS-007 status | pending |
 | 9 | Move to the iOS plugin gate (owner decision 2026-10-15): `ios-verify.conf`, drop `Tooling/` and the justfile import, CI on Apple's tools, gate sections of `AGENTS.md`/`README.md`, `.worktreeinclude` | — | waits for the plugin rename |
 
+## Resume point
+
+Paused 2026-10-15 for a machine restart, all work committed and pushed
+through group 6. Next: group 7 from the start (nothing of it is written
+yet), then group 8; group 9 waits for the plugin rename. Every group gets
+an independent review before its commit.
+
 ## Waiting on the owner
 
 - F3: ru/uk wording of the provisional car name.
