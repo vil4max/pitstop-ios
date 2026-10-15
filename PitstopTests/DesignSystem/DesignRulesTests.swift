@@ -1,8 +1,8 @@
 import Foundation
 import Testing
 
-/// Source rules that `just verify` enforces through this suite (REQ-DESIGN-002, REQ-DESIGN-004). A test in
-/// the app's own target keeps the check out of `Tooling/`, which belongs to the shared Runtime.
+/// Source rules that the gate enforces through this suite (REQ-DESIGN-002, REQ-DESIGN-004). A test in
+/// the app's own target runs wherever the tests run: `ios-verify` and the hosted CI (ADR 0038).
 @Suite("Design rules in source")
 struct DesignRulesTests {
     /// Named system colours, colour initialisers and literals, including implicit members at the start of a line

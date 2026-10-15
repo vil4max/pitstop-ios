@@ -158,7 +158,7 @@ Two classes of documents:
 ([`../engineering/product-review-process.md`](../engineering/product-review-process.md)).
 The ADR index and commit history keep the record of delivered work.
 
-**Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. Implementation PRs must pass the local gate (`just verify`) and review. Documentation-only changes use proportional checks; CI runs on GitHub-hosted runners.
+**Branch naming:** `{TASK-ID}/{slug}` e.g. `DOM-001/domain-inventory`. Implementation PRs must pass the local gate (`ios-verify`) and review. Documentation-only changes use proportional checks; CI runs on GitHub-hosted runners.
 
 **Branch protection:** active rulesets block deleting or force-pushing `main`
 and `testflight` and moving release tags; no PR rule or required status check

@@ -155,13 +155,13 @@ A blue car must not make `.statusDue` blue.
 
 -   `#Preview` per component through `PreviewMatrix`: light, dark, default
     and accessibility-extra-large text;
--   `PitstopTests/DesignSystem/DesignRulesTests.swift` fails `just verify`
+-   `PitstopTests/DesignSystem/DesignRulesTests.swift` fails `ios-verify`
     on glass outside `Pitstop/DesignSystem/` and on colour literals in
     `Pitstop/Features/`, in `Shared/` outside `Shared/DesignSystem/` (the
     one shared folder that defines roles, compiled into the app and the
     widget extension), and in every widget file under `PitstopWidgets/`
-    (REQ-DESIGN-002, REQ-DESIGN-004); a test, because `Tooling/`
-    belongs to the shared Runtime (ADR 0038);
+    (REQ-DESIGN-002, REQ-DESIGN-004); a test, so the check runs wherever
+    the tests run (ADR 0038);
 -   colour-role tests for the stage tint and `contentOnAccent` contrast;
 -   accessibility labels where component owns semantics;
 -   snapshot testing only if a mature snapshot dependency is selected

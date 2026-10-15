@@ -2,8 +2,8 @@
 
 **Status:** in progress  
 **Baseline:** `955b630` is frozen: never rewrite history before or at it.  
-**Rule:** each group ends with `just verify` green and one commit; push after
-the private-data scan.
+**Rule:** each group ends with the gate green (`just verify`, from group 9
+`ios-verify`) and one commit; push after the private-data scan.
 
 ## Scope
 
@@ -27,13 +27,25 @@ releases, `v` and `tf-` tags.
 | 6 | Small debt: dead code, comments, catalog keys, missing tests | F2, F6, F8, F10, F16, F19, F23, F28, F29, F30, F37, F40, F41, F43, F44, F55, F60, F61, F66, F74, F77, F79, F80, F81, F85 | done |
 | 7 | Duplication | F7, F31, F34, F35, F36, F45, F49, F50, F51, F57, F64, F71 (tests), F72, F73, F78, F86 | done; F57 kept: the second load is not provably redundant; F64's editor targets merged in group 10 |
 | 8 | Documentation backlog: roadmap and status refresh | SYS-007 status, schema V5, stale AI-roadmap snapshot | done |
-| 9 | Move to the iOS plugin gate (owner decision 2026-10-15): `ios-verify.conf`, drop `Tooling/` and the justfile import, CI on Apple's tools, gate sections of `AGENTS.md`/`README.md`, `.worktreeinclude` | — | waits for the plugin rename |
+| 9 | Move to the iOS plugin gate (owner decision 2026-10-15): `ios-verify.conf`, drop `Tooling/` and the justfile import, CI on Apple's tools, gate sections of `AGENTS.md`/`README.md`, `.worktreeinclude` | — | done; the release preflight is `scripts/release-check.sh`, the TestFlight scripts moved to `ci_scripts/` |
 | 10 | Owner-delegated decisions (2026-10-15) | F3, F2 (Ukrainian mileage marker only), F71, F64 editor targets | done |
 
 ## Resume point
 
-Groups 1 to 8 and 10 are done. Group 9 waits for the plugin rename. Every
-group gets an independent review before its commit.
+Groups 1 to 10 are done; the gate is `ios-verify` (group 9). Every group gets
+an independent review before its commit.
+
+Low review findings of group 9 kept as backlog:
+
+- CI installs SwiftLint unpinned and lints with `--strict`, so a new
+  SwiftLint warning can turn `main` red without a code change; pin it as
+  regional-check does (`.swiftlint-version` with a checksum).
+- The removed Runtime checked `MARKETING_VERSION` on every push; now only
+  the TestFlight scripts check it, at tag time. A push-time step running
+  `ci_scripts/project_versions.py` would restore the early signal.
+- REQ-DESIGN-002/004 (`product-design.md`, fingerprinted in
+  `.spec-lock.json`) and `app-icon.md` still say `just verify`; rewording
+  approved requirement text is the owner's.
 
 ## Waiting on the owner
 

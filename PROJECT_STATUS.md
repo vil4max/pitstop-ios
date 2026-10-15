@@ -58,7 +58,7 @@ Source of truth for what exists on `main`:
   evidence validates the core (INV-PROD-001).
 - Product features start with Product Review
   ([`docs/engineering/product-review-process.md`](docs/engineering/product-review-process.md)).
-- Local `just verify` is the implementation gate; documentation-only changes
+- Local `ios-verify` (ios-dev plugin) is the implementation gate; documentation-only changes
   use proportional checks.
 
 ---

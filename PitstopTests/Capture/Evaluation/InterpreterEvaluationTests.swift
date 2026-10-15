@@ -8,7 +8,7 @@ extension Tag {
     @Tag static var aiEvaluation: Self
 }
 
-/// `TEST_RUNNER_PITSTOP_AI_EVAL=1 xcodebuild test ...` opts in. `just verify` never sets it, so the
+/// `TEST_RUNNER_PITSTOP_AI_EVAL=1 xcodebuild test ...` opts in. `ios-verify` never sets it, so the
 /// gate stays deterministic and never needs the model.
 private let realModelLaneRequested = ProcessInfo.processInfo.environment["PITSTOP_AI_EVAL"] == "1"
 
