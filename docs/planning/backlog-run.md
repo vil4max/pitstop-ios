@@ -1,6 +1,6 @@
 # Backlog run (started 2026-10-15)
 
-**Status:** in progress  
+**Status:** done 2026-10-15; only the owner's items below remain  
 **Baseline:** `955b630` is frozen: never rewrite history before or at it.  
 **Rule:** each group ends with the gate green (`just verify`, from group 9
 `ios-verify`) and one commit; push after the private-data scan.
