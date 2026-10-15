@@ -158,6 +158,9 @@ final class ServiceViewModel {
     /// another one opened, must not write that sheet's snapshot or message, so it compares this with the sheet it
     /// started in (REQ-MAINT-050).
     private var markDoneSheet: UUID?
+    /// Sheets whose confirmation is running. A second tap before the sheet's lock renders reaches `confirmDone` too,
+    /// and both would pass the recheck before either writes (REQ-MAINT-041). Another sheet's save may still run.
+    @ObservationIgnored private var confirmingSheets: Set<UUID?> = []
 
     init(store: any CarMemoryStore, now: @escaping @Sendable () -> Date = { Date() }) {
         self.store = store
@@ -263,15 +266,17 @@ final class ServiceViewModel {
         odometerText: String,
         replacingPits: Bool = false
     ) async -> Bool {
+        // Everything after the first await checks that this sheet is still the open one: Cancel and a swipe close it
+        // while it saves, and another Mark as done may open before the save returns (REQ-MAINT-050).
+        let sheet = markDoneSheet
+        guard confirmingSheets.insert(sheet).inserted else { return false }
+        defer { confirmingSheets.remove(sheet) }
         let odometer = InputParsing.kilometers(from: odometerText)
         if case .invalid = odometer {
             return fail(.invalidOdometer)
         }
         guard DomainCommandLimits.isNotFuture(date, now: now()) else { return fail(.futureDate) }
         let odometerKm = odometer.intValue
-        // Everything after the first await checks that this sheet is still the open one: Cancel and a swipe close it
-        // while it saves, and another Mark as done may open before the save returns (REQ-MAINT-050).
-        let sheet = markDoneSheet
         let prompted = replacingPits ? state.markDoneConflict.map { Set($0.pitEntries.map(\.id)) } : nil
         // Pit can record this work while the sheet is open (REQ-PIT-026), so what is stored is checked again now. Only
         // a completion recorded since the sheet opened counts: the owner's own earlier ones, even from the same day,

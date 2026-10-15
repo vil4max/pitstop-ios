@@ -255,6 +255,21 @@ struct MarkDoneSheetClosedTests {
         #expect(service.state.listFailure == .pitAlreadyRecorded)
     }
 
+    @Test("REQ-MAINT-041: a second confirmation from the same sheet while the first saves records nothing")
+    func concurrentConfirmationsRecordOnce() async throws {
+        let store = HeldStore()
+        let service = await openedService(store)
+        await openMarkDone(service, .engineOilService)
+        let first = await confirmOilAndHold(service, store, at: .write, odometerText: "")
+
+        // A second tap reaches the view model before the sheet's lock renders.
+        #expect(await !service.confirmDone(.engineOilService, on: now, odometerText: ""))
+
+        await store.release()
+        #expect(await first.value)
+        #expect(await store.base.completions.count { $0.operationID == .engineOilService } == 1)
+    }
+
     @Test("REQ-MAINT-050: Service tells the view model when a Mark as done sheet closes, however it closes")
     func serviceReportsTheSheetClosing() throws {
         let code = try PitInSheetTests.source("Pitstop/Features/Service/ServiceView.swift").split(separator: "\n")

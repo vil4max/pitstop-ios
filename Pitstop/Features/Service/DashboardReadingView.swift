@@ -22,7 +22,8 @@ struct DashboardReadingView: View {
         SaveSheetScaffold(
             title: "service.report.sheet.title",
             saveIdentifier: "service.report.save",
-            canSave: entry != nil
+            canSave: entry != nil,
+            locksWhileSaving: true
         ) {
             Form {
                 Section {

@@ -6,6 +6,9 @@ struct ServiceView: View {
 
     @State private var sheet: ServiceSheet?
     @State private var undoCandidate: MaintenanceOperationState?
+    /// The alerts keep their titles while they animate out, after the view model has cleared the failure.
+    @State private var shownFailure: ServiceFailure?
+    @State private var shownListFailure: ServiceFailure?
 
     var body: some View {
         FeatureScaffold(carName: carName, title: String(localized: "tile.service.title")) {
@@ -25,8 +28,18 @@ struct ServiceView: View {
         }
         .toolbar { toolbarItems }
         .task { await viewModel.load() }
-        .alert(failureTitle(viewModel.state.listFailure), isPresented: listFailureBinding) {
+        .alert(failureTitle(viewModel.state.listFailure ?? shownListFailure), isPresented: listFailureBinding) {
             Button("common.ok") { viewModel.dismissFailure() }
+        }
+        .onChange(of: viewModel.state.listFailure) { _, failure in
+            if let failure {
+                shownListFailure = failure
+            }
+        }
+        .onChange(of: viewModel.state.failure) { _, failure in
+            if let failure {
+                shownFailure = failure
+            }
         }
         .pitActivity(
             .modalTask,
@@ -53,7 +66,7 @@ struct ServiceView: View {
         .deleteReportConfirmation(viewModel)
         .pitSheet(item: sheetBinding) { sheet in
             sheetContent(sheet)
-                .alert(failureTitle(viewModel.state.failure), isPresented: failureBinding) {
+                .alert(failureTitle(viewModel.state.failure ?? shownFailure), isPresented: failureBinding) {
                     Button("common.ok") { viewModel.dismissFailure() }
                 }
         }
@@ -275,7 +288,8 @@ struct TrackOperationView: View {
         SaveSheetScaffold(
             title: existing == nil ? "service.track" : "service.changeInterval",
             saveIdentifier: "service.track.save",
-            canSave: operation != nil
+            canSave: operation != nil,
+            locksWhileSaving: true
         ) {
             Form {
                 Section {

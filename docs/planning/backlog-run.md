@@ -20,8 +20,8 @@ releases, `v` and `tf-` tags.
 | # | Group | Findings | State |
 |---|---|---|---|
 | 1 | Gate: path-independent source test; widget read-only open refuses an older store without a Core Data migration attempt | baseline | done |
-| 2 | Domain defects and guards | F1, F21, F4, F84, F22 | pending |
-| 3 | Feature defects | F24, F42, F46, F56, F58, F59 | pending |
+| 2 | Domain defects and guards | F1, F21, F4, F84, F22 | done |
+| 3 | Feature defects | F24, F42, F46, F56, F58, F59 | done |
 | 4 | Test-host isolation and composition-root tests | F47, F53, F75 | pending |
 | 5 | Lint warnings and file-length splits | F9, F15, F17, F25, F26, F27, F67, F76, F83 | pending |
 | 6 | Small debt: dead code, comments, catalog keys, missing tests | F2, F6, F8, F10, F16, F19, F23, F28, F29, F30, F37, F40, F41, F43, F44, F55, F60, F61, F66, F74, F77, F79, F80, F81, F85 | pending |

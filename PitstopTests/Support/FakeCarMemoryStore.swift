@@ -16,6 +16,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
     private var failure: CarMemoryStoreError?
     private var failsReadings = false
     private var failsCommands = false
+    private var failsPlannedEventReads = false
     private var failingPolicyOperations: Set<MaintenanceOperationID> = []
 
     init(vehicle: Vehicle = .provisional()) {
@@ -30,6 +31,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
         failure = nil
         failsReadings = false
         failsCommands = false
+        failsPlannedEventReads = false
         failingPolicyOperations = []
     }
 
@@ -45,6 +47,11 @@ actor FakeCarMemoryStore: CarMemoryStore {
 
     func failReadingCommands() {
         failsReadings = true
+    }
+
+    /// Only reading planned dates fails, so a load that reads them last fails part way.
+    func failPlannedEventReads() {
+        failsPlannedEventReads = true
     }
 
     func currentVehicle() throws(CarMemoryStoreError) -> Vehicle {
@@ -79,6 +86,7 @@ actor FakeCarMemoryStore: CarMemoryStore {
 
     func plannedEvents() throws(CarMemoryStoreError) -> [PlannedDatedEvent] {
         try check()
+        guard !failsPlannedEventReads else { throw .storageFailure }
         return planned.sorted { ($0.date, $0.createdAt) < ($1.date, $1.createdAt) }
     }
 

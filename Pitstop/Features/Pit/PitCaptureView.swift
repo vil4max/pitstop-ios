@@ -20,6 +20,8 @@ struct PitCaptureView: View {
     /// The sheet's detent: fixed from the text size when the sheet opens (REQ-PIT-025), then only the user's drag
     /// changes it; a text-size change while the sheet is open does not move it.
     @State private var chosenDetent: PresentationDetent?
+    /// The alert keeps its title while it animates out, after the view model has cleared the failure.
+    @State private var shownFailure: PitCaptureFailure?
 
     var body: some View {
         @Bindable var model = viewModel
@@ -66,6 +68,11 @@ struct PitCaptureView: View {
                 || (viewModel.phase == .composing && !viewModel.text.isBlank)
         )
         .onChange(of: viewModel.phase) { answerText = "" }
+        .onChange(of: viewModel.failure) { _, failure in
+            if let failure {
+                shownFailure = failure
+            }
+        }
         // The eyes follow the capture; the beats between moments live in `PitCaptureEyes` (ADR 0028).
         .onChange(of: EyeInput(moment: eyeMoment, reduceMotion: reduceMotion), initial: true) { _, input in
             eyes.update(to: input.moment, reduceMotion: input.reduceMotion)
@@ -413,7 +420,7 @@ struct PitCaptureView: View {
     }
 
     private var failureTitle: LocalizedStringKey {
-        switch viewModel.failure {
+        switch viewModel.failure ?? shownFailure {
         case .alreadySaved: "pit.failure.alreadySaved"
         case .invalidMileage: "carEditor.failure.odometer"
         case .invalidAmount: "history.failure.amount"

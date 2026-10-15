@@ -100,6 +100,25 @@ struct PitSavingGuardTests {
         }
     }
 
+    /// Cancel during a save that then fails would leave its "not saved" alert for the next editor.
+    @Test("ADR-0032: the History, Notes and Service editors lock Cancel and swipe-to-dismiss while a save runs")
+    func editorsLockWhileSaving() {
+        let history = HistoryEventEditorView(draft: HistoryEventDraft(date: now), isNew: true) { _ in true }
+        let note = NoteEditorView(target: .new) { _ in true }
+        let track = TrackOperationView(operations: [.engineOilService]) { _, _, _ in true }
+        let reading = DashboardReadingView(
+            operation: .engineOilService, defaultUnit: .kilometers, odometerPrefill: nil
+        ) { _ in true }
+        let bodies: [(String, Any)] = [
+            ("history", history.body), ("note", note.body), ("track", track.body), ("dashboard reading", reading.body),
+        ]
+        for (name, body) in bodies {
+            // Nil means the editor is no longer a SaveSheetScaffold.
+            let locks = Mirror(reflecting: body).descendant("locksWhileSaving") as? Bool
+            #expect(locks == true, "the \(name) editor does not lock while saving")
+        }
+    }
+
     /// Runs `save` through the editor scaffold's `SheetSave`, as the Save button does, and tries Pit mid-save.
     private func expectPitWaits(
         _ store: FakeCarMemoryStore,

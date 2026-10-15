@@ -22,7 +22,8 @@ struct HistoryEventEditorView: View {
     var body: some View {
         SaveSheetScaffold(
             title: isNew ? "history.editor.new" : "history.editor.edit",
-            saveIdentifier: "history.editor.save"
+            saveIdentifier: "history.editor.save",
+            locksWhileSaving: true
         ) {
             Form {
                 Section {

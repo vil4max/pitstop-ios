@@ -79,9 +79,11 @@ struct MarkDoneView: View {
     }
 
     /// Runs one of the sheet's actions under the save lock and closes the sheet when it reports success.
+    /// The lock is taken before the Task starts: two taps before `.disabled` renders would otherwise both run.
     private func save(_ action: @escaping () async -> Bool) {
+        guard !isSaving else { return }
+        isSaving = true
         Task {
-            isSaving = true
             let saved = await action()
             isSaving = false
             if saved {

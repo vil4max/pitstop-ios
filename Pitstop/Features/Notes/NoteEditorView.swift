@@ -23,9 +23,12 @@ struct NoteEditorView: View {
         SaveSheetScaffold(
             title: target == .new ? "notes.editor.new" : "notes.editor.edit",
             saveIdentifier: "notes.editor.save",
-            canSave: !text.allSatisfy(\.isWhitespace)
+            canSave: !text.allSatisfy(\.isWhitespace),
+            locksWhileSaving: true
         ) {
             TextEditor(text: $text)
+                // "notes.editor.edit" reads "Note": the field's name whether the note is new or saved.
+                .accessibilityLabel(Text("notes.editor.edit"))
                 .focused($isFocused)
                 .pitActivity(.editing, while: isFocused)
                 .font(.body)

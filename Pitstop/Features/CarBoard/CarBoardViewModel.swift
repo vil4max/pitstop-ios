@@ -119,20 +119,19 @@ final class CarBoardViewModel {
             let context = MaintenanceContext(
                 now: moment, latestReading: latest, completions: completions, reports: reports
             )
-            vehicleID = vehicle.id
-            photoID = vehicle.photoID
-            isMileageCurrent = context.mileage == .known
-            mileageObservedAt = context.observedAt
-            state.car = ProvisionalCarContext(vehicle: vehicle, observedKm: context.observedKm)
-            state.carBody = vehicle.body
-            state.carPhoto = vehicle.photoID.flatMap { photoPreparation?.photos.files(for: $0) }
-            state.mileage = CarBoardMileage(odometerKm: state.car.odometerKm)
-            state.mileageRecency = context.observedAt.map {
+            // Built aside and assigned once: a read failing part way must not leave the header on a newer mileage
+            // than Service and Road (REQ-BOARD-026).
+            var next = state
+            next.car = ProvisionalCarContext(vehicle: vehicle, observedKm: context.observedKm)
+            next.carBody = vehicle.body
+            next.carPhoto = vehicle.photoID.flatMap { photoPreparation?.photos.files(for: $0) }
+            next.mileage = CarBoardMileage(odometerKm: next.car.odometerKm)
+            next.mileageRecency = context.observedAt.map {
                 MileageRecency(observedAt: $0, now: moment, calendar: calendar)
             }
-            state.notes = try await NotesSummary(notes: store.notes())
-            state.history = try await HistoryTimeline(events: store.historyEvents(), completions: completions)
-            state.service = try await MaintenanceEngine().states(
+            next.notes = try await NotesSummary(notes: store.notes())
+            next.history = try await HistoryTimeline(events: store.historyEvents(), completions: completions)
+            next.service = try await MaintenanceEngine().states(
                 policies: store.maintenancePolicies(),
                 completions: completions,
                 reports: reports,
@@ -140,18 +139,25 @@ final class CarBoardViewModel {
             ).byUrgency
             // The tile projects the same planned dates as the Road screen; insurance has no tile of its own
             // (ADR 0032).
-            state.road = try await RoadProjector().project(
+            next.road = try await RoadProjector().project(
                 RoadContext(
                     now: moment,
-                    maintenanceStates: state.service,
+                    maintenanceStates: next.service,
                     plannedEvents: store.plannedEvents().map(\.roadEvent),
-                    history: state.history,
+                    history: next.history,
                     mileageObservations: MileageObservation.history(
                         readings: readings, completions: completions, reports: reports
                     ),
                     calendar: calendar
                 ))
-            state.isLoadFailed = false
+            next.isLoadFailed = false
+            // A save while this load awaited may have set a failure; it is not this load's to clear.
+            next.failure = state.failure
+            vehicleID = vehicle.id
+            photoID = vehicle.photoID
+            isMileageCurrent = context.mileage == .known
+            mileageObservedAt = context.observedAt
+            state = next
         } catch {
             // The last known state stays on screen; Car Board never becomes an error page.
             state.isLoadFailed = true

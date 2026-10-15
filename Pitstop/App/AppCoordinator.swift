@@ -30,10 +30,9 @@ final class AppCoordinator {
         carBoard = CarBoardViewModel(
             store: environment.store,
             persistence: environment.persistence,
-            // Without the App Group container there are no photo files, and the car is its placeholder.
-            photos: StoreLocation.groupContainerURL().map {
-                CarPhotoStore(directory: CarPhotoStore.directory(inGroupContainer: $0))
-            },
+            photos: Self.carPhotoDirectory(
+                persistence: environment.persistence, groupContainer: StoreLocation.groupContainerURL()
+            ).map(CarPhotoStore.init(directory:)),
             // The lift runs once, on device, when a picked photo is saved (ADR 0040 "Lift").
             lifter: VisionSubjectLifter(),
             analytics: odometerAnalytics
@@ -56,6 +55,21 @@ final class AppCoordinator {
             analytics: odometerAnalytics
         )
         pitEntry = PitCaptureEntry(capture: pitCapture, question: pitQuestion)
+    }
+
+    /// Where car photo files go. Without the App Group container there are no photo files, and the car is its
+    /// placeholder. A temporary session keeps them in a fresh temporary directory: its store is not kept, so files in
+    /// the container would never be referenced again, against "Changes will not be kept".
+    static func carPhotoDirectory(persistence: PersistenceMode, groupContainer: URL?) -> URL? {
+        guard let groupContainer else { return nil }
+        switch persistence {
+        case .durable:
+            return CarPhotoStore.directory(inGroupContainer: groupContainer)
+        case .temporary:
+            return URL.temporaryDirectory.appending(
+                path: "pitstop-session-\(UUID().uuidString)", directoryHint: .isDirectory
+            )
+        }
     }
 
     /// The one interpreted capture path, shared by Pit and `RememberInPitStopIntent` (core C4).

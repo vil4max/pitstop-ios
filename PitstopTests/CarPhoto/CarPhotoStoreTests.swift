@@ -199,4 +199,18 @@ struct CarPhotoStoreTests {
             CarPhotoStore.directory(inGroupContainer: container)
                 == StoreLocation.groupStoreURL(in: container).deletingLastPathComponent())
     }
+
+    @Test("REQ-BOARD-029: a temporary session keeps car photos in the temporary directory, never the App Group")
+    @MainActor
+    func temporarySessionKeepsPhotosOutOfTheContainer() throws {
+        let container = URL(fileURLWithPath: "/tmp/group")
+        #expect(
+            AppCoordinator.carPhotoDirectory(persistence: .durable, groupContainer: container)
+                == CarPhotoStore.directory(inGroupContainer: container))
+        let temporary = try #require(
+            AppCoordinator.carPhotoDirectory(persistence: .temporary, groupContainer: container))
+        #expect(!temporary.standardizedFileURL.path.hasPrefix(container.standardizedFileURL.path))
+        #expect(temporary.standardizedFileURL.path.hasPrefix(URL.temporaryDirectory.standardizedFileURL.path))
+        #expect(AppCoordinator.carPhotoDirectory(persistence: .temporary, groupContainer: nil) == nil)
+    }
 }
