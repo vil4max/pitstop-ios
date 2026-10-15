@@ -128,9 +128,9 @@ struct ChipFlowLayoutTests {
     @Test(
         "REQ-GRAMMAR-003: placement stays inside the measured size, which never exceeds the proposal",
         arguments: [
-            // Found by review: measuring broke [[0], [1, 2]] at 200.333; placing there joined [0, 1].
+            // Pixel snapping: measuring breaks [[0], [1, 2]] at 200.333, and placing there must not join [0, 1].
             ([277.0 / 3, 301.0 / 3, 92], 200),
-            // Found by review: a lone 187.4 pt chip placed at 187.333 was measured again, narrower and taller.
+            // A lone 187.4 pt chip placed at 187.333 must not be measured again, narrower and taller.
             // 187.4 snaps to 187.333 on a 3x screen.
             ([187.4], 300),
             ([187.4], nil),

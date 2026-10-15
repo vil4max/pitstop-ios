@@ -33,6 +33,9 @@ enum DesignTokens {
     /// keep their room in the widget at larger text sizes.
     static let widgetGlyphDiscSize: CGFloat = 48
     static let hairline: CGFloat = 0.5
+    /// The separator's opacity in the hairline edge of a card or grouped container: the edge only hints at the
+    /// shape, which the surface colour already carries.
+    static let cardEdgeOpacity: Double = 0.35
     /// The inset-grouped container (`GroupedSection`) and the horizontal padding of its rows.
     static let groupedCornerRadius: CGFloat = 20
     static let groupedRowPadding: CGFloat = 16

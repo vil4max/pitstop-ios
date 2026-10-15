@@ -8,6 +8,8 @@ final class ServiceViewModel {
 
     private let store: any CarMemoryStore
     private let now: @Sendable () -> Date
+    /// Day boundaries: the same-day odometer prefill and Mark as done's recheck.
+    private let calendar: Calendar
     /// The open Mark as done sheet and its operation's completions when it opened (the ADR 0035 pattern).
     private var markDoneOpening: MarkDoneOpening?
     /// Which Mark as done sheet is open; nil once it closed. A save still running after its own sheet closed, or after
@@ -18,9 +20,14 @@ final class ServiceViewModel {
     /// and both would pass the recheck before either writes (REQ-MAINT-041). Another sheet's save may still run.
     @ObservationIgnored private var confirmingSheets: Set<UUID?> = []
 
-    init(store: any CarMemoryStore, now: @escaping @Sendable () -> Date = { Date() }) {
+    init(
+        store: any CarMemoryStore,
+        now: @escaping @Sendable () -> Date = { Date() },
+        calendar: Calendar = .autoupdatingCurrent
+    ) {
         self.store = store
         self.now = now
+        self.calendar = calendar
     }
 
     func load() async {
@@ -38,10 +45,10 @@ final class ServiceViewModel {
             let states = MaintenanceEngine().states(
                 policies: policies, completions: completions, reports: reports, context: context
             )
-            state.defaultReportUnit = Self.defaultUnit(readings: readings, reports: reports)
+            state.defaultReportUnit = ServiceViewState.defaultReportUnit(readings: readings, reports: reports)
             let moment = now()
             state.sameDayOdometerKm = readings.latest
-                .flatMap { Calendar.current.isDate($0.recordedAt, inSameDayAs: moment) ? $0 : nil }
+                .flatMap { calendar.isDate($0.recordedAt, inSameDayAs: moment) ? $0 : nil }
                 .map { Int($0.valueInKilometers.rounded()) }
             state.operationsWithOtherPolicy = Set(policies.filter { $0.source != .userCustom }.map(\.operationID))
             state.operations = states.byUrgency
@@ -139,7 +146,7 @@ final class ServiceViewModel {
         // Pit can record this work while the sheet is open (REQ-PIT-026), so what is stored is checked again now. Only
         // a completion recorded since the sheet opened counts: the owner's own earlier ones, even from the same day,
         // do not (REQ-MAINT-046). The same work is never recorded twice, and what the owner typed is dropped only by
-        // their own choice (REQ-MAINT-040, proposed).
+        // their own choice (REQ-MAINT-040).
         let recorded: [MaintenanceCompletion]
         do {
             recorded = try await completionsRecorded(operation, since: markDoneOpening)
@@ -147,7 +154,9 @@ final class ServiceViewModel {
             return failMarkDone(startedIn: sheet)
         }
         let replaced: Set<UUID>
-        switch MarkDoneRecheck(recorded: recorded, date: date, odometerKm: odometerKm, replacing: prompted) {
+        switch MarkDoneRecheck(
+            recorded: recorded, date: date, odometerKm: odometerKm, replacing: prompted, calendar: calendar
+        ) {
         case .write:
             replaced = []
         case .alreadyRecorded:
@@ -199,8 +208,8 @@ final class ServiceViewModel {
     }
 
     /// "Keep Pit's entry": nothing from the sheet is recorded, and the list reloads to show Pit's entry
-    /// (REQ-MAINT-042).
-    /// The sheet's save lock keeps it the open one until this returns; false if another sheet is open by then.
+    /// (REQ-MAINT-042). The sheet's save lock keeps it the open one until this returns; false if another sheet is
+    /// open by then.
     func keepPitsEntry() async -> Bool {
         let sheet = markDoneSheet
         markDoneOpening = nil
@@ -259,14 +268,6 @@ final class ServiceViewModel {
             now: now,
             onSaved: { [weak self] in await self?.load() }
         )
-    }
-
-    private static func defaultUnit(readings: [OdometerReading], reports: [VehicleServiceReport]) -> DistanceUnit {
-        let newestReport = reports.filter { $0.remainingDistance != nil }.max { $0.reportedAt < $1.reportedAt }
-        if let newestReport, newestReport.reportedAt >= (readings.latest?.recordedAt ?? .distantPast) {
-            return newestReport.distanceUnit
-        }
-        return readings.latest?.unit ?? .kilometers
     }
 
     func dismissFailure() {
@@ -347,7 +348,6 @@ extension ServiceViewModel {
         }
         let moment = now()
         let odometerKm = odometer.intValue
-        var saved = false
         do {
             let vehicleID = try await store.currentVehicle().id
             let report = VehicleServiceReport(
@@ -356,7 +356,6 @@ extension ServiceViewModel {
                 remainingDays: days.intValue, source: .manualEntry
             )
             try await store.execute(.recordVehicleServiceReport(.init(report: report)), now: moment)
-            saved = true
         } catch .invalidCommand(.reportRemainingDistanceOutOfRange) {
             return fail(.invalidReport)
         } catch .invalidCommand(.reportRemainingDaysOutOfRange) {
@@ -368,7 +367,7 @@ extension ServiceViewModel {
         }
         await load()
         state.failure = nil
-        return saved
+        return true
     }
 
     func requestDeleteReport(_ operation: MaintenanceOperationState) {

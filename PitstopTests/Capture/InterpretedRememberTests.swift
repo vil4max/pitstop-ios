@@ -127,7 +127,7 @@ struct InterpretedRememberTests {
             return
         }
 
-        let outcome = try await flow.preserveRaw(pending.input, kind: pending.kind)
+        let outcome = try await flow.preserveRaw(pending.input)
 
         guard case let .saved(result, preservedRaw) = outcome, case let .noteCreated(note) = result else {
             Issue.record("expected a saved note, got \(outcome)")

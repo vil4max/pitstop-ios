@@ -199,7 +199,7 @@ extension GlyphColumnRow where Accessory == EmptyView {
 /// (REQ-GRAMMAR-003). VoiceOver says "More".
 struct MoreMenuLabel: View {
     var body: some View {
-        Label("service.more", systemImage: "ellipsis.circle")
+        Label("common.more", systemImage: "ellipsis.circle")
             .labelStyle(.iconOnly)
             .font(PitTypography.headline)
             .foregroundStyle(PitColor.accentPrimary)

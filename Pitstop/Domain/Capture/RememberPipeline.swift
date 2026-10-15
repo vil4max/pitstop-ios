@@ -156,10 +156,7 @@ public struct RememberPipeline: Sendable {
     }
 
     /// The user declined the proposed meaning, or answered "I don't know". The wording is kept.
-    public func preserveRaw(
-        _ input: CaptureInput,
-        kind _: ProposalKind
-    ) async throws(RememberError) -> RememberOutcome {
+    public func preserveRaw(_ input: CaptureInput) async throws(RememberError) -> RememberOutcome {
         try await save(input, proposal: rawProposal(for: input), degraded: true)
     }
 
@@ -172,7 +169,7 @@ public struct RememberPipeline: Sendable {
         with answer: ClarificationAnswer,
         confirmBeforeWriting: Bool = false
     ) async throws(RememberError) -> RememberOutcome {
-        guard answer != .unknown else { return try await preserveRaw(request.input, kind: request.kind) }
+        guard answer != .unknown else { return try await preserveRaw(request.input) }
         return try await route(
             request.proposal.answering(answer),
             input: request.input,
@@ -247,7 +244,7 @@ public struct RememberPipeline: Sendable {
                 report(.pipelineFailed, input, kind: proposal.kind)
                 throw .notSaved
             }
-            return try await preserveRaw(input, kind: proposal.kind)
+            return try await preserveRaw(input)
         case .empty:
             report(.captureDiscarded, input, kind: proposal.kind)
             return .nothingToSave

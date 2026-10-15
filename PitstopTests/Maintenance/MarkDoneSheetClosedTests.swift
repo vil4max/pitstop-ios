@@ -7,7 +7,7 @@ private let now = DomainFixtures.Odometers.baseDate
 /// The sheet locks Cancel and swipe-to-dismiss while its save runs (ADR 0032), but the app itself can still close it,
 /// and Mark as done may then open for other work before the first save returns. That save belongs to a sheet that is
 /// gone, so it must leave the open sheet's snapshot and message alone, and still record the owner's work or say on the
-/// list that it did not (REQ-MAINT-049, REQ-MAINT-050, proposed). The tests close the sheet by opening the next one or
+/// list that it did not (REQ-MAINT-049, REQ-MAINT-050). The tests close the sheet by opening the next one or
 /// directly.
 @MainActor
 @Suite("Mark as done after its sheet closed")

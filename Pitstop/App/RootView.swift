@@ -71,6 +71,14 @@ struct RootView: View {
         var id: String {
             rawValue
         }
+
+        /// What an open utility sheet tells Pit: the Pit sheet is a capture, any other sheet a modal task.
+        var pitActivity: PitActivity {
+            switch self {
+            case .settings: .modalTask
+            case .pit: .capturing
+            }
+        }
     }
 
     var body: some View {
@@ -86,7 +94,8 @@ struct RootView: View {
         }
     }
 
-    /// One modifier chain, split into slices only for length; the slices apply in the original order.
+    /// One modifier chain, split into slices only for length. Modifier order matters, so the slices nest in a fixed
+    /// order: board navigation innermost, then Pit coordination, then system entry.
     private var content: some View {
         systemEntry(pitCoordination(boardNavigation))
             // Outside `systemEntry`, so Settings, presented there, keeps Pit as feature sheets do (REQ-UTILITY-012).
@@ -125,7 +134,7 @@ struct RootView: View {
             // every screen, editor, and scroll view below reports through the environment (ADR 0019).
             .task(id: reduceMotion) { pit.setReduceMotion(reduceMotion) }
             .onChange(of: sheet) { _, newSheet in
-                pit.report(newSheet == nil ? [] : newSheet == .pit ? .capturing : .modalTask, from: .utilitySheet)
+                pit.report(newSheet?.pitActivity ?? [], from: .utilitySheet)
                 // Whatever Pit saved shows on the board and on the surface the user is on.
                 if newSheet == nil {
                     Task { await refreshVisibleSurface() }

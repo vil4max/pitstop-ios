@@ -14,7 +14,7 @@ struct ScreenHeader: View {
         VStack(alignment: .leading, spacing: 2) {
             eyebrowLine
             Text(title)
-                .font(.largeTitle.bold())
+                .font(PitTypography.display)
                 .foregroundStyle(PitColor.contentPrimary)
                 // A user-entered car name must stay readable at accessibility sizes.
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? 4 : 2)

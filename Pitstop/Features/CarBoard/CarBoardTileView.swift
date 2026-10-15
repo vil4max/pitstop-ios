@@ -5,6 +5,9 @@ import SwiftUI
 /// are no placeholder metrics and no fake urgency (REQ-BOARD-014, REQ-BOARD-018).
 struct CarBoardTileView: View {
     let descriptor: CarBoardTileDescriptor
+    /// The board's moment and calendar (`CarBoardViewState.moment`), from which History's day recency counts.
+    let now: Date
+    let calendar: Calendar
     var notes: NotesSummary = .empty
     var history: HistoryTimeline = .empty
     var service: [MaintenanceOperationState] = []
@@ -32,7 +35,7 @@ struct CarBoardTileView: View {
                     } else {
                         // The lane stops growing at the largest standard size so the plates never outgrow the
                         // car. Its labels share a quarter of the tile width each; at that capped size long names
-                        // truncate ("oil se…", checked at AX5), so at accessibility sizes the markers stay, the
+                        // truncate ("oil se…" at AX5), so at accessibility sizes the markers stay, the
                         // labels go, and the sentence below carries the words.
                         CarBoardRoadLane(
                             slots: content.roadSlots,
@@ -98,7 +101,7 @@ struct CarBoardTileView: View {
         case let .serviceTitle(operation): operation.titleText
         case let .serviceProgress(state): state.progressText
         case let .historyTitle(entry): entry.titleText
-        case let .historyRecency(date): FeatureFormat.dayRecency(of: date)
+        case let .historyRecency(date): FeatureFormat.dayRecency(of: date, now: now, calendar: calendar)
         }
     }
 
@@ -260,13 +263,17 @@ private struct RoadSparseLine: View {
     #Preview("Car Board tiles") {
         PreviewMatrix {
             VStack(spacing: DesignTokens.tileSpacing) {
-                CarBoardTileView(descriptor: CarBoardTileDescriptor.v1[0])
-                CarBoardTileView(descriptor: CarBoardTileDescriptor.v1[0], carBody: .sedan)
+                CarBoardTileView(descriptor: CarBoardTileDescriptor.v1[0], now: .now, calendar: .current)
+                CarBoardTileView(
+                    descriptor: CarBoardTileDescriptor.v1[0], now: .now, calendar: .current, carBody: .sedan
+                )
                 CarBoardTileView(
                     descriptor: CarBoardTileDescriptor.v1[1],
+                    now: .now,
+                    calendar: .current,
                     notes: NotesSummary(notes: [Note(rawText: "Left wiper streaks at speed")])
                 )
-                CarBoardTileView(descriptor: CarBoardTileDescriptor.v1[2])
+                CarBoardTileView(descriptor: CarBoardTileDescriptor.v1[2], now: .now, calendar: .current)
             }
         }
     }

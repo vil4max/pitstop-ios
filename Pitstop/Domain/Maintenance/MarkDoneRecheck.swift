@@ -33,7 +33,7 @@ enum MarkDoneRecheck: Equatable {
         date: Date,
         odometerKm: Int?,
         replacing prompted: Set<UUID>? = nil,
-        calendar: Calendar = .current
+        calendar: Calendar
     ) {
         let nearby = Self.nearby(recorded, date: date, calendar: calendar)
         if let prompted, !nearby.isEmpty {

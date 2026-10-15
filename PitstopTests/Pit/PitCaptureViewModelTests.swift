@@ -213,6 +213,35 @@ struct PitCaptureViewModelTests {
         #expect(model.phase == .saved(.carBoard, preservedRaw: false))
     }
 
+    @Test("REQ-CAPTURE-020: a typed amount answers the cost question; unreadable money is reported, never guessed")
+    func typedAmountAnswerContinues() async throws {
+        let store = FakeCarMemoryStore()
+        let capture = CaptureInput(payload: .text("заплатил за мойку"), source: .pitText, capturedAt: now)
+        let draft = MemoryProposal(sourceInputID: capture.id, kind: .expense, rawText: "заплатил за мойку")
+        let model = PitCaptureViewModel(
+            pipeline: RememberPipeline(store: store, interpreter: FixedInterpreter(proposal: draft), now: { now }),
+            now: { now }
+        )
+        model.text = "заплатил за мойку"
+        await model.submit(from: .history)
+        guard case let .clarifying(request) = model.phase, request.question == .amount else {
+            Issue.record("expected the cost question, got \(model.phase)")
+            return
+        }
+
+        await model.answer(text: "12.345")
+        #expect(model.failure == .invalidAmount)
+        #expect(await store.events.isEmpty)
+
+        await model.answer(text: "1 500,50")
+        if case .confirming = model.phase {
+            await model.confirm()
+        }
+        #expect(model.phase == .saved(.history, preservedRaw: false))
+        let saved = try #require(await store.events.first)
+        #expect(saved.amount == Decimal(string: "1500.5", locale: Locale(identifier: "en_US_POSIX")))
+    }
+
     @Test("REQ-CAPTURE-009: confirming a proposal that was already saved starts over without a false error")
     func alreadySavedStartsOver() async {
         let store = FakeCarMemoryStore()

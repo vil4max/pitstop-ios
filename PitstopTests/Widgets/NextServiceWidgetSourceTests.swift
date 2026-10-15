@@ -70,7 +70,7 @@ struct NextServiceWidgetSourceTests {
     }
 
     @Test("ADR-0036, REQ-WIDGET-007: the widget keeps its families, link, kind and read-only timeline")
-    func keepsContractsOfTheDeliveredWidget() throws {
+    func keepsTheWidgetContracts() throws {
         let code = try code()
         #expect(code.contains(".supportedFamilies([.systemSmall, .accessoryRectangular, .accessoryInline])"))
         #expect(code.contains(".widgetURL(AppLink.service.url)"))
@@ -138,7 +138,7 @@ struct NextServiceWidgetSourceTests {
         }
     }
 
-    /// Owner, 2026-09-24: when the content does not fit, lines go by priority instead of being clipped. The name and
+    /// When the content does not fit, lines go by priority instead of being clipped. The name and
     /// the status always stay; the eyebrow goes first, then the fact, and last the status word, leaving its glyph.
     /// A tap opens Service for the rest.
     @Test("REQ-WIDGET-011: the small widget drops the eyebrow, then the fact, then the word; name and status stay")
@@ -350,7 +350,7 @@ struct NextServiceWidgetSourceTests {
         let rectangular = try family("rectangular")
         #expect(rectangular.contains("StatusGlyphView(glyph: summary.status.glyph"))
         #expect(rectangular.contains("Text(summary.word.widgetLabel)"))
-        // The pre-redesign status symbols are gone from every family, so no family says the state two ways.
+        // No family draws the status's SF Symbol beside the glyph, so none says the state two ways.
         #expect(try !code().contains("summary.status.systemImage"))
     }
 

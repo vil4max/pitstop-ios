@@ -92,8 +92,8 @@ final class PitCaptureViewModel {
 
     /// The user declined the proposed meaning: the words are kept as a note.
     func keepWordsOnly() async {
-        guard let input, let kind = pendingKind else { return }
-        await run { [pipeline] in try await pipeline.preserveRaw(input, kind: kind) }
+        guard let input, pendingKind != nil else { return }
+        await run { [pipeline] in try await pipeline.preserveRaw(input) }
     }
 
     /// A typed answer to the one question asked. Unreadable input is reported, never guessed.

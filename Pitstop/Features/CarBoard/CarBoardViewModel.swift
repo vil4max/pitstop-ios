@@ -22,6 +22,10 @@ struct CarBoardViewState: Equatable {
     /// Kept apart from `failure` so dismissing a save alert can never hide the retry row.
     var isLoadFailed = false
     var failure: CarBoardFailure?
+    /// The moment the board's projections were made for, in the owner's calendar: the History tile counts its
+    /// days from it, as every other tile does, not from a clock of its own.
+    var moment: Date
+    var calendar: Calendar
 }
 
 enum CarBoardFailure: Equatable {
@@ -91,7 +95,12 @@ final class CarBoardViewModel {
         self.analytics = analytics
         self.now = now
         self.calendar = calendar
-        state = CarBoardViewState(canStorePhoto: photos != nil, isStorageTemporary: persistence == .temporary)
+        state = CarBoardViewState(
+            canStorePhoto: photos != nil,
+            isStorageTemporary: persistence == .temporary,
+            moment: now(),
+            calendar: calendar
+        )
     }
 
     /// What the car editor opening now shows; the editor keeps it until it closes.
@@ -153,6 +162,7 @@ final class CarBoardViewModel {
                     ),
                     calendar: calendar
                 ))
+            next.moment = moment
             next.isLoadFailed = false
             // A save while this load awaited may have set a failure; it is not this load's to clear.
             next.failure = state.failure
@@ -231,7 +241,7 @@ final class CarBoardViewModel {
         return true
     }
 
-    /// The name and mileage commands, which a save runs first, as before the car had a profile. Each is written
+    /// The name and mileage commands, which a save runs before the profile's body and photo. Each is written
     /// only when the owner changed it from what the editor opened over: Pit may have recorded a newer one
     /// meanwhile, and an untouched field must not put the old value back (REQ-PIT-026).
     private func changes(

@@ -87,11 +87,7 @@ public extension VehicleServiceReport {
     /// The reported distance in kilometres. The unit is converted only here, for arithmetic; the
     /// stored value and unit stay exactly as the owner entered them (REQ-MAINT-037).
     var remainingDistanceKm: Double? {
-        guard let remainingDistance else { return nil }
-        switch distanceUnit {
-        case .kilometers: return remainingDistance
-        case .miles: return remainingDistance * 1.609344
-        }
+        remainingDistance.map(distanceUnit.kilometers)
     }
 
     /// Odometer plus what is left, derived on read (ADR 0035). Nil without both parts.

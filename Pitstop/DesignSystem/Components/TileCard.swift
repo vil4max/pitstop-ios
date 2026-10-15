@@ -11,7 +11,10 @@ struct TileCard<Content: View>: View {
             // Fills the row height so two half tiles side by side always match.
             .frame(maxWidth: .infinity, minHeight: minHeight, maxHeight: .infinity, alignment: .topLeading)
             .background(PitColor.surfaceSecondary, in: shape)
-            .overlay(shape.strokeBorder(PitColor.separator.opacity(0.35), lineWidth: 0.5))
+            .overlay(
+                shape.strokeBorder(
+                    PitColor.separator.opacity(DesignTokens.cardEdgeOpacity), lineWidth: DesignTokens.hairline)
+            )
             .contentShape(shape)
     }
 

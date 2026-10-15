@@ -2,7 +2,7 @@ import Foundation
 
 /// The words `RuleBasedInterpreter` recognises as units, markers and currencies, and how it reads a number.
 enum CaptureWords {
-    static let units: Set<String> = ["км", "km", "килом", "kilometers", "kilometres"]
+    static let units: Set<String> = ["км", "km", "kilometers", "kilometres"]
     static let mileageWords: Set<String> = ["mileage", "odometer"]
     static let mileUnits: Set<String> = ["mi", "mile", "miles", "миль", "милі"]
     static let dayWords = ["day", "дн", "ден", "сут", "дні", "днів"]
@@ -14,7 +14,8 @@ enum CaptureWords {
     static let conjunctions: Set<String> = ["and", "or", "и", "или", "і", "й", "та", "або"]
     static let looseMileageMarkers: Set<String> = ["на", "at"]
     static let yearMarkers: Set<String> = ["в", "с", "in", "since", "from", "года", "году"]
-    static let currencies: Set<String> = ["руб", "рублей", "₽", "грн", "uah", "eur", "usd"]
+    /// Letters only: the reading splits words at symbols, so a sign such as "₽" never reaches this set.
+    static let currencies: Set<String> = ["руб", "рублей", "грн", "uah", "eur", "usd"]
 
     static func isUnitOrDayWord(_ word: String) -> Bool {
         units.contains(word) || mileUnits.contains(word) || dayWords.contains(where: word.hasPrefix)

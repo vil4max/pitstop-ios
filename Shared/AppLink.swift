@@ -2,7 +2,7 @@ import Foundation
 
 /// Every screen a `pitstop://` link may open (ADR 0025, ADR 0036). The scheme is public: any app or web
 /// page can open it, so the list is closed and a link carries no data, only which screen to show.
-enum AppLink: String, CaseIterable, Sendable {
+enum AppLink: String, Sendable {
     /// The Pit capture sheet: the capture widget, `pitstop://pit`.
     case pit
     /// The Service screen: the next-service widget, `pitstop://service`.

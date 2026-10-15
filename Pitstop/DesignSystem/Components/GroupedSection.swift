@@ -39,7 +39,9 @@ struct GroupedSection<Rows: View>: View {
                 rows
             }
             .background(PitColor.surfaceSecondary, in: shape)
-            .overlay(shape.strokeBorder(PitColor.separator.opacity(0.35), lineWidth: DesignTokens.hairline))
+            .overlay(
+                shape.strokeBorder(
+                    PitColor.separator.opacity(DesignTokens.cardEdgeOpacity), lineWidth: DesignTokens.hairline))
             if let footer {
                 Text(footer)
                     .font(PitTypography.supportingSmall)

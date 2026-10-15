@@ -52,10 +52,11 @@ Both need a widget extension, which the project did not have.
 
 | Piece | Where | Behavior |
 |---|---|---|
-| `CaptureSurface` | `Shared/CaptureSurface.swift` | One-case `AppEnum` (`pit`): the `OpenIntent` target, the widget's URL (`pitstop://pit`), and the only URL the app accepts |
+| `CaptureSurface` | `Shared/CaptureSurface.swift` | One-case `AppEnum` (`pit`): the `OpenIntent` target and the widget's URL (`pitstop://pit`, `AppLink.pit.url`) |
+| `AppLink`, `AppLinkRouter` | `Shared/AppLink.swift`, `Pitstop/App/ServiceLinkRequests.swift` | `AppLink` is the closed list of `pitstop://` links and parses them; `AppLinkRouter.route` turns `pitstop://pit` into `CaptureSurfaceRequests.request()` (and `pitstop://service` into the Service request, ADR 0036) and returns false for any other URL |
 | `OpenPitIntent` | `Shared/OpenPitIntent.swift` (moved from `Pitstop/App/Intents/`) | `OpenIntent` with `target: CaptureSurface = .pit`; unchanged `.foreground(.immediate)`, `allowedExecutionTargets = .main`, `.requiresLocalDeviceAuthentication`; `perform()` calls `CaptureSurfaceRequests.request()` |
-| `CaptureSurfaceRequests` | `Shared/CaptureSurfaceRequests.swift` (moved from `Pitstop/App/`) | Adds `request(opening:)`: requests Pit for Pit's URL, returns false and does nothing for any other URL |
-| URL entry | `PitstopApp` (`onOpenURL` on the scene root), `Config/Info.plist` (`CFBundleURLTypes`, scheme `pitstop`) | Pit's URL becomes the same pending request as Open Pit, so ADR 0024's deferral and single opening apply unchanged; other URLs are logged as ignored without their content |
+| `CaptureSurfaceRequests` | `Shared/CaptureSurfaceRequests.swift` (moved from `Pitstop/App/`) | The pending Pit request: `request()` records it, `take(isPresentationBlocked:)` consumes it |
+| URL entry | `PitstopApp` (`onOpenURL` on the scene root, through `AppLinkRouter.route`), `Config/Info.plist` (`CFBundleURLTypes`, scheme `pitstop`) | Pit's URL becomes the same pending request as Open Pit, so ADR 0024's deferral and single opening apply unchanged; other URLs are logged as ignored without their content |
 | `OpenPitControl` | `PitstopWidgets/OpenPitControl.swift` | `StaticControlConfiguration` with `ControlWidgetButton(action: OpenPitIntent())` |
 | `CaptureWidget` | `PitstopWidgets/CaptureWidget.swift` | `StaticConfiguration`, one static timeline entry with policy `.never`; the view shows the capture glyph (`square.and.pencil`, as the Open Pit shortcut) and "Remember", not the app icon; `widgetURL(CaptureSurface.pit.url)` |
 
@@ -64,7 +65,7 @@ Both need a widget extension, which the project did not have.
 cold launch before its content appears would otherwise have no handler. The
 request waits until `RootView` takes it, as a cold-launch Open Pit does.
 
-`CaptureSurface(url:)` accepts `pitstop://pit` with an optional trailing
+`AppLink(url:)` accepts `pitstop://pit` with an optional trailing
 slash, scheme and host in any case, and rejects any path, query, fragment,
 user, password, or port. The scheme is public: any app or web page can open
 it, and all it can do is open the Pit sheet, over an unlocked phone and
@@ -118,9 +119,9 @@ the Open Pit title and description and of `shortcut.remember.title` and
 REQ-CAPTURE-023), hosted in the app so the embedded extension is read from the
 built product:
 
-- **URL routing:** `CaptureSurface.pit.url` is `pitstop://pit` and parses back;
-  `pitstop://pit`, a trailing slash, and upper case request Pit; twelve other
-  URLs (other hosts, sub-paths, query, fragment, user, port, `pitstop:pit`,
+- **URL routing:** `CaptureSurface.pit.url` is `pitstop://pit` and parses back
+  to `AppLink.pit`; through `AppLinkRouter.route`, `pitstop://pit`, a trailing
+  slash, and upper case request Pit; twelve other URLs (other hosts, sub-paths, query, fragment, user, port, `pitstop:pit`,
   empty host, `https`, another scheme) return false and leave nothing pending;
   a Pit URL while an editor is presented stays pending and opens Pit once
   unblocked; the app's `CFBundleURLTypes` declares exactly the `pitstop`

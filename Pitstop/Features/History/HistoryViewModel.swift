@@ -55,10 +55,17 @@ final class HistoryViewModel {
 
     private let store: any CarMemoryStore
     private let now: @Sendable () -> Date
+    /// How the editor writes a stored amount back into its field.
+    private let locale: Locale
 
-    init(store: any CarMemoryStore, now: @escaping @Sendable () -> Date = { Date() }) {
+    init(
+        store: any CarMemoryStore,
+        now: @escaping @Sendable () -> Date = { Date() },
+        locale: Locale = .autoupdatingCurrent
+    ) {
         self.store = store
         self.now = now
+        self.locale = locale
     }
 
     func load() async {
@@ -83,7 +90,7 @@ final class HistoryViewModel {
             kind: event.kind,
             date: event.date,
             odometerText: event.odometerKm.map(String.init) ?? "",
-            amountText: event.amount.map { "\($0)" } ?? "",
+            amountText: event.amount.map { FeatureFormat.amountInput($0, locale: locale) } ?? "",
             note: event.note ?? ""
         )
     }

@@ -14,14 +14,6 @@ final class CaptureSurfaceRequests {
         isPending = true
     }
 
-    /// Requests Pit for its URL and ignores every other URL; returns whether the URL was Pit's.
-    @discardableResult
-    func request(opening url: URL) -> Bool {
-        guard CaptureSurface(url: url) == .pit else { return false }
-        request()
-        return true
-    }
-
     /// Returns whether Pit should open now, and clears the request only then. While a feature editor or
     /// another modal task is presented, the root cannot present Pit over it; the request stays pending
     /// and opens Pit once that task closes, so it is never consumed by a presentation that cannot happen.

@@ -12,8 +12,9 @@ public enum CaptureStage: String, Hashable, Sendable, CaseIterable {
     case mutationCompleted = "mutation_completed"
     case rawPreserved = "raw_preserved"
     case pipelineFailed = "pipeline_failed"
-    /// Not in the contract's list yet (proposed in ADR 0006): blank input ends here, so an abandoned
-    /// capture can be told apart from a pipeline that stopped without a terminal stage.
+    /// A capture that ends with nothing to save: blank or empty input, or a cancelled capture (ADR 0006,
+    /// ADR 0015), so an abandoned capture can be told apart from a pipeline that stopped without a terminal stage.
+    /// The capture contract does not list it; ADR 0006 proposes adding it.
     case captureDiscarded = "capture_discarded"
 }
 

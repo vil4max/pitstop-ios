@@ -355,9 +355,3 @@ public enum DomainCommand: Hashable, Sendable {
         }
     }
 }
-
-extension String {
-    var isBlank: Bool {
-        allSatisfy(\.isWhitespace)
-    }
-}

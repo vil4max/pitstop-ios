@@ -25,7 +25,7 @@ extension MaintenanceOperationState {
             let measured = measure.map(ProgressText.text(for:))
             let blocked = block.map(ProgressText.blocked)
             switch (measured, blocked) {
-            case let (measured?, blocked?): return Text("\(measured) \(blocked)")
+            case let (measured?, blocked?): return Text("service.progress.measuredBlocked \(measured) \(blocked)")
             case let (measured?, nil): return measured
             case let (nil, blocked?): return blocked
             case (nil, nil): return ProgressText.blocked(.mileageUnknown)
@@ -77,17 +77,9 @@ extension MaintenanceOperationState {
 }
 
 extension VehicleServiceReport {
-    var distanceText: Text? {
-        remainingDistance.map { Self.distanceText($0, unit: distanceUnit) }
-    }
-
     /// The values the car showed, distance first, as the Service line and the Pit confirmation say them.
     static func carSaysTexts(distance: Double?, unit: DistanceUnit, days: Int?) -> [Text] {
         [distance.map { distanceText($0, unit: unit) }, days.map(daysText)].compactMap(\.self)
-    }
-
-    var daysText: Text? {
-        remainingDays.map(Self.daysText)
     }
 
     /// In the unit the car showed; never converted for display (REQ-MAINT-037). Overdue says so in

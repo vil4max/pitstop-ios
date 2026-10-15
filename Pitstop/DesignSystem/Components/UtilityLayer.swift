@@ -63,8 +63,8 @@ extension View {
     }
 }
 
-/// The touch feedback interactive glass gave Pit's circle, kept now that the circle is his head: it shrinks a
-/// little and darkens while pressed (ADR 0039).
+/// Pit's head answers a touch as interactive glass would: it shrinks a little and darkens while pressed
+/// (ADR 0039).
 enum PitHeadPress {
     static let pressedScale: CGFloat = 0.92
     /// A disabled Pit (a sheet saving) is shown dimmed, as a disabled plain button is.

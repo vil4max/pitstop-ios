@@ -92,12 +92,9 @@ enum PitColor {
     private static let accentLight = RGB(0.10, 0.37, 0.70)
     private static let accentDark = RGB(0.49, 0.73, 0.98)
 
+    /// Light and dark, unchanged under Increase Contrast.
     private static func dynamic(light: RGB, dark: RGB) -> Color {
-        Color(
-            uiColor: UIColor { traits in
-                let rgb = traits.userInterfaceStyle == .dark ? dark : light
-                return UIColor(red: rgb.red, green: rgb.green, blue: rgb.blue, alpha: 1)
-            })
+        dynamic(light: light, dark: dark, highContrastLight: light, highContrastDark: dark)
     }
 
     /// The same value in every appearance: part of an object, not a surface.

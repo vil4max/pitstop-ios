@@ -87,6 +87,8 @@ struct CarBoardView: View {
         NavigationLink(value: CarBoardRoute.tile(descriptor.kind)) {
             CarBoardTileView(
                 descriptor: descriptor,
+                now: viewModel.state.moment,
+                calendar: viewModel.state.calendar,
                 notes: viewModel.state.notes,
                 history: viewModel.state.history,
                 service: viewModel.state.service,

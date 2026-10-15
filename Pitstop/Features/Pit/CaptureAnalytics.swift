@@ -54,7 +54,7 @@ enum CaptureIntent: String, AnalyticsCategory {
     case vehicleFact = "vehicle_fact"
     case maintenanceCompletion = "maintenance_completion"
     case maintenancePolicyDraft = "maintenance_policy_draft"
-    /// Proposed with MNT-VR-002 (ADR 0035); listed as proposed in docs/operations/analytics.md.
+    /// A dashboard reading (ADR 0035); whether it is collected is decided in docs/operations/analytics.md.
     case vehicleServiceReport = "vehicle_service_report"
     case vehicleEvent = "vehicle_event"
     case expense
@@ -96,7 +96,9 @@ enum InterpretationResult: String, AnalyticsCategory {
         switch kind {
         case nil, .rawNote: self = .fallback
         case .unknown: self = .unsupported
-        default: self = .draft
+        case .contextualNote, .odometerReading, .vehicleFact, .maintenanceCompletion, .maintenancePolicyDraft,
+            .vehicleServiceReport, .vehicleEvent, .expense, .reminderCandidate:
+            self = .draft
         }
     }
 }
@@ -104,7 +106,7 @@ enum InterpretationResult: String, AnalyticsCategory {
 enum InterpreterVersion: String, AnalyticsCategory {
     case noInterpreter = "none"
     case ruleBasedV1 = "rule_based_1"
-    /// DEBUG-only composition behind a launch argument (ADR 0027); proposed value, pending review.
+    /// The DEBUG-only composition behind a launch argument (ADR 0027); release builds never report it.
     case ruleBasedThenFoundationModelsV1 = "rule_based_1_foundation_models_1"
 
     var availability: InterpreterAvailability {

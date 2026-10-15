@@ -1,6 +1,6 @@
 import Foundation
 
-/// Constants decided in ADR 0008. They are product hypotheses kept in one place.
+/// Road's product hypotheses (ADR 0008), kept in one place so a change to one is a change here only.
 public enum RoadRules {
     public static let horizonKm = 5000
     public static let horizonDays = 183
@@ -194,8 +194,8 @@ public struct RoadContext: Hashable, Sendable {
     public let maintenanceStates: [MaintenanceOperationState]
     public let plannedEvents: [PlannedVehicleEvent]
     public let history: HistoryTimeline
-    /// Reading history for the date estimate only. With none, Road is exactly what it was before
-    /// ADR 0034: every milestone keeps its place and its label, without an estimate.
+    /// Reading history for the date estimate only (ADR 0034). With none, every milestone keeps its place and
+    /// its label, without an estimate.
     public let mileageObservations: [MileageObservation]
     /// The calendar the surfaces pass in (the owner's autoupdating one in the app), so day bucketing
     /// and estimated days follow it (ADR 0032, ADR 0034).

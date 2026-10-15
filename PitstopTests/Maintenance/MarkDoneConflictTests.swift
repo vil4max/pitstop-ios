@@ -6,7 +6,7 @@ private let now = DomainFixtures.Odometers.baseDate
 private let day: TimeInterval = 86400
 
 /// Pit recording the same work while Mark as done is open is a merge conflict with one resolution: the owner keeps
-/// Pit's entry or replaces it with their own. Nothing ever stores both (REQ-MAINT-040, proposed).
+/// Pit's entry or replaces it with their own. Nothing ever stores both (REQ-MAINT-040).
 @MainActor
 @Suite("Mark as done conflict with Pit's entry")
 struct MarkDoneConflictTests {

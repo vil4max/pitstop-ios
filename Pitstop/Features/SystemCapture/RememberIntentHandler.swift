@@ -106,7 +106,7 @@ struct RememberIntentHandler: Sendable {
                     let question = RememberQuestion.confirm(pending.content, conflicts: pending.conflicts)
                     switch try await ask(question, input: input, kind: pending.kind, prompter: prompter) {
                     case .record: outcome = try await pipeline.confirm(pending)
-                    case .wordsOnly: outcome = try await pipeline.preserveRaw(input, kind: pending.kind)
+                    case .wordsOnly: outcome = try await pipeline.preserveRaw(input)
                     case .cancel: return .cancelled
                     }
                 case let .needsClarification(request):
@@ -177,7 +177,7 @@ struct RememberIntentHandler: Sendable {
             }
             // Recording needs a detail that is not asked by voice; only the words can be kept.
             switch choice {
-            case .wordsOnly?: return try await pipeline.preserveRaw(input, kind: kind)
+            case .wordsOnly?: return try await pipeline.preserveRaw(input)
             case .record?, .cancel?: return cancelled(input, kind: kind)
             case nil: return nil
             }

@@ -11,7 +11,7 @@ struct LoadFailureBanner: View {
                 .font(.footnote)
                 .foregroundStyle(PitColor.contentSecondary)
             Spacer()
-            Button("carBoard.load.retry") {
+            Button("common.retry") {
                 Task { await retry() }
             }
             .font(.footnote.weight(.semibold))

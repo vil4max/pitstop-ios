@@ -1,7 +1,7 @@
 import Foundation
 
 /// A deterministic stand-in for the language model (CAP-002, ADR 0011). It recognises a few explicit
-/// phrasings in Russian and English and proposes nothing at all when it is not sure, so unsupported
+/// phrasings in Russian, Ukrainian and English and proposes nothing at all when it is not sure, so unsupported
 /// meaning degrades to raw preservation instead of a guess (REQ-CAPTURE-006).
 ///
 /// It is not an attempt at understanding language. It exists so the proposal, confirmation, and

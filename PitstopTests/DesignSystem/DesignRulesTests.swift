@@ -48,7 +48,7 @@ struct DesignRulesTests {
         #expect(hits.isEmpty, "colour literals under Shared/ outside DesignSystem/: \(hits)")
     }
 
-    /// Every widget file is checked from its first line, the next-service widget included since FU-2 restyled it.
+    /// Every widget file is checked from its first line, the next-service widget included.
     @Test("REQ-DESIGN-004: widget code names PitColor roles, never a colour literal")
     func widgetsUseRoles() throws {
         let files = try Self.swiftFiles(under: "PitstopWidgets")

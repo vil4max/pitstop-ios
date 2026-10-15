@@ -1,8 +1,8 @@
 import Foundation
 
-/// A mileage fact at a moment: an odometer reading, or a completion recorded with its mileage. These
-/// are the two sources `MaintenanceContext` already reads, so the estimate counts from the same car
-/// history the status does (ADR 0010, REQ-BOARD-026).
+/// A mileage fact at a moment: an odometer reading, a completion recorded with its mileage, or a dashboard
+/// reading entered with its odometer. These are the three sources `MaintenanceContext` reads, so the estimate
+/// counts from the same car history the status does (ADR 0010, REQ-BOARD-026).
 public struct MileageObservation: Hashable, Sendable {
     public let date: Date
     public let km: Double
@@ -30,7 +30,7 @@ public struct MileageObservation: Hashable, Sendable {
     }
 }
 
-/// Constants decided in ADR 0034. Like `RoadRules` they are product hypotheses kept in one place.
+/// The estimate's product hypotheses (ADR 0034), kept in one place like `RoadRules`.
 public enum MileageRateRules {
     /// Fewer daily observations than this say nothing about how the car is driven.
     public static let minimumObservations = 3

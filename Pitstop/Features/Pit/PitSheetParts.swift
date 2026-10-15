@@ -72,7 +72,9 @@ struct PitSheetCard<Content: View>: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(PitColor.surfaceSecondary, in: shape)
-        .overlay(shape.strokeBorder(PitColor.separator.opacity(0.35), lineWidth: DesignTokens.hairline))
+        .overlay(
+            shape.strokeBorder(
+                PitColor.separator.opacity(DesignTokens.cardEdgeOpacity), lineWidth: DesignTokens.hairline))
     }
 
     private var shape: RoundedRectangle {

@@ -39,14 +39,17 @@ struct PitInSheetTests {
 
     @Test("REQ-UTILITY-012: Settings keeps Pit and capture does not, and Pit rides above the keyboard in a sheet")
     func rootSheetsAndKeyboard() throws {
-        let root = try Self.source("Pitstop/App/RootView.swift")
+        // The cases of the sheet the root presents, not of any other switch over its sheets.
+        let source = try Self.source("Pitstop/App/RootView.swift")
+        let presenter = try #require(source.range(of: ".sheet(item: $sheet)"))
+        let root = String(source[presenter.upperBound...])
         let settings = try #require(root.range(of: "case .settings:"))
         let capture = try #require(root.range(of: "case .pit:"))
         #expect(root[settings.upperBound..<capture.lowerBound].contains(".pitStaysInSheet()"))
         let captureCase = root[capture.upperBound...].prefix(400)
         #expect(!captureCase.contains("pitStaysInSheet"), "the capture surface shows Pit in its header instead")
         // The layer itself never rides up over the keyboard; Pit inside a sheet does.
-        #expect(root.contains(".ignoresSafeArea(.keyboard, edges: .bottom)"))
+        #expect(source.contains(".ignoresSafeArea(.keyboard, edges: .bottom)"))
         #expect(try !Self.source("Pitstop/Features/Pit/PitInSheet.swift").contains("ignoresSafeArea"))
     }
 
@@ -180,19 +183,21 @@ struct PitInSheetTests {
 
     @Test("REQ-PIT-026: a sheet that goes away closes the capture opened over it")
     func hostTeardownClosesCapture() throws {
-        // Code lines only, so the comment explaining the rule does not satisfy it.
+        // Code lines only, so the comment explaining the rule does not satisfy it. Whitespace is dropped from the
+        // code and the needles alike, so however the formatter wraps a call, the match does not change.
         let code = try Self.source("Pitstop/Features/Pit/PitInSheet.swift").split(separator: "\n")
             .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("//") }
             .joined(separator: "\n")
-        let modifier = try #require(code.range(of: "struct PitStaysInSheet"))
-        let body = code[modifier.upperBound...]
+            .withoutWhitespace
+        let modifier = try #require(code.range(of: "struct PitStaysInSheet".withoutWhitespace))
+        let body = String(code[modifier.upperBound...])
         let close = try #require(
-            body.range(of: ".onDisappear { context?.entry.close(from: host) }"),
+            body.range(of: ".onDisappear { context?.entry.close(from: host) }".withoutWhitespace),
             "PitStaysInSheet no longer closes its capture when the sheet goes away"
         )
         // On the host's content, not inside the capture sheet it presents.
-        let capture = try #require(body.range(of: ".sheet(isPresented:"))
-        #expect(close.upperBound < capture.lowerBound)
+        let capture = try #require(body.range(of: ".sheet(isPresented:".withoutWhitespace))
+        #expect(close.upperBound <= capture.lowerBound)
     }
 
     static func source(_ relativePath: String) throws -> String {
@@ -218,5 +223,11 @@ struct PitInSheetTests {
             guard !code.hasPrefix("//"), needles.contains(where: code.contains) else { return nil }
             return "\(file.lastPathComponent):\(index + 1)"
         }
+    }
+}
+
+private extension String {
+    var withoutWhitespace: String {
+        filter { !$0.isWhitespace }
     }
 }

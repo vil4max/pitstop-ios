@@ -70,28 +70,33 @@ public struct DomainCommandMapper: Sendable {
         case let .vehicleEvent(kind, date, odometerKm, amount):
             return .recordVehicleEvent(
                 RecordVehicleEventCommand(
-                    event: HistoryEvent(
-                        id: recordID,
-                        vehicleID: vehicleID,
-                        kind: kind,
-                        date: date,
-                        odometerKm: odometerKm,
-                        amount: amount,
-                        note: validated.proposal.rawText
-                    )))
+                    event: historyEvent(validated, kind: kind, date: date, odometerKm: odometerKm, amount: amount)
+                ))
         case let .expense(kind, date, odometerKm, amount):
             return .recordExpense(
                 RecordExpenseCommand(
-                    event: HistoryEvent(
-                        id: recordID,
-                        vehicleID: vehicleID,
-                        kind: kind,
-                        date: date,
-                        odometerKm: odometerKm,
-                        amount: amount,
-                        note: validated.proposal.rawText
-                    )))
+                    event: historyEvent(validated, kind: kind, date: date, odometerKm: odometerKm, amount: amount)
+                ))
         }
+    }
+
+    /// A History entry keeps the capture's words as its note; its ID is the proposal's, as for every record.
+    private func historyEvent(
+        _ validated: ValidatedProposal,
+        kind: HistoryEventKind,
+        date: Date,
+        odometerKm: Int?,
+        amount: Decimal?
+    ) -> HistoryEvent {
+        HistoryEvent(
+            id: validated.proposal.id,
+            vehicleID: validated.vehicleID,
+            kind: kind,
+            date: date,
+            odometerKm: odometerKm,
+            amount: amount,
+            note: validated.proposal.rawText
+        )
     }
 }
 

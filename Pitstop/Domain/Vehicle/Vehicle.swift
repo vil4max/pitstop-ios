@@ -77,6 +77,14 @@ public struct Vehicle: Identifiable, Hashable, Codable, Sendable {
 public enum DistanceUnit: String, Codable, Sendable {
     case kilometers = "km"
     case miles = "mi"
+
+    /// `value` in this unit, in kilometres: the one place a mile becomes a kilometre (the international mile).
+    public func kilometers(_ value: Double) -> Double {
+        switch self {
+        case .kilometers: value
+        case .miles: value * 1.609344
+        }
+    }
 }
 
 public enum ReadingSource: String, Codable, Sendable {
@@ -110,12 +118,7 @@ public struct OdometerReading: Identifiable, Hashable, Codable, Sendable {
     }
 
     public var valueInKilometers: Double {
-        switch unit {
-        case .kilometers:
-            value
-        case .miles:
-            value * 1.609344
-        }
+        unit.kilometers(value)
     }
 }
 

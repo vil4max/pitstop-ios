@@ -5,10 +5,16 @@ import Testing
 @Suite("Pit URL routing")
 @MainActor
 struct PitURLRoutingTests {
+    /// Routes `url` the way the app's `onOpenURL` does; returns whether it was a PitStop link.
+    @discardableResult
+    private static func route(_ url: URL, to requests: CaptureSurfaceRequests) -> Bool {
+        AppLinkRouter.route(url, capture: requests, service: ServiceLinkRequests())
+    }
+
     @Test("ADR-0025, REQ-CAPTURE-023: the widget's link is pitstop://pit and routes back to Pit")
     func widgetLinkIsPit() {
         #expect(CaptureSurface.pit.url.absoluteString == "pitstop://pit")
-        #expect(CaptureSurface(url: CaptureSurface.pit.url) == .pit)
+        #expect(AppLink(url: CaptureSurface.pit.url) == .pit)
     }
 
     @Test(
@@ -18,7 +24,7 @@ struct PitURLRoutingTests {
     func pitURLRequestsPit(_ string: String) throws {
         let requests = CaptureSurfaceRequests()
         let url = try #require(URL(string: string))
-        #expect(requests.request(opening: url))
+        #expect(Self.route(url, to: requests))
         #expect(requests.take(isPresentationBlocked: false))
     }
 
@@ -42,7 +48,7 @@ struct PitURLRoutingTests {
     func otherURLsAreIgnored(_ string: String) throws {
         let requests = CaptureSurfaceRequests()
         let url = try #require(URL(string: string))
-        #expect(!requests.request(opening: url))
+        #expect(!Self.route(url, to: requests))
         #expect(!requests.isPending)
         #expect(!requests.take(isPresentationBlocked: false))
     }
@@ -50,7 +56,7 @@ struct PitURLRoutingTests {
     @Test("ADR-0025, ADR-0024: a link opened while an editor is presented waits, then opens Pit once")
     func linkDefersWhileBlocked() {
         let requests = CaptureSurfaceRequests()
-        #expect(requests.request(opening: CaptureSurface.pit.url))
+        #expect(Self.route(CaptureSurface.pit.url, to: requests))
         #expect(!requests.take(isPresentationBlocked: true))
         #expect(requests.isPending)
         #expect(requests.take(isPresentationBlocked: false))
@@ -64,7 +70,7 @@ struct PitURLRoutingTests {
             "No CFBundleURLTypes in the app's Info.plist"
         )
         let schemes = types.flatMap { $0["CFBundleURLSchemes"] as? [String] ?? [] }
-        #expect(schemes == [CaptureSurface.urlScheme])
+        #expect(schemes == [AppLink.scheme])
     }
 }
 

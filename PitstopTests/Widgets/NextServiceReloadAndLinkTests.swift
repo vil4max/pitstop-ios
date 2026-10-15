@@ -76,7 +76,6 @@ struct ServiceLinkTests {
         let service = ServiceLinkRequests()
         #expect(AppLinkRouter.route(AppLink.service.url, capture: capture, service: service))
         #expect(service.isPending && !capture.isPending)
-        #expect(CaptureSurface(url: AppLink.service.url) == nil)
         #expect(try AppLink(url: #require(URL(string: "PITSTOP://Service/"))) == .service)
     }
 

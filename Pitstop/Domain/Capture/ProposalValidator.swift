@@ -238,7 +238,7 @@ public struct ProposalValidator: Sendable {
         }
         guard missing.isEmpty, let operationID = proposal.extractedOperationID else { throw .missing(missing) }
         let unit = proposal.extractedRemainingDistanceUnit ?? .kilometers
-        let kilometers = unit == .miles ? distance.map { $0 * 1.609344 } : distance
+        let kilometers = distance.map(unit.kilometers)
         if let kilometers, !VehicleServiceReportLimits.isPlausibleRemainingKm(kilometers) {
             throw .preserve(.invalidExtractedValue)
         }

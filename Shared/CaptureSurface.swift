@@ -13,17 +13,8 @@ enum CaptureSurface: String, AppEnum {
         .pit: DisplayRepresentation(title: LocalizedStringResource("intent.captureSurface.pit", table: "OpenPit"))
     ]
 
-    static let urlScheme = AppLink.scheme
-
-    /// The widget's link, `pitstop://pit`.
+    /// The widget's link, `pitstop://pit`; `AppLinkRouter` turns it back into a Pit request.
     var url: URL {
         AppLink.pit.url
-    }
-
-    /// Only `pitstop://pit` is a capture surface; every other link, including `pitstop://service`, is not,
-    /// so a link from another app or a web page opens the Pit sheet and nothing more through this type.
-    init?(url: URL) {
-        guard AppLink(url: url) == .pit else { return nil }
-        self = .pit
     }
 }

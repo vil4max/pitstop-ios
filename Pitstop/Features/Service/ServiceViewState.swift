@@ -25,7 +25,7 @@ struct ServiceViewState: Equatable {
     /// reading is not offered, because the car has moved since.
     var sameDayOdometerKm: Int?
     /// Pit recorded this work within a day of the open Mark as done sheet's date, and the owner's entry differs: the
-    /// sheet records nothing and asks whether to keep Pit's entry or replace it (REQ-MAINT-040, proposed).
+    /// sheet records nothing and asks whether to keep Pit's entry or replace it (REQ-MAINT-040).
     var markDoneConflict: MarkDoneConflict?
     /// Grows each time the sheet has to ask, so the prompt is announced to VoiceOver even when it is already shown:
     /// focus stays on the confirmation, and the prompt appears below it.
@@ -44,7 +44,7 @@ struct ServiceViewState: Equatable {
         hasLoaded && !isLoadFailed && !untrackedOperations.isEmpty
     }
 
-    /// "Track an operation" needs something left to track (the delivered rule).
+    /// "Track an operation" needs something left to track; unlike "Track several" it does not wait for a load.
     var canTrackOne: Bool {
         !untrackedOperations.isEmpty
     }
@@ -61,6 +61,18 @@ struct ServiceViewState: Equatable {
 struct StopTrackingRequest: Equatable {
     let operation: MaintenanceOperationID
     let fallsBackToOtherPolicy: Bool
+}
+
+extension ServiceViewState {
+    /// The unit of whichever is newer, the latest distance reading from the dashboard or the latest odometer
+    /// reading; kilometres when neither exists.
+    static func defaultReportUnit(readings: [OdometerReading], reports: [VehicleServiceReport]) -> DistanceUnit {
+        let newestReport = reports.filter { $0.remainingDistance != nil }.max { $0.reportedAt < $1.reportedAt }
+        if let newestReport, newestReport.reportedAt >= (readings.latest?.recordedAt ?? .distantPast) {
+            return newestReport.distanceUnit
+        }
+        return readings.latest?.unit ?? .kilometers
+    }
 }
 
 enum ServiceFailure: Equatable {

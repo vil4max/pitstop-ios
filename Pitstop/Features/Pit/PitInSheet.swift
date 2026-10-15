@@ -77,8 +77,6 @@ private struct PitStaysInSheet: ViewModifier {
     @State private var id = UUID()
     @State private var saving = PitSheetSaving()
 
-    // PitInSheetTests reads the `.sheet(isPresented:` text below, which swift-format would split over two lines.
-    // swift-format-ignore
     func body(content: Content) -> some View {
         let host = PitCaptureEntry.Host.sheet(id)
         // Read here, not inside the binding, so the sheet follows the entry.
@@ -97,14 +95,16 @@ private struct PitStaysInSheet: ViewModifier {
             // capture binding's setter when the sheet under it goes away, and an entry left open would keep every
             // Pit from opening capture, so the sheet closes its own capture as it leaves.
             .onDisappear { context?.entry.close(from: host) }
-            .sheet(isPresented: Binding(
-                get: { isCapturing },
-                set: { isPresented in
-                    if !isPresented {
-                        context?.entry.close(from: host)
+            .sheet(
+                isPresented: Binding(
+                    get: { isCapturing },
+                    set: { isPresented in
+                        if !isPresented {
+                            context?.entry.close(from: host)
+                        }
                     }
-                }
-            )) {
+                )
+            ) {
                 if let context {
                     // The saved moment still names where the capture went, in words (REQ-CAPTURE-010).
                     PitCaptureView(
