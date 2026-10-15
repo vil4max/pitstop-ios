@@ -123,29 +123,6 @@ struct CarBoardViewModelTests {
         #expect(model.state.car.odometerKm == 84200)
     }
 
-    @Test("REQ-BOARD-026: a load that fails on a later read keeps the header and the tiles from one earlier load")
-    func partialLoadFailureKeepsOneConsistentState() async throws {
-        let store = FakeCarMemoryStore()
-        let vehicleID = try await store.currentVehicle().id
-        let reading = OdometerReading(vehicleID: vehicleID, value: 80000, recordedAt: now.addingTimeInterval(-86400))
-        _ = try await store.execute(.recordOdometerReading(.init(reading: reading)), now: now)
-        let model = TestViewModels.carBoard(store, now: now)
-        await model.load()
-        let loaded = model.state
-
-        let completion = MaintenanceCompletion(
-            vehicleID: vehicleID, operationID: .engineOilService, performedAt: now, odometerKm: 84200
-        )
-        _ = try await store.execute(.confirmMaintenanceCompletion(.init(completion: completion)), now: now)
-        await store.failPlannedEventReads()
-        await model.load()
-
-        #expect(model.state.isLoadFailed)
-        var expected = loaded
-        expected.isLoadFailed = true
-        #expect(model.state == expected, "the header moved to the new mileage while Service and Road kept the old")
-    }
-
     @Test("REQ-BOARD-026: saving the same number over a stale mileage records a fresh reading")
     func sameNumberOverStaleMileageIsRecorded() async throws {
         let store = FakeCarMemoryStore()
@@ -374,5 +351,45 @@ struct CarBoardViewModelTests {
         #expect(model.state.car.name == "Kestrel")
         #expect(await store.vehicle.name == "Kestrel")
         #expect(model.state.mileage == .kilometers(84200))
+    }
+}
+
+// MARK: - A load failing part way
+
+extension CarBoardViewModelTests {
+    @Test("REQ-BOARD-026: a load that fails on a later read keeps the header and the tiles from one earlier load")
+    func partialLoadFailureKeepsOneConsistentState() async throws {
+        let store = FakeCarMemoryStore()
+        let vehicleID = try await store.currentVehicle().id
+        let reading = OdometerReading(vehicleID: vehicleID, value: 80000, recordedAt: now.addingTimeInterval(-86400))
+        _ = try await store.execute(.recordOdometerReading(.init(reading: reading)), now: now)
+        let model = TestViewModels.carBoard(store, now: now)
+        await model.load()
+        let loaded = model.state
+
+        let completion = MaintenanceCompletion(
+            vehicleID: vehicleID, operationID: .engineOilService, performedAt: now, odometerKm: 84200
+        )
+        _ = try await store.execute(.confirmMaintenanceCompletion(.init(completion: completion)), now: now)
+        await store.failPlannedEventReads()
+        await model.load()
+
+        #expect(model.state.isLoadFailed)
+        var expected = loaded
+        expected.isLoadFailed = true
+        #expect(model.state == expected, "the header moved to the new mileage while Service and Road kept the old")
+    }
+
+    @Test("REQ-BOARD-026: a load that fails on a later read still lets the owner save the car's name")
+    func partialLoadFailureStillSavesTheCar() async throws {
+        let store = FakeCarMemoryStore()
+        await store.failPlannedEventReads()
+        let model = TestViewModels.carBoard(store, now: now)
+        await model.load()
+        #expect(model.state.isLoadFailed)
+
+        #expect(await model.saveCar(name: "Heron", odometerText: ""))
+
+        #expect(await store.vehicle.name == "Heron")
     }
 }

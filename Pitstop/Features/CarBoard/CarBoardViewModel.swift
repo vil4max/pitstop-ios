@@ -110,6 +110,9 @@ final class CarBoardViewModel {
         let moment = now()
         do {
             let vehicle = try await store.currentVehicle()
+            // Saving the car needs only the car: a later read failing must not make the editor fail too.
+            vehicleID = vehicle.id
+            photoID = vehicle.photoID
             let readings = try await store.odometerReadings()
             let latest = readings.latest
             let completions = try await store.maintenanceCompletions()
@@ -153,8 +156,6 @@ final class CarBoardViewModel {
             next.isLoadFailed = false
             // A save while this load awaited may have set a failure; it is not this load's to clear.
             next.failure = state.failure
-            vehicleID = vehicle.id
-            photoID = vehicle.photoID
             isMileageCurrent = context.mileage == .known
             mileageObservedAt = context.observedAt
             state = next
