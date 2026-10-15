@@ -17,4 +17,9 @@ renamed to the version and date. Pitstop has no `v` tag yet.
 
 ### Bug Fixes
 
+- A car you have not named yet now shows its placeholder name in Russian and
+  Ukrainian, not only as "My New Car".
+- In Ukrainian, "пробіг 84 200" now saves the mileage, as "пробег" does in
+  Russian.
+
 ### Removed
