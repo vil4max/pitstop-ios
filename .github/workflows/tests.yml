@@ -18,8 +18,8 @@ name: Tests
 #   IOS_DEVELOPER_DIR  Xcode to use (default the image's versioned Xcode_27.0)
 #
 # Actions are pinned by commit SHA, so a moved tag cannot change what runs. SwiftLint
-# comes from brew when the runner lacks it and is not pinned: a hosted image gets
-# the current formula on each run. swift-format is the one in the pinned Xcode.
+# is the version in .swiftlint-version, checked against its release checksum.
+# swift-format is the one in the pinned Xcode.
 on:
   push:
     branches: [main]
@@ -55,12 +55,38 @@ jobs:
         run: xcodebuild -version
 
       # swift-format comes with Xcode and is only checked; the step fails if the
-      # selected Xcode lacks it. A self-hosted Mac already has SwiftLint.
+      # selected Xcode lacks it. SwiftLint is the version named in .swiftlint-version:
+      # used as is when the runner has it, otherwise downloaded from the release and
+      # verified against the recorded checksum, so a new SwiftLint release cannot turn
+      # the strict lint red without a code change.
       - name: Tools
         run: |
           xcrun --find swift-format
-          command -v swiftlint >/dev/null || brew install swiftlint
+          read -r version sha256 <.swiftlint-version
+          if [ "$(swiftlint version 2>/dev/null)" != "$version" ]; then
+            tmp="$(mktemp -d)"
+            curl -fsSL -o "$tmp/swiftlint.zip" \
+              "https://github.com/realm/SwiftLint/releases/download/$version/portable_swiftlint.zip"
+            echo "$sha256  $tmp/swiftlint.zip" | shasum -a 256 -c -
+            unzip -q "$tmp/swiftlint.zip" -d "$tmp/swiftlint"
+            mkdir -p "$RUNNER_TEMP/bin"
+            install -m 755 "$(find "$tmp/swiftlint" -name swiftlint -type f | head -n 1)" "$RUNNER_TEMP/bin/swiftlint"
+            echo "$RUNNER_TEMP/bin" >>"$GITHUB_PATH"
+            export PATH="$RUNNER_TEMP/bin:$PATH"
+          fi
           swiftlint version
+
+      # A tf- tag needs one MAJOR.MINOR.PATCH marketing version across configurations
+      # (docs/operations/testflight.md); checking it on every push reports a bad version
+      # before anyone tags the commit.
+      - name: Marketing version
+        run: |
+          versions="$(python3 ci_scripts/project_versions.py Pitstop.xcodeproj/project.xcproj)"
+          echo "MARKETING_VERSION: $versions"
+          [ "$(printf '%s\n' "$versions" | wc -l | tr -d ' ')" = 1 ] \
+            || { echo "expected one MARKETING_VERSION, found: $versions"; exit 1; }
+          printf '%s\n' "$versions" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' \
+            || { echo "MARKETING_VERSION must be MAJOR.MINOR.PATCH, found: $versions"; exit 1; }
 
       # Tracked Swift files only, without dependency folders and agent worktrees.
       - name: Swift files

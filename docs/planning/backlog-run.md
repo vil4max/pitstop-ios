@@ -35,14 +35,9 @@ releases, `v` and `tf-` tags.
 Groups 1 to 10 are done; the gate is `ios-verify` (group 9). Every group gets
 an independent review before its commit.
 
-Low review findings of group 9 kept as backlog:
+CI pins SwiftLint (`.swiftlint-version`) and checks `MARKETING_VERSION` on
+every push. Low review finding of group 9 kept as backlog:
 
-- CI installs SwiftLint unpinned and lints with `--strict`, so a new
-  SwiftLint warning can turn `main` red without a code change; pin it as
-  regional-check does (`.swiftlint-version` with a checksum).
-- The removed Runtime checked `MARKETING_VERSION` on every push; now only
-  the TestFlight scripts check it, at tag time. A push-time step running
-  `ci_scripts/project_versions.py` would restore the early signal.
 - REQ-DESIGN-002/004 (`product-design.md`, fingerprinted in
   `.spec-lock.json`) and `app-icon.md` still say `just verify`; rewording
   approved requirement text is the owner's.
