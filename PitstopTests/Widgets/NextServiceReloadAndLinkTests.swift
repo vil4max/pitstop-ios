@@ -1,21 +1,8 @@
 import Foundation
 @testable import Pitstop
-import Synchronization
 import Testing
 
 private let now = Date(timeIntervalSince1970: 1_800_000_000)
-
-private final class ReloadSpy: NextServiceReloading {
-    let count = Mutex(0)
-
-    func reloadNextService() {
-        count.withLock { $0 += 1 }
-    }
-
-    var requests: Int {
-        count.withLock { $0 }
-    }
-}
 
 @Suite("Next-service widget reloads")
 struct NextServiceReloadTests {
@@ -64,12 +51,18 @@ struct NextServiceReloadTests {
         #expect(!(environment.store is WidgetReloadingCarMemoryStore))
     }
 
-    @Test("REQ-WIDGET-009: the durable store wired at launch is wrapped for reloads")
+    @Test("REQ-WIDGET-009: the durable store wired at launch is wrapped for reloads and reloads once")
     func durableStoreReloads() {
-        // The test host's own store, as the app opened it at launch; opening it again changes nothing.
-        let environment = AppEnvironment.live(arguments: [])
+        let url = TestStore.temporaryURL()
+        defer { TestStore.remove(at: url) }
+        let spy = ReloadSpy()
+        var sources = AppEnvironment.StoreSources.live
+        sources.durableURL = { url }
+        sources.reloader = spy
+        let environment = AppEnvironment.live(arguments: [], sources: sources)
         #expect(environment.persistence == .durable)
         #expect(environment.store is WidgetReloadingCarMemoryStore)
+        #expect(spy.requests == 1)
     }
 }
 

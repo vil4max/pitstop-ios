@@ -28,12 +28,49 @@ struct AppEnvironment: Sendable {
     var locale: @Sendable () -> Locale = { Locale.current }
 
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppEnvironment {
-        var environment = liveStores(arguments: arguments)
+        live(arguments: arguments, sources: .live)
+    }
+
+    /// The composition-root tests pass temporary sources; the app always uses `.live`.
+    static func live(arguments: [String], sources: StoreSources) -> AppEnvironment {
+        var environment = liveStores(arguments: arguments, sources: sources)
         environment.interpretation = InterpreterComposition(arguments: arguments)
         return environment
     }
 
-    private static func liveStores(arguments: [String]) -> AppEnvironment {
+    /// The arguments the app launches with. A hosted unit-test run launches the whole app before its tests,
+    /// and the scheme passes no arguments then, so the in-memory store is chosen here: otherwise every test
+    /// run would open, relocate and reload the simulator's real App Group store.
+    static func launchArguments(
+        _ arguments: [String] = ProcessInfo.processInfo.arguments,
+        environment: [String: String] = ProcessInfo.processInfo.environment
+    ) -> [String] {
+        guard environment["XCTestConfigurationFilePath"] != nil, !arguments.contains(inMemoryArgument) else {
+            return arguments
+        }
+        return arguments + [inMemoryArgument]
+    }
+
+    typealias Stores = (car: SwiftDataCarMemoryStore, questions: SwiftDataPitQuestionStore)
+
+    /// Where the stores come from. Only `durableURL` may touch the user's files; `open` with `nil` builds
+    /// an in-memory store.
+    struct StoreSources {
+        var durableURL: () -> URL?
+        var open: (URL?, PitQuestionRegistry) -> Stores?
+        var reloader: any NextServiceReloading
+
+        static var live: StoreSources {
+            StoreSources(
+                durableURL: AppEnvironment.durableStoreURL,
+                open: AppEnvironment.makeStores,
+                reloader: WidgetCenterNextServiceReloader()
+            )
+        }
+    }
+
+    private static func liveStores(arguments: [String], sources: StoreSources) -> AppEnvironment {
+        let open = sources.open
         let log = AppLog.logger(category: "app.persistence")
         let registry = productRegistry()
         let analytics = makeAnalytics(
@@ -44,7 +81,7 @@ struct AppEnvironment: Sendable {
         #if DEBUG
             if arguments.contains(DemoData.argument) {
                 // Demo facts never reach the user's store, even when the in-memory store cannot be built.
-                guard let stores = makeStores(url: nil, registry: registry) else {
+                guard let stores = open(nil, registry) else {
                     return .unavailable(registry: registry, analytics: analytics)
                 }
                 let staleMileage = arguments.contains(DemoData.staleMileageArgument)
@@ -55,13 +92,13 @@ struct AppEnvironment: Sendable {
         #endif
         if arguments.contains(inMemoryArgument) {
             // Never fall through to the user's real store from a test or preview launch.
-            guard let stores = makeStores(url: nil, registry: registry) else {
+            guard let stores = open(nil, registry) else {
                 return .unavailable(registry: registry, analytics: analytics)
             }
             return AppEnvironment(stores, registry: registry, persistence: .temporary, analytics: analytics)
         }
-        if let url = durableStoreURL(), let stores = makeStores(url: url, registry: registry) {
-            let reloader = WidgetCenterNextServiceReloader()
+        if let url = sources.durableURL(), let stores = open(url, registry) {
+            let reloader = sources.reloader
             // Once per durable launch: a widget left on "unavailable" or empty before this launch moved or
             // migrated the store shows it now.
             reloader.reloadNextService()
@@ -71,7 +108,7 @@ struct AppEnvironment: Sendable {
         }
         // Core P2: the app must still open. The user is told that nothing will be kept.
         log.error("Persistent store unavailable; falling back to memory")
-        guard let fallback = makeStores(url: nil, registry: registry) else {
+        guard let fallback = open(nil, registry) else {
             return .unavailable(registry: registry, analytics: analytics)
         }
         return AppEnvironment(fallback, registry: registry, persistence: .temporary, analytics: analytics)
@@ -150,8 +187,6 @@ struct AppEnvironment: Sendable {
         }
         return store
     }
-
-    private typealias Stores = (car: SwiftDataCarMemoryStore, questions: SwiftDataPitQuestionStore)
 
     private init(
         _ stores: Stores,

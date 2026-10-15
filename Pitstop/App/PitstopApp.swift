@@ -13,7 +13,7 @@ struct PitstopApp: App {
     init() {
         let log = AppLog.logger(category: "app.lifecycle")
         log.info("PitStop launched")
-        let environment = AppEnvironment.live()
+        let environment = AppEnvironment.live(arguments: AppEnvironment.launchArguments())
         let captureRequests = CaptureSurfaceRequests()
         let serviceRequests = ServiceLinkRequests()
         self.captureRequests = captureRequests
