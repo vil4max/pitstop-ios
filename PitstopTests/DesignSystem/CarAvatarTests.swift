@@ -99,14 +99,14 @@ struct CarAvatarTests {
         let diameter = Int(CarAvatar.Size.pit.diameter)
         let image = try Self.render(CarAvatar(source: CarAvatarSource(body: .suv, photo: nil), size: .pit))
         let pixels = Self.pixels(image)
-        func alpha(_ x: Int, _ y: Int) -> UInt8 {
-            pixels[(y * diameter + x) * 4 + 3]
+        func alpha(_ column: Int, _ row: Int) -> UInt8 {
+            pixels[(row * diameter + column) * 4 + 3]
         }
-        for (x, y) in [(0, 0), (diameter - 1, 0), (0, diameter - 1), (diameter - 1, diameter - 1)] {
-            #expect(alpha(x, y) == 0, "corner \(x),\(y) is drawn, so the avatar is not round")
+        for (column, row) in [(0, 0), (diameter - 1, 0), (0, diameter - 1), (diameter - 1, diameter - 1)] {
+            #expect(alpha(column, row) == 0, "corner \(column),\(row) is drawn, so the avatar is not round")
         }
-        for (x, y) in [(diameter / 2, 1), (1, diameter / 2), (diameter / 2, diameter - 2)] {
-            #expect(alpha(x, y) > 0, "edge \(x),\(y) is empty")
+        for (column, row) in [(diameter / 2, 1), (1, diameter / 2), (diameter / 2, diameter - 2)] {
+            #expect(alpha(column, row) > 0, "edge \(column),\(row) is empty")
         }
         for dark in [false, true] {
             let traits = UITraitCollection(userInterfaceStyle: dark ? .dark : .light)
@@ -143,9 +143,10 @@ struct CarAvatarTests {
         let diameter = Int(CarAvatar.Size.pit.diameter)
         let image = try Self.render(CarAvatar(source: CarAvatarSource(body: .suv, photo: photo), size: .pit))
         let pixels = Self.pixels(image)
-        for (x, y) in [(diameter / 2, diameter / 2), (diameter / 2, 3), (3, diameter / 2)] {
-            let offset = (y * diameter + x) * 4
-            #expect(pixels[offset] > 200 && pixels[offset + 1] < 60 && pixels[offset + 3] > 250, "\(x),\(y)")
+        for (column, row) in [(diameter / 2, diameter / 2), (diameter / 2, 3), (3, diameter / 2)] {
+            let offset = (row * diameter + column) * 4
+            #expect(
+                pixels[offset] > 200 && pixels[offset + 1] < 60 && pixels[offset + 3] > 250, "\(column),\(row)")
         }
         #expect(pixels[3] == 0, "the photo is not cropped to the circle")
     }

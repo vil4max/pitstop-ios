@@ -1,150 +1,6 @@
 import Foundation
 import Observation
 
-struct ServiceViewState: Equatable {
-    var operations: [MaintenanceOperationState] = []
-    var scope: SuggestedServiceScope = .empty
-    var mileage: MileageKnowledge = .unknown
-    var isLoadFailed = false
-    /// False until the first successful load; before it, `operations` is empty only because nothing was read.
-    var hasLoaded = false
-    /// Shown inside the open sheet, next to the input that failed.
-    var failure: ServiceFailure?
-    /// Shown on the list: undo happens with no sheet open.
-    var listFailure: ServiceFailure?
-    /// Stopping tracking waits for an explicit confirmation that names the operation, as undo does
-    /// (core P1, ADR 0010, ADR 0031).
-    var stopTrackingCandidate: StopTrackingRequest?
-    /// Operations that keep a rule the owner did not set; stopping the owner's rule falls back to it.
-    var operationsWithOtherPolicy: Set<MaintenanceOperationID> = []
-    /// Deleting a dashboard reading waits for a confirmation that names the operation (ADR 0035).
-    var deleteReportCandidate: MaintenanceOperationID?
-    /// The unit the dashboard sheet starts with: the newest reading's unit, so a car in miles is not
-    /// entered as kilometres by default (REQ-MAINT-037).
-    var defaultReportUnit: DistanceUnit = .kilometers
-    /// Today's odometer reading, if one exists: the dashboard sheet prefills it (ADR 0035). An older
-    /// reading is not offered, because the car has moved since.
-    var sameDayOdometerKm: Int?
-    /// Pit recorded this work within a day of the open Mark as done sheet's date, and the owner's entry differs: the
-    /// sheet records nothing and asks whether to keep Pit's entry or replace it (REQ-MAINT-040, proposed).
-    var markDoneConflict: MarkDoneConflict?
-    /// Grows each time the sheet has to ask, so the prompt is announced to VoiceOver even when it is already shown:
-    /// focus stays on the confirmation, and the prompt appears below it.
-    var markDoneConflictNotices = 0
-
-    /// Only operations tracked by a rule count here: one kept on Service by a dashboard reading alone can
-    /// still be tracked with the owner's own interval.
-    var untrackedOperations: [MaintenanceOperationID] {
-        let tracked = Set(operations.filter { $0.policy != nil }.map(\.id))
-        return MaintenanceOperationID.catalog.filter { !tracked.contains($0) }
-    }
-
-    /// "Track several" offers only what is known to be untracked; before a successful load every operation would
-    /// look untracked and a save could silently replace the owner's interval (REQ-MAINT-025, ADR 0033).
-    var canTrackSeveral: Bool {
-        hasLoaded && !isLoadFailed && !untrackedOperations.isEmpty
-    }
-
-    /// "Track an operation" needs something left to track (the delivered rule).
-    var canTrackOne: Bool {
-        !untrackedOperations.isEmpty
-    }
-
-    /// The one "Track" toolbar menu stays available while either item is, so "Track several" waiting for the first
-    /// load reads as a disabled item rather than a missing control. That is
-    /// `canTrackOne` alone: "Track several" also needs something untracked, so it is never enabled without it.
-    var isTrackMenuEnabled: Bool {
-        canTrackOne
-    }
-}
-
-/// What the open Mark as done sheet asks about: every entry Pit recorded within a day of the owner's date, nearest
-/// first. "Replace with mine" revokes exactly these (REQ-MAINT-040, REQ-MAINT-043).
-struct MarkDoneConflict: Equatable {
-    let pitEntries: [MaintenanceCompletion]
-}
-
-/// An open Mark as done sheet: its operation and the completions stored for it when it opened.
-struct MarkDoneOpening: Equatable {
-    let operation: MaintenanceOperationID
-    let completionIDs: Set<UUID>
-}
-
-/// What Mark as done does when completions of its operation were recorded while the sheet was open (REQ-PIT-026).
-enum MarkDoneRecheck: Equatable {
-    /// Nothing recorded within a day of this date: the owner's completion is other work and is written (REQ-MAINT-045).
-    case write
-    /// The same work on the same day, and the typed odometer is empty or the one recorded: writing would duplicate
-    /// (REQ-MAINT-041).
-    case alreadyRecorded
-    /// The same work within a day of this date, differing from the owner's entry: writing would record it twice, so
-    /// the owner keeps Pit's entries or replaces them (REQ-MAINT-040). Nearest to the owner's date first.
-    case conflict([MaintenanceCompletion])
-    /// The owner chose "Replace with mine", and Pit's entries within a day are exactly the ones the prompt showed.
-    case replace(Set<UUID>)
-
-    /// `prompted` is the set the owner chose to replace. The choice covers only what the prompt showed: when Pit's
-    /// entries within a day changed since, the owner is asked again, and the same-day skip does not apply, since the
-    /// owner chose to remove the prompted entries (REQ-MAINT-052).
-    init(
-        recorded: [MaintenanceCompletion],
-        date: Date,
-        odometerKm: Int?,
-        replacing prompted: Set<UUID>? = nil,
-        calendar: Calendar = .current
-    ) {
-        let nearby = Self.nearby(recorded, date: date, calendar: calendar)
-        if let prompted, !nearby.isEmpty {
-            self = Set(nearby.map(\.id)) == prompted ? .replace(prompted) : .conflict(nearby)
-            return
-        }
-        let sameDay = recorded.filter { calendar.isDate($0.performedAt, inSameDayAs: date) }
-        if !sameDay.isEmpty, odometerKm == nil || sameDay.contains(where: { $0.odometerKm == odometerKm }) {
-            self = .alreadyRecorded
-            return
-        }
-        self = nearby.isEmpty ? .write : .conflict(nearby)
-    }
-
-    /// Completions dated on `date`'s day, the day before or the day after, nearest first, then newest. Whole calendar
-    /// days apart: "yesterday" is one day away at any hour.
-    private static func nearby(
-        _ recorded: [MaintenanceCompletion],
-        date: Date,
-        calendar: Calendar
-    ) -> [MaintenanceCompletion] {
-        let day = calendar.startOfDay(for: date)
-        let daysAway = { (completion: MaintenanceCompletion) in
-            abs(
-                calendar.dateComponents([.day], from: day, to: calendar.startOfDay(for: completion.performedAt))
-                    .day ?? .max)
-        }
-        return recorded.filter { daysAway($0) <= 1 }
-            .sorted { (daysAway($0), $1.performedAt) < (daysAway($1), $0.performedAt) }
-    }
-}
-
-/// What the confirmation must say: with another rule left, the operation stays on Service under that rule.
-struct StopTrackingRequest: Equatable {
-    let operation: MaintenanceOperationID
-    let fallsBackToOtherPolicy: Bool
-}
-
-enum ServiceFailure: Equatable {
-    case notSaved
-    case invalidInterval
-    case invalidOdometer
-    case futureDate
-    /// The dashboard reading has neither a distance nor a number of days, or one of them is out of range.
-    case invalidReport
-    /// A reported distance needs the mileage it was read at.
-    case reportOdometerMissing
-    /// A Mark as done sheet closed before it could ask about Pit's differing entry of the same work, so Pit's entry was
-    /// kept and the owner's not recorded (REQ-MAINT-049). Unlike `notSaved` it invites no retry, which would record the
-    /// same work twice.
-    case pitAlreadyRecorded
-}
-
 @MainActor
 @Observable
 final class ServiceViewModel {
@@ -269,7 +125,9 @@ final class ServiceViewModel {
         // Everything after the first await checks that this sheet is still the open one: Cancel and a swipe close it
         // while it saves, and another Mark as done may open before the save returns (REQ-MAINT-050).
         let sheet = markDoneSheet
-        guard confirmingSheets.insert(sheet).inserted else { return false }
+        guard confirmingSheets.insert(sheet).inserted else {
+            return false
+        }
         defer { confirmingSheets.remove(sheet) }
         let odometer = InputParsing.kilometers(from: odometerText)
         if case .invalid = odometer {
@@ -281,8 +139,7 @@ final class ServiceViewModel {
         // Pit can record this work while the sheet is open (REQ-PIT-026), so what is stored is checked again now. Only
         // a completion recorded since the sheet opened counts: the owner's own earlier ones, even from the same day,
         // do not (REQ-MAINT-046). The same work is never recorded twice, and what the owner typed is dropped only by
-        // their
-        // own choice (REQ-MAINT-040, proposed).
+        // their own choice (REQ-MAINT-040, proposed).
         let recorded: [MaintenanceCompletion]
         do {
             recorded = try await completionsRecorded(operation, since: markDoneOpening)
@@ -404,8 +261,69 @@ final class ServiceViewModel {
         )
     }
 
-    // MARK: - Dashboard reading
+    private static func defaultUnit(readings: [OdometerReading], reports: [VehicleServiceReport]) -> DistanceUnit {
+        let newestReport = reports.filter { $0.remainingDistance != nil }.max { $0.reportedAt < $1.reportedAt }
+        if let newestReport, newestReport.reportedAt >= (readings.latest?.recordedAt ?? .distantPast) {
+            return newestReport.distanceUnit
+        }
+        return readings.latest?.unit ?? .kilometers
+    }
 
+    func dismissFailure() {
+        state.failure = nil
+        state.listFailure = nil
+    }
+
+    /// Completions of `operation` stored since its Mark as done sheet opened; none without an open sheet for it.
+    private func completionsRecorded(
+        _ operation: MaintenanceOperationID,
+        since opening: MarkDoneOpening?
+    ) async throws -> [MaintenanceCompletion] {
+        guard let opening, opening.operation == operation else { return [] }
+        let vehicleID = try await store.currentVehicle().id
+        return try await store.maintenanceCompletions().filter { completion in
+            completion.vehicleID == vehicleID && completion.operationID == operation
+                && !opening.completionIDs.contains(completion.id)
+        }
+    }
+
+    /// A Mark as done save that was not recorded says so in its sheet while that sheet is open, and on the list once
+    /// it closed: the sheet open now, if any, is about other work.
+    private func failMarkDone(startedIn sheet: UUID?) -> Bool {
+        guard markDoneSheet == sheet else {
+            state.listFailure = .notSaved
+            return false
+        }
+        return fail(.notSaved)
+    }
+
+    private func execute(_ makeCommand: (VehicleID) -> DomainCommand) async -> Bool {
+        guard await write(makeCommand) else { return fail(.notSaved) }
+        state.failure = nil
+        return true
+    }
+
+    /// Stores the command and reloads; where a failure is shown is the caller's choice.
+    private func write(_ makeCommand: (VehicleID) -> DomainCommand) async -> Bool {
+        do {
+            let vehicleID = try await store.currentVehicle().id
+            try await store.execute(makeCommand(vehicleID), now: now())
+        } catch {
+            return false
+        }
+        await load()
+        return true
+    }
+
+    private func fail(_ failure: ServiceFailure) -> Bool {
+        state.failure = failure
+        return false
+    }
+}
+
+// MARK: - Dashboard reading
+
+extension ServiceViewModel {
     /// The owner enters what the car's display says is left (ADR 0035). The value is kept in the unit
     /// the owner chose; the odometer is required with a distance. Nothing is written when a check fails.
     func enterReport(
@@ -474,64 +392,5 @@ final class ServiceViewModel {
             state.listFailure = .notSaved
         }
         return deleted
-    }
-
-    private static func defaultUnit(readings: [OdometerReading], reports: [VehicleServiceReport]) -> DistanceUnit {
-        let newestReport = reports.filter { $0.remainingDistance != nil }.max { $0.reportedAt < $1.reportedAt }
-        if let newestReport, newestReport.reportedAt >= (readings.latest?.recordedAt ?? .distantPast) {
-            return newestReport.distanceUnit
-        }
-        return readings.latest?.unit ?? .kilometers
-    }
-
-    func dismissFailure() {
-        state.failure = nil
-        state.listFailure = nil
-    }
-
-    /// Completions of `operation` stored since its Mark as done sheet opened; none without an open sheet for it.
-    private func completionsRecorded(
-        _ operation: MaintenanceOperationID,
-        since opening: MarkDoneOpening?
-    ) async throws -> [MaintenanceCompletion] {
-        guard let opening, opening.operation == operation else { return [] }
-        let vehicleID = try await store.currentVehicle().id
-        return try await store.maintenanceCompletions().filter { completion in
-            completion.vehicleID == vehicleID && completion.operationID == operation
-                && !opening.completionIDs.contains(completion.id)
-        }
-    }
-
-    /// A Mark as done save that was not recorded says so in its sheet while that sheet is open, and on the list once
-    /// it closed: the sheet open now, if any, is about other work.
-    private func failMarkDone(startedIn sheet: UUID?) -> Bool {
-        guard markDoneSheet == sheet else {
-            state.listFailure = .notSaved
-            return false
-        }
-        return fail(.notSaved)
-    }
-
-    private func execute(_ makeCommand: (VehicleID) -> DomainCommand) async -> Bool {
-        guard await write(makeCommand) else { return fail(.notSaved) }
-        state.failure = nil
-        return true
-    }
-
-    /// Stores the command and reloads; where a failure is shown is the caller's choice.
-    private func write(_ makeCommand: (VehicleID) -> DomainCommand) async -> Bool {
-        do {
-            let vehicleID = try await store.currentVehicle().id
-            try await store.execute(makeCommand(vehicleID), now: now())
-        } catch {
-            return false
-        }
-        await load()
-        return true
-    }
-
-    private func fail(_ failure: ServiceFailure) -> Bool {
-        state.failure = failure
-        return false
     }
 }

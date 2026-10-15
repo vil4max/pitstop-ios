@@ -57,7 +57,10 @@ struct MarkDoneSheetClosedTests {
     }
 
     @Test(
-        "REQ-MAINT-050: an oil save returning after the cabin filter sheet opened keeps that sheet's snapshot and message"
+        """
+        REQ-MAINT-050: an oil save returning after the cabin filter sheet opened keeps that sheet's \
+        snapshot and message
+        """
     )
     func lateSaveKeepsTheNextSheetsState() async throws {
         let store = HeldStore()

@@ -75,10 +75,10 @@ struct ChipFlowLayout: Layout {
         }
 
         var lineTops: [CGFloat] = []
-        var y: CGFloat = 0
+        var lineTop: CGFloat = 0
         for height in lineHeights {
-            lineTops.append(y)
-            y += height + lineSpacing
+            lineTops.append(lineTop)
+            lineTop += height + lineSpacing
         }
         let height = (lineTops.last ?? 0) + (lineHeights.last ?? 0)
         let frames = sizes.indices.map { index in

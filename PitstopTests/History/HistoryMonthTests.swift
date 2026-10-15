@@ -4,10 +4,18 @@ import Testing
 
 @Suite("History months")
 struct HistoryMonthTests {
-    private static let utc = TimeZone(identifier: "UTC")!
-    private static let berlin = TimeZone(identifier: "Europe/Berlin")!
-    private static let newYork = TimeZone(identifier: "America/New_York")!
+    private static let utc = zone("UTC")
+    private static let berlin = zone("Europe/Berlin")
+    private static let newYork = zone("America/New_York")
     private static let gregorian = Calendar(identifier: .gregorian)
+
+    /// A zone every case relies on; one the system does not know stops the run naming it.
+    private static func zone(_ identifier: String) -> TimeZone {
+        guard let zone = TimeZone(identifier: identifier) else {
+            preconditionFailure("Unknown time zone: \(identifier)")
+        }
+        return zone
+    }
 
     /// A fixed instant written in the given zone, so every case states its own clock.
     private static func date(
@@ -16,10 +24,13 @@ struct HistoryMonthTests {
     ) -> Date {
         var calendar = gregorian
         calendar.timeZone = zone
-        return calendar.date(
-            from: DateComponents(
-                year: year, month: month, day: day, hour: hour, minute: minute, second: second
-            ))!
+        let components = DateComponents(
+            year: year, month: month, day: day, hour: hour, minute: minute, second: second
+        )
+        guard let date = calendar.date(from: components) else {
+            preconditionFailure("No instant for \(components) in \(zone.identifier)")
+        }
+        return date
     }
 
     private static func event(_ kind: HistoryEventKind, on date: Date, id: String? = nil) -> HistoryEvent {
@@ -41,7 +52,11 @@ struct HistoryMonthTests {
         calendar.timeZone = zone
         let parts = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: month.start)
         #expect(parts.day == 1 && parts.hour == 0 && parts.minute == 0, "a month starts at its first instant")
-        return [parts.year!, parts.month!]
+        guard let year = parts.year, let month = parts.month else {
+            Issue.record("a month's first instant has no year or month")
+            return []
+        }
+        return [year, month]
     }
 
     @Test("REQ-GRAMMAR-001: History is one group per calendar month, newest month first, in the timeline's order")

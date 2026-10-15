@@ -107,7 +107,10 @@ struct NextServiceWidgetSourceTests {
 
     /// The sparse and unreadable states keep their sentence; the widget's name above it (eyebrow or title) goes first.
     @Test(
-        "REQ-WIDGET-006, REQ-WIDGET-011: the sparse and unreadable states drop the widget's name first and keep their sentence"
+        """
+        REQ-WIDGET-006, REQ-WIDGET-011: the sparse and unreadable states drop the widget's name first \
+        and keep their sentence
+        """
     )
     func sparseStatesDropTheirTitleFirst() throws {
         let small = try familyBody("small")

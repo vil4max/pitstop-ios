@@ -68,21 +68,32 @@ private struct Bitmap: Equatable {
         rgba = pixels
     }
 
-    func alpha(x: Int, y: Int) -> UInt8 {
-        rgba[(y * width + x) * 4 + 3]
+    func alpha(column: Int, row: Int) -> UInt8 {
+        rgba[(row * width + column) * 4 + 3]
     }
 
     /// The smallest rectangle holding every pixel at least half opaque.
-    var opaqueBounds: (minX: Int, minY: Int, maxX: Int, maxY: Int)? {
-        var bounds: (minX: Int, minY: Int, maxX: Int, maxY: Int)?
-        for y in 0..<height {
-            for x in 0..<width where alpha(x: x, y: y) > 128 {
-                let current = bounds ?? (x, y, x, y)
-                bounds = (min(current.minX, x), min(current.minY, y), max(current.maxX, x), max(current.maxY, y))
+    var opaqueBounds: PixelBounds? {
+        var bounds: PixelBounds?
+        for row in 0..<height {
+            for column in 0..<width where alpha(column: column, row: row) > 128 {
+                let current = bounds ?? PixelBounds(minX: column, minY: row, maxX: column, maxY: row)
+                bounds = PixelBounds(
+                    minX: min(current.minX, column), minY: min(current.minY, row),
+                    maxX: max(current.maxX, column), maxY: max(current.maxY, row)
+                )
             }
         }
         return bounds
     }
+}
+
+/// Pixel columns and rows of a rectangle, top row first.
+private struct PixelBounds: Equatable {
+    let minX: Int
+    let minY: Int
+    let maxX: Int
+    let maxY: Int
 }
 
 @MainActor

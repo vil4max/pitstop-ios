@@ -1,13 +1,21 @@
 import Foundation
 @testable import Pitstop
 
+/// A fixture's fixed ID; a malformed literal stops the run naming that literal.
+private func fixedUUID(_ text: String) -> UUID {
+    guard let id = UUID(uuidString: text) else {
+        preconditionFailure("Malformed fixture UUID: \(text)")
+    }
+    return id
+}
+
 public enum DomainFixtures {
 
     // MARK: - Vehicles & Odometers
 
     public enum Vehicles {
-        public static let defaultID = VehicleID(rawValue: UUID(uuidString: "11111111-1111-1111-1111-111111111111")!)
-        public static let secondaryID = VehicleID(rawValue: UUID(uuidString: "22222222-2222-2222-2222-222222222222")!)
+        public static let defaultID = VehicleID(rawValue: fixedUUID("11111111-1111-1111-1111-111111111111"))
+        public static let secondaryID = VehicleID(rawValue: fixedUUID("22222222-2222-2222-2222-222222222222"))
 
         public static let standard = Vehicle(
             id: defaultID,
@@ -29,7 +37,7 @@ public enum DomainFixtures {
         public static let baseDate = Date(timeIntervalSince1970: 1_700_000_000)  // 2023-11-14
 
         public static let reading84k = OdometerReading(
-            id: UUID(uuidString: "A0000000-0000-0000-0000-000000000001")!,
+            id: fixedUUID("A0000000-0000-0000-0000-000000000001"),
             vehicleID: Vehicles.defaultID,
             value: 84200,
             unit: .kilometers,
@@ -38,7 +46,7 @@ public enum DomainFixtures {
         )
 
         public static let reading85k = OdometerReading(
-            id: UUID(uuidString: "A0000000-0000-0000-0000-000000000002")!,
+            id: fixedUUID("A0000000-0000-0000-0000-000000000002"),
             vehicleID: Vehicles.defaultID,
             value: 85500,
             unit: .kilometers,
@@ -47,7 +55,7 @@ public enum DomainFixtures {
         )
 
         public static let readingMiles = OdometerReading(
-            id: UUID(uuidString: "A0000000-0000-0000-0000-000000000003")!,
+            id: fixedUUID("A0000000-0000-0000-0000-000000000003"),
             vehicleID: Vehicles.defaultID,
             value: 50000,
             unit: .miles,
@@ -81,7 +89,7 @@ public enum DomainFixtures {
         )
 
         public static let oilCompletionRecent = MaintenanceCompletion(
-            id: UUID(uuidString: "B0000000-0000-0000-0000-000000000001")!,
+            id: fixedUUID("B0000000-0000-0000-0000-000000000001"),
             vehicleID: Vehicles.defaultID,
             operationID: .engineOilService,
             performedAt: Odometers.baseDate,
@@ -89,7 +97,7 @@ public enum DomainFixtures {
         )
 
         public static let brakeFluidCompletion = MaintenanceCompletion(
-            id: UUID(uuidString: "B0000000-0000-0000-0000-000000000002")!,
+            id: fixedUUID("B0000000-0000-0000-0000-000000000002"),
             vehicleID: Vehicles.defaultID,
             operationID: .brakeFluid,
             performedAt: Odometers.baseDate.addingTimeInterval(-86400 * 365),
@@ -101,7 +109,7 @@ public enum DomainFixtures {
 
     public enum Notes {
         public static let rawThought = Note(
-            id: UUID(uuidString: "C0000000-0000-0000-0000-000000000001")!,
+            id: fixedUUID("C0000000-0000-0000-0000-000000000001"),
             vehicleID: Vehicles.defaultID,
             rawText: "Кажется, левый дворник начал полосить на скорости",
             createdAt: Odometers.baseDate,
@@ -110,7 +118,7 @@ public enum DomainFixtures {
         )
 
         public static let archivedNote = Note(
-            id: UUID(uuidString: "C0000000-0000-0000-0000-000000000002")!,
+            id: fixedUUID("C0000000-0000-0000-0000-000000000002"),
             vehicleID: Vehicles.defaultID,
             rawText: "Купить зимнюю омывайку -25",
             createdAt: Odometers.baseDate.addingTimeInterval(-86400 * 10),
@@ -119,7 +127,7 @@ public enum DomainFixtures {
         )
 
         public static let contextualWash = Note(
-            id: UUID(uuidString: "C0000000-0000-0000-0000-000000000003")!,
+            id: fixedUUID("C0000000-0000-0000-0000-000000000003"),
             vehicleID: Vehicles.defaultID,
             rawText: "Помыть кузов перед полировкой",
             createdAt: Odometers.baseDate,
@@ -130,7 +138,7 @@ public enum DomainFixtures {
 
     public enum History {
         public static let serviceVisit = HistoryEvent(
-            id: UUID(uuidString: "D0000000-0000-0000-0000-000000000001")!,
+            id: fixedUUID("D0000000-0000-0000-0000-000000000001"),
             vehicleID: Vehicles.defaultID,
             kind: .service,
             date: Odometers.baseDate,
@@ -140,7 +148,7 @@ public enum DomainFixtures {
         )
 
         public static let carWashEvent = HistoryEvent(
-            id: UUID(uuidString: "D0000000-0000-0000-0000-000000000002")!,
+            id: fixedUUID("D0000000-0000-0000-0000-000000000002"),
             vehicleID: Vehicles.defaultID,
             kind: .carWash,
             date: Odometers.baseDate.addingTimeInterval(86400 * 5),
@@ -154,7 +162,7 @@ public enum DomainFixtures {
 
     public enum Capture {
         public static let rawVoiceInput = CaptureInput(
-            id: UUID(uuidString: "E0000000-0000-0000-0000-000000000001")!,
+            id: fixedUUID("E0000000-0000-0000-0000-000000000001"),
             payload: .transcript("Заменил масло и масляный фильтр на пробеге 85000"),
             source: .pitVoice,
             capturedAt: Odometers.baseDate,
@@ -163,7 +171,7 @@ public enum DomainFixtures {
         )
 
         public static let rawTextInput = CaptureInput(
-            id: UUID(uuidString: "E0000000-0000-0000-0000-000000000002")!,
+            id: fixedUUID("E0000000-0000-0000-0000-000000000002"),
             payload: .text("Стук в подвеске справа спереди при проезде лежачих"),
             source: .pitText,
             capturedAt: Odometers.baseDate,
@@ -172,7 +180,7 @@ public enum DomainFixtures {
         )
 
         public static let widgetOdometerInput = CaptureInput(
-            id: UUID(uuidString: "E0000000-0000-0000-0000-000000000003")!,
+            id: fixedUUID("E0000000-0000-0000-0000-000000000003"),
             payload: .text("85500"),
             source: .widget,
             capturedAt: Odometers.baseDate,
@@ -181,7 +189,7 @@ public enum DomainFixtures {
         )
 
         public static let validOdometerProposal = MemoryProposal(
-            id: UUID(uuidString: "F0000000-0000-0000-0000-000000000001")!,
+            id: fixedUUID("F0000000-0000-0000-0000-000000000001"),
             sourceInputID: widgetOdometerInput.id,
             kind: .odometerReading,
             rawText: "85500",
@@ -190,7 +198,7 @@ public enum DomainFixtures {
         )
 
         public static let oilCompletionProposal = MemoryProposal(
-            id: UUID(uuidString: "F0000000-0000-0000-0000-000000000002")!,
+            id: fixedUUID("F0000000-0000-0000-0000-000000000002"),
             sourceInputID: rawVoiceInput.id,
             kind: .maintenanceCompletion,
             rawText: "Заменил масло и масляный фильтр на пробеге 85000",
@@ -200,7 +208,7 @@ public enum DomainFixtures {
         )
 
         public static let ambiguousProposal = MemoryProposal(
-            id: UUID(uuidString: "F0000000-0000-0000-0000-000000000003")!,
+            id: fixedUUID("F0000000-0000-0000-0000-000000000003"),
             sourceInputID: rawTextInput.id,
             kind: .rawNote,
             rawText: "Стук в подвеске справа спереди при проезде лежачих",

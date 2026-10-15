@@ -47,7 +47,10 @@ struct MarkDoneAfterCaptureTests {
     }
 
     @Test(
-        "REQ-MAINT-041: the same work, date and odometer captured over Mark as done is recorded once and nothing is lost"
+        """
+        REQ-MAINT-041: the same work, date and odometer captured over Mark as done is recorded once \
+        and nothing is lost
+        """
     )
     func sameEntryIsRecordedOnce() async throws {
         let store = FakeCarMemoryStore()

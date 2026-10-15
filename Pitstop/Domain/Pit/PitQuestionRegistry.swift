@@ -150,17 +150,19 @@ public struct PitQuestionRegistry: Sendable {
 }
 
 public extension PitAttentionPolicy {
-    /// Feeds the policy from the registry and persisted state instead of hand-built elapsed times.
+    /// Feeds the policy from the registry and persisted state instead of hand-built elapsed times. `relevant` limits
+    /// it to the questions whose answer would change something now; nil leaves every registered question.
     func question(
         registry: PitQuestionRegistry,
         states: [PitQuestionState],
+        relevant: Set<String>? = nil,
         activity: PitActivity,
         context: VisibleFeature,
         now: Date
     ) -> PitQuestion? {
         let budget = PitAttentionBudget(states)
         return question(
-            from: registry.questions(with: states, now: now),
+            from: registry.questions(with: states, now: now).filter { relevant?.contains($0.id) ?? true },
             activity: activity,
             context: context,
             sinceLastInterruption: budget.sinceLastInterruption(now: now),

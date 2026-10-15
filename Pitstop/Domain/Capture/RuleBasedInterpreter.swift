@@ -80,6 +80,8 @@ public struct RuleBasedInterpreter: SemanticInterpreting {
 /// by a bare substring of the sentence: "в машине" must not read as the negation "не", and
 /// "поработал" must not read as "пора".
 private struct Reading {
+    private typealias Words = CaptureWords
+
     private let words: [String]
     /// Marks that survive word splitting: a question, and the English contracted negation.
     private let isQuestionOrNegated: Bool
@@ -185,16 +187,16 @@ private struct Reading {
         var sign: Double?
         for index in words.indices {
             guard let value = joinedNumber(from: index), let next = nextWord(after: index, skippingDigits: true),
-                !Self.isMileageWord(word(after: next, from: index) ?? ""),
+                !Words.isMileageWord(word(after: next, from: index) ?? ""),
                 let marked = countdownSign(before: index, unitWord: next) ?? continuation(before: index, sign)
             else { continue }
             sign = marked
-            if distance == nil, Self.units.contains(next) {
+            if distance == nil, Words.units.contains(next) {
                 distance = marked * value
-            } else if distance == nil, Self.mileUnits.contains(next) {
+            } else if distance == nil, Words.mileUnits.contains(next) {
                 distance = marked * value
                 unit = .miles
-            } else if days == nil, Self.dayWords.contains(where: next.hasPrefix), value <= 10000 {
+            } else if days == nil, Words.dayWords.contains(where: next.hasPrefix), value <= 10000 {
                 days = Int(marked * value)
             }
         }
@@ -207,7 +209,7 @@ private struct Reading {
     var hasOverdueMarkedValue: Bool {
         words.indices.contains { index in
             guard joinedNumber(from: index) != nil, let next = nextWord(after: index, skippingDigits: true),
-                Self.isUnitOrDayWord(next)
+                Words.isUnitOrDayWord(next)
             else { return false }
             return countdownSign(before: index, unitWord: next) == -1
         }
@@ -219,21 +221,21 @@ private struct Reading {
         let previous = index > 0 ? words[index - 1] : nil
         let beforePrevious = index > 1 ? words[index - 2] : nil
         // "Odometer 92000 km overdue for oil": a number right after a mileage word is where the car is.
-        guard previous.map(Self.isMileageWord) != true else { return nil }
-        let afterUnit = Self.isUnitOrDayWord(unitWord) ? word(after: unitWord, from: index) : nil
+        guard previous.map(Words.isMileageWord) != true else { return nil }
+        let afterUnit = Words.isUnitOrDayWord(unitWord) ? word(after: unitWord, from: index) : nil
         if let previous,
-            Self.overdueMarkers.contains(previous) || (previous == "by" && beforePrevious == "overdue")
-                || (previous == "на" && beforePrevious.map(Self.overdueMarkers.contains) == true)
+            Words.overdueMarkers.contains(previous) || (previous == "by" && beforePrevious == "overdue")
+                || (previous == "на" && beforePrevious.map(Words.overdueMarkers.contains) == true)
         {
             return -1
         }
-        if let afterUnit, Self.overdueMarkers.contains(afterUnit) {
+        if let afterUnit, Words.overdueMarkers.contains(afterUnit) {
             return -1
         }
-        if let previous, Self.aheadMarkers.contains(previous) || (previous == "то" && beforePrevious == "до") {
+        if let previous, Words.aheadMarkers.contains(previous) || (previous == "то" && beforePrevious == "до") {
             return 1
         }
-        if let afterUnit, Self.trailingAheadMarkers.contains(afterUnit) {
+        if let afterUnit, Words.trailingAheadMarkers.contains(afterUnit) {
             return 1
         }
         return nil
@@ -242,19 +244,11 @@ private struct Reading {
     /// The word right after the unit that follows the number at `index`.
     private func word(after unitWord: String, from index: Int) -> String? {
         var cursor = index + 1
-        while cursor < words.count, Self.number(words[cursor]) != nil {
+        while cursor < words.count, Words.number(words[cursor]) != nil {
             cursor += 1
         }
         guard cursor + 1 < words.count, words[cursor] == unitWord else { return nil }
         return words[cursor + 1]
-    }
-
-    private static func isUnitOrDayWord(_ word: String) -> Bool {
-        units.contains(word) || mileUnits.contains(word) || dayWords.contains(where: word.hasPrefix)
-    }
-
-    private static func isMileageWord(_ word: String) -> Bool {
-        word.hasPrefix("пробег") || word.hasPrefix("пробіг") || word.hasPrefix("одометр") || mileageWords.contains(word)
     }
 
     /// "3200 km and 45 days": a value joined to a countdown value already read shares its sign.
@@ -262,8 +256,8 @@ private struct Reading {
         guard let sign, index > 0 else { return nil }
         let previous = words[index - 1]
         let joined =
-            Self.conjunctions.contains(previous) || Self.units.contains(previous)
-            || Self.mileUnits.contains(previous)
+            Words.conjunctions.contains(previous) || Words.units.contains(previous)
+            || Words.mileUnits.contains(previous)
         return joined ? sign : nil
     }
 
@@ -272,10 +266,10 @@ private struct Reading {
     var statedOdometerBesideRemaining: Double? {
         for index in words.indices {
             guard let value = joinedNumber(from: index) else { continue }
-            let before = previousWord(before: index).map(Self.isMileageWord) ?? false
+            let before = previousWord(before: index).map(Words.isMileageWord) ?? false
             let after =
                 nextWord(after: index, skippingDigits: true)
-                .flatMap { word(after: $0, from: index) }.map(Self.isMileageWord) ?? false
+                .flatMap { word(after: $0, from: index) }.map(Words.isMileageWord) ?? false
             if before || after, DomainCommandLimits.isPlausibleOdometer(value), value >= 100 {
                 return value
             }
@@ -287,8 +281,8 @@ private struct Reading {
     var amount: Decimal? {
         for (index, word) in words.enumerated() {
             let isPriceMarker = ["за", "for"].contains(word)
-            let hasCurrencyNext = index + 1 < words.count && Self.currencies.contains(words[index + 1])
-            guard isPriceMarker || (Self.number(word) != nil && hasCurrencyNext) else { continue }
+            let hasCurrencyNext = index + 1 < words.count && Words.currencies.contains(words[index + 1])
+            guard isPriceMarker || (Words.number(word) != nil && hasCurrencyNext) else { continue }
             let numberIndex = isPriceMarker ? index + 1 : index
             guard words.indices.contains(numberIndex) else { continue }
             let candidate = joinedNumber(from: numberIndex)
@@ -319,12 +313,12 @@ private struct Reading {
             if let following, countdownSign(before: index, unitWord: following) == -1 {
                 continue
             }
-            let unitFollows = following.map(Self.units.contains) ?? false
+            let unitFollows = following.map(Words.units.contains) ?? false
             let previous = previousWord(before: index)
             let markerPrecedes =
                 previous.map { word in
-                    word.hasPrefix("пробег") || word.hasPrefix("одометр") || Self.mileageWords.contains(word)
-                        || (allowingLooseMarkers && Self.looseMileageMarkers.contains(word))
+                    word.hasPrefix("пробег") || word.hasPrefix("одометр") || Words.mileageWords.contains(word)
+                        || (allowingLooseMarkers && Words.looseMileageMarkers.contains(word))
                 } ?? false
             guard unitFollows || markerPrecedes else { continue }
             // Plausibility first: nothing converts the value to an integer before it is in range.
@@ -332,7 +326,7 @@ private struct Reading {
                 Decimal(value) != amount
             else { continue }
             // A four-digit number after "в", "с", or "since" is a year, not a mileage.
-            if !unitFollows, (1900...2100).contains(Int(value)), previous.map(Self.yearMarkers.contains) ?? false {
+            if !unitFollows, (1900...2100).contains(Int(value)), previous.map(Words.yearMarkers.contains) ?? false {
                 continue
             }
             candidates.append(value)
@@ -341,20 +335,6 @@ private struct Reading {
     }
 
     // MARK: - Words and numbers
-
-    private static let units: Set<String> = ["км", "km", "килом", "kilometers", "kilometres"]
-    private static let mileageWords: Set<String> = ["mileage", "odometer"]
-    private static let mileUnits: Set<String> = ["mi", "mile", "miles", "миль", "милі"]
-    private static let dayWords = ["day", "дн", "ден", "сут", "дні", "днів"]
-    private static let aheadMarkers: Set<String> = [
-        "in", "через", "осталось", "остаётся", "остается", "залишилось", "лишилось", "залишається",
-    ]
-    private static let trailingAheadMarkers: Set<String> = ["left", "remaining", "осталось", "залишилось"]
-    private static let overdueMarkers: Set<String> = ["overdue", "просрочено", "прострочено"]
-    private static let conjunctions: Set<String> = ["and", "or", "и", "или", "і", "й", "та", "або"]
-    private static let looseMileageMarkers: Set<String> = ["на", "at"]
-    private static let yearMarkers: Set<String> = ["в", "с", "in", "since", "from", "года", "году"]
-    private static let currencies: Set<String> = ["руб", "рублей", "₽", "грн", "uah", "eur", "usd"]
 
     private func containsWord(_ candidates: [String]) -> Bool {
         words.contains { candidates.contains($0) }
@@ -367,7 +347,7 @@ private struct Reading {
     private func previousWord(before index: Int) -> String? {
         var cursor = index - 1
         // Step back over the other halves of a grouped number such as "84 200".
-        while cursor >= 0, Self.number(words[cursor]) != nil {
+        while cursor >= 0, Words.number(words[cursor]) != nil {
             cursor -= 1
         }
         return cursor >= 0 ? words[cursor] : nil
@@ -375,7 +355,7 @@ private struct Reading {
 
     private func nextWord(after index: Int, skippingDigits: Bool) -> String? {
         var cursor = index + 1
-        while skippingDigits, cursor < words.count, Self.number(words[cursor]) != nil {
+        while skippingDigits, cursor < words.count, Words.number(words[cursor]) != nil {
             cursor += 1
         }
         return cursor < words.count ? words[cursor] : nil
@@ -384,22 +364,16 @@ private struct Reading {
     /// Reads "84 200", written as separate words, as one number. It starts only at the first group,
     /// and a following group counts only when it is exactly three digits.
     private func joinedNumber(from index: Int) -> Double? {
-        guard let first = Self.number(words[index]) else { return nil }
-        if index > 0, Self.number(words[index - 1]) != nil {
+        guard let first = Words.number(words[index]) else { return nil }
+        if index > 0, Words.number(words[index - 1]) != nil {
             return nil
         }
         var digits = words[index]
         var cursor = index + 1
-        while cursor < words.count, words[cursor].count == 3, Self.number(words[cursor]) != nil {
+        while cursor < words.count, words[cursor].count == 3, Words.number(words[cursor]) != nil {
             digits += words[cursor]
             cursor += 1
         }
         return digits == words[index] ? first : Double(digits)
-    }
-
-    /// A whole number only: a decimal separator marks money or litres, never a mileage.
-    private static func number(_ word: String) -> Double? {
-        guard !word.isEmpty, word.allSatisfy(\.isNumber) else { return nil }
-        return Double(word)
     }
 }

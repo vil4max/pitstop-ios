@@ -279,17 +279,16 @@ extension MaintenanceOperationID {
         let vehicle = VehicleID()
         let now = Date.now
         let visitDay = now.addingTimeInterval(-80 * 86400)
+        let oilChange = MaintenanceCompletion(
+            vehicleID: vehicle, operationID: .engineOilService,
+            performedAt: visitDay.addingTimeInterval(60), odometerKm: 42500
+        )
         let timeline = HistoryTimeline(
             events: [
                 HistoryEvent(vehicleID: vehicle, kind: .carWash, date: now, amount: 18, note: "Underbody wash"),
                 HistoryEvent(vehicleID: vehicle, kind: .service, date: visitDay, odometerKm: 42500, amount: 240),
             ],
-            completions: [
-                MaintenanceCompletion(
-                    vehicleID: vehicle, operationID: .engineOilService,
-                    performedAt: visitDay.addingTimeInterval(60), odometerKm: 42500
-                )
-            ]
+            completions: [oilChange]
         )
         PreviewMatrix {
             VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {

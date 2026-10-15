@@ -51,25 +51,3 @@ public extension PitQuestionRegistry {
             })
     }
 }
-
-public extension PitAttentionPolicy {
-    /// As `question(registry:states:activity:context:now:)`, limited to questions whose answer would
-    /// change something now.
-    func question(
-        registry: PitQuestionRegistry,
-        states: [PitQuestionState],
-        relevant: Set<String>,
-        activity: PitActivity,
-        context: VisibleFeature,
-        now: Date
-    ) -> PitQuestion? {
-        let budget = PitAttentionBudget(states)
-        return question(
-            from: registry.questions(with: states, now: now).filter { relevant.contains($0.id) },
-            activity: activity,
-            context: context,
-            sinceLastInterruption: budget.sinceLastInterruption(now: now),
-            sinceLastDismissal: budget.sinceLastDismissal(now: now)
-        )
-    }
-}

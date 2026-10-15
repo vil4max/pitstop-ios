@@ -70,10 +70,10 @@ struct CarAvatarPlacementTests {
     @Test("REQ-BOARD-034: the root gives every screen and sheet the car's body and photo from the car board state")
     func rootSetsTheValue() throws {
         let content = try Self.declaration("private var content: some View", in: "Pitstop/App/RootView.swift")
-        #expect(
-            content.contains(
-                ".environment(\\.carAvatar, CarAvatarSource(body: carBoard.state.carBody, photo: carBoard.state.carPhoto))"
-            ))
+        let setsTheAvatar =
+            ".environment(\\.carAvatar, "
+            + "CarAvatarSource(body: carBoard.state.carBody, photo: carBoard.state.carPhoto))"
+        #expect(content.contains(setsTheAvatar))
     }
 
     // MARK: Headers

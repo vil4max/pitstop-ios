@@ -173,31 +173,6 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
         }
     }
 
-    private func completions(
-        of operationID: MaintenanceOperationID,
-        vehicleID: VehicleID
-    ) throws -> [MaintenanceCompletion] {
-        let vehicle = vehicleID.rawValue
-        let operation = operationID.rawValue
-        return try modelContext.fetch(
-            FetchDescriptor<Schema1.MaintenanceCompletionRecord>(
-                predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation }
-            )
-        ).map(\.domain)
-    }
-
-    private func reportRecords(
-        _ operationID: MaintenanceOperationID,
-        vehicleID: VehicleID
-    ) throws -> [ReportRecord] {
-        let vehicle = vehicleID.rawValue
-        let operation = operationID.rawValue
-        return try modelContext.fetch(
-            FetchDescriptor<ReportRecord>(
-                predicate: #Predicate { $0.vehicleID == vehicle && $0.operationID == operation }
-            ))
-    }
-
     private func insertPlanned(_ event: PlannedDatedEvent, now: Date) throws -> CommandResult {
         try requireVehicle(event.vehicleID)
         try requireNew(PlannedRecord.self, id: event.id)
@@ -311,7 +286,7 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
 
     /// Never creates the car: a command must not leave a side effect behind when it is rejected.
     @discardableResult
-    private func requireVehicle(_ id: VehicleID) throws -> CarRecord {
+    func requireVehicle(_ id: VehicleID) throws -> PitstopSchemaV5.VehicleRecord {
         guard let record = try existingVehicleRecord(), record.id == id.rawValue else {
             throw CarMemoryStoreError.unknownVehicle
         }
@@ -319,7 +294,7 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
     }
 
     /// IDs are unique attributes, so inserting a known ID would silently overwrite that record.
-    private func requireNew<Record: PersistentModel & Identified>(_: Record.Type, id: UUID) throws {
+    func requireNew<Record: PersistentModel & Identified>(_: Record.Type, id: UUID) throws {
         let count = try modelContext.fetchCount(FetchDescriptor<Record>(predicate: Record.matching(id)))
         guard count == 0 else { throw CarMemoryStoreError.duplicateRecord }
     }
@@ -340,75 +315,5 @@ actor SwiftDataCarMemoryStore: CarMemoryStore {
         } catch {
             throw (error as? CarMemoryStoreError) ?? .storageFailure
         }
-    }
-}
-
-/// Command handlers kept outside the actor body, which the project's type-length lint caps.
-extension SwiftDataCarMemoryStore {
-    /// Deletes the replaced completions and inserts the owner's in the same pending change, which `execute` saves once
-    /// or rolls back whole (REQ-MAINT-043). A replaced completion that is gone, or is not this vehicle's same
-    /// operation,
-    /// fails the whole command.
-    private func applyReplace(_ replace: ReplaceMaintenanceCompletionCommand) throws -> CommandResult {
-        let completion = replace.completion
-        try requireVehicle(completion.vehicleID)
-        try requireNew(Schema1.MaintenanceCompletionRecord.self, id: completion.id)
-        for id in replace.replacedIDs {
-            let matches = try modelContext.fetch(
-                FetchDescriptor(predicate: Schema1.MaintenanceCompletionRecord.matching(id))
-            )
-            guard let record = matches.first,
-                record.domain.vehicleID == completion.vehicleID,
-                record.domain.operationID == completion.operationID
-            else { throw CarMemoryStoreError.unknownCompletion }
-            modelContext.delete(record)
-        }
-        modelContext.insert(Schema1.MaintenanceCompletionRecord(completion))
-        return .completionConfirmed(completion)
-    }
-
-    private func applyReport(_ command: DomainCommand) throws -> CommandResult {
-        switch command {
-        case let .recordVehicleServiceReport(record):
-            try requireVehicle(record.report.vehicleID)
-            // A new reading replaces the older one for every reader, but the older row stays so that a
-            // replayed confirmation of it is a duplicate, never an overwrite of the newer reading.
-            try requireNew(ReportRecord.self, id: record.report.id)
-            let entered = try record.report.entered(
-                after: completions(
-                    of: record.report.operationID, vehicleID: record.report.vehicleID
-                ))
-            modelContext.insert(ReportRecord(entered))
-            return .vehicleServiceReportRecorded(entered)
-        case let .removeVehicleServiceReport(remove):
-            try requireVehicle(remove.vehicleID)
-            let matches = try reportRecords(remove.operationID, vehicleID: remove.vehicleID)
-            guard let removed = matches.map(\.domain).newestPerOperation[remove.operationID] else {
-                throw CarMemoryStoreError.unknownVehicleServiceReport
-            }
-            matches.forEach(modelContext.delete)
-            return .vehicleServiceReportRemoved(removed)
-        default:
-            throw CarMemoryStoreError.storageFailure
-        }
-    }
-
-    /// The body and the photo id live on the V5 car record (ADR 0040). Clearing the photo drops only the
-    /// id; its files are the photo store's to delete (REQ-BOARD-033).
-    private func applyProfile(_ command: DomainCommand) throws -> CommandResult {
-        let record: CarRecord
-        let updated: Vehicle
-        switch command {
-        case let .setCarBody(set):
-            record = try requireVehicle(set.vehicleID)
-            updated = record.domain.applying(set)
-        case let .setCarPhoto(set):
-            record = try requireVehicle(set.vehicleID)
-            updated = record.domain.applying(set)
-        default:
-            throw CarMemoryStoreError.storageFailure
-        }
-        record.update(from: updated)
-        return .vehicleUpdated(updated)
     }
 }

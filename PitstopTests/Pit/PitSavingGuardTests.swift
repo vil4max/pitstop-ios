@@ -15,10 +15,15 @@ struct PitSavingGuardTests {
         let sheet = PitCaptureEntry.Host.sheet(UUID())
         let observed = SavingObservation()
         // `onSaved` runs inside the save, after the writes and before it ends.
-        let trackSeveral = TrackSeveralViewModel(store: store, operations: [.brakeFluid], now: { now }) {
-            guard let model = observed.model else { return }
-            observed.record(isSaving: model.isSaving, opened: entry.open(from: sheet, isSaving: model.isSaving))
-        }
+        let trackSeveral = TrackSeveralViewModel(
+            store: store,
+            operations: [.brakeFluid],
+            now: { now },
+            onSaved: {
+                guard let model = observed.model else { return }
+                observed.record(isSaving: model.isSaving, opened: entry.open(from: sheet, isSaving: model.isSaving))
+            }
+        )
         observed.model = trackSeveral
         trackSeveral.toggle(.brakeFluid)
         trackSeveral.continueToIntervals()

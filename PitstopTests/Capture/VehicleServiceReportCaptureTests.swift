@@ -301,7 +301,11 @@ struct VehicleServiceReportCaptureTests {
         }
         #expect(await store.reports.isEmpty)
     }
+}
 
+// MARK: - Validation and mapping
+
+extension VehicleServiceReportCaptureTests {
     @Test("REQ-MAINT-039: a proposal with no remaining value is incomplete, never a guess")
     func noRemainingValueIsIncomplete() {
         let capture = input("dashboard says oil service")

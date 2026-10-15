@@ -68,10 +68,12 @@ struct AppEnvironmentStoreTests {
     @Test("ADR-0036: a hosted unit-test run launches on the in-memory store, a normal launch is unchanged")
     func hostedTestRunLaunchesInMemory() {
         let hosted = ["XCTestConfigurationFilePath": "/tmp/fictional.xctestconfiguration"]
-        #expect(AppEnvironment.launchArguments(["Pitstop"], environment: hosted)
-            == ["Pitstop", AppEnvironment.inMemoryArgument])
-        #expect(AppEnvironment.launchArguments(["Pitstop", AppEnvironment.inMemoryArgument], environment: hosted)
-            == ["Pitstop", AppEnvironment.inMemoryArgument])
+        #expect(
+            AppEnvironment.launchArguments(["Pitstop"], environment: hosted)
+                == ["Pitstop", AppEnvironment.inMemoryArgument])
+        #expect(
+            AppEnvironment.launchArguments(["Pitstop", AppEnvironment.inMemoryArgument], environment: hosted)
+                == ["Pitstop", AppEnvironment.inMemoryArgument])
         #expect(AppEnvironment.launchArguments(["Pitstop"], environment: [:]) == ["Pitstop"])
         // This process is the test host, so the arguments `PitstopApp.init` reads here ask for memory.
         #expect(AppEnvironment.launchArguments().contains(AppEnvironment.inMemoryArgument))

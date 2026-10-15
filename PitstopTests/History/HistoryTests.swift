@@ -105,8 +105,8 @@ struct HistoryViewModelTests {
         arguments: [
             ("", AmountInput.absent),
             ("1200", .value(1200)),
-            ("1 200,50", .value(Decimal(string: "1200.5")!)),
-            ("12.5", .value(Decimal(string: "12.5")!)),
+            ("1 200,50", .value(Decimal(sign: .plus, exponent: -1, significand: 12005))),
+            ("12.5", .value(Decimal(sign: .plus, exponent: -1, significand: 125))),
             ("0", .invalid),
             ("-5", .invalid),
             ("12.345", .invalid),

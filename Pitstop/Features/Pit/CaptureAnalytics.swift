@@ -198,16 +198,14 @@ final class CaptureAnalyticsObserver: CaptureStageObserving {
             state.journeys[id]?.interpretationStartedAt = moment
             return []
         case .interpretationCompleted:
-            return [
-                .capture(
-                    .inputInterpretationCompleted(
-                        intent: CaptureIntent(event.proposalKind),
-                        availability: interpreter.availability,
-                        result: InterpretationResult(event.proposalKind),
-                        latency: journey.interpretationStartedAt.map { LatencyBucket(moment - $0) },
-                        interpreter: interpreter
-                    ))
-            ]
+            let completed = CaptureAnalyticsEvent.inputInterpretationCompleted(
+                intent: CaptureIntent(event.proposalKind),
+                availability: interpreter.availability,
+                result: InterpretationResult(event.proposalKind),
+                latency: journey.interpretationStartedAt.map { LatencyBucket(moment - $0) },
+                interpreter: interpreter
+            )
+            return [.capture(completed)]
         case .confirmationRequired, .clarificationRequired:
             guard tracked != nil, let kind = event.proposalKind else { return [] }
             let stage: DraftStage = event.stage == .confirmationRequired ? .preview : .edit

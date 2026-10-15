@@ -58,8 +58,8 @@ struct ChipFlowLayoutTests {
 
     private func render(_ chips: [Chip], proposal: ProposedViewSize) -> Rendering {
         let layout = ChipFlowLayout()
-        let stub = ChipFlowLayout.Chips(idealSizes: chips.map { CGSize(width: $0.width, height: $0.height) }) {
-            index, width in
+        let idealSizes = chips.map { CGSize(width: $0.width, height: $0.height) }
+        let stub = ChipFlowLayout.Chips(idealSizes: idealSizes) { index, width in
             CGSize(width: max(width, chips[index].minWidth), height: chips[index].height * 2)
         }
         let measured = layout.measuredSize(proposal: proposal, chips: stub)
