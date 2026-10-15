@@ -1,0 +1,44 @@
+# SwiftLint configuration of this app. `ios-verify` (the ios-dev plugin's gate) and
+# CI run `swiftlint lint --strict`, so every warning below fails the gate; the error
+# levels exist for editors and for runs without --strict.
+disabled_rules:
+  - trailing_whitespace
+opt_in_rules:
+  - empty_count
+  - force_unwrapping
+# SwiftLint resolves `excluded` against this file's directory, the repository root.
+# `.claude` holds agent worktrees, which would otherwise be linted as part of the
+# primary checkout; `build` holds the gate's DerivedData and result bundles.
+excluded:
+  - Pods
+  - .build
+  - DerivedData
+  - .claude
+  - build
+line_length: 120
+identifier_name:
+  min_length: 2
+# Agree with swift-format: it adds trailing commas to multiline collections and puts
+# the brace of a multiline header on its own line. Without these options every run
+# warns about formatter output.
+trailing_comma:
+  mandatory_comma: true
+opening_brace:
+  ignore_multiline_type_headers: true
+  ignore_multiline_statement_conditions: true
+  ignore_multiline_function_signatures: true
+# One threshold set for every app (owner decision, 2026-09-21), above the code the
+# apps had when it was set, except one 8-member test tuple that belongs in a struct.
+# A `switch` over enum cases is not branching logic worth splitting, hence
+# ignores_case_statements.
+cyclomatic_complexity:
+  ignores_case_statements: true
+function_body_length:
+  warning: 80
+  error: 120
+type_body_length:
+  warning: 300
+  error: 500
+large_tuple:
+  warning: 3
+  error: 5

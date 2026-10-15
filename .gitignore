@@ -31,11 +31,6 @@ playground.xcworkspace
 
 .build/
 build/
-
-# Runtime shell executors must survive a fresh clone and CI checkout.
-!Tooling/backend/build/
-!Tooling/backend/build/**
-Tooling/runtime.local.yml
 .DS_Store
 DerivedData/
 *.xcresult/
@@ -73,5 +68,7 @@ fastlane/test_output
 .cursor/project-context
 .cursor/project-context.yaml
 .cursor/plans/
+# Per-checkout Claude Code settings; .worktreeinclude copies them into new worktrees.
+.claude/settings.local.json
 # PostHog project key and host (ADR 0022); never committed.
 Config/Analytics.local.xcconfig
