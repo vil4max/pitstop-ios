@@ -197,13 +197,22 @@ struct CarVisualTests {
         defer { folder.remove() }
         let url = try folder.writeGarbage(named: "broken.jpg")
         let photo = CarPhotoFiles(original: url, lifted: nil)
+        let decoder = CarPhotoDecoder()
 
-        #expect(await CarPhotoDecoder.load(body: .sedan, photo: photo) == .placeholder(.sedan))
+        #expect(await decoder.load(body: .sedan, photo: photo) == .placeholder(.sedan))
         // The broken read counts as read: the cached picture is complete, not pending.
-        #expect(CarPhotoDecoder.cachedPicture(body: .sedan, photo: photo) == .placeholder(.sedan))
+        #expect(decoder.cachedPicture(body: .sedan, photo: photo) == .placeholder(.sedan))
         // A name never gets new contents in the store; if it did, the remembered result would still stand.
         _ = try folder.write(picture(), named: "broken.jpg", as: .png)
-        #expect(await CarPhotoDecoder.load(body: .sedan, photo: photo) == .placeholder(.sedan))
+        #expect(await decoder.load(body: .sedan, photo: photo) == .placeholder(.sedan))
+        let shared = CarPhotoDecoder.shared.cachedPicture(body: .sedan, photo: photo)
+        #expect(shared == nil, "the cache every view shares is untouched")
+    }
+
+    @Test("ADR-0040: views read through the one shared decoder unless the environment supplies another")
+    func environmentDefaultsToTheSharedDecoder() {
+        let decoder = EnvironmentValues().carPhotoDecoder as? CarPhotoDecoder
+        #expect(decoder === CarPhotoDecoder.shared)
     }
 
     @Test("The cache keeps what it read, a broken file as nothing, and starts over once it reaches its limit")

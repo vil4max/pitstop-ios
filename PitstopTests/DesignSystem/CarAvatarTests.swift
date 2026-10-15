@@ -137,11 +137,15 @@ struct CarAvatarTests {
             original: folder.write(block(red: 0.9, green: 0.1, blue: 0.1), named: "a.png"),
             lifted: nil
         )
-        // The avatar reads the files through the car visual's decoder and its shared cache.
-        _ = await CarPhotoDecoder.load(body: .suv, photo: photo)
+        // The avatar reads the files through the decoder in its environment, the car visual's in the app.
+        let decoder = CarPhotoDecoder()
+        _ = await decoder.load(body: .suv, photo: photo)
 
         let diameter = Int(CarAvatar.Size.pit.diameter)
-        let image = try Self.render(CarAvatar(source: CarAvatarSource(body: .suv, photo: photo), size: .pit))
+        let image = try Self.render(
+            CarAvatar(source: CarAvatarSource(body: .suv, photo: photo), size: .pit)
+                .environment(\.carPhotoDecoder, decoder)
+        )
         let pixels = Self.pixels(image)
         for (column, row) in [(diameter / 2, diameter / 2), (diameter / 2, 3), (3, diameter / 2)] {
             let offset = (row * diameter + column) * 4
@@ -160,13 +164,17 @@ struct CarAvatarTests {
             original: folder.write(block(red: 0.9, green: 0.1, blue: 0.1), named: "b.png"),
             lifted: folder.write(cutOut, named: "b-lifted.png")
         )
-        let picture = await CarPhotoDecoder.load(body: .suv, photo: photo)
+        let decoder = CarPhotoDecoder()
+        let picture = await decoder.load(body: .suv, photo: photo)
         guard case .lifted = picture else {
             Issue.record("expected the lifted cut-out, got \(picture)")
             return
         }
 
-        let avatar = try Self.render(CarAvatar(source: CarAvatarSource(body: .suv, photo: photo), size: .pit))
+        let avatar = try Self.render(
+            CarAvatar(source: CarAvatarSource(body: .suv, photo: photo), size: .pit)
+                .environment(\.carPhotoDecoder, decoder)
+        )
         let drawn = try Self.render(CarAvatarPicture(picture: picture, size: .pit))
         #expect(Self.pixels(avatar) == Self.pixels(drawn))
         let diameter = Int(CarAvatar.Size.pit.diameter)

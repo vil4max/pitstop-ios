@@ -42,17 +42,18 @@ struct CarAvatar: View {
     let source: CarAvatarSource
     let size: Size
 
+    @Environment(\.carPhotoDecoder) private var decoder
     @State private var loaded: LoadedCarPhoto?
 
     var body: some View {
         // The same resolution as `CarVisual`; only the frame the picture is drawn in differs.
         CarAvatarPicture(
-            picture: LoadedCarPhoto.picture(body: source.body, photo: source.photo, loaded: loaded),
+            picture: LoadedCarPhoto.picture(body: source.body, photo: source.photo, loaded: loaded, decoder: decoder),
             size: size
         )
         .task(id: source.photo) {
             guard let photo = source.photo, loaded?.photo != photo else { return }
-            loaded = await LoadedCarPhoto.read(body: source.body, photo: photo)
+            loaded = await LoadedCarPhoto.read(body: source.body, photo: photo, decoder: decoder)
         }
         .accessibilityHidden(true)
     }
