@@ -4,7 +4,7 @@ struct HistoryView: View {
     let viewModel: HistoryViewModel
     let carName: String
 
-    @State private var editor: HistoryEditorTarget?
+    @State private var editor: EditorTarget<HistoryEvent>?
     @Environment(\.calendar) private var calendar
     @Environment(\.timeZone) private var timeZone
 
@@ -38,10 +38,10 @@ struct HistoryView: View {
         .pitActivity(.modalTask, while: editor != nil)
         .pitSheet(item: $editor) { target in
             HistoryEventEditorView(
-                draft: target.event.map(viewModel.draft(for:)) ?? viewModel.newDraft(),
+                draft: target.item.map(viewModel.draft(for:)) ?? viewModel.newDraft(),
                 isNew: target == .new
             ) { draft in
-                await viewModel.save(draft, replacing: target.event)
+                await viewModel.save(draft, replacing: target.item)
             }
             .alert(failureTitle, isPresented: failureBinding) {
                 Button("common.ok") { viewModel.dismissFailure() }
@@ -63,23 +63,6 @@ struct HistoryView: View {
         case .invalidAmount: "history.failure.amount"
         case .futureDate: "history.failure.future"
         case .notSaved, .none: "history.failure.notSaved"
-        }
-    }
-}
-
-enum HistoryEditorTarget: Identifiable, Equatable {
-    case new
-    case existing(HistoryEvent)
-
-    var id: String {
-        event?.id.uuidString ?? "new"
-    }
-
-    var event: HistoryEvent? {
-        if case let .existing(event) = self {
-            event
-        } else {
-            nil
         }
     }
 }

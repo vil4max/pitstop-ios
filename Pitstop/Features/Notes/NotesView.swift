@@ -4,7 +4,7 @@ struct NotesView: View {
     let viewModel: NotesViewModel
     let carName: String
 
-    @State private var editor: NoteEditorTarget?
+    @State private var editor: EditorTarget<Note>?
 
     var body: some View {
         FeatureScaffold(carName: carName, title: String(localized: CarBoardTileKind.notes.title)) {
@@ -93,18 +93,6 @@ struct NotesView: View {
         switch viewModel.state.editorFailure {
         case .emptyText: "notes.failure.empty"
         case .notSaved, .none: "notes.failure.notSaved"
-        }
-    }
-}
-
-enum NoteEditorTarget: Identifiable, Equatable {
-    case new
-    case existing(Note)
-
-    var id: String {
-        switch self {
-        case .new: "new"
-        case let .existing(note): note.id.uuidString
         }
     }
 }

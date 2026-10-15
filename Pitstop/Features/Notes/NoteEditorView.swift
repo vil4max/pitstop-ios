@@ -3,20 +3,16 @@ import SwiftUI
 /// Write a new thought or correct a saved one. The sheet closes only after the text was persisted;
 /// on failure the text stays in the field for another try (REQ-CAPTURE-009).
 struct NoteEditorView: View {
-    let target: NoteEditorTarget
+    let target: EditorTarget<Note>
     let onSave: (String) async -> Bool
 
     @State private var text: String
     @FocusState private var isFocused: Bool
 
-    init(target: NoteEditorTarget, onSave: @escaping (String) async -> Bool) {
+    init(target: EditorTarget<Note>, onSave: @escaping (String) async -> Bool) {
         self.target = target
         self.onSave = onSave
-        if case let .existing(note) = target {
-            _text = State(initialValue: note.rawText)
-        } else {
-            _text = State(initialValue: "")
-        }
+        _text = State(initialValue: target.item?.rawText ?? "")
     }
 
     var body: some View {

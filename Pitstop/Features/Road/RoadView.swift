@@ -8,7 +8,7 @@ struct RoadView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var position: String? = RoadLaneView.carID
-    @State private var editor: PlannedEditorTarget?
+    @State private var editor: EditorTarget<PlannedDatedEvent>?
     /// The alert keeps its title while it animates out, after the view model has cleared the failure.
     @State private var shownFailure: RoadFailure?
 
@@ -39,13 +39,13 @@ struct RoadView: View {
         }
         .pitSheet(item: $editor) { target in
             PlannedEventEditorView(
-                draft: target.event.map(viewModel.draft(for:)) ?? viewModel.newDraft(),
+                draft: target.item.map(viewModel.draft(for:)) ?? viewModel.newDraft(),
                 isNew: target == .new,
-                kinds: viewModel.canChooseInsurance(editing: target.event)
+                kinds: viewModel.canChooseInsurance(editing: target.item)
                     ? PlannedEventDraft.Kind.allCases : [.other],
-                dateRange: viewModel.dateRange(editing: target.event)
+                dateRange: viewModel.dateRange(editing: target.item)
             ) { draft in
-                await viewModel.save(draft, replacing: target.event)
+                await viewModel.save(draft, replacing: target.item)
             }
             .alert(
                 (viewModel.state.failure ?? shownFailure)?.title ?? "road.failure.notSaved",
@@ -166,26 +166,6 @@ struct RoadView: View {
             viewModel.state.listFailure != nil
         } onDismiss: {
             viewModel.dismissFailure()
-        }
-    }
-}
-
-enum PlannedEditorTarget: Identifiable, Equatable {
-    case new
-    case existing(PlannedDatedEvent)
-
-    var id: String {
-        switch self {
-        case .new: "new"
-        case let .existing(event): event.id.uuidString
-        }
-    }
-
-    var event: PlannedDatedEvent? {
-        if case let .existing(event) = self {
-            event
-        } else {
-            nil
         }
     }
 }
