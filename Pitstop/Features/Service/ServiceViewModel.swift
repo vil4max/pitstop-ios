@@ -32,28 +32,19 @@ final class ServiceViewModel {
 
     func load() async {
         do {
-            let completions = try await store.maintenanceCompletions()
-            let reports = try await store.vehicleServiceReports()
-            let readings = try await store.odometerReadings()
-            let context = MaintenanceContext(
-                now: now(),
-                latestReading: readings.latest,
-                completions: completions,
-                reports: reports
-            )
-            let policies = try await store.maintenancePolicies()
-            let states = MaintenanceEngine().states(
-                policies: policies, completions: completions, reports: reports, context: context
-            )
-            state.defaultReportUnit = ServiceViewState.defaultReportUnit(readings: readings, reports: reports)
+            let snapshot = try await MaintenanceSnapshot.read(from: store, now: now())
+            let readings = snapshot.readings
+            state.defaultReportUnit = ServiceViewState.defaultReportUnit(readings: readings, reports: snapshot.reports)
             let moment = now()
             state.sameDayOdometerKm = readings.latest
                 .flatMap { calendar.isDate($0.recordedAt, inSameDayAs: moment) ? $0 : nil }
                 .map { Int($0.valueInKilometers.rounded()) }
-            state.operationsWithOtherPolicy = Set(policies.filter { $0.source != .userCustom }.map(\.operationID))
-            state.operations = states.byUrgency
-            state.scope = ServicePlanner().suggestedScope(for: states, context: context)
-            state.mileage = context.mileage
+            state.operationsWithOtherPolicy = Set(
+                snapshot.policies.filter { $0.source != .userCustom }.map(\.operationID)
+            )
+            state.operations = snapshot.states.byUrgency
+            state.scope = ServicePlanner().suggestedScope(for: snapshot.states, context: snapshot.context)
+            state.mileage = snapshot.context.mileage
             state.isLoadFailed = false
             state.hasLoaded = true
         } catch {

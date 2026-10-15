@@ -7,7 +7,7 @@ struct NotesView: View {
     @State private var editor: NoteEditorTarget?
 
     var body: some View {
-        FeatureScaffold(carName: carName, title: String(localized: "tile.notes.title")) {
+        FeatureScaffold(carName: carName, title: String(localized: CarBoardTileKind.notes.title)) {
             VStack(alignment: .leading, spacing: DesignTokens.tileSpacing) {
                 controls
                 if viewModel.state.isLoadFailed {
@@ -74,25 +74,19 @@ struct NotesView: View {
     }
 
     private var failureBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.state.editorFailure != nil },
-            set: { isPresented in
-                if !isPresented {
-                    viewModel.dismissFailure()
-                }
-            }
-        )
+        .presence {
+            viewModel.state.editorFailure != nil
+        } onDismiss: {
+            viewModel.dismissFailure()
+        }
     }
 
     private var listFailureBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.state.listFailure != nil },
-            set: { isPresented in
-                if !isPresented {
-                    viewModel.dismissFailure()
-                }
-            }
-        )
+        .presence {
+            viewModel.state.listFailure != nil
+        } onDismiss: {
+            viewModel.dismissFailure()
+        }
     }
 
     private var failureTitle: LocalizedStringKey {

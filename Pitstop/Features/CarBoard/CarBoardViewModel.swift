@@ -122,15 +122,10 @@ final class CarBoardViewModel {
             // Saving the car needs only the car: a later read failing must not make the editor fail too.
             vehicleID = vehicle.id
             photoID = vehicle.photoID
-            let readings = try await store.odometerReadings()
-            let latest = readings.latest
-            let completions = try await store.maintenanceCompletions()
-            let reports = try await store.vehicleServiceReports()
-            // The header and Service read mileage from one context, so they cannot disagree
+            // The header, Service and Road read mileage from one snapshot, so they cannot disagree
             // (REQ-BOARD-026, ADR 0010).
-            let context = MaintenanceContext(
-                now: moment, latestReading: latest, completions: completions, reports: reports
-            )
+            let snapshot = try await MaintenanceSnapshot.read(from: store, now: moment)
+            let context = snapshot.context
             // Built aside and assigned once: a read failing part way must not leave the header on a newer mileage
             // than Service and Road (REQ-BOARD-026).
             var next = state
@@ -142,26 +137,13 @@ final class CarBoardViewModel {
                 MileageRecency(observedAt: $0, now: moment, calendar: calendar)
             }
             next.notes = try await NotesSummary(notes: store.notes())
-            next.history = try await HistoryTimeline(events: store.historyEvents(), completions: completions)
-            next.service = try await MaintenanceEngine().states(
-                policies: store.maintenancePolicies(),
-                completions: completions,
-                reports: reports,
-                context: context
-            ).byUrgency
+            next.history = try await HistoryTimeline(events: store.historyEvents(), completions: snapshot.completions)
+            next.service = snapshot.states.byUrgency
             // The tile projects the same planned dates as the Road screen; insurance has no tile of its own
             // (ADR 0032).
-            next.road = try await RoadProjector().project(
-                RoadContext(
-                    now: moment,
-                    maintenanceStates: next.service,
-                    plannedEvents: store.plannedEvents().map(\.roadEvent),
-                    history: next.history,
-                    mileageObservations: MileageObservation.history(
-                        readings: readings, completions: completions, reports: reports
-                    ),
-                    calendar: calendar
-                ))
+            next.road = try await snapshot.road(
+                history: next.history, planned: store.plannedEvents(), calendar: calendar
+            )
             next.moment = moment
             next.isLoadFailed = false
             // A save while this load awaited may have set a failure; it is not this load's to clear.

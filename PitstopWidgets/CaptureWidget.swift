@@ -6,7 +6,7 @@ import WidgetKit
 struct CaptureWidget: Widget {
     static let kind = "dev.vil4max.pitstop.widgets.capture"
     /// The same glyph as the Open Pit App Shortcut (ADR 0024).
-    static let symbol = "square.and.pencil"
+    static let symbol = PitSymbol.capture
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: Self.kind, provider: CaptureTimelineProvider()) { _ in

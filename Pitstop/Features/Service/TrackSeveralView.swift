@@ -2,12 +2,9 @@ import SwiftUI
 
 /// "Track several" (ADR 0033): choose operations, enter each interval, confirm one summary, see what was saved.
 struct TrackSeveralView: View {
-    @State private var model: TrackSeveralViewModel
+    /// Built once when the sheet opens and owned by its `ServiceSheet` case, so a re-render of Service builds none.
+    @Bindable var model: TrackSeveralViewModel
     @Environment(\.dismiss) private var dismiss
-
-    init(makeModel: @escaping () -> TrackSeveralViewModel) {
-        _model = State(initialValue: makeModel())
-    }
 
     var body: some View {
         NavigationStack {
@@ -193,7 +190,7 @@ struct TrackSeveralView: View {
             Button {
                 Task { await model.apply() }
             } label: {
-                ProminentLabel(Text("trackSeveral.confirm \(model.reviewPolicies.count)"))
+                PitActionLabel(Text("trackSeveral.confirm \(model.reviewPolicies.count)"), prominent: true)
             }
             .buttonStyle(.borderedProminent)
             .disabled(model.isSaving)
@@ -325,12 +322,12 @@ extension DriveAnswer {
                 StackedActions {
                     Button {
                     } label: {
-                        ProminentLabel(Text("trackSeveral.confirm \(3)"))
+                        PitActionLabel(Text("trackSeveral.confirm \(3)"), prominent: true)
                     }
                     .buttonStyle(.borderedProminent)
                     Button {
                     } label: {
-                        ProminentLabel(Text("trackSeveral.confirm \(3)"))
+                        PitActionLabel(Text("trackSeveral.confirm \(3)"), prominent: true)
                     }
                     .buttonStyle(.borderedProminent)
                     .disabled(true)

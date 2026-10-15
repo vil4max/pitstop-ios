@@ -119,18 +119,29 @@ struct PitChoice {
 /// accent; a disabled button keeps the style's own dimmed label on its grey fill. A compact label is for a pair of
 /// small side-by-side actions, such as the question card's decline buttons.
 struct PitActionLabel: View {
-    let title: LocalizedStringKey
+    let text: Text
     var prominent = false
     var compact = false
 
     @Environment(\.isEnabled) private var isEnabled
 
+    init(title: LocalizedStringKey, prominent: Bool = false, compact: Bool = false) {
+        self.init(Text(title), prominent: prominent, compact: compact)
+    }
+
+    /// For a title that carries arguments, such as a count.
+    init(_ text: Text, prominent: Bool = false, compact: Bool = false) {
+        self.text = text
+        self.prominent = prominent
+        self.compact = compact
+    }
+
     var body: some View {
         Group {
             if prominent, isEnabled {
-                Text(title).foregroundStyle(PitColor.contentOnAccent)
+                text.foregroundStyle(PitColor.contentOnAccent)
             } else {
-                Text(title)
+                text
             }
         }
         .font(compact ? PitTypography.supporting.weight(.semibold) : PitTypography.headline)

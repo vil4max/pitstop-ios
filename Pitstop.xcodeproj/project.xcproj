@@ -32,6 +32,7 @@
             "Domain/Capture/DomainCommandLimits.swift",
             "Domain/Maintenance/Maintenance.swift",
             "Domain/Maintenance/MaintenanceEngine.swift",
+            "Domain/Maintenance/MileageObservation.swift",
             "Domain/Maintenance/VehicleServiceReport.swift",
             "Domain/Vehicle/ProvisionalCarContext.swift",
             "Domain/Vehicle/Vehicle.swift",

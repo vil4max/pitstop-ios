@@ -155,7 +155,7 @@ struct EmptyStatePrimaryButtonStyle: PrimitiveButtonStyle {
         PreviewMatrix {
             EmptyState(
                 EmptyStateContent(
-                    systemImage: "wrench.and.screwdriver",
+                    systemImage: PitSymbol.service,
                     headline: "tile.service.empty.headline",
                     actions: [0, 1]
                 )

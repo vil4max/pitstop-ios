@@ -23,9 +23,9 @@ extension HistoryViewState {
             return nil
         }
         return EmptyStateContent(
-            systemImage: "clock.arrow.circlepath",
-            headline: "tile.history.empty.headline",
-            sentence: "tile.history.empty.detail",
+            systemImage: CarBoardTileKind.history.systemImage,
+            headline: CarBoardTileKind.history.emptyHeadline,
+            sentence: CarBoardTileKind.history.emptyDetail,
             actions: [.add]
         )
     }

@@ -9,7 +9,7 @@ struct HistoryView: View {
     @Environment(\.timeZone) private var timeZone
 
     var body: some View {
-        FeatureScaffold(carName: carName, title: String(localized: "tile.history.title")) {
+        FeatureScaffold(carName: carName, title: String(localized: CarBoardTileKind.history.title)) {
             VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {
                 if viewModel.state.isLoadFailed {
                     LoadFailureBanner(message: "history.load.failed") { await viewModel.load() }
@@ -50,14 +50,11 @@ struct HistoryView: View {
     }
 
     private var failureBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.state.failure != nil },
-            set: { isPresented in
-                if !isPresented {
-                    viewModel.dismissFailure()
-                }
-            }
-        )
+        .presence {
+            viewModel.state.failure != nil
+        } onDismiss: {
+            viewModel.dismissFailure()
+        }
     }
 
     private var failureTitle: LocalizedStringKey {
@@ -222,20 +219,9 @@ extension HistoryEntry {
 }
 
 extension HistoryEventKind {
-    var title: LocalizedStringKey {
-        switch self {
-        case .service: "history.kind.service"
-        case .carWash: "history.kind.carWash"
-        case .odometer: "history.kind.odometer"
-        case .insurance: "history.kind.insurance"
-        case .purchase: "history.kind.purchase"
-        case .other: "history.kind.other"
-        }
-    }
-
     var systemImage: String {
         switch self {
-        case .service: "wrench.and.screwdriver"
+        case .service: PitSymbol.service
         case .carWash: "drop"
         case .odometer: "gauge.with.needle"
         case .insurance: "shield"
@@ -246,32 +232,6 @@ extension HistoryEventKind {
 
     /// Kinds a person records by hand. Odometer readings have their own command and place.
     static let userSelectable: [HistoryEventKind] = [.service, .carWash, .insurance, .purchase, .other]
-}
-
-extension MaintenanceOperationID {
-    /// Localized titles are presentation only; the ID stays the domain identity. An ID without a
-    /// known title is shown verbatim so it is neither looked up nor parsed as a format string.
-    var titleText: Text {
-        titleResource.map { Text($0) } ?? Text(verbatim: rawValue)
-    }
-
-    /// The same title as plain text, for announcements and other string-only APIs.
-    var localizedTitle: String {
-        titleResource.map { String(localized: $0) } ?? rawValue
-    }
-
-    private var titleResource: LocalizedStringResource? {
-        switch self {
-        case .engineOilService: "operation.engineOilService"
-        case .dsgService: "operation.dsgService"
-        case .awdCouplingService: "operation.awdCouplingService"
-        case .brakeFluid: "operation.brakeFluid"
-        case .cabinFilter: "operation.cabinFilter"
-        case .airFilter: "operation.airFilter"
-        case .sparkPlugs: "operation.sparkPlugs"
-        default: nil
-        }
-    }
 }
 
 #if DEBUG

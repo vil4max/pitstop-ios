@@ -104,14 +104,11 @@ struct CarBoardView: View {
     }
 
     private var failureBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.state.failure != nil },
-            set: {
-                if !$0 {
-                    viewModel.dismissFailure()
-                }
-            }
-        )
+        .presence {
+            viewModel.state.failure != nil
+        } onDismiss: {
+            viewModel.dismissFailure()
+        }
     }
 
     private var failureTitle: LocalizedStringKey {

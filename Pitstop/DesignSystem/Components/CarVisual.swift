@@ -40,9 +40,44 @@ enum CarPhotoDecoder {
     /// Enough for the widest use, the stage at 3x; the stored original can be up to 2048 px.
     static let maxPixelSize = 1200
     /// One car has at most a few files alive at once; the cache starts over rather than tracking age.
-    private static let cacheLimit = 8
-    /// `nil` inside records a file that was tried and did not decode, so a broken file is not read again.
-    private static let cache = Mutex<[URL: CGImage?]>([:])
+    private static let cache = Mutex(Cache(limit: 8))
+
+    /// The decoded files by URL. A value of its own, so its rules are tested on an instance and not through the
+    /// cache every view shares.
+    struct Cache {
+        let limit: Int
+        /// `nil` inside records a file that was tried and did not decode, so a broken file is not read again.
+        private var entries: [URL: CGImage?] = [:]
+
+        init(limit: Int) {
+            self.limit = limit
+        }
+
+        /// `.some(nil)` for a file read before that did not decode; `nil` for a file not read yet.
+        func entry(for url: URL) -> CGImage?? {
+            entries[url]
+        }
+
+        mutating func store(_ image: CGImage?, for url: URL) {
+            if entries.count >= limit {
+                entries.removeAll()
+            }
+            entries[url] = .some(image)
+        }
+
+        /// The picture from files already decoded, or `nil` while a file it needs has not been read yet.
+        func picture(body: CarBody, photo: CarPhotoFiles) -> CarPicture? {
+            var isComplete = true
+            let picture = CarPicture.resolve(body: body, photo: photo) { url in
+                guard let entry = entries[url] else {
+                    isComplete = false
+                    return nil
+                }
+                return entry
+            }
+            return isComplete ? picture : nil
+        }
+    }
 
     /// The image at `url`, bounded to `maxPixelSize` on its long side and never enlarged; `nil` when the file is
     /// missing or is not an image.
@@ -72,32 +107,19 @@ enum CarPhotoDecoder {
 
     /// The picture from files already decoded, or `nil` while a file it needs has not been read yet.
     static func cachedPicture(body: CarBody, photo: CarPhotoFiles) -> CarPicture? {
-        let entries = cache.withLock { $0 }
-        var isComplete = true
-        let picture = CarPicture.resolve(body: body, photo: photo) { url in
-            guard let entry = entries[url] else {
-                isComplete = false
-                return nil
-            }
-            return entry
-        }
-        return isComplete ? picture : nil
+        cache.withLock { $0 }.picture(body: body, photo: photo)
     }
 
     /// Reads the files the picture needs off the main actor, through the shared cache.
     @concurrent
     static func load(body: CarBody, photo: CarPhotoFiles) async -> CarPicture {
         CarPicture.resolve(body: body, photo: photo) { url in
-            if let entry = cache.withLock({ $0[url] }) {
+            if let entry = cache.withLock({ $0.entry(for: url) }) {
                 return entry
             }
+            // Decoded outside the lock: one slow file must not hold up a view reading the cache.
             let image = decode(url)
-            cache.withLock { entries in
-                if entries.count >= cacheLimit {
-                    entries.removeAll()
-                }
-                entries[url] = .some(image)
-            }
+            cache.withLock { $0.store(image, for: url) }
             return image
         }
     }
@@ -124,7 +146,7 @@ struct CarVisual: View {
     /// Spoken for the car when given; without one the car is decorative (REQ-BOARD-024).
     var label: Text?
 
-    @State private var loaded: Loaded?
+    @State private var loaded: LoadedCarPhoto?
 
     init(body: CarBody, photo: CarPhotoFiles?, label: Text? = nil) {
         carBody = body
@@ -133,34 +155,39 @@ struct CarVisual: View {
     }
 
     var body: some View {
-        CarPictureView(picture: picture)
+        CarPictureView(picture: LoadedCarPhoto.picture(body: carBody, photo: photo, loaded: loaded))
             .aspectRatio(Self.aspectRatio, contentMode: .fit)
             .task(id: photo) {
                 guard let photo, loaded?.photo != photo else { return }
-                let picture = await CarPhotoDecoder.load(body: carBody, photo: photo)
-                loaded = Loaded(photo: photo, picture: picture)
+                loaded = await LoadedCarPhoto.read(body: carBody, photo: photo)
             }
             .modifier(CarVisualAccessibility(label: label))
+    }
+}
+
+/// The picture rule every surface that draws the car shares (`CarVisual`, `CarAvatar`): the photo files a view
+/// last read, and what to draw from them.
+struct LoadedCarPhoto: Sendable {
+    let photo: CarPhotoFiles
+    let picture: CarPicture
+
+    static func read(body: CarBody, photo: CarPhotoFiles) async -> LoadedCarPhoto {
+        await LoadedCarPhoto(photo: photo, picture: CarPhotoDecoder.load(body: body, photo: photo))
     }
 
     /// `nil` only while a photo's files are being read: the frame stays empty rather than showing, for a
     /// moment, a body that is not the owner's car.
-    private var picture: CarPicture? {
-        guard let photo else { return .placeholder(carBody) }
+    static func picture(body: CarBody, photo: CarPhotoFiles?, loaded: LoadedCarPhoto?) -> CarPicture? {
+        guard let photo else { return .placeholder(body) }
         if let loaded, loaded.photo == photo {
             // A photo that fell back to the placeholder follows the body chosen since it was read.
             if case .placeholder = loaded.picture {
-                return .placeholder(carBody)
+                return .placeholder(body)
             }
             return loaded.picture
         }
         // Another surface may have read these files already: the tiles and the lane draw them at once.
-        return CarPhotoDecoder.cachedPicture(body: carBody, photo: photo)
-    }
-
-    private struct Loaded {
-        let photo: CarPhotoFiles
-        let picture: CarPicture
+        return CarPhotoDecoder.cachedPicture(body: body, photo: photo)
     }
 }
 

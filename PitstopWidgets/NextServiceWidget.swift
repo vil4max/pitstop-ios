@@ -89,7 +89,7 @@ struct NextServiceWidgetView: View {
             Text("widget.nextService.inline \(summary.operation.widgetTitle) \(Text(summary.word.widgetLabel))")
                 .privacySensitive()
         case .empty, .unavailable:
-            Label("widget.nextService.title", systemImage: "wrench.and.screwdriver")
+            Label("widget.nextService.title", systemImage: PitSymbol.service)
         }
     }
 

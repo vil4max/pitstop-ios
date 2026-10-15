@@ -90,9 +90,9 @@ extension RoadProjection {
             return nil
         }
         return EmptyStateContent(
-            systemImage: "road.lanes",
-            headline: "tile.road.empty.headline",
-            sentence: "tile.road.empty.detail",
+            systemImage: CarBoardTileKind.road.systemImage,
+            headline: CarBoardTileKind.road.emptyHeadline,
+            sentence: CarBoardTileKind.road.emptyDetail,
             actions: [.addDate]
         )
     }
@@ -114,9 +114,9 @@ extension RoadMilestone {
     var titleText: Text {
         switch subject {
         case let .maintenance(operation): operation.titleText
-        case .planned(.insuranceExpiry, _): Text("road.planned.insurance")
+        case .planned(.insuranceExpiry, _): Text(PlannedDateTitle.insurance)
         case .planned(.plannedVisit, _): Text("road.planned.visit")
-        case .planned(.other, _): plannedLabel.map { Text(verbatim: $0) } ?? Text("road.planned.other")
+        case .planned(.other, _): PlannedDateTitle.other(plannedLabel)
         }
     }
 
@@ -141,12 +141,22 @@ extension RoadMilestone {
     }
 }
 
+/// The words of a planned date, one mapping for Road's rows, the date's own title and the editor's kind.
+enum PlannedDateTitle {
+    static var insurance: LocalizedStringKey { "road.planned.insurance" }
+
+    /// The owner's label is their own words, never translated.
+    static func other(_ label: String?) -> Text {
+        label.map { Text(verbatim: $0) } ?? Text("road.planned.other")
+    }
+}
+
 extension PlannedDatedEvent {
-    /// The same title Road shows for this date; the owner's label is their own words, never translated.
+    /// The same title Road shows for this date.
     var titleText: Text {
         switch kind {
-        case .insuranceExpiry: Text("road.planned.insurance")
-        case let .other(label): label.map { Text(verbatim: $0) } ?? Text("road.planned.other")
+        case .insuranceExpiry: Text(PlannedDateTitle.insurance)
+        case let .other(label): PlannedDateTitle.other(label)
         }
     }
 }
@@ -154,7 +164,7 @@ extension PlannedDatedEvent {
 extension PlannedEventDraft.Kind {
     var title: LocalizedStringKey {
         switch self {
-        case .insuranceExpiry: "road.planned.insurance"
+        case .insuranceExpiry: PlannedDateTitle.insurance
         case .other: "road.planned.kind.other"
         }
     }
@@ -183,7 +193,7 @@ extension RoadProjection {
     var summaryText: Text {
         switch semanticSummary {
         case let .noKnownMilestones(tracked):
-            return tracked > 0 ? Text("road.summary.noBaseline") : Text("tile.road.empty.headline")
+            return tracked > 0 ? Text("road.summary.noBaseline") : Text(CarBoardTileKind.road.emptyHeadline)
         case let .nearest(milestone, alsoAhead, _):
             // A blocked milestone has no state to report; its reason already says why (REQ-ROAD-011).
             guard milestone.remainingKm != nil || milestone.remainingDays != nil else {

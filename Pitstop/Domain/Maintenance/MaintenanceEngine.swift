@@ -48,17 +48,13 @@ public struct MaintenanceContext: Hashable, Sendable {
         reports: [VehicleServiceReport] = []
     ) {
         self.now = now
-        var observations = completions.compactMap { completion in
-            completion.odometerKm.map { (date: completion.performedAt, km: Double($0)) }
-        }
-        observations += reports.compactMap { report in
-            report.odometerKm.map { (date: report.reportedAt, km: Double($0)) }
-        }
-        if let latestReading {
-            observations.append((latestReading.recordedAt, latestReading.valueInKilometers))
-        }
-        let latest = observations.filter { $0.date <= now.addingTimeInterval(DomainCommandLimits.futureTolerance) }
-            .max { ($0.date, $0.km) < ($1.date, $1.km) }
+        // The history is sorted by (date, km), so the last fact not in the future is the latest one.
+        let latest = MileageObservation.history(
+            readings: latestReading.map { [$0] } ?? [],
+            completions: completions,
+            reports: reports
+        )
+        .last { $0.date <= now.addingTimeInterval(DomainCommandLimits.futureTolerance) }
         observedKm = latest?.km
         observedAt = latest?.date
     }

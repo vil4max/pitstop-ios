@@ -122,8 +122,8 @@ extension ServiceViewState {
             return nil
         }
         return EmptyStateContent(
-            systemImage: "wrench.and.screwdriver",
-            headline: "tile.service.empty.headline",
+            systemImage: CarBoardTileKind.service.systemImage,
+            headline: CarBoardTileKind.service.emptyHeadline,
             sentence: "service.empty.detail",
             actions: [.track, .trackSeveral]
         )

@@ -13,7 +13,7 @@ struct RoadView: View {
     @State private var shownFailure: RoadFailure?
 
     var body: some View {
-        FeatureScaffold(carName: carName, title: String(localized: "tile.road.title")) {
+        FeatureScaffold(carName: carName, title: String(localized: CarBoardTileKind.road.title)) {
             VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {
                 if viewModel.state.isLoadFailed {
                     LoadFailureBanner(message: "road.load.failed") { await viewModel.load() }
@@ -154,25 +154,19 @@ struct RoadView: View {
     }
 
     private var failureBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.state.failure != nil },
-            set: { isPresented in
-                if !isPresented {
-                    viewModel.dismissFailure()
-                }
-            }
-        )
+        .presence {
+            viewModel.state.failure != nil
+        } onDismiss: {
+            viewModel.dismissFailure()
+        }
     }
 
     private var listFailureBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.state.listFailure != nil },
-            set: { isPresented in
-                if !isPresented {
-                    viewModel.dismissFailure()
-                }
-            }
-        )
+        .presence {
+            viewModel.state.listFailure != nil
+        } onDismiss: {
+            viewModel.dismissFailure()
+        }
     }
 }
 

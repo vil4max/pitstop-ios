@@ -11,7 +11,7 @@ struct ServiceView: View {
     @State private var shownListFailure: ServiceFailure?
 
     var body: some View {
-        FeatureScaffold(carName: carName, title: String(localized: "tile.service.title")) {
+        FeatureScaffold(carName: carName, title: String(localized: CarBoardTileKind.service.title)) {
             VStack(alignment: .leading, spacing: DesignTokens.sectionSpacing) {
                 if viewModel.state.isLoadFailed {
                     LoadFailureBanner(message: "service.load.failed") { await viewModel.load() }
@@ -81,7 +81,7 @@ struct ServiceView: View {
                 Button("service.track", systemImage: "plus") { sheet = .track }
                     .disabled(!viewModel.state.canTrackOne)
                     .accessibilityIdentifier("service.track")
-                Button("service.trackSeveral", systemImage: "checklist") { sheet = .trackSeveral }
+                Button("service.trackSeveral", systemImage: "checklist") { openTrackSeveral() }
                     .disabled(!viewModel.state.canTrackSeveral)
                     .accessibilityIdentifier("service.trackSeveral")
             } label: {
@@ -106,8 +106,8 @@ struct ServiceView: View {
             TrackOperationView(operations: viewModel.state.untrackedOperations) { operation, kilometers, months in
                 await viewModel.track(operation, kilometersText: kilometers, monthsText: months)
             }
-        case .trackSeveral:
-            TrackSeveralView(makeModel: viewModel.makeTrackSeveral)
+        case let .trackSeveral(model):
+            TrackSeveralView(model: model)
         case let .interval(operation):
             TrackOperationView(
                 operations: [operation],
@@ -139,13 +139,17 @@ struct ServiceView: View {
         }
     }
 
+    private func openTrackSeveral() {
+        sheet = .trackSeveral(viewModel.makeTrackSeveral())
+    }
+
     private func emptyState(_ sparse: EmptyStateContent<ServiceEmptyAction>) -> some View {
         EmptyState(sparse) { action in
             switch action {
             case .track:
                 Button("service.track") { sheet = .track }
             case .trackSeveral:
-                Button("service.trackSeveral") { sheet = .trackSeveral }
+                Button("service.trackSeveral") { openTrackSeveral() }
                     .disabled(!viewModel.state.canTrackSeveral)
                     .accessibilityIdentifier("service.empty.trackSeveral")
             }
@@ -197,14 +201,11 @@ struct ServiceView: View {
     }
 
     private var listFailureBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.state.listFailure != nil },
-            set: { isPresented in
-                if !isPresented {
-                    viewModel.dismissFailure()
-                }
-            }
-        )
+        .presence {
+            viewModel.state.listFailure != nil
+        } onDismiss: {
+            viewModel.dismissFailure()
+        }
     }
 
     private var undoBinding: Binding<Bool> {
@@ -233,14 +234,11 @@ struct ServiceView: View {
     }
 
     private var failureBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.state.failure != nil },
-            set: { isPresented in
-                if !isPresented {
-                    viewModel.dismissFailure()
-                }
-            }
-        )
+        .presence {
+            viewModel.state.failure != nil
+        } onDismiss: {
+            viewModel.dismissFailure()
+        }
     }
 
     private func failureTitle(_ failure: ServiceFailure?) -> LocalizedStringKey {
@@ -258,7 +256,8 @@ struct ServiceView: View {
 
 enum ServiceSheet: Identifiable, Equatable {
     case track
-    case trackSeveral
+    /// Carries the model built when the sheet opened: typed intervals live in it for the sheet's whole life.
+    case trackSeveral(TrackSeveralViewModel)
     case interval(MaintenanceOperationID)
     case done(MaintenanceOperationID)
     case report(MaintenanceOperationID)
@@ -270,6 +269,14 @@ enum ServiceSheet: Identifiable, Equatable {
         case let .interval(operation): "interval-\(operation.rawValue)"
         case let .done(operation): "done-\(operation.rawValue)"
         case let .report(operation): "report-\(operation.rawValue)"
+        }
+    }
+
+    /// Two "Track several" sheets are the same sheet only with the same model.
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case let (.trackSeveral(left), .trackSeveral(right)): left === right
+        default: lhs.id == rhs.id
         }
     }
 }

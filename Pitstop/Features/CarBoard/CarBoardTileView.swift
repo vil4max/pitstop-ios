@@ -62,7 +62,7 @@ struct CarBoardTileView: View {
 
     private var titleRow: some View {
         HStack(spacing: 6) {
-            TileTitle(title: title, systemImage: systemImage)
+            TileTitle(title: descriptor.kind.title, systemImage: descriptor.kind.systemImage)
             Spacer(minLength: 4)
             // "Entrance" made visible; the link itself is the button VoiceOver announces.
             Image(systemName: "chevron.right")
@@ -92,8 +92,8 @@ struct CarBoardTileView: View {
 
     private func text(for line: CarBoardTileContent.Line) -> Text {
         switch line {
-        case let .sparseHeadline(kind): Text(Self.sparseHeadline(kind))
-        case let .sparseDetail(kind): Text(Self.sparseDetail(kind))
+        case let .sparseHeadline(kind): Text(kind.emptyHeadline)
+        case let .sparseDetail(kind): Text(kind.emptyDetail)
         case let .roadSummary(road): road.summaryText
         case let .roadHorizon(horizon): Text(Self.horizonKey(horizon))
         case let .noteText(text): Text(verbatim: text)
@@ -118,41 +118,6 @@ struct CarBoardTileView: View {
         descriptor.size == .full ? DesignTokens.fullTileMinHeight : DesignTokens.halfTileMinHeight
     }
 
-    private var title: LocalizedStringKey {
-        switch descriptor.kind {
-        case .road: "tile.road.title"
-        case .notes: "tile.notes.title"
-        case .service: "tile.service.title"
-        case .history: "tile.history.title"
-        }
-    }
-
-    private var systemImage: String {
-        switch descriptor.kind {
-        case .road: "road.lanes"
-        case .notes: "note.text"
-        case .service: "wrench.and.screwdriver"
-        case .history: "clock.arrow.circlepath"
-        }
-    }
-
-    private static func sparseHeadline(_ kind: CarBoardTileKind) -> LocalizedStringKey {
-        switch kind {
-        case .road: "tile.road.empty.headline"
-        case .notes: "tile.notes.empty.headline"
-        case .service: "tile.service.empty.headline"
-        case .history: "tile.history.empty.headline"
-        }
-    }
-
-    private static func sparseDetail(_ kind: CarBoardTileKind) -> LocalizedStringKey {
-        switch kind {
-        case .road: "tile.road.empty.detail"
-        case .notes: "tile.notes.empty.detail"
-        case .service: "tile.service.empty.detail"
-        case .history: "tile.history.empty.detail"
-        }
-    }
 }
 
 /// The car at "Now" and the projection's initial slots as roadside markers with the shared state glyphs

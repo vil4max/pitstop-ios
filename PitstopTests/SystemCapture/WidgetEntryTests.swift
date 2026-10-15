@@ -87,7 +87,7 @@ struct CaptureWidgetSourceTests {
     private static let calledSharedFiles = [
         "Shared/CaptureSurface.swift", "Shared/AppLink.swift", "Shared/DesignSystem/GlyphDisc.swift",
         "Shared/DesignSystem/PitColor.swift", "Shared/DesignSystem/PitTypography.swift",
-        "Shared/DesignSystem/DesignTokens.swift",
+        "Shared/DesignSystem/DesignTokens.swift", "Shared/DesignSystem/PitSymbol.swift",
     ]
 
     /// Code only: whole-line comments may explain what the code does not do.
@@ -128,7 +128,8 @@ struct CaptureWidgetSourceTests {
     func keepsContentAndLink() throws {
         let code = try code()
         #expect(code.contains(".widgetURL(CaptureSurface.pit.url)"))
-        #expect(code.contains(#"static let symbol = "square.and.pencil""#))
+        #expect(code.contains("static let symbol = PitSymbol.capture"))
+        #expect(PitSymbol.capture == "square.and.pencil")
         #expect(code.contains(".supportedFamilies([.systemSmall, .accessoryCircular])"))
         let small = try smallFamilyCode()
         for key in ["widget.capture.action", "widget.capture.hint"] {

@@ -29,7 +29,11 @@ struct HistoryEventEditorView: View {
                 Section {
                     Picker("history.editor.kind", selection: $draft.kind) {
                         ForEach(selectableKinds, id: \.self) { kind in
-                            Label(kind.title, systemImage: kind.systemImage).tag(kind)
+                            Label {
+                                Text(kind.title)
+                            } icon: {
+                                Image(systemName: kind.systemImage)
+                            }.tag(kind)
                         }
                     }
                     DatePicker("history.editor.date", selection: $draft.date, in: ...Date(), displayedComponents: .date)

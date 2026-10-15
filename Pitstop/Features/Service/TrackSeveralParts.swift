@@ -1,27 +1,5 @@
 import SwiftUI
 
-/// A full-width prominent button's label in `contentOnAccent`, which stays legible on the pale dark-mode accent.
-/// A disabled button keeps the style's own dimmed label, since on-accent text would sit on its grey fill.
-struct ProminentLabel: View {
-    let text: Text
-    @Environment(\.isEnabled) private var isEnabled
-
-    init(_ text: Text) {
-        self.text = text
-    }
-
-    var body: some View {
-        Group {
-            if isEnabled {
-                text.foregroundStyle(PitColor.contentOnAccent)
-            } else {
-                text
-            }
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
 /// One operation's interval fields with the quick picks under each.
 struct IntervalSection: View {
     let model: TrackSeveralViewModel

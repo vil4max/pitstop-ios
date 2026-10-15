@@ -319,14 +319,11 @@ struct PitCaptureView: View {
     }
 
     private var failureBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.failure != nil },
-            set: { isPresented in
-                if !isPresented {
-                    viewModel.dismissFailure()
-                }
-            }
-        )
+        .presence {
+            viewModel.failure != nil
+        } onDismiss: {
+            viewModel.dismissFailure()
+        }
     }
 
     private var failureTitle: LocalizedStringKey {

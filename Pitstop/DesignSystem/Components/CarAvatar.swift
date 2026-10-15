@@ -42,35 +42,19 @@ struct CarAvatar: View {
     let source: CarAvatarSource
     let size: Size
 
-    @State private var loaded: Loaded?
+    @State private var loaded: LoadedCarPhoto?
 
     var body: some View {
-        CarAvatarPicture(picture: picture, size: size)
-            .task(id: source.photo) {
-                guard let photo = source.photo, loaded?.photo != photo else { return }
-                let picture = await CarPhotoDecoder.load(body: source.body, photo: photo)
-                loaded = Loaded(photo: photo, picture: picture)
-            }
-            .accessibilityHidden(true)
-    }
-
-    /// The same resolution as `CarVisual`: `nil` only while a photo's files are being read, so the circle stays
-    /// empty rather than showing, for a moment, a body that is not the owner's car.
-    private var picture: CarPicture? {
-        guard let photo = source.photo else { return .placeholder(source.body) }
-        if let loaded, loaded.photo == photo {
-            // A photo that fell back to the placeholder follows the body chosen since it was read.
-            if case .placeholder = loaded.picture {
-                return .placeholder(source.body)
-            }
-            return loaded.picture
+        // The same resolution as `CarVisual`; only the frame the picture is drawn in differs.
+        CarAvatarPicture(
+            picture: LoadedCarPhoto.picture(body: source.body, photo: source.photo, loaded: loaded),
+            size: size
+        )
+        .task(id: source.photo) {
+            guard let photo = source.photo, loaded?.photo != photo else { return }
+            loaded = await LoadedCarPhoto.read(body: source.body, photo: photo)
         }
-        return CarPhotoDecoder.cachedPicture(body: source.body, photo: photo)
-    }
-
-    private struct Loaded {
-        let photo: CarPhotoFiles
-        let picture: CarPicture
+        .accessibilityHidden(true)
     }
 }
 

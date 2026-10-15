@@ -48,12 +48,12 @@ extension NotesViewState {
         }
         return scope == .active
             ? EmptyStateContent(
-                systemImage: "note.text",
-                headline: "tile.notes.empty.headline",
-                sentence: "tile.notes.empty.detail",
+                systemImage: CarBoardTileKind.notes.systemImage,
+                headline: CarBoardTileKind.notes.emptyHeadline,
+                sentence: CarBoardTileKind.notes.emptyDetail,
                 actions: [.add]
             )
-            : EmptyStateContent(systemImage: "note.text", headline: "notes.archived.empty")
+            : EmptyStateContent(systemImage: CarBoardTileKind.notes.systemImage, headline: "notes.archived.empty")
     }
 }
 

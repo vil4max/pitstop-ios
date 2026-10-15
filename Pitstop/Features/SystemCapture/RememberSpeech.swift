@@ -59,11 +59,8 @@ struct RememberSpeech {
         switch answer {
         // An ID without a title is offered as it is stored, as the Service screen shows it.
         case let .operation(operation):
-            resource(
-                operationKey(operation)
-                    ?? String
-                    .LocalizationValue(operation.rawValue))
-        case let .eventKind(kind): resource(eventKindKey(kind))
+            operation.titleResource.map(inLocale) ?? resource(String.LocalizationValue(operation.rawValue))
+        case let .eventKind(kind): inLocale(kind.title)
         case .unknown: unknownOption
         case .odometerKm, .amount, .policyInterval: nil
         }
@@ -174,36 +171,19 @@ struct RememberSpeech {
     /// Resolved here, in the same locale as the sentence around it. An ID without a title is
     /// spoken as it is stored, as the Service screen shows it.
     private func operationName(_ operation: MaintenanceOperationID) -> String {
-        guard let key = operationKey(operation) else { return operation.rawValue }
-        return String(localized: resource(key))
-    }
-
-    private func operationKey(_ operation: MaintenanceOperationID) -> String.LocalizationValue? {
-        switch operation {
-        case .engineOilService: "operation.engineOilService"
-        case .dsgService: "operation.dsgService"
-        case .awdCouplingService: "operation.awdCouplingService"
-        case .brakeFluid: "operation.brakeFluid"
-        case .cabinFilter: "operation.cabinFilter"
-        case .airFilter: "operation.airFilter"
-        case .sparkPlugs: "operation.sparkPlugs"
-        default: nil
-        }
-    }
-
-    private func eventKindKey(_ kind: HistoryEventKind) -> String.LocalizationValue {
-        switch kind {
-        case .service: "history.kind.service"
-        case .carWash: "history.kind.carWash"
-        case .odometer: "history.kind.odometer"
-        case .insurance: "history.kind.insurance"
-        case .purchase: "history.kind.purchase"
-        case .other: "history.kind.other"
-        }
+        guard let title = operation.titleResource else { return operation.rawValue }
+        return String(localized: inLocale(title))
     }
 
     private func resource(_ key: String.LocalizationValue) -> LocalizedStringResource {
         LocalizedStringResource(key, locale: locale)
+    }
+
+    /// A title from the app's shared table, resolved in the request's language rather than the app's.
+    private func inLocale(_ title: LocalizedStringResource) -> LocalizedStringResource {
+        var localized = title
+        localized.locale = locale
+        return localized
     }
 }
 

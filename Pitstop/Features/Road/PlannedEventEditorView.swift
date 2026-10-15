@@ -76,23 +76,12 @@ struct PlannedEventEditorView: View {
 extension View {
     /// Deleting removes the owner's stated date, so it names the date first (ADR 0032).
     func plannedEventDeleteConfirmation(_ viewModel: RoadViewModel) -> some View {
-        modifier(PlannedEventDeleteConfirmation(viewModel: viewModel))
-    }
-}
-
-private struct PlannedEventDeleteConfirmation: ViewModifier {
-    let viewModel: RoadViewModel
-
-    /// The event stays readable while the dialog animates out, after the view model has cleared it.
-    @State private var presented: PlannedDatedEvent?
-
-    func body(content: Content) -> some View {
-        content.confirmationDialog(
-            title,
-            isPresented: isPresented,
-            titleVisibility: .visible,
-            presenting: event
-        ) { event in
+        latchedConfirmation(candidate: viewModel.state.deleteCandidate) { event in
+            guard let event else { return Text("road.planned.delete") }
+            return Text("road.planned.delete.title \(event.titleText)")
+        } cancel: {
+            viewModel.cancelDelete()
+        } actions: { event in
             Button("road.planned.delete", role: .destructive) {
                 Task { _ = await viewModel.confirmDelete(event) }
             }
@@ -102,30 +91,5 @@ private struct PlannedEventDeleteConfirmation: ViewModifier {
             // Two unnamed dates share a title, so the message names the day being deleted.
             Text("road.planned.delete.message \(event.date.formatted(date: .long, time: .omitted))")
         }
-        .onChange(of: viewModel.state.deleteCandidate) { _, candidate in
-            if let candidate {
-                presented = candidate
-            }
-        }
-    }
-
-    private var event: PlannedDatedEvent? {
-        viewModel.state.deleteCandidate ?? presented
-    }
-
-    private var isPresented: Binding<Bool> {
-        Binding(
-            get: { viewModel.state.deleteCandidate != nil },
-            set: { isPresented in
-                if !isPresented {
-                    viewModel.cancelDelete()
-                }
-            }
-        )
-    }
-
-    private var title: Text {
-        guard let event else { return Text("road.planned.delete") }
-        return Text("road.planned.delete.title \(event.titleText)")
     }
 }

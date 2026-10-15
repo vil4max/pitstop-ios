@@ -25,13 +25,17 @@ struct TileCard<Content: View>: View {
 
 /// Title row used inside a tile: a small symbol and the surface name.
 struct TileTitle: View {
-    let title: LocalizedStringKey
+    let title: LocalizedStringResource
     let systemImage: String
 
     var body: some View {
-        Label(title, systemImage: systemImage)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(PitColor.contentSecondary)
-            .labelStyle(.titleAndIcon)
+        Label {
+            Text(title)
+        } icon: {
+            Image(systemName: systemImage)
+        }
+        .font(.subheadline.weight(.semibold))
+        .foregroundStyle(PitColor.contentSecondary)
+        .labelStyle(.titleAndIcon)
     }
 }

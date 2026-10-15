@@ -78,33 +78,9 @@ final class RoadViewModel {
         now: Date,
         calendar: Calendar = .autoupdatingCurrent
     ) async throws(CarMemoryStoreError) -> RoadProjection {
-        let completions = try await store.maintenanceCompletions()
-        let readings = try await store.odometerReadings()
-        let reports = try await store.vehicleServiceReports()
-        let context = MaintenanceContext(
-            now: now,
-            latestReading: readings.latest,
-            completions: completions,
-            reports: reports
-        )
-        let states = try await MaintenanceEngine().states(
-            policies: store.maintenancePolicies(),
-            completions: completions,
-            reports: reports,
-            context: context
-        )
-        let history = try await HistoryTimeline(events: store.historyEvents(), completions: completions)
-        return RoadProjector().project(
-            RoadContext(
-                now: now,
-                maintenanceStates: states,
-                plannedEvents: planned.map(\.roadEvent),
-                history: history,
-                mileageObservations: MileageObservation.history(
-                    readings: readings, completions: completions, reports: reports
-                ),
-                calendar: calendar
-            ))
+        let snapshot = try await MaintenanceSnapshot.read(from: store, now: now)
+        let history = try await HistoryTimeline(events: store.historyEvents(), completions: snapshot.completions)
+        return snapshot.road(history: history, planned: planned, calendar: calendar)
     }
 
     // MARK: - Planned dates

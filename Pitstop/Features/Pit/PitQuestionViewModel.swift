@@ -115,21 +115,8 @@ final class PitQuestionViewModel {
     private func relevance(at moment: Date) async throws
         -> (maintenance: MaintenanceContext, relevant: Set<String>)
     {
-        let completions = try await store.maintenanceCompletions()
-        let reports = try await store.vehicleServiceReports()
-        let maintenance = try await MaintenanceContext(
-            now: moment,
-            latestReading: store.odometerReadings().latest,
-            completions: completions,
-            reports: reports
-        )
-        let operations = try await MaintenanceEngine().states(
-            policies: store.maintenancePolicies(),
-            completions: completions,
-            reports: reports,
-            context: maintenance
-        )
-        return (maintenance, registry.relevantQuestionIDs(maintenance: operations))
+        let snapshot = try await MaintenanceSnapshot.read(from: store, now: moment)
+        return (snapshot.context, registry.relevantQuestionIDs(maintenance: snapshot.states))
     }
 
     /// Validated like the car editor's mileage. The reading is written with a domain command; the question

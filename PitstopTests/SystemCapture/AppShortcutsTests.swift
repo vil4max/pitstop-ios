@@ -80,6 +80,16 @@ struct AppShortcutsTests {
         #expect(shortcuts.allSatisfy { !$0.systemImageName.isEmpty })
     }
 
+    /// `systemImageName` is read at build time, so the source keeps a literal; this holds it to the shared name.
+    @Test("ADR-0024, ADR-0025: Open Pit's shortcut shows the Remember widget's glyph")
+    @MainActor
+    func openPitUsesTheCaptureGlyph() throws {
+        let code = try PitInSheetTests.source("Pitstop/App/Intents/PitStopShortcuts.swift")
+        #expect(code.contains(#"systemImageName: "\#(PitSymbol.capture)""#))
+        let openPit = try #require(extractedShortcuts().first { $0.intent == "OpenPitIntent" })
+        #expect(openPit.systemImageName == PitSymbol.capture)
+    }
+
     @Test("ADR-0024: every source phrase names the app, and no phrase runs two shortcuts")
     func sourcePhrasesNameTheApp() throws {
         let phrases = try extractedShortcuts().flatMap(\.phrases)

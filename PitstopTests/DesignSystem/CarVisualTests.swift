@@ -189,6 +189,63 @@ struct CarVisualTests {
         #expect(kept.width == 64 && kept.height == 32)
     }
 
+    // MARK: Decoder cache
+
+    @Test("REQ-BOARD-031: a file that did not decode is remembered as broken and not read again")
+    func brokenFileIsNotReadAgain() async throws {
+        let folder = PhotoFolder()
+        defer { folder.remove() }
+        let url = try folder.writeGarbage(named: "broken.jpg")
+        let photo = CarPhotoFiles(original: url, lifted: nil)
+
+        #expect(await CarPhotoDecoder.load(body: .sedan, photo: photo) == .placeholder(.sedan))
+        // The broken read counts as read: the cached picture is complete, not pending.
+        #expect(CarPhotoDecoder.cachedPicture(body: .sedan, photo: photo) == .placeholder(.sedan))
+        // A name never gets new contents in the store; if it did, the remembered result would still stand.
+        _ = try folder.write(picture(), named: "broken.jpg", as: .png)
+        #expect(await CarPhotoDecoder.load(body: .sedan, photo: photo) == .placeholder(.sedan))
+    }
+
+    @Test("The cache keeps what it read, a broken file as nothing, and starts over once it reaches its limit")
+    func cacheStartsOverAtItsLimit() throws {
+        let image = try picture()
+        let first = URL(filePath: "/cache/first.png"), second = URL(filePath: "/cache/second.png")
+        var cache = CarPhotoDecoder.Cache(limit: 2)
+        cache.store(image, for: first)
+        cache.store(nil, for: second)
+        #expect(cache.entry(for: first) == .some(.some(image)))
+        #expect(cache.entry(for: second) == .some(nil), "a broken file is recorded, not forgotten")
+
+        let third = URL(filePath: "/cache/third.png")
+        cache.store(image, for: third)
+
+        #expect(cache.entry(for: first) == nil)
+        #expect(cache.entry(for: second) == nil)
+        #expect(cache.entry(for: third) == .some(.some(image)))
+    }
+
+    @Test("REQ-BOARD-031: the cached picture waits until every file it needs has been read")
+    func cachedPictureWaitsForEveryNeededFile() throws {
+        let image = try picture()
+        let lifted = URL(filePath: "/cache/a-lifted.png"), original = URL(filePath: "/cache/a.jpg")
+        let photo = CarPhotoFiles(original: original, lifted: lifted)
+        var cache = CarPhotoDecoder.Cache(limit: 8)
+        #expect(cache.picture(body: .suv, photo: photo) == nil)
+
+        // The cut-out did not decode, so the original is needed too and has not been read.
+        cache.store(nil, for: lifted)
+        #expect(cache.picture(body: .suv, photo: photo) == nil)
+
+        cache.store(image, for: original)
+        #expect(cache.picture(body: .suv, photo: photo) == .whole(image))
+
+        // A cut-out that decodes is all the picture needs; the original is never waited for.
+        let cutOut = URL(filePath: "/cache/b-lifted.png")
+        cache.store(image, for: cutOut)
+        let lifting = CarPhotoFiles(original: URL(filePath: "/cache/b.jpg"), lifted: cutOut)
+        #expect(cache.picture(body: .suv, photo: lifting) == .lifted(image))
+    }
+
     private static func opaqueMassInTopThird(of image: CGImage) throws -> (left: Int, right: Int) {
         let width = image.width, height = image.height
         var alpha = [UInt8](repeating: 0, count: width * height)
