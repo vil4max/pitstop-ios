@@ -19,7 +19,8 @@ Project conventions are in [`AGENTS.md`](AGENTS.md).
   investigation) is delivered on `main`. Decision records and `git log`
   record what was delivered.
 - The car's dashboard service reading as a maintenance anchor is delivered with
-  schema V4 (ADR 0035).
+  schema V4 (ADR 0035); the car profile (photo, chosen body, avatar) adds
+  schema V5 (ADR 0040).
 - A recommendation provenance fixture exists in test-only code with a fictional
   car and the fictional market "XM"; production maintenance types are
   unchanged. Real manufacturer data is not shipped.
@@ -39,7 +40,7 @@ Source of truth for what exists on `main`:
 | Product contracts / specs | Present under `docs/` (see `docs/README.md`) |
 | Car context | Persisted provisional car, optional name and mileage edit |
 | Car Board | Design language, four live tiles, utility layer (ADR 0009) |
-| Persistence | SwiftData behind a command-only store, schema V4 in the App Group container; V1 to V3 frozen (ADR 0007, 0016, 0032, 0035, 0036) |
+| Persistence | SwiftData behind a command-only store, schema V5 in the App Group container; V1 to V4 frozen (ADR 0007, 0016, 0032, 0035, 0036, 0040) |
 | Widgets | Data-free capture widget and Open Pit control; read-only next-service widget (ADR 0025, 0036) |
 | Notes | Save, find, correct, archive without AI |
 | History | Record and correct events; timeline of events and confirmed completions |

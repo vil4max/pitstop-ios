@@ -83,7 +83,7 @@ Sources are `docs/` contracts plus the `main` implementation snapshot in `../eng
 | [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | CaptureInput → proposal → validation → confirmation → domain commands |
 | [`roadmap.md`](roadmap.md) | Phase index |
 | [`investigations.md`](investigations.md) | INV-CAP-* semantic risk; Foundation Models language quality |
-| [`../engineering/domain-inventory.md`](../engineering/domain-inventory.md) | Authoritative inventory: capture/AI types not present on `main` |
+| [`../engineering/domain-inventory.md`](../engineering/domain-inventory.md) | Authoritative inventory of capture/AI types on `main` |
 
 Do not treat this roadmap as a second source of truth for topics already owned above. Extend the owner document when those topics change.
 
@@ -123,7 +123,7 @@ Product hypothesis
 
 These systems must not be merged.
 
-**Code on `main` today:** no Semantic Interpreter, no MemoryProposal types, no ConfirmationPolicy, no Foundation Models adapter. See [`../engineering/domain-inventory.md`](../engineering/domain-inventory.md).
+**Code on `main` today:** the runtime shape exists: `SemanticInterpreting` with `RuleBasedInterpreter` by default, `MemoryProposal`, `ProposalValidator`, `ConfirmationPolicy` and `DomainCommand`. The `FoundationModelsInterpreter` adapter runs only behind a DEBUG launch argument (ADR 0027). See [`../engineering/domain-inventory.md`](../engineering/domain-inventory.md).
 
 ## Capture Pipeline
 
@@ -172,7 +172,7 @@ Documented constraints already present:
 - Apple Foundation Models may be a preferred local interpreter where available and validated; product must survive ineligible device, disabled Apple Intelligence, model unavailability, language quality failure, generation failure, and schema failure ([`../engineering/ai-architecture.md`](../engineering/ai-architecture.md)).
 - Safe terminal fallback: preserve the raw capture.
 
-**Code on `main` today:** no Intelligence abstraction type, no `FoundationModelsAdapter` package, no provider selection runtime.
+**Code on `main` today:** the abstraction is the `SemanticInterpreting` protocol; `InterpreterChain` composes the Foundation Models interpreter with the rule-based fallback in DEBUG builds only (ADR 0027). There is no `FoundationModelsAdapter` package and no provider selection beyond that chain.
 
 ## Deterministic domain ownership
 
@@ -193,14 +193,14 @@ Already decided:
 
 | Contract | Where documented | Implemented on `main` |
 |---|---|---|
-| App useful without AI / without Pit | [`README.md`](../requirements/product-overview.md), [`../requirements/pit-behavior-and-motion.md`](../requirements/pit-behavior-and-motion.md) | App shell only; AI not present |
-| One Capture Pipeline for all sources | [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | No |
-| MemoryProposal typed, never persisted as truth | [`../engineering/ai-architecture.md`](../engineering/ai-architecture.md), [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | No |
-| Risk-based ConfirmationPolicy | [`../engineering/ai-architecture.md`](../engineering/ai-architecture.md), [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | No |
-| Domain commands own mutation | [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | No |
-| Intelligence / provider abstraction | [`README.md`](../requirements/product-overview.md) | No |
-| Foundation Models preferred local path + raw fallback | [`../engineering/ai-architecture.md`](../engineering/ai-architecture.md) | No |
-| AI golden set / evaluations separate from domain tests | [`../engineering/test-strategy.md`](../engineering/test-strategy.md) | Spec only |
+| App useful without AI / without Pit | [`README.md`](../requirements/product-overview.md), [`../requirements/pit-behavior-and-motion.md`](../requirements/pit-behavior-and-motion.md) | Yes; Release builds run no model |
+| One Capture Pipeline for all sources | [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | Yes (Pit, Siri, App Shortcuts; ADR 0023–0026) |
+| MemoryProposal typed, never persisted as truth | [`../engineering/ai-architecture.md`](../engineering/ai-architecture.md), [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | Yes |
+| Risk-based ConfirmationPolicy | [`../engineering/ai-architecture.md`](../engineering/ai-architecture.md), [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | Yes |
+| Domain commands own mutation | [`../requirements/capture-pipeline.md`](../requirements/capture-pipeline.md) | Yes |
+| Intelligence / provider abstraction | [`README.md`](../requirements/product-overview.md) | `SemanticInterpreting` and `InterpreterChain` |
+| Foundation Models preferred local path + raw fallback | [`../engineering/ai-architecture.md`](../engineering/ai-architecture.md) | DEBUG launch argument only (ADR 0027) |
+| AI golden set / evaluations separate from domain tests | [`../engineering/test-strategy.md`](../engineering/test-strategy.md) | Golden set and evaluation for the interpreters (`PitstopTests/Capture/Evaluation`) |
 | AI runtime observability separate; P0 does not auto-enable product AI observability | [`../operations/telemetry-contract.md`](../operations/telemetry-contract.md) | Spec only |
 | AI Product Analyst is a development workflow, not iOS runtime | [`../operations/ai-product-analytics.md`](../operations/ai-product-analytics.md), [`../engineering/modular-architecture.md`](../engineering/modular-architecture.md) | Spec / staged hypothesis |
 | MCP not part of iOS app architecture | [`../operations/ai-product-analytics.md`](../operations/ai-product-analytics.md) | Explicit non-goal for P0 app |
@@ -221,9 +221,7 @@ These are documented assumptions or open decisions, not completed runtime facts:
 
 Deferred or postponed in existing specs / roadmap (not invented here):
 
-- Progressive discovery implementation (Phase 5 deferred in [`roadmap.md`](roadmap.md))
-- System capture (Phase 6 deferred in [`roadmap.md`](roadmap.md))
-- Maintenance intelligence (Phase 7 deferred in [`roadmap.md`](roadmap.md))
+- Maintenance intelligence follow-up: a real market and source (MNT-INT-003 in [`investigations.md`](investigations.md))
 - Document extraction assistant; planned-vs-actual reconciliation assistant ([`../engineering/ai-architecture.md`](../engineering/ai-architecture.md) “Later”)
 - Tool calling and adapters in Foundation Models
 - Dedicated AI observability product ([`../operations/telemetry-contract.md`](../operations/telemetry-contract.md))
@@ -235,16 +233,16 @@ Deferred or postponed in existing specs / roadmap (not invented here):
 
 | Area | Spec status | Code on `main` |
 |---|---|---|
-| AI architecture contracts | Present (`ai-architecture`, `capture-pipeline`, README) | Intentionally not implemented yet |
-| Capture / Remember | Spec + CAP-* issues | Deferred until after product baseline |
-| Intelligence abstraction | Spec boundary | Intentionally deferred |
-| Foundation Models | Preferred path | Intentionally deferred |
-| Persistence schema | Domain concepts in `domain-model` / `domain-inventory` | Intentionally deferred to ENG-004 |
-| Evaluation / golden set | Spec (`test-strategy`) | Dataset deferred until interpreter exists |
+| AI architecture contracts | Present (`ai-architecture`, `capture-pipeline`, README) | Implemented with a rule-based interpreter |
+| Capture / Remember | Spec + CAP-* | Delivered (CAP-001…007) |
+| Intelligence abstraction | Spec boundary | `SemanticInterpreting`, `InterpreterChain` |
+| Foundation Models | Preferred path | DEBUG launch argument only; off in Release (ADR 0027) |
+| Persistence schema | `domain-model` / `domain-inventory` | SwiftData, schema V5 (ADR 0007, 0040) |
+| Evaluation / golden set | Spec (`test-strategy`) | Golden set and evaluation tests for the interpreters |
 | AI Product Analytics | Separate staged workflow (`ai-product-analytics`) | Not app runtime |
-| Product baseline (Car Board / domain) | Contracts + inventory | Provisional car + placeholder Car Board only |
+| Product baseline (Car Board / domain) | Contracts + inventory | Delivered (see `PROJECT_STATUS.md`) |
 
-Resume AI implementation only after the product baseline is stable, and only by extending the owning specs plus measurable evaluation artifacts.
+Runtime AI in Release waits for the ADR 0027 rollout gate and beta evidence (core P4, INV-PROD-001); extend the owning specs and measurable evaluation artifacts first.
 
 ---
 

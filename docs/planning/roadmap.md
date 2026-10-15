@@ -15,8 +15,8 @@
 | 3 | Car Board vertical slice (CB-*) | delivered |
 | 4 | Pit and Remember (CAP-*) | delivered; CAP-005 off by default (ADR 0027) |
 | 5 | Progressive discovery (DISC-*) | delivered |
-| 6 | System capture (SYS-*) | delivered through SYS-006; SYS-007 planned |
-| 7 | Maintenance intelligence (MNT-INT-001) | investigated; follow-ups planned |
+| 6 | System capture (SYS-*) | delivered through SYS-007 (ADR 0036); SYS-008 planned for 1.3.0 |
+| 7 | Maintenance intelligence (MNT-INT-001) | investigated; MNT-INT-002 done with a fictional fixture; MNT-INT-003 (real market and source) open |
 
 ## V2 / deferred
 

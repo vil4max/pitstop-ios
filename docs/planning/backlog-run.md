@@ -25,16 +25,23 @@ releases, `v` and `tf-` tags.
 | 4 | Test-host isolation and composition-root tests | F47, F53, F75 | done |
 | 5 | Lint warnings and file-length splits | F9, F15, F17, F25, F26, F27, F67, F76, F83 | done |
 | 6 | Small debt: dead code, comments, catalog keys, missing tests | F2, F6, F8, F10, F16, F19, F23, F28, F29, F30, F37, F40, F41, F43, F44, F55, F60, F61, F66, F74, F77, F79, F80, F81, F85 | done |
-| 7 | Duplication | F7, F31, F34, F35, F36, F45, F49, F50, F51, F57, F64, F71 (tests), F72, F73, F78, F86 | pending |
-| 8 | Documentation backlog: roadmap and status refresh | SYS-007 status | pending |
+| 7 | Duplication | F7, F31, F34, F35, F36, F45, F49, F50, F51, F57, F64, F71 (tests), F72, F73, F78, F86 | done; F57 kept: the second load is not provably redundant; F64's editor-target enums stay separate (optional in the audit) |
+| 8 | Documentation backlog: roadmap and status refresh | SYS-007 status, schema V5, stale AI-roadmap snapshot | done |
 | 9 | Move to the iOS plugin gate (owner decision 2026-10-15): `ios-verify.conf`, drop `Tooling/` and the justfile import, CI on Apple's tools, gate sections of `AGENTS.md`/`README.md`, `.worktreeinclude` | — | waits for the plugin rename |
 
 ## Resume point
 
-Paused 2026-10-15 for a machine restart, all work committed and pushed
-through group 6. Next: group 7 from the start (nothing of it is written
-yet), then group 8; group 9 waits for the plugin rename. Every group gets
-an independent review before its commit.
+Groups 1 to 8 are done. Group 9 waits for the plugin rename. Every group
+gets an independent review before its commit.
+
+Low review findings kept as backlog:
+
+- `CarVisualTests.brokenFileIsNotReadAgain` uses the process-wide photo
+  cache; if parallel tests ever fill it to its limit between the test's two
+  loads, the test fails. Move it to its own cache instance when the
+  decoder gains an injection point (F71, owner).
+- `HistoryEditorTarget`, `NoteEditorTarget` and `PlannedEditorTarget` are
+  three copies of one shape (F64, optional).
 
 ## Waiting on the owner
 
